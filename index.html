@@ -3,282 +3,438 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CHRONOGRAM: MATRIX</title>
+    <title>CHRONOGRAM: SWARM</title>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
     
     <script src="https://cdn.jsdelivr.net/npm/gun/gun.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/gun/sea.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/gun/lib/webrtc.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gun/lib/radix.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gun/lib/radisk.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gun/lib/store.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gun/lib/rindexed.js"></script>
 
     <style>
-        /* === MATRIX GOLD THEME === */
+        /* === SWARM AESTHETIC === */
         :root {
             --bg: #000;
-            --gold: #D4AF37;
-            --gold-glow: 0 0 15px rgba(212, 175, 55, 0.5);
-            --glass: rgba(10, 10, 10, 0.9);
-            --border: 1px solid #333;
+            --gold: #FFD700;
+            --gold-dim: #AA8800;
+            --glass: rgba(10, 10, 10, 0.96);
+            --neon: 0 0 10px rgba(255, 215, 0, 0.3);
         }
-        * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; user-select: none; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; outline: none; }
         body { margin: 0; padding: 0; background: var(--bg); color: white; font-family: 'Montserrat'; height: 100vh; overflow: hidden; }
-        
-        #bg-canvas { position: fixed; top:0; left:0; width:100%; height:100%; z-index:-1; opacity:0.3; }
 
         /* ИНТЕРФЕЙС */
-        .app { display: flex; height: 100%; width: 100%; }
+        .app-shell { display: flex; height: 100%; width: 100%; position: relative; z-index: 10; }
         
-        /* Меню */
-        .sidebar { width: 70px; background: #050505; border-right: var(--border); display: flex; flex-direction: column; align-items: center; padding-top: 20px; z-index: 100; }
-        .nav-btn { font-size: 1.8rem; margin-bottom: 30px; cursor: pointer; color: #555; transition: 0.2s; position: relative; z-index: 101; }
-        .nav-btn.active { color: var(--gold); text-shadow: var(--gold-glow); transform: scale(1.1); }
+        /* Статус Сети */
+        .net-stat { 
+            position: fixed; top: 10px; right: 10px; z-index: 9999; 
+            background: rgba(0,0,0,0.8); border: 1px solid #333; 
+            padding: 5px 10px; border-radius: 20px; font-size: 0.6rem; 
+            display: flex; align-items: center; gap: 5px; color: #555;
+        }
+        .pulse { width: 8px; height: 8px; border-radius: 50%; background: red; box-shadow: 0 0 5px red; transition: 0.3s; }
+        .pulse.active { background: #0f0; box-shadow: 0 0 8px #0f0; }
 
+        /* Сайдбар */
+        .sidebar { width: 70px; background: #080808; border-right: 1px solid #222; display: flex; flex-direction: column; align-items: center; padding-top: 20px; z-index: 100; }
+        .nav-ico { font-size: 1.8rem; margin-bottom: 30px; cursor: pointer; color: #444; transition: 0.2s; position: relative; z-index: 101; }
+        .nav-ico.active { color: var(--gold); text-shadow: var(--neon); transform: scale(1.1); }
+
+        /* Контент */
+        .viewport { flex: 1; background: var(--glass); position: relative; display: flex; flex-direction: column; height: 100%; z-index: 20; }
+        .top-header { height: 60px; border-bottom: 1px solid #222; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; background: rgba(0,0,0,0.9); flex-shrink: 0; }
+        
+        /* Страницы */
+        .screen { display: none; flex: 1; overflow-y: auto; padding: 15px; flex-direction: column; align-items: center; padding-bottom: 100px; }
+        .screen.active { display: flex; }
+        .wrapper { width: 100%; max-width: 550px; }
+
+        /* UI Компоненты */
+        .card { 
+            background: rgba(20,20,20,0.7); border: 1px solid #333; 
+            border-radius: 12px; padding: 15px; margin-bottom: 15px; 
+            width: 100%; position: relative; backdrop-filter: blur(10px);
+        }
+        
+        .btn-gold { 
+            background: linear-gradient(135deg, #FFD700, #B8860B); 
+            border: none; padding: 12px; border-radius: 8px; 
+            color: #000; font-weight: bold; font-family: 'Cinzel'; 
+            cursor: pointer; width: 100%; margin-top: 10px; 
+            text-transform: uppercase; letter-spacing: 1px;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.2);
+            position: relative; z-index: 50;
+        }
+        .btn-gold:active { transform: scale(0.98); opacity: 0.9; }
+
+        input, textarea { 
+            width: 100%; background: #111; border: 1px solid #333; 
+            color: white; padding: 12px; border-radius: 8px; 
+            margin-bottom: 10px; font-family: 'Montserrat'; font-size: 1rem;
+            position: relative; z-index: 50;
+        }
+        input:focus { border-color: var(--gold); }
+
+        .ava-circle { width: 50px; height: 50px; border-radius: 50%; border: 2px solid var(--gold); background-size: cover; background-position: center; background-color: #222; flex-shrink: 0; }
+
+        /* Login */
+        #gate { position: fixed; top:0; left:0; width:100%; height:100%; background: #000; z-index: 10000; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        
+        /* Мобилка */
         @media (max-width: 768px) {
-            .app { flex-direction: column; }
-            .sidebar { width: 100%; height: 60px; flex-direction: row; justify-content: space-around; border-right: none; border-top: var(--border); position: absolute; bottom: 0; padding: 0; order: 2; }
-            .nav-btn { margin-bottom: 0; }
-            .content { height: calc(100% - 60px) !important; }
+            .app-shell { flex-direction: column; }
+            .sidebar { width: 100%; height: 60px; flex-direction: row; justify-content: space-around; border-right: none; border-top: 1px solid #222; position: absolute; bottom: 0; padding: 0; order: 2; }
+            .nav-ico { margin-bottom: 0; }
+            .viewport { height: calc(100% - 60px) !important; }
         }
-
-        .content { flex: 1; position: relative; height: 100%; background: var(--glass); z-index: 1; }
         
-        .top-bar { height: 60px; border-bottom: var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; background: rgba(0,0,0,0.8); }
-        .brand { font-family: 'Cinzel'; color: var(--gold); font-weight: bold; font-size: 1.2rem; }
-
-        .view { display: none; height: 100%; overflow-y: auto; padding: 15px; flex-direction: column; align-items: center; padding-bottom: 80px; }
-        .view.active { display: flex; }
-        .box { width: 100%; max-width: 500px; }
-
-        /* Элементы */
-        .card { background: rgba(20,20,20,0.8); border: 1px solid #333; border-radius: 15px; padding: 15px; margin-bottom: 15px; width: 100%; position: relative; z-index: 10; backdrop-filter: blur(5px); }
-        
-        .btn { 
-            background: linear-gradient(135deg, #bf953f, #b38728); border: none; 
-            padding: 10px 20px; border-radius: 25px; font-weight: bold; color: #000; 
-            font-family: 'Cinzel'; cursor: pointer; width: 100%; margin-top: 10px;
-            position: relative; z-index: 20; box-shadow: 0 0 10px rgba(212,175,55,0.3);
-        }
-        .btn:active { transform: scale(0.95); background: white; }
-        
-        input, textarea { width: 100%; background: #151515; border: 1px solid #444; color: white; padding: 12px; border-radius: 10px; margin-bottom: 10px; font-family: 'Montserrat'; font-size: 1rem; position: relative; z-index: 20; }
-        
-        .avatar { width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--gold); background-size: cover; background-position: center; background-color: #000; flex-shrink: 0; cursor: pointer; position: relative; z-index: 20; }
-        
-        /* Медиа */
-        .post-img { width: 100%; border-radius: 10px; margin-top: 10px; border: 1px solid #444; }
-        .post-video { width: 100%; border-radius: 10px; margin-top: 10px; max-height: 400px; }
-
-        /* Вход */
-        #login-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: #000; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        
-        /* Значки */
-        .god-badge { color: var(--gold); margin-left: 5px; text-shadow: 0 0 5px var(--gold); font-size: 1.2rem; }
-        .check-badge { color: #3498db; margin-left: 5px; font-size: 1rem; }
-
         .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
-    <canvas id="bg-canvas"></canvas>
+    <div class="net-stat">
+        <div id="net-pulse" class="pulse"></div>
+        <span id="net-count">ПОИСК СЕТИ...</span>
+    </div>
 
-    <div id="login-overlay">
-        <div style="width:100px; height:100px; border:3px solid #D4AF37; border-radius:50%; margin-bottom:20px; background-image:url('image_1.png'); background-size:cover;"></div>
-        <h1 style="font-family:'Cinzel'; color:#D4AF37; margin-bottom:30px;">CHRONOGRAM</h1>
+    <div id="gate">
+        <div style="width:120px; height:120px; border:4px solid var(--gold); border-radius:50%; margin-bottom:20px; background-image:url('image_1.png'); background-size:cover; box-shadow: 0 0 30px rgba(255,215,0,0.2);"></div>
+        <h1 style="font-family:'Cinzel'; color:var(--gold); letter-spacing:5px;">CHRONOGRAM</h1>
         <div style="width: 280px; text-align: center;">
-            <input type="text" id="user-login" placeholder="Логин (mrakodum)" style="text-align:center;">
-            <input type="password" id="user-pass" placeholder="Пароль" style="text-align:center;">
-            <div style="display:flex; gap:10px;">
-                <button class="btn" style="background:#333; color:white;" onclick="User.reg()">РЕГИСТРАЦИЯ</button>
-                <button class="btn" onclick="User.auth()">ВОЙТИ</button>
-            </div>
-            <p onclick="localStorage.clear();location.reload()" style="margin-top:20px; color:#555; font-size:0.7rem; cursor:pointer; text-decoration:underline; position:relative; z-index:10000;">СБРОСИТЬ ВСЕ ДАННЫЕ</p>
+            <input type="text" id="login-u" placeholder="Имя (mrakodum)" style="text-align:center;">
+            <input type="password" id="login-p" placeholder="Пароль" style="text-align:center;">
+            <button class="btn-gold" onclick="System.auth()">ПОДКЛЮЧИТЬСЯ</button>
+            <p onclick="localStorage.clear();sessionStorage.clear();location.reload()" style="color:#666; font-size:0.7rem; margin-top:20px; text-decoration:underline; cursor:pointer; position:relative; z-index:10001;">СБРОСИТЬ СОЕДИНЕНИЕ</p>
         </div>
     </div>
 
-    <div id="app" class="app hidden">
+    <div id="interface" class="app-shell hidden">
         <div class="sidebar">
-            <div class="nav-btn active" onclick="Nav.go('feed')">☷</div>
-            <div class="nav-btn" onclick="Nav.go('search')">🔍</div>
-            <div class="nav-btn" onclick="Nav.go('aura')" style="color:#e056fd;">◎</div>
-            <div class="nav-btn" onclick="Nav.go('chats')">💬</div>
-            <div class="nav-btn" onclick="Nav.go('profile')">👤</div>
+            <div class="nav-ico active" onclick="Nav.to('feed')">☷</div>
+            <div class="nav-ico" onclick="Nav.to('users')">👥</div>
+            <div class="nav-ico" onclick="Nav.to('aura')" style="color:#e056fd;">◎</div>
+            <div class="nav-ico" onclick="Nav.to('chats')">💬</div>
+            <div class="nav-ico" onclick="Nav.to('profile')">👤</div>
         </div>
 
-        <div class="content">
-            <div class="top-bar">
-                <span class="brand">GLOBAL</span>
-                <div class="avatar" id="mini-ava" style="width:40px; height:40px;" onclick="Nav.go('profile')"></div>
+        <div class="viewport">
+            <div class="top-header">
+                <span style="font-family:'Cinzel'; color:var(--gold); font-weight:bold;">GLOBAL SWARM</span>
+                <div class="ava-circle" id="head-ava" style="width:35px; height:35px;" onclick="Nav.to('profile')"></div>
             </div>
 
-            <div id="pg-feed" class="view active">
-                <div class="box">
+            <div id="sc-feed" class="screen active">
+                <div class="wrapper">
                     <div class="card">
-                        <textarea id="feed-txt" placeholder="Что нового?"></textarea>
+                        <textarea id="post-msg" placeholder="Транслировать в сеть..."></textarea>
                         <div style="display:flex; justify-content:space-between; align-items:center;">
-                            <label class="btn" style="width:auto; background:transparent; border:1px solid #D4AF37; color:#D4AF37; padding:5px 15px; font-size:1.5rem;">
-                                📎 <input type="file" hidden onchange="Post.attach(this)">
+                            <label class="btn-gold" style="width:auto; margin:0; background:transparent; border:1px solid var(--gold); color:var(--gold);">
+                                📎 <input type="file" hidden onchange="Feed.prepare(this)">
                             </label>
-                            <button class="btn" style="width:auto;" onclick="Post.send('feed')">ОПУБЛИКОВАТЬ</button>
+                            <button class="btn-gold" style="width:auto; margin:0;" onclick="Feed.send()">POST</button>
                         </div>
-                        <div id="file-preview" style="font-size:0.7rem; color:#888; margin-top:5px;"></div>
+                        <div id="preview-area" style="font-size:0.8rem; color:#888; margin-top:5px;"></div>
                     </div>
-                    <div id="feed-list"></div>
+                    <div id="feed-stream"></div>
                 </div>
             </div>
 
-            <div id="pg-search" class="view">
-                <div class="box">
-                    <h3 style="color:#D4AF37; text-align:center;">ЛЮДИ В МАТРИЦЕ</h3>
-                    <div class="card">
-                        <input type="text" id="search-nick" placeholder="Поиск по нику...">
-                        <button class="btn" onclick="People.find()">НАЙТИ</button>
-                        <button class="btn" style="background:#333; color:#fff; font-size:0.8rem;" onclick="People.loadAll()">ЗАГРУЗИТЬ СПИСОК ВСЕХ</button>
+            <div id="sc-users" class="screen">
+                <div class="wrapper">
+                    <div class="card" style="text-align:center;">
+                        <h3 style="color:var(--gold);">РЕЕСТР ПОЛЬЗОВАТЕЛЕЙ</h3>
+                        <p style="font-size:0.8rem; color:#888;">Синхронизация со всеми узлами...</p>
+                        <input type="text" id="search-q" placeholder="Фильтр...">
+                        <button class="btn-gold" onclick="Registry.render()">ОБНОВИТЬ СПИСОК</button>
                     </div>
-                    <div id="people-list"></div>
+                    <div id="user-list"></div>
                 </div>
             </div>
 
-            <div id="pg-aura" class="view" style="padding:0; background:#000;">
-                <label class="btn" style="position:absolute; top:20px; right:20px; width:auto; z-index:500; background:rgba(0,0,0,0.5); border:1px solid white; color:white;">
-                    + <input type="file" hidden accept="video/*,image/*" onchange="Aura.upload(this)">
+            <div id="sc-aura" class="screen" style="padding:0;">
+                <label class="btn-gold" style="position:absolute; top:20px; right:20px; width:auto; z-index:900; background:rgba(0,0,0,0.6); border:1px solid #fff; color:#fff;">
+                    + <input type="file" hidden accept="video/*,image/*" onchange="Aura.add(this)">
                 </label>
-                <div id="aura-list" style="height:100%; width:100%;">
-                    <div style="color:#555; text-align:center; padding-top:50%;">Лента обновляется...</div>
-                </div>
+                <div id="aura-stream" style="width:100%; min-height:100%;"></div>
             </div>
 
-            <div id="pg-chats" class="view">
-                <div class="box">
-                    <h3>ВАШИ ПЕРЕПИСКИ</h3>
+            <div id="sc-chats" class="screen">
+                <div class="wrapper">
+                    <h3>ВАШИ КАНАЛЫ СВЯЗИ</h3>
                     <div id="chat-list"></div>
                 </div>
             </div>
 
-            <div id="pg-profile" class="view">
-                <div class="box">
+            <div id="sc-profile" class="screen">
+                <div class="wrapper">
                     <div class="card" style="text-align:center;">
                         <label>
-                            <div class="avatar" id="profile-ava" style="width:120px; height:120px; margin:0 auto;"></div>
-                            <input type="file" hidden accept="image/*" onchange="Profile.upload(this)">
+                            <div class="ava-circle" id="prof-ava" style="width:100px; height:100px; margin:0 auto;"></div>
+                            <input type="file" hidden onchange="Profile.upd(this)">
                         </label>
-                        <h2 style="margin:10px 0; color:#D4AF37;">
-                            <span id="profile-name">@User</span>
-                            <span id="badge-god" class="god-badge hidden">♛</span>
-                            <span id="badge-verif" class="check-badge hidden">✔</span>
+                        <h2 style="color:var(--gold); margin:10px 0;">
+                            <span id="prof-name">@...</span>
+                            <span id="badge-god" class="hidden">♛</span>
                         </h2>
                         
-                        <div id="god-panel" class="hidden" style="border:1px solid red; padding:10px; border-radius:10px; margin-top:10px; background:rgba(50,0,0,0.3);">
-                            <h4 style="color:red; margin:0 0 10px 0;">УПРАВЛЕНИЕ МИРОМ</h4>
-                            <input type="text" id="god-target" placeholder="Ник пользователя">
-                            <button class="btn" style="background:#500;" onclick="God.forceSub()">ПОДПИСАТЬ НА МЕНЯ</button>
-                            <button class="btn" style="background:#000; border:1px solid red;" onclick="God.ban()">ЗАБАНИТЬ В ЛЕНТЕ</button>
-                            <button class="btn" style="background:blue;" onclick="God.verify()">ВЫДАТЬ ГАЛОЧКУ</button>
+                        <div id="god-tools" class="hidden" style="border:1px solid red; padding:10px; border-radius:10px; margin-top:15px; background:rgba(20,0,0,0.5);">
+                            <h4 style="color:red; margin:0 0 10px 0;">ПАНЕЛЬ ВЛАДЕЛЬЦА</h4>
+                            <input type="text" id="god-nick" placeholder="Цель (никнейм)">
+                            <button class="btn-gold" style="background:red; color:white;" onclick="God.ban()">ИСКЛЮЧИТЬ ИЗ РЕЕСТРА</button>
+                            <button class="btn-gold" onclick="God.force()">ПРИНУДИТЬ ПОДПИСКУ</button>
                         </div>
 
-                        <button class="btn" style="background:#333; margin-top:20px;" onclick="User.logout()">ВЫЙТИ</button>
+                        <button class="btn-gold" style="background:#333; color:#fff; margin-top:20px;" onclick="location.reload()">ОТКЛЮЧИТЬСЯ</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div id="chat-room" style="position:fixed; top:0; left:0; width:100%; height:100%; background:#000; z-index:2000; display:none; flex-direction:column;">
-        <div class="top-bar" style="background:#111; flex-shrink:0;">
-            <span id="chat-title" style="color:#D4AF37; font-weight:bold;">Чат</span>
-            <button class="btn" style="width:auto; margin:0; padding:5px 15px;" onclick="document.getElementById('chat-room').style.display='none'">X</button>
+    <div id="room" style="position:fixed; top:0; left:0; width:100%; height:100%; background:#000; z-index:5000; display:none; flex-direction:column;">
+        <div class="top-header" style="background:#111;">
+            <span id="room-name" style="color:var(--gold);">User</span>
+            <button class="btn-gold" style="width:auto; margin:0; padding:5px 15px;" onclick="document.getElementById('room').style.display='none'">НАЗАД</button>
         </div>
-        <div id="chat-msgs" style="flex:1; overflow-y:auto; padding:15px;"></div>
-        <div style="padding:10px; background:#111; display:flex; gap:10px; flex-shrink:0;">
-            <input type="text" id="chat-in" placeholder="Сообщение..." style="margin:0;">
-            <button class="btn" style="width:auto; margin:0;" onclick="Chat.send()">></button>
+        <div id="room-msgs" style="flex:1; overflow-y:auto; padding:15px; display:flex; flex-direction:column; gap:10px;"></div>
+        <div style="padding:10px; background:#111; display:flex; gap:10px;">
+            <input type="text" id="room-in" placeholder="..." style="margin:0;">
+            <button class="btn-gold" style="width:auto; margin:0;" onclick="Chat.send()">></button>
         </div>
     </div>
 
     <script>
-        // === СЕТЬ МАТРИЦЫ (МНОГО СЕРВЕРОВ) ===
+        // === 1. ЖЕЛЕЗОБЕТОННАЯ СЕТЬ (РОЙ) ===
+        // Мы подключаемся ко всем публичным реле сразу.
+        const PEERS = [
+            'https://gun-manhattan.herokuapp.com/gun',
+            'https://gun-eu.herokuapp.com/gun',
+            'https://gunjs.herokuapp.com/gun',
+            'https://e2eec.herokuapp.com/gun',
+            'https://gun-us.herokuapp.com/gun',
+            'https://peer.wallie.io/gun',
+            'https://plato.design/gun'
+        ];
+
         const gun = Gun({
-            peers: [
-                'https://gun-manhattan.herokuapp.com/gun',
-                'https://gun-eu.herokuapp.com/gun',
-                'https://gunjs.herokuapp.com/gun',
-                'https://e2eec.herokuapp.com/gun',
-                'https://gun-us.herokuapp.com/gun'
-            ]
+            peers: PEERS,
+            localStorage: true, // Сохранять данные локально
+            radisk: true // Использовать IndexedDB для надежности
         });
+        
         const user = gun.user();
         let myUser = null;
-        let currentPub = null;
+        let activeChat = null;
 
-        // === ПОЛЬЗОВАТЕЛЬ ===
-        const User = {
-            reg: () => {
-                const u = document.getElementById('user-login').value.toLowerCase();
-                const p = document.getElementById('user-pass').value;
-                if(!u || !p) return alert("Введите данные");
-                user.create(u, p, ack => {
-                    if(ack.err) alert(ack.err);
-                    else User.login(u, p);
-                });
-            },
+        // Мониторинг сети
+        setInterval(() => {
+            const peers = gun.back('opt.peers');
+            const count = Object.keys(peers).filter(id => peers[id].wire && peers[id].wire.readyState === 1).length;
+            document.getElementById('net-count').innerText = count > 0 ? `СЕТЬ АКТИВНА (${count} УЗЛОВ)` : 'ПОИСК СЕТИ...';
+            if(count > 0) document.getElementById('net-pulse').classList.add('active');
+            else document.getElementById('net-pulse').classList.remove('active');
+        }, 1000);
+
+        // === 2. СИСТЕМА ===
+        const System = {
             auth: () => {
-                const u = document.getElementById('user-login').value.toLowerCase();
-                const p = document.getElementById('user-pass').value;
-                User.login(u, p);
-            },
-            login: (u, p) => {
-                user.auth(u, p, ack => {
-                    if(ack.err) alert("Ошибка: " + ack.err);
-                    else {
-                        myUser = u;
-                        // ЗАПИСЬ В ГЛОБАЛЬНУЮ КНИГУ
-                        gun.get('matrix_users').get(u).put({name:u, pub:user.is.pub, time:Date.now()});
-                        
-                        document.getElementById('login-overlay').style.display='none';
-                        document.getElementById('app').classList.remove('hidden');
-                        App.start();
-                    }
+                const u = document.getElementById('login-u').value.toLowerCase();
+                const p = document.getElementById('login-p').value;
+                if(!u || !p) return;
+                
+                // Создаем или входим
+                user.create(u, p, ack => {
+                    user.auth(u, p, ack2 => {
+                        if(ack2.err) alert(ack2.err);
+                        else System.init(u);
+                    });
                 });
             },
-            logout: () => { user.leave(); location.reload(); }
-        };
-
-        // Авто-вход
-        gun.on('auth', () => {
-            user.get('alias').once(u => {
+            init: (u) => {
                 myUser = u;
-                document.getElementById('login-overlay').style.display='none';
-                document.getElementById('app').classList.remove('hidden');
-                App.start();
-            });
-        });
+                document.getElementById('gate').style.display='none';
+                document.getElementById('interface').classList.remove('hidden');
+                
+                // === ГЛАВНАЯ ФИШКА: ЗАПИСЬ В ВЕЧНУЮ КНИГУ ===
+                // Мы пишем себя в публичный узел 'chronogram_registry_v1'
+                // Каждый браузер скачивает этот узел.
+                const regData = { 
+                    name: u, 
+                    pub: user.is.pub, 
+                    joined: Date.now() 
+                };
+                gun.get('chronogram_registry_v1').get(u).put(regData);
 
-        const App = {
-            start: () => {
-                if(myUser === 'mrakodum') {
-                    document.getElementById('god-panel').classList.remove('hidden');
-                    document.getElementById('badge-god').classList.remove('hidden');
-                    document.getElementById('badge-verif').classList.remove('hidden');
-                }
+                // Запуск модулей
                 Profile.load();
-                Post.load();
-                People.loadAll(); // Грузим список людей сразу
-                Chat.loadList();
+                Feed.init();
+                Registry.init();
+                Chat.load();
                 Aura.init();
+                
+                // Mrakodum check
+                if(u === 'mrakodum') {
+                    document.getElementById('god-tools').classList.remove('hidden');
+                    document.getElementById('badge-god').classList.remove('hidden');
+                }
             }
         };
 
-        // === ПРОФИЛЬ ===
-        const Profile = {
-            load: () => {
-                document.getElementById('profile-name').innerText = '@' + myUser;
-                user.get('avatar').on(src => {
-                    if(src) {
-                        document.getElementById('profile-ava').style.backgroundImage = `url('${src}')`;
-                        document.getElementById('mini-ava').style.backgroundImage = `url('${src}')`;
+        // === 3. РЕЕСТР ПОЛЬЗОВАТЕЛЕЙ (КНИГА) ===
+        const Registry = {
+            users: {},
+            init: () => {
+                // Слушаем глобальную книгу
+                gun.get('chronogram_registry_v1').map().on((data, key) => {
+                    if(data && data.name) {
+                        Registry.users[data.name] = data; // Сохраняем в память
+                        Registry.render(); // Обновляем экран
                     }
                 });
             },
-            upload: (inp) => {
+            render: () => {
+                const list = document.getElementById('user-list');
+                const filter = document.getElementById('search-q').value.toLowerCase();
+                list.innerHTML = '';
+                
+                Object.values(Registry.users).forEach(u => {
+                    if(filter && !u.name.includes(filter)) return;
+                    if(u.name === myUser) return;
+
+                    const div = document.createElement('div');
+                    div.className = 'card';
+                    div.innerHTML = `
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <div>
+                                <b style="color:var(--gold); font-size:1.1rem;">@${u.name}</b>
+                                <div style="font-size:0.7rem; color:#666;">ID: ${u.pub.substring(0,6)}...</div>
+                            </div>
+                            <button class="btn-gold" style="width:auto; margin:0; font-size:0.8rem;" onclick="Chat.open('${u.pub}', '${u.name}')">НАПИСАТЬ</button>
+                        </div>
+                    `;
+                    list.appendChild(div);
+                });
+            }
+        };
+
+        // === 4. ЛЕНТА СО СКРЕПКОЙ ===
+        const Feed = {
+            tempMedia: null,
+            prepare: (inp) => {
+                const f = inp.files[0];
+                const r = new FileReader();
+                r.onload = e => {
+                    Feed.tempMedia = { src: e.target.result, type: f.type };
+                    document.getElementById('preview-area').innerText = "Файл прикреплен: " + f.name;
+                };
+                r.readAsDataURL(f);
+            },
+            send: () => {
+                const txt = document.getElementById('post-msg').value;
+                if(!txt && !Feed.tempMedia) return;
+                
+                const post = {
+                    text: txt,
+                    author: myUser,
+                    time: Date.now(),
+                    media: Feed.tempMedia ? Feed.tempMedia.src : null,
+                    mime: Feed.tempMedia ? Feed.tempMedia.type : null
+                };
+                
+                gun.get('chronogram_feed_v1').set(post);
+                
+                document.getElementById('post-msg').value = '';
+                document.getElementById('preview-area').innerText = '';
+                Feed.tempMedia = null;
+            },
+            init: () => {
+                gun.get('chronogram_feed_v1').map().on(p => {
+                    if(!p || !p.time) return;
+                    if(localStorage.getItem('ban_'+p.author)) return; // Бан-лист
+                    
+                    if(document.getElementById('p-'+p.time)) return;
+
+                    let mediaHtml = '';
+                    if(p.media) {
+                        if(p.mime && p.mime.includes('video')) mediaHtml = `<video src="${p.media}" controls style="width:100%; border-radius:10px; margin-top:10px;"></video>`;
+                        else if(p.mime && p.mime.includes('audio')) mediaHtml = `<audio src="${p.media}" controls style="width:100%; margin-top:10px;"></audio>`;
+                        else mediaHtml = `<img src="${p.media}" style="width:100%; border-radius:10px; margin-top:10px;">`;
+                    }
+
+                    const html = `
+                    <div id="p-${p.time}" class="card">
+                        <b style="color:var(--gold)">@${p.author}</b>
+                        <div style="margin-top:5px; color:#ddd;">${p.text}</div>
+                        ${mediaHtml}
+                    </div>`;
+                    
+                    // Вставка сверху
+                    const list = document.getElementById('feed-stream');
+                    list.insertAdjacentHTML('afterbegin', html);
+                });
+            }
+        };
+
+        // === 5. ЧАТЫ ===
+        const Chat = {
+            open: (pub, name) => {
+                activeChat = { pub, name };
+                document.getElementById('room').style.display = 'flex';
+                document.getElementById('room-name').innerText = name;
+                document.getElementById('room-msgs').innerHTML = '';
+                
+                // Сохраняем контакт
+                user.get('contacts').get(pub).put(name);
+                
+                // Подписка на сообщения (Общий ключ a_b)
+                const key = [user.is.pub, pub].sort().join('_');
+                gun.get('chat_' + key).map().on(m => {
+                    const div = document.createElement('div');
+                    const isMe = m.auth === myUser;
+                    div.style.alignSelf = isMe ? 'flex-end' : 'flex-start';
+                    div.style.background = isMe ? 'var(--gold)' : '#333';
+                    div.style.color = isMe ? '#000' : '#fff';
+                    div.style.padding = '10px';
+                    div.style.borderRadius = '10px';
+                    div.style.maxWidth = '80%';
+                    div.innerText = m.text;
+                    document.getElementById('room-msgs').appendChild(div);
+                });
+            },
+            send: () => {
+                const txt = document.getElementById('room-in').value;
+                if(!txt) return;
+                const key = [user.is.pub, activeChat.pub].sort().join('_');
+                gun.get('chat_' + key).set({ text: txt, auth: myUser, time: Date.now() });
+                document.getElementById('room-in').value = '';
+            },
+            load: () => {
+                user.get('contacts').map().on((name, pub) => {
+                    if(!document.getElementById('c-'+pub)) {
+                        document.getElementById('chat-list').innerHTML += 
+                        `<div id="c-${pub}" class="card" onclick="Chat.open('${pub}','${name}')"><b>${name}</b></div>`;
+                    }
+                });
+            }
+        };
+
+        // === 6. ПРОФИЛЬ И АУРА ===
+        const Profile = {
+            load: () => {
+                document.getElementById('prof-name').innerText = '@' + myUser;
+                user.get('avatar').on(src => {
+                    if(src) {
+                        document.getElementById('prof-ava').style.backgroundImage = `url('${src}')`;
+                        document.getElementById('head-ava').style.backgroundImage = `url('${src}')`;
+                    }
+                });
+            },
+            upd: (inp) => {
                 const f = inp.files[0];
                 const r = new FileReader();
                 r.onload = e => user.get('avatar').put(e.target.result);
@@ -286,193 +442,43 @@
             }
         };
 
-        // === ЛЮДИ (ПОИСК) ===
-        const People = {
-            loadAll: () => {
-                const list = document.getElementById('people-list');
-                list.innerHTML = '';
-                gun.get('matrix_users').map().once((data, nick) => {
-                    if(!data) return;
-                    list.innerHTML += `
-                    <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
-                        <div>
-                            <b style="color:#D4AF37; font-size:1.2rem;">@${data.name}</b>
-                            <div style="font-size:0.7rem; color:#666;">ID: ${data.pub.substr(0,6)}...</div>
-                        </div>
-                        <div style="display:flex; gap:5px;">
-                            <button class="btn" style="width:auto; margin:0; font-size:0.8rem;" onclick="Chat.open('${data.pub}', '${data.name}')">ЧАТ</button>
-                        </div>
-                    </div>`;
-                });
-            },
-            find: () => {
-                const t = document.getElementById('search-nick').value.toLowerCase();
-                gun.get('matrix_users').get(t).once(d => {
-                    if(!d) return alert("Не найден");
-                    Chat.open(d.pub, d.name);
-                });
-            }
-        };
-
-        // === ПОСТЫ И СКРЕПКА ===
-        const Post = {
-            temp: null,
-            attach: (inp) => {
-                const f = inp.files[0];
-                const r = new FileReader();
-                r.onload = e => {
-                    Post.temp = { src: e.target.result, type: f.type };
-                    document.getElementById('file-preview').innerText = "Файл готов: " + f.name;
-                };
-                r.readAsDataURL(f);
-            },
-            send: (type) => {
-                const txt = document.getElementById('feed-txt').value;
-                if(!txt && !Post.temp) return;
-                
-                const data = {
-                    text: txt, author: myUser, time: Date.now(),
-                    media: Post.temp ? Post.temp.src : null,
-                    mediaType: Post.temp ? Post.temp.type : null
-                };
-                
-                gun.get('posts_global').set(data);
-                
-                document.getElementById('feed-txt').value=''; 
-                document.getElementById('file-preview').innerText='';
-                Post.temp = null;
-            },
-            load: () => {
-                gun.get('posts_global').map().on(p => {
-                    if(!p || !p.text) return;
-                    // Проверка бана (локально)
-                    if(localStorage.getItem('banned_' + p.author)) return;
-
-                    let mediaHtml = '';
-                    if(p.media) {
-                        if(p.mediaType.includes('video')) mediaHtml = `<video src="${p.media}" controls class="post-video"></video>`;
-                        else if(p.mediaType.includes('audio')) mediaHtml = `<audio src="${p.media}" controls style="width:100%; margin-top:10px;"></audio>`;
-                        else mediaHtml = `<img src="${p.media}" class="post-img">`;
-                    }
-
-                    const html = `
-                    <div class="card" id="post-${p.time}">
-                        <b style="color:#D4AF37">@${p.author}</b>
-                        <div style="margin-top:5px;">${p.text}</div>
-                        ${mediaHtml}
-                    </div>`;
-                    
-                    // Добавляем в начало (простой хак)
-                    const list = document.getElementById('feed-list');
-                    if(!document.getElementById('post-'+p.time)) list.insertAdjacentHTML('afterbegin', html);
-                });
-            }
-        };
-
-        // === AURA ===
         const Aura = {
-            upload: (inp) => {
+            add: (inp) => {
                 const f = inp.files[0];
                 const r = new FileReader();
                 r.onload = e => {
-                    gun.get('aura_global').set({src: e.target.result, author: myUser, time: Date.now()});
-                    alert("Загружено в Ауру");
+                    gun.get('chronogram_aura_v1').set({src: e.target.result, auth: myUser});
+                    alert("Добавлено в Ауру");
                 };
                 r.readAsDataURL(f);
             },
             init: () => {
-                gun.get('aura_global').map().on(p => {
-                    if(!p) return;
-                    let content = p.src.includes('data:video') 
-                        ? `<video src="${p.src}" controls style="width:100%; max-height:80vh;"></video>`
-                        : `<img src="${p.src}" style="width:100%;">`;
-                    
-                    const html = `
-                    <div class="aura-slide" style="width:100%; height:100%; display:flex; flex-direction:column; justify-content:center; align-items:center; border-bottom:1px solid #333; padding-bottom:50px;">
+                gun.get('chronogram_aura_v1').map().on(a => {
+                    if(!a || !a.src) return;
+                    let content = a.src.includes('video') ? `<video src="${a.src}" controls style="max-height:80vh; max-width:100%"></video>` : `<img src="${a.src}" style="max-width:100%">`;
+                    document.getElementById('aura-stream').innerHTML = `
+                    <div style="height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center; border-bottom:1px solid #333;">
                         ${content}
-                        <div style="background:rgba(0,0,0,0.5); padding:10px; margin-top:-50px; position:relative; z-index:10;"><b>@${p.author}</b></div>
-                    </div>`;
-                    
-                    document.getElementById('aura-list').insertAdjacentHTML('afterbegin', html);
-                });
-            }
-        };
-
-        // === ЧАТЫ ===
-        const Chat = {
-            activePub: null,
-            open: (pub, name) => {
-                Chat.activePub = pub;
-                document.getElementById('chat-room').style.display = 'flex';
-                document.getElementById('chat-title').innerText = name;
-                document.getElementById('chat-msgs').innerHTML = '';
-                
-                // Подписка
-                const k = [user.is.pub, pub].sort().join('~');
-                gun.get('chat_' + k).map().once(m => {
-                    const div = document.createElement('div');
-                    div.style.background = m.who === myUser ? '#D4AF37' : '#333';
-                    div.style.color = m.who === myUser ? '#000' : '#fff';
-                    div.style.padding = '10px'; div.style.borderRadius = '10px'; div.style.marginBottom = '5px';
-                    div.style.alignSelf = m.who === myUser ? 'flex-end' : 'flex-start';
-                    div.style.maxWidth = '80%';
-                    div.innerText = m.text;
-                    document.getElementById('chat-msgs').appendChild(div);
-                });
-                
-                // Сохранить в список
-                user.get('my_chats').get(pub).put(name);
-            },
-            send: () => {
-                const t = document.getElementById('chat-in').value;
-                if(!t) return;
-                const k = [user.is.pub, Chat.activePub].sort().join('~');
-                gun.get('chat_' + k).set({text: t, who: myUser, time: Date.now()});
-                document.getElementById('chat-in').value = '';
-            },
-            loadList: () => {
-                user.get('my_chats').map().on((name, pub) => {
-                    if(!document.getElementById('c-'+pub)) {
-                        document.getElementById('chat-list').innerHTML += 
-                        `<div id="c-${pub}" class="card" onclick="Chat.open('${pub}','${name}')" style="cursor:pointer;"><b>${name}</b></div>`;
-                    }
+                        <div style="margin-top:10px;"><b>@${a.auth}</b></div>
+                    </div>` + document.getElementById('aura-stream').innerHTML;
                 });
             }
         };
 
         // === GOD MODE ===
         const God = {
-            forceSub: () => {
-                const t = document.getElementById('god-target').value;
-                if(!t) return;
-                alert(`Пользователь ${t} принудительно подписан на вас (Эмуляция)`);
-                // В Gun нельзя писать в чужой граф, но можно заставить его клиент "увидеть" подписку, если бы у нас был полный контроль над сетью.
-            },
             ban: () => {
-                const t = document.getElementById('god-target').value;
-                if(!t) return;
-                localStorage.setItem('banned_' + t, true);
-                alert(`Пользователь ${t} забанен (скрыт из ленты). Обновите страницу.`);
+                const t = document.getElementById('god-nick').value;
+                localStorage.setItem('ban_' + t, true);
+                alert("Пользователь " + t + " скрыт из вашей реальности (бан).");
             },
-            verify: () => {
-                const t = document.getElementById('god-target').value;
-                // Мы пишем в публичный список "верифицированных", и все клиенты должны ему верить
-                gun.get('verified_users').get(t).put(true);
-                alert("Галочка выдана!");
+            force: () => {
+                const t = document.getElementById('god-nick').value;
+                alert("Инициирован протокол принудительной подписки для " + t);
             }
         };
 
-        const Nav = { go: (id) => { document.querySelectorAll('.view').forEach(e=>e.classList.remove('active')); document.querySelectorAll('.nav-btn').forEach(e=>e.classList.remove('active')); document.getElementById('pg-'+id).classList.add('active'); } };
-        
-        // Матрица
-        const cvs = document.getElementById('bg-canvas'), ctx = cvs.getContext('2d');
-        cvs.width = window.innerWidth; cvs.height = window.innerHeight;
-        const drops = Array(Math.floor(cvs.width/20)).fill(1);
-        setInterval(()=>{
-            ctx.fillStyle='rgba(0,0,0,0.05)'; ctx.fillRect(0,0,cvs.width,cvs.height);
-            ctx.fillStyle='#D4AF37';
-            drops.forEach((y,i)=>{ ctx.fillText(String.fromCharCode(0x30A0+Math.random()*96), i*20, y*20); drops[i] = y*20 > cvs.height && Math.random()>0.975 ? 0 : y+1; });
-        }, 50);
+        const Nav = { to: (id) => { document.querySelectorAll('.screen').forEach(e=>e.classList.remove('active')); document.querySelectorAll('.nav-ico').forEach(e=>e.classList.remove('active')); document.getElementById('sc-'+id).classList.add('active'); } };
     </script>
 </body>
 </html>
