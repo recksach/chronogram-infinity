@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>CHRONOGRAM</title>
+    <link rel="icon" type="image/png" href="logo.png">
+    
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&display=swap" rel="stylesheet">
     
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -12,174 +14,175 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
 
     <style>
-        /* === DEEP BLUE THEME === */
+        /* === ELITE DEEP THEME === */
         :root {
-            --bg-dark: #0f1219;
-            --bg-panel: rgba(20, 30, 50, 0.7);
-            --accent: #2979FF; /* Яркий синий как в VK/TG */
-            --accent-hover: #1c54b2;
+            --accent: #2979FF; /* VK/TG Blue */
             --gold: #FFD700;
             --text: #ffffff;
-            --text-sec: #829ab1;
-            --glass: rgba(30, 40, 60, 0.6);
+            --text-sec: #8aa0b6;
+            --glass: rgba(22, 28, 38, 0.75);
             --border: 1px solid rgba(255, 255, 255, 0.08);
-            --radius: 16px;
+            --radius: 18px;
         }
 
         * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
+        
         body { 
             margin: 0; padding: 0; 
-            background: radial-gradient(circle at 50% 0%, #1a2a4f, #0f1219 80%);
-            color: var(--text); font-family: 'Manrope', sans-serif; 
-            height: 100vh; overflow: hidden; 
+            font-family: 'Manrope', sans-serif; 
+            color: var(--text);
+            height: 100vh; overflow: hidden;
+            /* ЭЛИТНЫЙ АНИМИРОВАННЫЙ ФОН */
+            background: linear-gradient(-45deg, #050510, #0f1829, #1c2e4a, #0b0f19);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
         
         a { color: var(--accent); text-decoration: none; font-weight: 600; }
 
-        /* СКРОЛЛБАР */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 3px; }
-
         /* ВХОД */
         #auth-screen {
             position: fixed; top:0; left:0; width:100%; height:100%;
-            background: radial-gradient(circle at 50% 50%, #223355, #0a0a12);
+            background: rgba(5, 8, 16, 0.85); backdrop-filter: blur(40px);
             z-index: 9999; display: flex; flex-direction: column;
             justify-content: center; align-items: center;
         }
-        .app-icon {
-            width: 100px; height: 100px; border-radius: 30px;
-            background: linear-gradient(135deg, #2979FF, #00C6FF);
-            display: flex; justify-content: center; align-items: center;
-            font-size: 50px; font-weight: 800; color: white;
-            box-shadow: 0 20px 60px rgba(41, 121, 255, 0.4);
-            margin-bottom: 30px;
+        .app-logo-lg {
+            width: 120px; height: 120px; border-radius: 35px;
+            background-image: url('logo.png'); background-size: cover; background-position: center;
+            box-shadow: 0 20px 60px rgba(41, 121, 255, 0.3);
+            margin-bottom: 30px; border: 1px solid rgba(255,255,255,0.1);
         }
 
-        /* ЛЕЙАУТ ПРИЛОЖЕНИЯ (ПК СТИЛЬ) */
+        /* ЛЕЙАУТ */
         #app { display: none; height: 100%; width: 100%; }
         #app.active { display: flex; }
 
-        /* САЙДБАР (СЛЕВА) */
+        /* САЙДБАР */
         .sidebar {
-            width: 80px; height: 100%; background: rgba(15, 20, 30, 0.9);
+            width: 85px; height: 100%; 
+            background: rgba(15, 20, 30, 0.6); backdrop-filter: blur(20px);
             border-right: var(--border); display: flex; flex-direction: column;
-            align-items: center; padding-top: 20px; z-index: 100;
-            backdrop-filter: blur(20px);
+            align-items: center; padding-top: 25px; z-index: 100;
         }
-        .mini-logo {
-            width: 40px; height: 40px; border-radius: 12px;
-            background: var(--accent); color: white;
-            display: flex; justify-content: center; align-items: center;
-            font-weight: bold; margin-bottom: 40px; cursor: pointer;
+        .mini-logo-img {
+            width: 45px; height: 45px; border-radius: 14px;
+            background-image: url('logo.png'); background-size: cover; background-position: center;
+            margin-bottom: 40px; cursor: pointer; border: 1px solid rgba(255,255,255,0.1);
+            transition: transform 0.2s;
         }
+        .mini-logo-img:active { transform: scale(0.95); }
+
         .nav-btn {
             width: 50px; height: 50px; border-radius: 14px;
             display: flex; justify-content: center; align-items: center;
-            font-size: 1.5rem; color: var(--text-sec); cursor: pointer;
+            font-size: 1.6rem; color: var(--text-sec); cursor: pointer;
             margin-bottom: 15px; transition: 0.2s; position: relative;
         }
-        .nav-btn.active { background: rgba(41, 121, 255, 0.15); color: var(--accent); }
-        .nav-btn:hover { background: rgba(255,255,255,0.05); }
-        .unread-dot { width: 10px; height: 10px; background: #FF3B30; border-radius: 50%; position: absolute; top: 10px; right: 10px; display: none; }
+        .nav-btn.active { color: var(--accent); background: rgba(41, 121, 255, 0.1); }
+        .nav-btn:hover { color: #fff; }
+        .unread-dot { width: 8px; height: 8px; background: #FF3B30; border-radius: 50%; position: absolute; top: 12px; right: 12px; display: none; }
 
-        /* МОБИЛЬНАЯ НАВИГАЦИЯ (НИЗ) */
         @media (max-width: 768px) {
             #app { flex-direction: column; }
             .sidebar { 
-                width: 100%; height: 60px; flex-direction: row; 
+                width: 100%; height: 65px; flex-direction: row; 
                 justify-content: space-around; padding: 0; order: 2;
                 border-right: none; border-top: var(--border);
-                background: #151a26;
+                background: #0f1520;
             }
-            .mini-logo { display: none; }
-            .nav-btn { margin: 0; width: auto; height: 100%; flex: 1; }
-            .main-area { order: 1; height: calc(100% - 60px) !important; }
+            .mini-logo-img { display: none; }
+            .nav-btn { margin: 0; width: auto; height: 100%; flex: 1; margin-bottom: 0; }
+            .main-area { order: 1; height: calc(100% - 65px) !important; }
         }
 
-        /* ОСНОВНАЯ ОБЛАСТЬ */
+        /* КОНТЕНТ */
         .main-area { flex: 1; height: 100%; position: relative; overflow: hidden; }
         .page { display: none; height: 100%; overflow-y: auto; padding: 20px; flex-direction: column; align-items: center; }
-        .page.active { display: flex; animation: fade 0.3s ease; }
-        .container { width: 100%; max-width: 600px; padding-bottom: 50px; }
+        .page.active { display: flex; animation: fade 0.4s ease; }
+        .container { width: 100%; max-width: 600px; padding-bottom: 80px; }
 
-        @keyframes fade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fade { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* КАРТОЧКИ */
+        /* UI ЭЛЕМЕНТЫ */
         .card {
-            background: var(--bg-panel); backdrop-filter: blur(15px);
+            background: var(--glass); backdrop-filter: blur(15px);
             border: var(--border); border-radius: var(--radius);
-            padding: 16px; margin-bottom: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            padding: 18px; margin-bottom: 20px; 
+            box-shadow: 0 4px 30px rgba(0,0,0,0.2);
         }
 
-        /* ЭЛЕМЕНТЫ */
         .btn {
             background: var(--accent); color: white; border: none; padding: 12px 20px;
-            border-radius: 10px; font-weight: 600; cursor: pointer; width: 100%;
+            border-radius: 12px; font-weight: 700; cursor: pointer; width: 100%;
             font-size: 0.95rem; margin-top: 10px; transition: 0.2s;
         }
-        .btn:hover { background: var(--accent-hover); }
-        .btn-sec { background: rgba(255,255,255,0.1); }
-        .btn-small { width: auto; padding: 6px 14px; font-size: 0.8rem; margin: 0; }
+        .btn:active { transform: scale(0.98); opacity: 0.9; }
+        .btn-sec { background: rgba(255,255,255,0.08); }
+        .btn-small { width: auto; padding: 8px 16px; font-size: 0.85rem; margin: 0; }
         .btn-danger { background: #FF3B30; color: white; }
-        .btn-yellow { background: var(--gold); color: black; }
+        .btn-gold { background: linear-gradient(135deg, #FFD700, #FDB931); color: black; }
 
         input, textarea {
-            width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1);
-            color: white; padding: 12px; border-radius: 12px; margin-bottom: 10px;
+            width: 100%; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1);
+            color: white; padding: 14px; border-radius: 12px; margin-bottom: 10px;
             font-family: inherit; font-size: 1rem;
         }
-        input:focus, textarea:focus { border-color: var(--accent); background: rgba(0,0,0,0.5); }
+        input:focus, textarea:focus { border-color: var(--accent); background: rgba(0,0,0,0.4); }
 
-        /* МЕДИА И КРУЖОЧКИ */
-        .ava { width: 42px; height: 42px; border-radius: 50%; background: #333; background-size: cover; background-position: center; flex-shrink: 0; }
+        /* ПОСТЫ */
+        .ava { width: 44px; height: 44px; border-radius: 50%; background: #2a3b55; background-size: cover; background-position: center; flex-shrink: 0; }
         .ava-lg { width: 100px; height: 100px; border: 3px solid var(--accent); }
 
-        .media-post { width: 100%; border-radius: 12px; margin-top: 10px; max-height: 500px; object-fit: contain; background: #000; }
+        .media-post { width: 100%; border-radius: 14px; margin-top: 12px; max-height: 500px; object-fit: contain; background: #000; }
         
-        /* КРУЖОЧЕК В СТИЛЕ TELEGRAM */
-        .circle-wrap { display: flex; justify-content: center; margin: 15px 0; }
+        /* КРУЖОК */
+        .circle-wrap { display: flex; justify-content: center; margin: 20px 0; }
         .video-circle {
             width: 280px; height: 280px; border-radius: 50%;
-            object-fit: cover; border: 3px solid var(--gold);
-            background: #000; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            object-fit: cover; border: 4px solid var(--gold);
+            background: #000; box-shadow: 0 10px 40px rgba(0,0,0,0.5);
         }
 
-        .audio-player { width: 100%; margin-top: 10px; height: 40px; }
-
-        /* ГАЛОЧКИ И КОРОНЫ */
-        .badge-verif { display: inline-block; width: 16px; height: 16px; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%232979FF'%3E%3Cpath d='M22.5 12.5c0-1.58-.875-2.95-2.148-3.6.154-.435.238-.905.238-1.4 0-2.21-1.71-3.998-3.818-3.998-.47 0-.92.114-1.335.314C14.63 2.662 13.385 2 12 2c-1.385 0-2.63.662-3.437 1.716-.415-.2-.865-.314-1.335-.314-2.11 0-3.818 1.79-3.818 4 0 .495.083.965.238 1.4-1.272.65-2.147 2.02-2.147 3.6 0 1.435.71 2.79 1.786 3.63-.09.39-.136.79-.136 1.2 0 2.7 2.19 4.9 4.9 4.9 1.455 0 2.76-.63 3.69-1.635.93 1.005 2.234 1.635 3.69 1.635 2.71 0 4.9-2.2 4.9-4.9 0-.41-.046-.81-.136-1.2 1.076-.84 1.786-2.195 1.786-3.63zM9.76 17.6l-4.48-4.48 1.413-1.414 3.067 3.067 6.907-6.907 1.413 1.414-8.32 8.32z'/%3E%3C/svg%3E") no-repeat center; vertical-align: text-bottom; margin-left: 4px; }
-        .badge-god { margin-left: 5px; font-size: 1.1rem; } 
+        /* ЗНАЧКИ */
+        .badge-verif { display: inline-block; width: 16px; height: 16px; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%232979FF'%3E%3Cpath d='M22.5 12.5c0-1.58-.875-2.95-2.148-3.6.154-.435.238-.905.238-1.4 0-2.21-1.71-3.998-3.818-3.998-.47 0-.92.114-1.335.314C14.63 2.662 13.385 2 12 2c-1.385 0-2.63.662-3.437 1.716-.415-.2-.865-.314-1.335-.314-2.11 0-3.818 1.79-3.818 4 0 .495.083.965.238 1.4-1.272.65-2.147 2.02-2.147 3.6 0 1.435.71 2.79 1.786 3.63-.09.39-.136.79-.136 1.2 0 2.7 2.19 4.9 4.9 4.9 1.455 0 2.76-.63 3.69-1.635.93 1.005 2.234 1.635 3.69 1.635 2.71 0 4.9-2.2 4.9-4.9 0-.41-.046-.81-.136-1.2 1.076-.84 1.786-2.195 1.786-3.63zM9.76 17.6l-4.48-4.48 1.413-1.414 3.067 3.067 6.907-6.907 1.413 1.414-8.32 8.32z'/%3E%3C/svg%3E") no-repeat center; vertical-align: text-bottom; margin-left: 5px; }
+        .badge-god { margin-left: 6px; font-size: 1.2rem; filter: drop-shadow(0 0 5px gold); } 
         .badge-god::after { content: '👑'; }
 
-        /* МОДАЛКИ (ПК ЦЕНТР) */
+        /* МОДАЛКИ */
         .modal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8); backdrop-filter: blur(10px);
+            background: rgba(0,0,0,0.85); backdrop-filter: blur(15px);
             z-index: 5000; display: none; align-items: center; justify-content: center;
         }
         .modal-content {
-            width: 100%; max-width: 500px; height: 100%; background: #151a26;
+            width: 100%; max-width: 550px; height: 100%; background: #121824;
             display: flex; flex-direction: column; position: relative;
         }
         @media (min-width: 769px) {
-            .modal-content { height: 80vh; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 50px 100px rgba(0,0,0,0.5); }
+            .modal-content { height: 85vh; border-radius: 24px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 50px 100px rgba(0,0,0,0.6); }
         }
-        .modal-head { padding: 15px; border-bottom: var(--border); display: flex; align-items: center; justify-content: space-between; background: rgba(20,30,50,0.9); }
+        .modal-head { padding: 15px 20px; border-bottom: var(--border); display: flex; align-items: center; justify-content: space-between; background: rgba(18, 24, 36, 0.95); }
 
         /* ЧАТ */
-        .chat-row { display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; transition: 0.2s; }
-        .chat-row:hover { background: rgba(255,255,255,0.05); }
-        .msg { padding: 10px 16px; border-radius: 18px; margin-bottom: 8px; max-width: 80%; font-size: 0.95rem; line-height: 1.4; word-wrap: break-word; }
+        .chat-row { display: flex; justify-content: space-between; align-items: center; padding: 16px; border-bottom: 1px solid rgba(255,255,255,0.03); cursor: pointer; transition: 0.2s; }
+        .chat-row:hover { background: rgba(255,255,255,0.03); }
+        .msg { padding: 12px 18px; border-radius: 20px; margin-bottom: 8px; max-width: 80%; font-size: 0.95rem; line-height: 1.45; word-wrap: break-word; }
         .msg.me { align-self: flex-end; background: var(--accent); color: white; border-bottom-right-radius: 4px; }
-        .msg.other { align-self: flex-start; background: #2b3648; color: white; border-bottom-left-radius: 4px; }
+        .msg.other { align-self: flex-start; background: #2a3446; color: white; border-bottom-left-radius: 4px; }
 
         /* КАМЕРА */
         #camera-ui { position: fixed; top:0; left:0; width:100%; height:100%; background:#000; z-index: 6000; display:none; }
         #cam-video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
-        .rec-ring { width: 80px; height: 80px; border: 4px solid white; border-radius: 50%; position: absolute; bottom: 50px; left: 50%; transform: translateX(-50%); display: flex; justify-content: center; align-items: center; cursor: pointer; }
+        .rec-ring { width: 80px; height: 80px; border: 4px solid white; border-radius: 50%; position: absolute; bottom: 60px; left: 50%; transform: translateX(-50%); display: flex; justify-content: center; align-items: center; cursor: pointer; }
         .rec-dot { width: 60px; height: 60px; background: #FF3B30; border-radius: 50%; transition: 0.3s; }
-        .recording .rec-dot { transform: scale(0.8); border-radius: 10px; }
+        .recording .rec-dot { transform: scale(0.7); border-radius: 15px; }
 
         .hidden { display: none !important; }
     </style>
@@ -187,8 +190,8 @@
 <body>
 
     <div id="auth-screen">
-        <div class="app-icon">Ch</div>
-        <h2 style="margin-bottom:30px; letter-spacing: 1px;">CHRONOGRAM</h2>
+        <div class="app-logo-lg"></div>
+        <h2 style="margin-bottom:30px; letter-spacing: 2px; font-weight: 800;">CHRONOGRAM</h2>
         <div style="width: 280px; text-align: center;">
             <input type="email" id="email" placeholder="Email">
             <input type="password" id="password" placeholder="Пароль">
@@ -202,7 +205,7 @@
 
     <div id="app">
         <div class="sidebar">
-            <div class="mini-logo" onclick="Nav.to('feed')">Ch</div>
+            <div class="mini-logo-img" onclick="Nav.to('feed')"></div>
             <div class="nav-btn active" onclick="Nav.to('feed')">☷</div>
             <div class="nav-btn" onclick="Nav.to('channels')">📢</div>
             <div class="nav-btn" onclick="Nav.to('search')">🔍</div>
@@ -217,17 +220,19 @@
             <div id="pg-feed" class="page active">
                 <div class="container">
                     <div class="card">
-                        <textarea id="post-text" placeholder="Что у вас нового?" style="min-height:50px; background:transparent; border:none;"></textarea>
+                        <textarea id="post-text" placeholder="Поделитесь моментом..." style="min-height:50px; background:transparent; border:none;"></textarea>
+                        
                         <div id="preview-box" class="hidden" style="position:relative; margin-bottom:10px;">
-                            <div onclick="Feed.clear()" style="position:absolute; top:5px; right:5px; cursor:pointer; background:rgba(0,0,0,0.5); border-radius:50%; width:24px; height:24px; text-align:center;">✕</div>
+                            <div onclick="Feed.clear()" style="position:absolute; top:5px; right:5px; cursor:pointer; background:rgba(0,0,0,0.6); border-radius:50%; width:26px; height:26px; text-align:center; line-height:26px;">✕</div>
                             <img id="prev-img" class="media-post hidden">
                             <video id="prev-vid" class="media-post hidden" controls></video>
-                            <audio id="prev-aud" class="audio-player hidden" controls></audio>
+                            <audio id="prev-aud" class="hidden" style="width:100%; margin-top:10px;" controls></audio>
                         </div>
-                        <div style="display:flex; justify-content:space-between;">
+
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
                             <div style="display:flex; gap:10px;">
                                 <label class="btn btn-small btn-sec">📎 <input type="file" hidden accept="image/*,video/*,audio/*" onchange="Media.file(this)"></label>
-                                <button class="btn btn-small btn-sec" onclick="Media.cam('feed')">📷</button>
+                                <button class="btn btn-small btn-sec" onclick="Media.cam('feed')">🔘</button>
                             </div>
                             <button class="btn btn-small" style="width:auto;" onclick="Feed.post()">Опубликовать</button>
                         </div>
@@ -239,7 +244,7 @@
             <div id="pg-channels" class="page">
                 <div class="container">
                     <div class="card">
-                        <h3 style="margin-top:0;">Создать Канал</h3>
+                        <h3 style="margin-top:0;">Новый Канал</h3>
                         <input type="text" id="chan-name" placeholder="Название">
                         <input type="text" id="chan-slug" placeholder="Юзернейм (@news)">
                         <button class="btn" onclick="Channels.create()">Создать</button>
@@ -265,32 +270,32 @@
 
             <div id="pg-profile" class="page">
                 <div class="container">
-                    <div class="card" style="text-align:center; padding-top:30px;">
+                    <div class="card" style="text-align:center; padding-top:40px;">
                         <div id="my-ava" class="ava ava-lg" style="margin:0 auto;"></div>
-                        <label class="btn btn-small btn-sec" style="width:auto; display:inline-block; margin-top:15px;">
+                        <label class="btn btn-small btn-sec" style="width:auto; display:inline-block; margin-top:20px;">
                             Изменить <input type="file" hidden accept="image/*" onchange="Profile.ava(this)">
                         </label>
                         <h2 style="margin:15px 0 5px 0;">
                             <span id="my-dname">Name</span> <span id="my-badge"></span>
                         </h2>
-                        <div style="color:var(--text-sec); margin-bottom:20px;">@<span id="my-uname">...</span></div>
+                        <div style="color:var(--text-sec); margin-bottom:25px;">@<span id="my-uname">...</span></div>
                         
                         <div style="display:flex; justify-content:center; gap:40px; margin-bottom:30px;">
-                            <div><b id="my-subsc" style="font-size:1.2rem;">0</b><br><small style="color:var(--text-sec)">Подписчики</small></div>
-                            <div><b id="my-subing" style="font-size:1.2rem;">0</b><br><small style="color:var(--text-sec)">Подписки</small></div>
+                            <div><b id="my-subsc" style="font-size:1.3rem;">0</b><br><small style="color:var(--text-sec)">Подписчики</small></div>
+                            <div><b id="my-subing" style="font-size:1.3rem;">0</b><br><small style="color:var(--text-sec)">Подписки</small></div>
                         </div>
 
-                        <div style="text-align:left; background:rgba(0,0,0,0.2); padding:15px; border-radius:12px;">
+                        <div style="text-align:left; background:rgba(0,0,0,0.2); padding:15px; border-radius:14px;">
                             <input type="text" id="edit-dname" placeholder="Имя">
                             <textarea id="edit-bio" placeholder="О себе..."></textarea>
                             <button class="btn btn-small" onclick="Profile.save()">Сохранить</button>
                         </div>
 
-                        <div id="god-panel" class="hidden" style="margin-top:20px; border:1px solid var(--gold); padding:15px; border-radius:12px;">
+                        <div id="god-panel" class="hidden" style="margin-top:25px; border:1px solid var(--gold); padding:15px; border-radius:14px; background:rgba(255, 215, 0, 0.05);">
                             <h4 style="color:var(--gold); margin:0 0 10px 0;">ПАНЕЛЬ ВЛАДЫКИ</h4>
                             <input type="text" id="god-target" placeholder="Никнейм цели">
                             <div style="display:flex; gap:10px;">
-                                <button class="btn btn-yellow" onclick="God.verify()">ВЫДАТЬ ГАЛОЧКУ</button>
+                                <button class="btn btn-gold" onclick="God.verify()">ВЫДАТЬ ГАЛОЧКУ</button>
                                 <button class="btn btn-danger" onclick="God.nuke()">ПОДПИСАТЬ НА МЕНЯ</button>
                             </div>
                         </div>
@@ -313,7 +318,7 @@
                     <div id="view-ava" class="ava ava-lg" style="margin:0 auto;"></div>
                     <h2 style="margin:10px 0;"><span id="view-dname"></span> <span id="view-badge"></span></h2>
                     <div style="color:var(--text-sec);">@<span id="view-uname"></span></div>
-                    <div id="view-bio" style="margin:15px 0; font-size:0.9rem;"></div>
+                    <div id="view-bio" style="margin:15px 0; font-size:0.95rem; white-space: pre-wrap;"></div>
                     <div style="margin-bottom:20px;"><b id="view-subs">0</b> <span style="color:var(--text-sec);">подписчиков</span></div>
                     
                     <div style="display:flex; gap:10px; justify-content:center;">
@@ -332,7 +337,7 @@
                         <div onclick="document.getElementById('chan-preview').classList.add('hidden'); mediaBlob=null;" style="position:absolute; right:0; cursor:pointer;">✕</div>
                         <img id="cp-img" class="media-post hidden">
                         <video id="cp-vid" class="media-post hidden" controls></video>
-                        <audio id="cp-aud" class="audio-player hidden" controls></audio>
+                        <audio id="cp-aud" class="hidden" style="width:100%; margin-top:10px;" controls></audio>
                     </div>
 
                     <div style="display:flex; justify-content:space-between;">
@@ -393,20 +398,17 @@
 
         let me = null;
         let isGod = false;
-        let activeEntity = null; // ID открытого профиля или канала
+        let activeEntity = null;
         let activeChat = null;
         let mediaBlob = null, mediaType = null, context = 'feed';
         let recorder, chunks = [];
 
-        // АВТО-ПЛЕЙЕР (С ЗВУКОМ, НО С ФОЛБЕКОМ)
+        // АВТО-ПЛЕЙЕР
         const observer = new IntersectionObserver(entries => {
             entries.forEach(e => {
                 if(e.target.tagName === 'VIDEO') {
-                    if(e.isIntersecting) {
-                        e.target.play().catch(()=>{}); // Пытаемся играть
-                    } else {
-                        e.target.pause();
-                    }
+                    if(e.isIntersecting) e.target.play().catch(()=>{});
+                    else e.target.pause();
                 }
             });
         }, {threshold: 0.6});
@@ -452,8 +454,11 @@
         };
 
         const App = {
-            start: () => {
-                Profile.load(); Feed.load(); Chat.listen(); Channels.load();
+            start: () => { Profile.load(); Feed.load(); Chat.listen(); Channels.load(); },
+            linkify: (text) => {
+                if(!text) return '';
+                return text.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>')
+                           .replace(/@(\w+)/g, '<span style="color:var(--accent)">@$1</span>');
             }
         };
 
@@ -470,7 +475,7 @@
                     else if(f.type.includes('audio')) mediaType = 'audio';
                     else mediaType = 'image';
                     
-                    const pfx = ctx==='feed'?'prev':'cp'; // prefix for id
+                    const pfx = ctx==='feed'?'prev':'cp';
                     const box = ctx==='feed'?'preview-box':'chan-preview';
                     
                     document.getElementById(box).classList.remove('hidden');
@@ -478,9 +483,13 @@
                     document.getElementById(pfx+'-vid').classList.add('hidden');
                     document.getElementById(pfx+'-aud').classList.add('hidden');
 
-                    if(mediaType==='video') { document.getElementById(pfx+'-vid').src=mediaBlob; document.getElementById(pfx+'-vid').classList.remove('hidden'); }
-                    else if(mediaType==='audio') { document.getElementById(pfx+'-aud').src=mediaBlob; document.getElementById(pfx+'-aud').classList.remove('hidden'); }
-                    else { document.getElementById(pfx+'-img').src=mediaBlob; document.getElementById(pfx+'-img').classList.remove('hidden'); }
+                    if(mediaType==='video') { 
+                        const v = document.getElementById(pfx+'-vid'); v.src=mediaBlob; v.classList.remove('hidden'); 
+                    } else if(mediaType==='audio') { 
+                        const a = document.getElementById(pfx+'-aud'); a.src=mediaBlob; a.classList.remove('hidden'); 
+                    } else { 
+                        const i = document.getElementById(pfx+'-img'); i.src=mediaBlob; i.classList.remove('hidden'); 
+                    }
                 };
                 r.readAsDataURL(f);
             },
@@ -502,7 +511,7 @@
                 r.readAsDataURL(b);
                 r.onloadend = () => {
                     mediaBlob = r.result; mediaType = 'circle';
-                    alert("Кружок записан! Нажмите отправить.");
+                    alert("Кружок готов! Отправляйте.");
                 };
             },
             closeCam: () => {
@@ -512,7 +521,7 @@
             }
         };
 
-        // 3. ЛЕНТА
+        // 3. ЛЕНТА + ПРОСМОТРЫ
         const Feed = {
             clear: () => { mediaBlob=null; document.getElementById('preview-box').classList.add('hidden'); },
             post: () => {
@@ -535,7 +544,13 @@
                     const l = document.getElementById('feed-list'); l.innerHTML='';
                     snap.forEach(d => {
                         const p = d.data();
-                        if(!p.isChannel) l.innerHTML += Feed.render(p, d.id);
+                        if(!p.isChannel) {
+                            l.innerHTML += Feed.render(p, d.id);
+                            // РЕАЛЬНЫЙ СЧЕТЧИК ПРОСМОТРОВ (ПРОСТОЙ)
+                            db.collection('posts').doc(d.id).update({
+                                views: firebase.firestore.FieldValue.increment(1)
+                            });
+                        }
                     });
                     document.querySelectorAll('video').forEach(v => observer.observe(v));
                 });
@@ -545,12 +560,11 @@
                 if(p.media) {
                     if(p.type==='circle') m = `<div class="circle-wrap"><video src="${p.media}" loop playsinline class="video-circle"></video></div>`;
                     else if(p.type==='video') m = `<video src="${p.media}" controls loop playsinline class="media-post"></video>`;
-                    else if(p.type==='audio') m = `<audio src="${p.media}" controls class="audio-player"></audio>`;
+                    else if(p.type==='audio') m = `<audio src="${p.media}" controls class="audio-player" style="width:100%; margin-top:10px;"></audio>`;
                     else m = `<img src="${p.media}" class="media-post">`;
                 }
                 const liked = p.likes && p.likes.includes(me.uid);
                 
-                // Async badge check
                 setTimeout(()=>{
                     db.collection('users').doc(p.uid).get().then(u=>{
                         if(u.exists){
@@ -570,15 +584,17 @@
                     </div>
                     <div style="white-space:pre-wrap; line-height:1.5;">${App.linkify(p.text)}</div>
                     ${m}
-                    <div style="margin-top:15px; border-top:var(--border); padding-top:10px; display:flex; gap:20px; color:var(--text-sec);">
-                        <div onclick="Feed.like('${id}')" style="cursor:pointer; color:${liked?'#FF3B30':'inherit'}">♥ ${p.likes?p.likes.length:0}</div>
+                    <div style="margin-top:15px; border-top:var(--border); padding-top:10px; display:flex; gap:20px; color:var(--text-sec); align-items:center;">
+                        <div onclick="Feed.like('${id}', 'posts')" style="cursor:pointer; color:${liked?'#FF3B30':'inherit'}; font-weight:600;">
+                            ${liked?'❤️':'🤍'} ${p.likes?p.likes.length:0}
+                        </div>
                         <div>👁 ${p.views||0}</div>
-                        <div onclick="navigator.share({url:window.location.href})">➤</div>
+                        <div onclick="navigator.share({url:window.location.href})" style="cursor:pointer;">➤</div>
                     </div>
                 </div>`;
             },
-            like: (id) => {
-                const ref = db.collection('posts').doc(id);
+            like: (id, coll) => {
+                const ref = db.collection(coll).doc(id);
                 ref.get().then(d => {
                     const likes = d.data().likes || [];
                     if(likes.includes(me.uid)) ref.update({likes: firebase.firestore.FieldValue.arrayRemove(me.uid)});
@@ -587,7 +603,7 @@
             }
         };
 
-        // 4. КАНАЛЫ (ФИКС БАГА С МУЗЫКОЙ)
+        // 4. КАНАЛЫ
         const Channels = {
             create: () => {
                 const n = document.getElementById('chan-name').value;
@@ -616,7 +632,7 @@
                     db.collection('posts').add({
                         text:t, media:mediaBlob, type:mediaType||'text',
                         uid:me.uid, author:c.username, dname:c.name,
-                        isChannel:true, channelId:activeEntity, // ВАЖНО: ID КАНАЛА
+                        isChannel:true, channelId:activeEntity,
                         time:firebase.firestore.FieldValue.serverTimestamp(), likes:[], views:0
                     });
                     document.getElementById('chan-text').value='';
@@ -826,12 +842,6 @@
                     alert('Пользователь подписан на вас');
                 });
             }
-        };
-
-        App.linkify = (text) => {
-            if(!text) return '';
-            return text.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>')
-                       .replace(/@(\w+)/g, '<span style="color:var(--accent)">@$1</span>');
         };
 
         const Nav = { to: (id) => { 
