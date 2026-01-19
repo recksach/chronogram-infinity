@@ -3,275 +3,368 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CHRONOGRAM: ARMOR</title>
+    <title>CHRONOGRAM: MATRIX</title>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
     
     <script src="https://cdn.jsdelivr.net/npm/gun/gun.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/gun/sea.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gun/lib/webrtc.js"></script>
 
     <style>
-        /* === ARMOR STYLE === */
+        /* === MATRIX GOLD THEME === */
         :root {
             --bg: #000;
             --gold: #D4AF37;
-            --glass: rgba(20, 20, 20, 0.95);
+            --gold-glow: 0 0 15px rgba(212, 175, 55, 0.5);
+            --glass: rgba(10, 10, 10, 0.9);
+            --border: 1px solid #333;
         }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
+        * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; user-select: none; }
         body { margin: 0; padding: 0; background: var(--bg); color: white; font-family: 'Montserrat'; height: 100vh; overflow: hidden; }
         
-        /* ФОН (Опущен максимально низко) */
-        #matrix { position: fixed; top:0; left:0; width:100%; height:100%; z-index:-1; opacity:0.3; pointer-events: none; }
+        #bg-canvas { position: fixed; top:0; left:0; width:100%; height:100%; z-index:-1; opacity:0.3; }
 
         /* ИНТЕРФЕЙС */
-        .app-layout { display: flex; height: 100%; width: 100%; position: relative; z-index: 1; }
+        .app { display: flex; height: 100%; width: 100%; }
         
-        /* МЕНЮ */
-        .sidebar { width: 70px; background: #080808; border-right: 1px solid #333; display: flex; flex-direction: column; align-items: center; padding-top: 20px; z-index: 500; }
-        .nav-item { font-size: 1.8rem; margin-bottom: 30px; cursor: pointer; color: #555; transition: 0.2s; position: relative; z-index: 501; }
-        .nav-item.active { color: var(--gold); transform: scale(1.2); text-shadow: 0 0 10px var(--gold); }
+        /* Меню */
+        .sidebar { width: 70px; background: #050505; border-right: var(--border); display: flex; flex-direction: column; align-items: center; padding-top: 20px; z-index: 100; }
+        .nav-btn { font-size: 1.8rem; margin-bottom: 30px; cursor: pointer; color: #555; transition: 0.2s; position: relative; z-index: 101; }
+        .nav-btn.active { color: var(--gold); text-shadow: var(--gold-glow); transform: scale(1.1); }
 
         @media (max-width: 768px) {
-            .app-layout { flex-direction: column; }
-            .sidebar { width: 100%; height: 60px; flex-direction: row; justify-content: space-around; border-right: none; border-top: 1px solid #333; position: absolute; bottom: 0; padding: 0; order: 2; }
-            .nav-item { margin-bottom: 0; }
-            .main { order: 1; height: calc(100% - 60px) !important; }
+            .app { flex-direction: column; }
+            .sidebar { width: 100%; height: 60px; flex-direction: row; justify-content: space-around; border-right: none; border-top: var(--border); position: absolute; bottom: 0; padding: 0; order: 2; }
+            .nav-btn { margin-bottom: 0; }
+            .content { height: calc(100% - 60px) !important; }
         }
 
-        .main { flex: 1; background: var(--glass); display: flex; flex-direction: column; position: relative; height: 100%; z-index: 2; }
-        .top-bar { height: 60px; border-bottom: 1px solid #333; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; flex-shrink: 0; }
+        .content { flex: 1; position: relative; height: 100%; background: var(--glass); z-index: 1; }
+        
+        .top-bar { height: 60px; border-bottom: var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; background: rgba(0,0,0,0.8); }
         .brand { font-family: 'Cinzel'; color: var(--gold); font-weight: bold; font-size: 1.2rem; }
 
-        .page { flex: 1; overflow-y: auto; padding: 15px; display: none; flex-direction: column; align-items: center; padding-bottom: 80px; position: relative; z-index: 5; }
-        .page.active { display: flex; }
-        .container { width: 100%; max-width: 500px; }
+        .view { display: none; height: 100%; overflow-y: auto; padding: 15px; flex-direction: column; align-items: center; padding-bottom: 80px; }
+        .view.active { display: flex; }
+        .box { width: 100%; max-width: 500px; }
 
-        /* КНОПКИ (СУПЕР ВАЖНО: z-index высокий) */
+        /* Элементы */
+        .card { background: rgba(20,20,20,0.8); border: 1px solid #333; border-radius: 15px; padding: 15px; margin-bottom: 15px; width: 100%; position: relative; z-index: 10; backdrop-filter: blur(5px); }
+        
         .btn { 
-            background: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728); 
-            border: none; padding: 12px 20px; border-radius: 25px; 
-            font-weight: bold; cursor: pointer !important; color: #000; font-family: 'Cinzel'; 
-            width: 100%; margin-top: 10px; position: relative; z-index: 1000;
-            box-shadow: 0 0 10px rgba(212,175,55,0.3);
+            background: linear-gradient(135deg, #bf953f, #b38728); border: none; 
+            padding: 10px 20px; border-radius: 25px; font-weight: bold; color: #000; 
+            font-family: 'Cinzel'; cursor: pointer; width: 100%; margin-top: 10px;
+            position: relative; z-index: 20; box-shadow: 0 0 10px rgba(212,175,55,0.3);
         }
-        .btn:active { transform: scale(0.95); background: #fff; } /* Визуальный эффект нажатия */
+        .btn:active { transform: scale(0.95); background: white; }
         
-        input, textarea { width: 100%; background: #222; border: 1px solid #444; color: white; padding: 12px; border-radius: 10px; margin-bottom: 10px; font-family: 'Montserrat'; font-size: 1rem; position: relative; z-index: 1000; }
+        input, textarea { width: 100%; background: #151515; border: 1px solid #444; color: white; padding: 12px; border-radius: 10px; margin-bottom: 10px; font-family: 'Montserrat'; font-size: 1rem; position: relative; z-index: 20; }
         
-        .card { background: rgba(30,30,30,0.8); border: 1px solid #444; border-radius: 15px; padding: 15px; margin-bottom: 15px; position: relative; width: 100%; z-index: 10; }
-        .avatar { width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--gold); background-size: cover; background-position: center; background-color: #000; flex-shrink: 0; cursor: pointer; position: relative; z-index: 1000; }
+        .avatar { width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--gold); background-size: cover; background-position: center; background-color: #000; flex-shrink: 0; cursor: pointer; position: relative; z-index: 20; }
+        
+        /* Медиа */
+        .post-img { width: 100%; border-radius: 10px; margin-top: 10px; border: 1px solid #444; }
+        .post-video { width: 100%; border-radius: 10px; margin-top: 10px; max-height: 400px; }
 
-        /* ВХОД */
-        #auth-screen { position: fixed; top:0; left:0; width:100%; height:100%; background: #000; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        /* Вход */
+        #login-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: #000; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; }
         
+        /* Значки */
+        .god-badge { color: var(--gold); margin-left: 5px; text-shadow: 0 0 5px var(--gold); font-size: 1.2rem; }
+        .check-badge { color: #3498db; margin-left: 5px; font-size: 1rem; }
+
         .hidden { display: none !important; }
-        
-        /* Спецэффекты для Mrakodum */
-        .god-mode { border: 2px solid var(--gold) !important; box-shadow: 0 0 20px var(--gold); }
-        .badge { color: var(--gold); margin-left: 5px; text-shadow: 0 0 5px var(--gold); }
     </style>
 </head>
 <body>
 
-    <canvas id="matrix"></canvas>
+    <canvas id="bg-canvas"></canvas>
 
-    <div id="auth-screen">
-        <div style="width:120px; height:120px; border-radius:50%; border:3px solid #D4AF37; margin-bottom:30px; background-image:url('image_1.png'); background-size:cover;"></div>
-        <h1 style="font-family:'Cinzel'; color:#D4AF37;">CHRONOGRAM</h1>
+    <div id="login-overlay">
+        <div style="width:100px; height:100px; border:3px solid #D4AF37; border-radius:50%; margin-bottom:20px; background-image:url('image_1.png'); background-size:cover;"></div>
+        <h1 style="font-family:'Cinzel'; color:#D4AF37; margin-bottom:30px;">CHRONOGRAM</h1>
         <div style="width: 280px; text-align: center;">
-            <input type="text" id="auth-user" placeholder="Логин (mrakodum)" style="text-align:center;">
-            <input type="password" id="auth-pass" placeholder="Пароль" style="text-align:center;">
+            <input type="text" id="user-login" placeholder="Логин (mrakodum)" style="text-align:center;">
+            <input type="password" id="user-pass" placeholder="Пароль" style="text-align:center;">
             <div style="display:flex; gap:10px;">
-                <button class="btn" style="background:#333; color:white;" onclick="Auth.reg()">РЕГИСТРАЦИЯ</button>
-                <button class="btn" onclick="Auth.login()">ВОЙТИ</button>
+                <button class="btn" style="background:#333; color:white;" onclick="User.reg()">РЕГИСТРАЦИЯ</button>
+                <button class="btn" onclick="User.auth()">ВОЙТИ</button>
             </div>
-            <br>
-            <button onclick="localStorage.clear(); sessionStorage.clear(); location.reload();" style="background:transparent; border:none; color:red; font-size:0.7rem; cursor:pointer; text-decoration:underline; position:relative; z-index:10000;">СБРОСИТЬ ЗАВИСАНИЕ</button>
+            <p onclick="localStorage.clear();location.reload()" style="margin-top:20px; color:#555; font-size:0.7rem; cursor:pointer; text-decoration:underline; position:relative; z-index:10000;">СБРОСИТЬ ВСЕ ДАННЫЕ</p>
         </div>
     </div>
 
-    <div id="app-ui" class="app-layout hidden">
+    <div id="app" class="app hidden">
         <div class="sidebar">
-            <div class="nav-item active" onclick="Nav.go('feed')">☷</div>
-            <div class="nav-item" onclick="Nav.go('search')">🔍</div>
-            <div class="nav-item" onclick="Nav.go('aura')" style="color:#e056fd;">◎</div>
-            <div class="nav-item" onclick="Nav.go('chats')">💬</div>
-            <div class="nav-item" onclick="Nav.go('profile')">👤</div>
+            <div class="nav-btn active" onclick="Nav.go('feed')">☷</div>
+            <div class="nav-btn" onclick="Nav.go('search')">🔍</div>
+            <div class="nav-btn" onclick="Nav.go('aura')" style="color:#e056fd;">◎</div>
+            <div class="nav-btn" onclick="Nav.go('chats')">💬</div>
+            <div class="nav-btn" onclick="Nav.go('profile')">👤</div>
         </div>
 
-        <div class="main">
+        <div class="content">
             <div class="top-bar">
                 <span class="brand">GLOBAL</span>
-                <div class="avatar" id="head-ava" style="width:40px; height:40px;" onclick="Nav.go('profile')"></div>
+                <div class="avatar" id="mini-ava" style="width:40px; height:40px;" onclick="Nav.go('profile')"></div>
             </div>
 
-            <div id="pg-feed" class="page active">
-                <div class="container">
+            <div id="pg-feed" class="view active">
+                <div class="box">
                     <div class="card">
-                        <textarea id="post-text" placeholder="Что нового?"></textarea>
-                        <button class="btn" onclick="Feed.post()">ОПУБЛИКОВАТЬ</button>
+                        <textarea id="feed-txt" placeholder="Что нового?"></textarea>
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <label class="btn" style="width:auto; background:transparent; border:1px solid #D4AF37; color:#D4AF37; padding:5px 15px; font-size:1.5rem;">
+                                📎 <input type="file" hidden onchange="Post.attach(this)">
+                            </label>
+                            <button class="btn" style="width:auto;" onclick="Post.send('feed')">ОПУБЛИКОВАТЬ</button>
+                        </div>
+                        <div id="file-preview" style="font-size:0.7rem; color:#888; margin-top:5px;"></div>
                     </div>
                     <div id="feed-list"></div>
                 </div>
             </div>
 
-            <div id="pg-search" class="page">
-                <div class="container">
-                    <input type="text" id="search-inp" placeholder="Поиск ника...">
-                    <button class="btn" onclick="Search.run()">НАЙТИ</button>
-                    <div id="search-res"></div>
+            <div id="pg-search" class="view">
+                <div class="box">
+                    <h3 style="color:#D4AF37; text-align:center;">ЛЮДИ В МАТРИЦЕ</h3>
+                    <div class="card">
+                        <input type="text" id="search-nick" placeholder="Поиск по нику...">
+                        <button class="btn" onclick="People.find()">НАЙТИ</button>
+                        <button class="btn" style="background:#333; color:#fff; font-size:0.8rem;" onclick="People.loadAll()">ЗАГРУЗИТЬ СПИСОК ВСЕХ</button>
+                    </div>
+                    <div id="people-list"></div>
                 </div>
             </div>
 
-            <div id="pg-aura" class="page">
-                <div class="container">
-                    <label class="btn" style="display:block; text-align:center;">
-                        + ЗАГРУЗИТЬ ВИДЕО/ФОТО
-                        <input type="file" hidden accept="video/*,image/*" onchange="Aura.upload(this)">
-                    </label>
-                    <div id="aura-feed" style="margin-top:20px;"></div>
+            <div id="pg-aura" class="view" style="padding:0; background:#000;">
+                <label class="btn" style="position:absolute; top:20px; right:20px; width:auto; z-index:500; background:rgba(0,0,0,0.5); border:1px solid white; color:white;">
+                    + <input type="file" hidden accept="video/*,image/*" onchange="Aura.upload(this)">
+                </label>
+                <div id="aura-list" style="height:100%; width:100%;">
+                    <div style="color:#555; text-align:center; padding-top:50%;">Лента обновляется...</div>
                 </div>
             </div>
 
-            <div id="pg-chats" class="page">
-                <div class="container">
-                    <h3>ВАШИ ДИАЛОГИ</h3>
+            <div id="pg-chats" class="view">
+                <div class="box">
+                    <h3>ВАШИ ПЕРЕПИСКИ</h3>
                     <div id="chat-list"></div>
                 </div>
             </div>
 
-            <div id="pg-profile" class="page">
-                <div class="container">
+            <div id="pg-profile" class="view">
+                <div class="box">
                     <div class="card" style="text-align:center;">
                         <label>
-                            <div class="avatar" id="profile-ava" style="width:100px; height:100px; margin:0 auto;"></div>
+                            <div class="avatar" id="profile-ava" style="width:120px; height:120px; margin:0 auto;"></div>
                             <input type="file" hidden accept="image/*" onchange="Profile.upload(this)">
                         </label>
-                        <h2 id="profile-name" style="color:#D4AF37; margin-top:10px;">@User</h2>
+                        <h2 style="margin:10px 0; color:#D4AF37;">
+                            <span id="profile-name">@User</span>
+                            <span id="badge-god" class="god-badge hidden">♛</span>
+                            <span id="badge-verif" class="check-badge hidden">✔</span>
+                        </h2>
                         
-                        <div id="god-controls" class="hidden" style="border:1px solid red; padding:10px; margin-top:10px; border-radius:10px;">
-                            <h4 style="color:red; margin:0;">GOD MODE</h4>
-                            <input type="text" id="god-target" placeholder="Ник жертвы">
-                            <button class="btn" style="background:#500;" onclick="God.verify()">ВЫДАТЬ ГАЛОЧКУ</button>
-                            <button class="btn" style="background:#800;" onclick="God.ban()">ЗАБЛОКИРОВАТЬ</button>
+                        <div id="god-panel" class="hidden" style="border:1px solid red; padding:10px; border-radius:10px; margin-top:10px; background:rgba(50,0,0,0.3);">
+                            <h4 style="color:red; margin:0 0 10px 0;">УПРАВЛЕНИЕ МИРОМ</h4>
+                            <input type="text" id="god-target" placeholder="Ник пользователя">
+                            <button class="btn" style="background:#500;" onclick="God.forceSub()">ПОДПИСАТЬ НА МЕНЯ</button>
+                            <button class="btn" style="background:#000; border:1px solid red;" onclick="God.ban()">ЗАБАНИТЬ В ЛЕНТЕ</button>
+                            <button class="btn" style="background:blue;" onclick="God.verify()">ВЫДАТЬ ГАЛОЧКУ</button>
                         </div>
 
-                        <button class="btn" style="background:#333;" onclick="Auth.logout()">ВЫЙТИ</button>
+                        <button class="btn" style="background:#333; margin-top:20px;" onclick="User.logout()">ВЫЙТИ</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div id="chat-room" class="page" style="position:fixed; top:0; left:0; width:100%; height:100%; background:#000; z-index:2000; display:none;">
-        <div class="top-bar">
-            <span id="chat-partner" style="color:var(--gold);">User</span>
-            <button class="btn" style="width:auto; padding:5px 10px; margin:0;" onclick="document.getElementById('chat-room').style.display='none'">X</button>
+    <div id="chat-room" style="position:fixed; top:0; left:0; width:100%; height:100%; background:#000; z-index:2000; display:none; flex-direction:column;">
+        <div class="top-bar" style="background:#111; flex-shrink:0;">
+            <span id="chat-title" style="color:#D4AF37; font-weight:bold;">Чат</span>
+            <button class="btn" style="width:auto; margin:0; padding:5px 15px;" onclick="document.getElementById('chat-room').style.display='none'">X</button>
         </div>
-        <div id="chat-msgs" style="flex:1; overflow-y:auto; padding:20px; padding-bottom:80px;"></div>
-        <div style="position:absolute; bottom:0; left:0; width:100%; padding:10px; background:#111;">
-            <input type="text" id="chat-msg-inp" placeholder="Сообщение...">
-            <button class="btn" onclick="Chat.send()">ОТПРАВИТЬ</button>
+        <div id="chat-msgs" style="flex:1; overflow-y:auto; padding:15px;"></div>
+        <div style="padding:10px; background:#111; display:flex; gap:10px; flex-shrink:0;">
+            <input type="text" id="chat-in" placeholder="Сообщение..." style="margin:0;">
+            <button class="btn" style="width:auto; margin:0;" onclick="Chat.send()">></button>
         </div>
     </div>
 
     <script>
-        const gun = Gun(['https://gun-manhattan.herokuapp.com/gun', 'https://gun-eu.herokuapp.com/gun']);
+        // === СЕТЬ МАТРИЦЫ (МНОГО СЕРВЕРОВ) ===
+        const gun = Gun({
+            peers: [
+                'https://gun-manhattan.herokuapp.com/gun',
+                'https://gun-eu.herokuapp.com/gun',
+                'https://gunjs.herokuapp.com/gun',
+                'https://e2eec.herokuapp.com/gun',
+                'https://gun-us.herokuapp.com/gun'
+            ]
+        });
         const user = gun.user();
         let myUser = null;
+        let currentPub = null;
 
-        // === AUTH ===
-        const Auth = {
+        // === ПОЛЬЗОВАТЕЛЬ ===
+        const User = {
             reg: () => {
-                const u = document.getElementById('auth-user').value.toLowerCase();
-                const p = document.getElementById('auth-pass').value;
-                if(!u || !p) return alert("Заполните все поля");
+                const u = document.getElementById('user-login').value.toLowerCase();
+                const p = document.getElementById('user-pass').value;
+                if(!u || !p) return alert("Введите данные");
                 user.create(u, p, ack => {
                     if(ack.err) alert(ack.err);
-                    else Auth.login();
+                    else User.login(u, p);
                 });
             },
-            login: () => {
-                const u = document.getElementById('auth-user').value.toLowerCase();
-                const p = document.getElementById('auth-pass').value;
+            auth: () => {
+                const u = document.getElementById('user-login').value.toLowerCase();
+                const p = document.getElementById('user-pass').value;
+                User.login(u, p);
+            },
+            login: (u, p) => {
                 user.auth(u, p, ack => {
-                    if(ack.err) alert(ack.err);
+                    if(ack.err) alert("Ошибка: " + ack.err);
                     else {
                         myUser = u;
-                        document.getElementById('auth-screen').style.display = 'none';
-                        document.getElementById('app-ui').classList.remove('hidden');
+                        // ЗАПИСЬ В ГЛОБАЛЬНУЮ КНИГУ
+                        gun.get('matrix_users').get(u).put({name:u, pub:user.is.pub, time:Date.now()});
+                        
+                        document.getElementById('login-overlay').style.display='none';
+                        document.getElementById('app').classList.remove('hidden');
                         App.start();
                     }
                 });
             },
-            logout: () => {
-                user.leave();
-                location.reload();
-            }
+            logout: () => { user.leave(); location.reload(); }
         };
 
+        // Авто-вход
         gun.on('auth', () => {
             user.get('alias').once(u => {
                 myUser = u;
-                document.getElementById('auth-screen').style.display = 'none';
-                document.getElementById('app-ui').classList.remove('hidden');
+                document.getElementById('login-overlay').style.display='none';
+                document.getElementById('app').classList.remove('hidden');
                 App.start();
             });
         });
 
-        // === APP ===
         const App = {
             start: () => {
-                // Если ты Мракодум - включаем админку СРАЗУ
                 if(myUser === 'mrakodum') {
-                    document.getElementById('god-controls').classList.remove('hidden');
-                    document.getElementById('profile-name').innerHTML += ' <span class="badge">♛</span>';
+                    document.getElementById('god-panel').classList.remove('hidden');
+                    document.getElementById('badge-god').classList.remove('hidden');
+                    document.getElementById('badge-verif').classList.remove('hidden');
                 }
-                
                 Profile.load();
-                Feed.init();
+                Post.load();
+                People.loadAll(); // Грузим список людей сразу
+                Chat.loadList();
                 Aura.init();
-                Chat.load();
             }
         };
 
-        // === PROFILE ===
+        // === ПРОФИЛЬ ===
         const Profile = {
             load: () => {
                 document.getElementById('profile-name').innerText = '@' + myUser;
                 user.get('avatar').on(src => {
                     if(src) {
                         document.getElementById('profile-ava').style.backgroundImage = `url('${src}')`;
-                        document.getElementById('head-ava').style.backgroundImage = `url('${src}')`;
+                        document.getElementById('mini-ava').style.backgroundImage = `url('${src}')`;
                     }
                 });
             },
             upload: (inp) => {
                 const f = inp.files[0];
                 const r = new FileReader();
-                r.onload = (e) => user.get('avatar').put(e.target.result);
+                r.onload = e => user.get('avatar').put(e.target.result);
                 r.readAsDataURL(f);
             }
         };
 
-        // === FEED ===
-        const Feed = {
-            post: () => {
-                const txt = document.getElementById('post-text').value;
-                if(!txt) return;
-                gun.get('posts_new').set({
-                    text: txt, author: myUser, time: Date.now()
+        // === ЛЮДИ (ПОИСК) ===
+        const People = {
+            loadAll: () => {
+                const list = document.getElementById('people-list');
+                list.innerHTML = '';
+                gun.get('matrix_users').map().once((data, nick) => {
+                    if(!data) return;
+                    list.innerHTML += `
+                    <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
+                        <div>
+                            <b style="color:#D4AF37; font-size:1.2rem;">@${data.name}</b>
+                            <div style="font-size:0.7rem; color:#666;">ID: ${data.pub.substr(0,6)}...</div>
+                        </div>
+                        <div style="display:flex; gap:5px;">
+                            <button class="btn" style="width:auto; margin:0; font-size:0.8rem;" onclick="Chat.open('${data.pub}', '${data.name}')">ЧАТ</button>
+                        </div>
+                    </div>`;
                 });
-                document.getElementById('post-text').value = '';
             },
-            init: () => {
-                gun.get('posts_new').map().once(p => {
-                    if(!p) return;
-                    document.getElementById('feed-list').insertAdjacentHTML('afterbegin', 
-                        `<div class="card">
-                            <b style="color:#D4AF37">@${p.author}</b>
-                            <p>${p.text}</p>
-                        </div>`
-                    );
+            find: () => {
+                const t = document.getElementById('search-nick').value.toLowerCase();
+                gun.get('matrix_users').get(t).once(d => {
+                    if(!d) return alert("Не найден");
+                    Chat.open(d.pub, d.name);
+                });
+            }
+        };
+
+        // === ПОСТЫ И СКРЕПКА ===
+        const Post = {
+            temp: null,
+            attach: (inp) => {
+                const f = inp.files[0];
+                const r = new FileReader();
+                r.onload = e => {
+                    Post.temp = { src: e.target.result, type: f.type };
+                    document.getElementById('file-preview').innerText = "Файл готов: " + f.name;
+                };
+                r.readAsDataURL(f);
+            },
+            send: (type) => {
+                const txt = document.getElementById('feed-txt').value;
+                if(!txt && !Post.temp) return;
+                
+                const data = {
+                    text: txt, author: myUser, time: Date.now(),
+                    media: Post.temp ? Post.temp.src : null,
+                    mediaType: Post.temp ? Post.temp.type : null
+                };
+                
+                gun.get('posts_global').set(data);
+                
+                document.getElementById('feed-txt').value=''; 
+                document.getElementById('file-preview').innerText='';
+                Post.temp = null;
+            },
+            load: () => {
+                gun.get('posts_global').map().on(p => {
+                    if(!p || !p.text) return;
+                    // Проверка бана (локально)
+                    if(localStorage.getItem('banned_' + p.author)) return;
+
+                    let mediaHtml = '';
+                    if(p.media) {
+                        if(p.mediaType.includes('video')) mediaHtml = `<video src="${p.media}" controls class="post-video"></video>`;
+                        else if(p.mediaType.includes('audio')) mediaHtml = `<audio src="${p.media}" controls style="width:100%; margin-top:10px;"></audio>`;
+                        else mediaHtml = `<img src="${p.media}" class="post-img">`;
+                    }
+
+                    const html = `
+                    <div class="card" id="post-${p.time}">
+                        <b style="color:#D4AF37">@${p.author}</b>
+                        <div style="margin-top:5px;">${p.text}</div>
+                        ${mediaHtml}
+                    </div>`;
+                    
+                    // Добавляем в начало (простой хак)
+                    const list = document.getElementById('feed-list');
+                    if(!document.getElementById('post-'+p.time)) list.insertAdjacentHTML('afterbegin', html);
                 });
             }
         };
@@ -281,130 +374,104 @@
             upload: (inp) => {
                 const f = inp.files[0];
                 const r = new FileReader();
-                r.onload = (e) => {
-                    gun.get('aura_new').set({
-                        src: e.target.result, author: myUser, time: Date.now()
-                    });
-                    alert("Загружено!");
+                r.onload = e => {
+                    gun.get('aura_global').set({src: e.target.result, author: myUser, time: Date.now()});
+                    alert("Загружено в Ауру");
                 };
                 r.readAsDataURL(f);
             },
             init: () => {
-                gun.get('aura_new').map().once(p => {
+                gun.get('aura_global').map().on(p => {
                     if(!p) return;
                     let content = p.src.includes('data:video') 
-                        ? `<video src="${p.src}" controls style="width:100%"></video>`
-                        : `<img src="${p.src}" style="width:100%">`;
+                        ? `<video src="${p.src}" controls style="width:100%; max-height:80vh;"></video>`
+                        : `<img src="${p.src}" style="width:100%;">`;
                     
-                    document.getElementById('aura-feed').insertAdjacentHTML('afterbegin', 
-                        `<div class="card">
-                            <b style="color:#D4AF37">@${p.author}</b><br>
-                            ${content}
-                        </div>`
-                    );
+                    const html = `
+                    <div class="aura-slide" style="width:100%; height:100%; display:flex; flex-direction:column; justify-content:center; align-items:center; border-bottom:1px solid #333; padding-bottom:50px;">
+                        ${content}
+                        <div style="background:rgba(0,0,0,0.5); padding:10px; margin-top:-50px; position:relative; z-index:10;"><b>@${p.author}</b></div>
+                    </div>`;
+                    
+                    document.getElementById('aura-list').insertAdjacentHTML('afterbegin', html);
                 });
             }
         };
 
-        // === SEARCH ===
-        const Search = {
-            run: () => {
-                const q = document.getElementById('search-inp').value.toLowerCase();
-                // Поиск в Gun сложный, делаем симуляцию для точного ника
-                // В реальности нужно индексировать юзеров
-                gun.get('users_index').get(q).once(pub => {
-                    const res = document.getElementById('search-res');
-                    res.innerHTML = '';
-                    if(pub) {
-                        res.innerHTML = `
-                        <div class="card">
-                            <h3>${q}</h3>
-                            <button class="btn" onclick="Chat.open('${pub}', '${q}')">НАПИСАТЬ</button>
-                        </div>`;
-                    } else {
-                        res.innerHTML = "Не найден (юзер должен зайти в сеть хоть раз)";
-                    }
-                });
-            }
-        };
-        // Регистрируем себя в индексе
-        gun.on('auth', () => {
-            gun.get('users_index').get(myUser).put(user.is.pub);
-        });
-
-        // === CHAT ===
+        // === ЧАТЫ ===
         const Chat = {
-            currentPub: null,
-            load: () => {
-                user.get('chats').map().once((val, pub) => {
-                    gun.user(pub).get('alias').once(name => {
-                        document.getElementById('chat-list').innerHTML += 
-                            `<div class="card" onclick="Chat.open('${pub}','${name}')" style="cursor:pointer;">
-                                <b>${name}</b>
-                            </div>`;
-                    });
-                });
-            },
+            activePub: null,
             open: (pub, name) => {
-                Chat.currentPub = pub;
-                document.getElementById('chat-room').style.display = 'block';
-                document.getElementById('chat-partner').innerText = name;
+                Chat.activePub = pub;
+                document.getElementById('chat-room').style.display = 'flex';
+                document.getElementById('chat-title').innerText = name;
                 document.getElementById('chat-msgs').innerHTML = '';
                 
-                // Ключ чата
-                const k = [user.is.pub, pub].sort().join('_');
-                gun.get('chat_new_' + k).map().once(m => {
+                // Подписка
+                const k = [user.is.pub, pub].sort().join('~');
+                gun.get('chat_' + k).map().once(m => {
                     const div = document.createElement('div');
-                    div.style.background = m.sender === myUser ? '#D4AF37' : '#333';
-                    div.style.color = m.sender === myUser ? '#000' : '#fff';
-                    div.style.padding = '10px';
-                    div.style.margin = '5px';
-                    div.style.borderRadius = '10px';
+                    div.style.background = m.who === myUser ? '#D4AF37' : '#333';
+                    div.style.color = m.who === myUser ? '#000' : '#fff';
+                    div.style.padding = '10px'; div.style.borderRadius = '10px'; div.style.marginBottom = '5px';
+                    div.style.alignSelf = m.who === myUser ? 'flex-end' : 'flex-start';
+                    div.style.maxWidth = '80%';
                     div.innerText = m.text;
                     document.getElementById('chat-msgs').appendChild(div);
                 });
+                
+                // Сохранить в список
+                user.get('my_chats').get(pub).put(name);
             },
             send: () => {
-                const txt = document.getElementById('chat-msg-inp').value;
-                if(!txt) return;
-                const k = [user.is.pub, Chat.currentPub].sort().join('_');
-                gun.get('chat_new_' + k).set({
-                    text: txt, sender: myUser, time: Date.now()
+                const t = document.getElementById('chat-in').value;
+                if(!t) return;
+                const k = [user.is.pub, Chat.activePub].sort().join('~');
+                gun.get('chat_' + k).set({text: t, who: myUser, time: Date.now()});
+                document.getElementById('chat-in').value = '';
+            },
+            loadList: () => {
+                user.get('my_chats').map().on((name, pub) => {
+                    if(!document.getElementById('c-'+pub)) {
+                        document.getElementById('chat-list').innerHTML += 
+                        `<div id="c-${pub}" class="card" onclick="Chat.open('${pub}','${name}')" style="cursor:pointer;"><b>${name}</b></div>`;
+                    }
                 });
-                user.get('chats').get(Chat.currentPub).put(true); // Сохранить контакт
-                document.getElementById('chat-msg-inp').value = '';
             }
         };
 
         // === GOD MODE ===
         const God = {
+            forceSub: () => {
+                const t = document.getElementById('god-target').value;
+                if(!t) return;
+                alert(`Пользователь ${t} принудительно подписан на вас (Эмуляция)`);
+                // В Gun нельзя писать в чужой граф, но можно заставить его клиент "увидеть" подписку, если бы у нас был полный контроль над сетью.
+            },
+            ban: () => {
+                const t = document.getElementById('god-target').value;
+                if(!t) return;
+                localStorage.setItem('banned_' + t, true);
+                alert(`Пользователь ${t} забанен (скрыт из ленты). Обновите страницу.`);
+            },
             verify: () => {
                 const t = document.getElementById('god-target').value;
-                alert(`Галочка выдана пользователю ${t} (Визуально)`);
-            },
-            ban: () => alert("Пользователь заблокирован")
-        };
-
-        // === NAV ===
-        const Nav = {
-            go: (id) => {
-                document.querySelectorAll('.page').forEach(e => e.classList.remove('active'));
-                document.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active'));
-                document.getElementById('pg-'+id).classList.add('active');
+                // Мы пишем в публичный список "верифицированных", и все клиенты должны ему верить
+                gun.get('verified_users').get(t).put(true);
+                alert("Галочка выдана!");
             }
         };
 
-        // === MATRIX BG ===
-        const cvs = document.getElementById('matrix'), ctx = cvs.getContext('2d');
+        const Nav = { go: (id) => { document.querySelectorAll('.view').forEach(e=>e.classList.remove('active')); document.querySelectorAll('.nav-btn').forEach(e=>e.classList.remove('active')); document.getElementById('pg-'+id).classList.add('active'); } };
+        
+        // Матрица
+        const cvs = document.getElementById('bg-canvas'), ctx = cvs.getContext('2d');
         cvs.width = window.innerWidth; cvs.height = window.innerHeight;
-        const p = Array(Math.floor(cvs.width/20)).fill(0);
-        setInterval(() => {
-            ctx.fillStyle = 'rgba(0,0,0,0.05)'; ctx.fillRect(0,0,cvs.width,cvs.height);
-            ctx.fillStyle = '#D4AF37';
-            p.forEach((y, i) => {
-                ctx.fillText(String.fromCharCode(0x30A0+Math.random()*96), i*20, y);
-                p[i] = y > 100 + Math.random()*1e4 ? 0 : y + 20;
-            });
+        const drops = Array(Math.floor(cvs.width/20)).fill(1);
+        setInterval(()=>{
+            ctx.fillStyle='rgba(0,0,0,0.05)'; ctx.fillRect(0,0,cvs.width,cvs.height);
+            ctx.fillStyle='#D4AF37';
+            drops.forEach((y,i)=>{ ctx.fillText(String.fromCharCode(0x30A0+Math.random()*96), i*20, y*20); drops[i] = y*20 > cvs.height && Math.random()>0.975 ? 0 : y+1; });
         }, 50);
     </script>
 </body>
