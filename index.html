@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CHRONOGRAM</title>
+    <title>CHRONOGRAM: ETERNITY</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet">
     
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -12,30 +12,31 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
 
     <style>
-        /* === IMPERIAL DARK THEME === */
+        /* === ETERNITY THEME === */
         :root {
             --bg: #000000;
-            --gold: #FFD700; /* Золото */
-            --blue: #1DA1F2; /* Галочка */
+            --gold: #FFD700;
+            --blue: #1DA1F2;
+            --red: #ff3b30;
             --glass: rgba(18, 18, 18, 0.98);
             --border: 1px solid #222;
         }
         * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
         body { margin: 0; padding: 0; background: var(--bg); color: white; font-family: 'Montserrat', sans-serif; height: 100vh; overflow: hidden; }
 
-        /* ЭКРАН ВХОДА */
+        /* ВХОД */
         #auth-screen {
             position: fixed; top:0; left:0; width:100%; height:100%;
             background: #000; z-index: 9999; display: flex; flex-direction: column;
             justify-content: center; align-items: center;
         }
         .logo {
-            width: 110px; height: 110px; border: 3px solid var(--gold); border-radius: 50%;
+            width: 100px; height: 100px; border: 3px solid var(--gold); border-radius: 50%;
             margin-bottom: 20px; background-image: url('image_1.png'); background-size: cover;
-            box-shadow: 0 0 40px rgba(255, 215, 0, 0.4); animation: pulse 3s infinite;
+            box-shadow: 0 0 40px rgba(255, 215, 0, 0.4);
         }
 
-        /* ПРИЛОЖЕНИЕ */
+        /* ОСНОВА */
         #app { display: none; height: 100%; width: 100%; flex-direction: column; }
         #app.active { display: flex; }
 
@@ -49,51 +50,60 @@
             height: 60px; border-top: var(--border); background: #000;
             display: flex; justify-content: space-around; align-items: center; flex-shrink: 0; z-index: 100;
         }
-        .nav-icon { font-size: 1.6rem; color: #555; cursor: pointer; transition: 0.2s; }
+        .nav-icon { font-size: 1.5rem; color: #555; cursor: pointer; transition: 0.2s; }
         .nav-icon.active { color: var(--gold); transform: scale(1.1); text-shadow: 0 0 10px var(--gold); }
+        .unread-dot { width: 8px; height: 8px; background: red; border-radius: 50%; position: absolute; top: 15px; right: 25%; display: none; }
 
         @media (min-width: 769px) {
             #app { flex-direction: row; }
             .nav { width: 80px; height: 100%; flex-direction: column; border-top: none; border-right: var(--border); justify-content: center; gap: 40px; }
+            .unread-dot { top: auto; right: 25px; margin-top: -30px; }
         }
 
-        /* ИНТЕРФЕЙС */
+        /* UI */
         .card { background: #111; border: 1px solid #333; border-radius: 12px; padding: 15px; margin-bottom: 15px; width: 100%; position: relative; }
-        
         .btn { 
             background: var(--gold); color: #000; font-weight: 800; border: none; 
             padding: 12px; border-radius: 8px; width: 100%; cursor: pointer; margin-top: 10px; font-family: 'Montserrat';
         }
-        .btn:active { opacity: 0.8; }
+        .btn-small { width: auto; padding: 5px 15px; font-size: 0.8rem; margin: 0; }
+        .btn-danger { background: var(--red); color: white; }
         
         input, textarea { 
             width: 100%; background: #222; border: 1px solid #444; color: white; 
-            padding: 12px; border-radius: 8px; margin-bottom: 10px;
+            padding: 12px; border-radius: 8px; margin-bottom: 10px; font-family: inherit;
         }
 
-        /* АВАТАРЫ И СТАТУСЫ */
-        .ava { width: 45px; height: 45px; border-radius: 50%; background: #333; background-size: cover; background-position: center; border: 1px solid var(--gold); flex-shrink: 0; }
-        .ava-lg { width: 100px; height: 100px; margin: 0 auto; }
+        /* АВАТАР И ЗНАЧКИ */
+        .ava { width: 45px; height: 45px; border-radius: 50%; background: #333; background-size: cover; background-position: center; border: 1px solid var(--gold); flex-shrink: 0; cursor: pointer; }
+        .ava-lg { width: 100px; height: 100px; margin: 0 auto; cursor: default; }
         
-        .badge-verif { display: inline-block; width: 16px; height: 16px; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%231DA1F2'%3E%3Cpath d='M22.5 12.5c0-1.58-.875-2.95-2.148-3.6.154-.435.238-.905.238-1.4 0-2.21-1.71-3.998-3.818-3.998-.47 0-.92.114-1.335.314C14.63 2.662 13.385 2 12 2c-1.385 0-2.63.662-3.437 1.716-.415-.2-.865-.314-1.335-.314-2.11 0-3.818 1.79-3.818 4 0 .495.083.965.238 1.4-1.272.65-2.147 2.02-2.147 3.6 0 1.435.71 2.79 1.786 3.63-.09.39-.136.79-.136 1.2 0 2.7 2.19 4.9 4.9 4.9 1.455 0 2.76-.63 3.69-1.635.93 1.005 2.234 1.635 3.69 1.635 2.71 0 4.9-2.2 4.9-4.9 0-.41-.046-.81-.136-1.2 1.076-.84 1.786-2.195 1.786-3.63zM9.76 17.6l-4.48-4.48 1.413-1.414 3.067 3.067 6.907-6.907 1.413 1.414-8.32 8.32z'/%3E%3C/svg%3E") no-repeat center; margin-left: 5px; vertical-align: middle; }
-        
-        .badge-god { color: var(--gold); margin-left: 5px; font-size: 1.2rem; text-shadow: 0 0 10px var(--gold); }
+        .badge-verif { display: inline-block; width: 14px; height: 14px; background: var(--blue); border-radius: 50%; margin-left: 5px; position: relative; top: 2px; }
+        .badge-verif::after { content: '✔'; font-size: 9px; position: absolute; top: 1px; left: 3px; color: white; }
+        .badge-god { color: var(--gold); margin-left: 5px; font-size: 1.1rem; }
         .badge-god::after { content: '♛'; }
 
-        /* ПОСТЫ */
-        .post-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .post-img { width: 100%; border-radius: 8px; margin-top: 5px; }
-        .god-delete { color: red; font-size: 0.7rem; cursor: pointer; border: 1px solid red; padding: 3px 8px; border-radius: 4px; text-transform: uppercase; }
-        .like-btn { cursor: pointer; color: #888; font-size: 1.2rem; }
-        .like-btn.liked { color: red; }
+        /* МЕДИА В ЛЕНТЕ */
+        .media-content { width: 100%; border-radius: 8px; margin-top: 10px; max-height: 500px; object-fit: contain; background: #000; }
+        
+        /* ДЕЙСТВИЯ */
+        .actions { display: flex; gap: 20px; margin-top: 10px; border-top: 1px solid #222; padding-top: 10px; color: #888; }
+        .act-btn { cursor: pointer; display: flex; align-items: center; gap: 5px; }
+        .act-btn.liked { color: var(--red); }
+        .act-btn:hover { color: white; }
 
+        /* МОДАЛКА (ПРОФИЛЬ ЧУЖОЙ) */
+        #view-profile { position: fixed; top:0; left:0; width:100%; height:100%; background: #000; z-index: 2000; display: none; flex-direction: column; overflow-y: auto; }
+        
         /* ЧАТ */
         #chat-modal { position: fixed; top:0; left:0; width:100%; height:100%; background:#000; z-index: 5000; display:none; flex-direction:column; }
         .msg { padding: 10px 15px; border-radius: 20px; margin-bottom: 5px; max-width: 80%; word-wrap: break-word; font-size: 0.9rem; }
         .msg.me { align-self: flex-end; background: var(--gold); color: black; }
         .msg.other { align-self: flex-start; background: #222; color: white; }
+        .chat-row { display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+        .chat-preview { color: #777; font-size: 0.8rem; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; max-width: 200px; }
+        .chat-unread { width: 10px; height: 10px; background: var(--blue); border-radius: 50%; }
 
-        @keyframes pulse { 50% { opacity: 0.7; transform: scale(0.95); } }
         .hidden { display: none !important; }
     </style>
 </head>
@@ -101,22 +111,25 @@
 
     <div id="auth-screen">
         <div class="logo"></div>
-        <h2 style="color:var(--gold); margin-bottom:20px; letter-spacing: 2px;">CHRONOGRAM</h2>
+        <h2 style="color:var(--gold); margin-bottom:20px;">CHRONOGRAM</h2>
         <div style="width: 280px; text-align: center;">
-            <input type="email" id="email" placeholder="Email (для входа)">
+            <input type="email" id="email" placeholder="Email">
             <input type="password" id="password" placeholder="Пароль">
-            <input type="text" id="username" placeholder="Придумайте никнейм">
-            <button class="btn" onclick="Auth.signup()">СОЗДАТЬ АККАУНТ</button>
-            <button class="btn" style="background:#333; color:white;" onclick="Auth.signin()">УЖЕ ЕСТЬ АККАУНТ</button>
-            <p id="auth-error" style="color:red; font-size:0.8rem; margin-top:10px;"></p>
+            <input type="text" id="username" placeholder="Никнейм (только для регистрации)">
+            <button class="btn" onclick="Auth.action('login')">ВОЙТИ</button>
+            <button class="btn" style="background:#333; color:white;" onclick="Auth.action('reg')">РЕГИСТРАЦИЯ</button>
+            <p id="auth-err" style="color:red; margin-top:10px; font-size:0.8rem;"></p>
         </div>
     </div>
 
     <div id="app">
         <div class="nav">
             <div class="nav-icon active" onclick="Nav.go('feed')">☷</div>
+            <div class="nav-icon" onclick="Nav.go('channels')">📢</div>
             <div class="nav-icon" onclick="Nav.go('search')">🔍</div>
-            <div class="nav-icon" onclick="Nav.go('chats')">💬</div>
+            <div class="nav-icon" style="position:relative;" onclick="Nav.go('chats')">
+                💬 <div id="nav-unread" class="unread-dot"></div>
+            </div>
             <div class="nav-icon" onclick="Nav.go('profile')">👤</div>
         </div>
 
@@ -124,31 +137,40 @@
             <div id="pg-feed" class="page active">
                 <div class="container">
                     <div class="card">
-                        <textarea id="post-text" placeholder="Что нового?" style="width:100%; background:transparent; border:none; color:white; min-height:50px; font-family:'Montserrat';"></textarea>
-                        
+                        <textarea id="post-text" placeholder="Что нового?" style="width:100%; background:transparent; border:none; color:white; min-height:50px;"></textarea>
                         <div style="display:flex; justify-content:space-between; align-items:center;">
-                            <label class="btn" style="width:auto; padding:8px 15px; margin:0; background:#333; color:white;">
-                                📷 <input type="file" hidden accept="image/*" onchange="Feed.preview(this)">
+                            <label class="btn btn-small" style="background:#333; color:white;">
+                                📎 Медиа <input type="file" hidden accept="image/*,video/*,audio/*" onchange="Feed.preview(this)">
                             </label>
-                            <button class="btn" style="width:auto; margin:0;" onclick="Feed.post()">ОПУБЛИКОВАТЬ</button>
+                            <button class="btn btn-small" onclick="Feed.publish()">ОПУБЛИКОВАТЬ</button>
                         </div>
-                        <div id="img-preview-name" style="font-size:0.8rem; color:#888; margin-top:5px;"></div>
+                        <div id="media-prev-name" style="font-size:0.7rem; color:#888; margin-top:5px;"></div>
                     </div>
                     <div id="feed-list"></div>
                 </div>
             </div>
 
+            <div id="pg-channels" class="page">
+                <div class="container">
+                    <h3>ПУБЛИЧНЫЕ КАНАЛЫ</h3>
+                    <div class="card">
+                        <input type="text" id="chan-name" placeholder="Название канала">
+                        <button class="btn" onclick="Channels.create()">СОЗДАТЬ КАНАЛ</button>
+                    </div>
+                    <div id="channels-list"></div>
+                </div>
+            </div>
+
             <div id="pg-search" class="page">
                 <div class="container">
-                    <h3>ПОИСК ЛЮДЕЙ</h3>
-                    <input type="text" id="search-in" placeholder="Введите никнейм..." oninput="Search.run()">
-                    <div id="users-list"></div>
+                    <input type="text" id="search-q" placeholder="Поиск людей..." oninput="Search.run()">
+                    <div id="search-res" style="margin-top:15px;"></div>
                 </div>
             </div>
 
             <div id="pg-chats" class="page">
                 <div class="container">
-                    <h3>ВАШИ ДИАЛОГИ</h3>
+                    <h3>СООБЩЕНИЯ</h3>
                     <div id="chat-list"></div>
                 </div>
             </div>
@@ -156,24 +178,24 @@
             <div id="pg-profile" class="page">
                 <div class="container">
                     <div class="card" style="text-align:center;">
-                        <div id="prof-ava" class="ava ava-lg"></div>
-                        
-                        <label class="btn" style="padding:5px 15px; font-size:0.8rem; width:auto; background:#333; color:white; margin-top:10px;">
-                            СМЕНИТЬ ФОТО
-                            <input type="file" hidden accept="image/*" onchange="Profile.upload(this)">
+                        <div id="my-ava" class="ava ava-lg"></div>
+                        <label class="btn btn-small" style="background:#333; color:white; margin-top:10px; display:inline-block;">
+                            Сменить фото <input type="file" hidden accept="image/*" onchange="Profile.uploadAva(this)">
                         </label>
-                        
                         <h2 style="margin:10px 0;">
-                            <span id="prof-name">@...</span>
-                            <span id="prof-badge"></span>
+                            <span id="my-name">@...</span> <span id="my-badge"></span>
                         </h2>
-                        
-                        <div id="god-mode" class="hidden" style="border:1px solid var(--gold); padding:10px; margin-top:20px; border-radius:10px;">
-                            <h4 style="color:var(--gold); margin:0 0 10px 0;">ПАНЕЛЬ ВЛАДЫКИ</h4>
-                            <input type="text" id="god-target" placeholder="Никнейм для действий">
+                        <div style="display:flex; justify-content:center; gap:20px; color:#aaa; margin-bottom:20px;">
+                            <div><b id="my-subs" style="color:white;">0</b><br>Подписчики</div>
+                            <div><b id="my-subing" style="color:white;">0</b><br>Подписки</div>
+                        </div>
+
+                        <div id="god-panel" class="hidden" style="border:1px solid var(--gold); padding:10px; border-radius:10px;">
+                            <h4 style="color:var(--gold); margin:0 0 10px 0;">MRAKODUM TOOLS</h4>
+                            <input type="text" id="god-nick" placeholder="Никнейм">
                             <div style="display:flex; gap:10px;">
                                 <button class="btn" onclick="God.verify()">ГАЛОЧКУ</button>
-                                <button class="btn" style="background:red;" onclick="God.ban()">УДАЛИТЬ</button>
+                                <button class="btn btn-danger" onclick="God.nuke()">УНИЧТОЖИТЬ</button>
                             </div>
                         </div>
 
@@ -184,22 +206,43 @@
         </div>
     </div>
 
+    <div id="view-profile">
+        <div style="padding:20px;">
+            <button class="btn btn-small" style="background:#333; color:white; margin-bottom:20px;" onclick="document.getElementById('view-profile').style.display='none'">❮ НАЗАД</button>
+            <div class="card" style="text-align:center;">
+                <div id="view-ava" class="ava ava-lg"></div>
+                <h2 style="margin:10px 0;">
+                    <span id="view-name">@...</span> <span id="view-badge"></span>
+                </h2>
+                <div style="display:flex; justify-content:center; gap:20px; color:#aaa; margin-bottom:20px;">
+                    <div><b id="view-subs" style="color:white;">0</b><br>Подписчики</div>
+                </div>
+                <div style="display:flex; gap:10px; justify-content:center;">
+                    <button id="btn-follow" class="btn btn-small" onclick="Profile.toggleFollow()">ПОДПИСАТЬСЯ</button>
+                    <button class="btn btn-small" style="background:#333; color:white;" onclick="Chat.startFromProfile()">СООБЩЕНИЕ</button>
+                </div>
+            </div>
+            <h3 style="text-align:center; color:#555;">Публикации</h3>
+            <div id="view-posts"></div>
+        </div>
+    </div>
+
     <div id="chat-modal">
         <div style="padding:15px; border-bottom:1px solid #333; display:flex; justify-content:space-between; align-items:center;">
-            <div style="display:flex; align-items:center;">
-                <button class="btn" style="width:auto; margin:0; padding:5px 10px; margin-right:10px;" onclick="document.getElementById('chat-modal').style.display='none'">❮</button>
-                <b id="chat-title" style="color:var(--gold);">Чат</b>
+            <div style="display:flex; align-items:center; gap:10px;">
+                <button class="btn btn-small" style="background:transparent; color:white; padding:0;" onclick="Chat.close()">❮</button>
+                <b id="chat-head-name" style="color:var(--gold);">User</b>
             </div>
         </div>
-        <div id="chat-msgs" style="flex:1; overflow-y:auto; padding:15px; display:flex; flex-direction:column;"></div>
+        <div id="chat-box" style="flex:1; overflow-y:auto; padding:15px; display:flex; flex-direction:column;"></div>
         <div style="padding:10px; border-top:1px solid #333; display:flex; gap:10px;">
             <input type="text" id="chat-in" placeholder="Сообщение..." style="margin:0;">
-            <button class="btn" style="width:auto; margin:0;" onclick="Chat.send()">></button>
+            <button class="btn btn-small" onclick="Chat.send()">></button>
         </div>
     </div>
 
     <script>
-        // === ТВОИ КЛЮЧИ CHRONOGRAM ===
+        // === ТВОИ КЛЮЧИ (ВШИТЫ) ===
         const firebaseConfig = {
             apiKey: "AIzaSyAJSA9ovDYQ3ocJLMpuxNdpWbCdutnc-LY",
             authDomain: "chronogram-c6b16.firebaseapp.com",
@@ -210,26 +253,29 @@
             measurementId: "G-H57TYNTGJ7"
         };
 
-        // Инициализация
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
 
-        let currentUser = null;
+        let curUser = null;
         let isGod = false;
+        let targetProfileId = null;
+        let activeChatId = null;
 
-        // === 1. ВХОД И СОХРАНЕНИЕ ===
+        // === 1. ВХОД ===
         auth.onAuthStateChanged(user => {
             if (user) {
-                currentUser = user;
+                curUser = user;
                 db.collection('users').doc(user.uid).get().then(doc => {
                     if(doc.exists) {
                         const d = doc.data();
-                        if(d.username === 'mrakodum') {
-                            isGod = true;
-                            document.getElementById('god-mode').classList.remove('hidden');
-                        }
-                        App.start();
+                        if(d.username === 'mrakodum') { isGod = true; document.getElementById('god-panel').classList.remove('hidden'); }
+                        document.getElementById('auth-screen').style.display = 'none';
+                        document.getElementById('app').classList.add('active');
+                        App.init();
+                    } else {
+                        // Если юзер есть в Auth, но нет в базе (ошибка реги), чистим
+                        auth.signOut();
                     }
                 });
             } else {
@@ -239,144 +285,304 @@
         });
 
         const Auth = {
-            signup: () => {
+            action: (type) => {
                 const e = document.getElementById('email').value;
                 const p = document.getElementById('password').value;
-                const u = document.getElementById('username').value.toLowerCase().replace(/\s/g, '');
-                if(!u) return alert("Введите никнейм!");
+                const u = document.getElementById('username').value.toLowerCase().trim();
 
-                // Проверка на уникальность ника
-                db.collection('users').where('username', '==', u).get().then(snap => {
-                    if(!snap.empty) return alert("Этот никнейм занят!");
-                    
-                    auth.createUserWithEmailAndPassword(e, p).then(cred => {
-                        db.collection('users').doc(cred.user.uid).set({
-                            username: u,
-                            email: e,
-                            verified: (u === 'mrakodum'), // Авто-корона
-                            avatar: ''
-                        });
-                    }).catch(err => document.getElementById('auth-error').innerText = err.message);
-                });
-            },
-            signin: () => {
-                const e = document.getElementById('email').value;
-                const p = document.getElementById('password').value;
-                auth.signInWithEmailAndPassword(e, p).catch(err => document.getElementById('auth-error').innerText = err.message);
+                if (type === 'reg') {
+                    if (!u) return alert("Никнейм обязателен!");
+                    db.collection('users').where('username', '==', u).get().then(snap => {
+                        if(!snap.empty) return alert("Ник занят!");
+                        auth.createUserWithEmailAndPassword(e, p).then(cred => {
+                            db.collection('users').doc(cred.user.uid).set({
+                                username: u, email: e, verified: (u === 'mrakodum'), avatar: '',
+                                followers: [], following: []
+                            });
+                        }).catch(err => document.getElementById('auth-err').innerText = err.message);
+                    });
+                } else {
+                    auth.signInWithEmailAndPassword(e, p).catch(err => document.getElementById('auth-err').innerText = err.message);
+                }
             }
         };
 
+        // === 2. ЯДРО ===
         const App = {
-            start: () => {
-                document.getElementById('auth-screen').style.display = 'none';
-                document.getElementById('app').classList.add('active');
-                Profile.init();
+            init: () => {
+                Profile.loadMe();
                 Feed.init();
                 Search.init();
-                Chat.initList();
+                Chat.monitor();
+                Channels.init();
             }
         };
 
-        // === 2. ПРОФИЛЬ ===
+        // === 3. ПРОФИЛЬ ===
         const Profile = {
-            init: () => {
-                db.collection('users').doc(currentUser.uid).onSnapshot(doc => {
+            loadMe: () => {
+                db.collection('users').doc(curUser.uid).onSnapshot(doc => {
                     const d = doc.data();
-                    document.getElementById('prof-name').innerText = '@' + d.username;
-                    
-                    let badge = '';
-                    if(d.username === 'mrakodum') badge = '<span class="badge-god"></span>';
-                    else if(d.verified) badge = '<span class="badge-verif"></span>';
-                    document.getElementById('prof-badge').innerHTML = badge;
-
-                    if(d.avatar) document.getElementById('prof-ava').style.backgroundImage = `url('${d.avatar}')`;
+                    Profile.renderInfo(d, 'my');
+                    document.getElementById('my-subs').innerText = d.followers ? d.followers.length : 0;
+                    document.getElementById('my-subing').innerText = d.following ? d.following.length : 0;
                 });
             },
-            upload: (inp) => {
-                const f = inp.files[0];
+            open: (uid) => {
+                if(uid === curUser.uid) { Nav.go('profile'); return; }
+                targetProfileId = uid;
+                document.getElementById('view-profile').style.display = 'flex';
+                
+                db.collection('users').doc(uid).onSnapshot(doc => {
+                    const d = doc.data();
+                    Profile.renderInfo(d, 'view');
+                    document.getElementById('view-subs').innerText = d.followers ? d.followers.length : 0;
+                    
+                    const btn = document.getElementById('btn-follow');
+                    if(d.followers && d.followers.includes(curUser.uid)) {
+                        btn.innerText = "ВЫ ПОДПИСАНЫ"; btn.style.background = "#333"; btn.style.color = "#fff";
+                    } else {
+                        btn.innerText = "ПОДПИСАТЬСЯ"; btn.style.background = "var(--gold)"; btn.style.color = "#000";
+                    }
+                });
+                
+                db.collection('posts').where('uid', '==', uid).orderBy('time', 'desc').get().then(snap => {
+                    const list = document.getElementById('view-posts');
+                    list.innerHTML = '';
+                    snap.forEach(doc => list.innerHTML += Feed.renderCard(doc.data(), doc.id));
+                });
+            },
+            renderInfo: (d, prefix) => {
+                document.getElementById(`${prefix}-name`).innerText = '@' + d.username;
+                let b = '';
+                if(d.username === 'mrakodum') b = '<span class="badge-god"></span>';
+                else if(d.verified) b = '<span class="badge-verif"></span>';
+                document.getElementById(`${prefix}-badge`).innerHTML = b;
+                if(d.avatar) document.getElementById(`${prefix}-ava`).style.backgroundImage = `url('${d.avatar}')`;
+            },
+            uploadAva: (inp) => {
                 const r = new FileReader();
-                r.onload = e => {
-                    // Сохраняем Base64 в Firestore (просто, но есть лимит 1мб)
-                    db.collection('users').doc(currentUser.uid).update({ avatar: e.target.result });
-                };
-                r.readAsDataURL(f);
+                r.onload = e => db.collection('users').doc(curUser.uid).update({ avatar: e.target.result });
+                r.readAsDataURL(inp.files[0]);
+            },
+            toggleFollow: () => {
+                const refMe = db.collection('users').doc(curUser.uid);
+                const refHim = db.collection('users').doc(targetProfileId);
+                
+                refHim.get().then(doc => {
+                    const d = doc.data();
+                    if(d.followers && d.followers.includes(curUser.uid)) {
+                        refHim.update({ followers: firebase.firestore.FieldValue.arrayRemove(curUser.uid) });
+                        refMe.update({ following: firebase.firestore.FieldValue.arrayRemove(targetProfileId) });
+                    } else {
+                        refHim.update({ followers: firebase.firestore.FieldValue.arrayUnion(curUser.uid) });
+                        refMe.update({ following: firebase.firestore.FieldValue.arrayUnion(targetProfileId) });
+                    }
+                });
             }
         };
 
-        // === 3. ЛЕНТА ===
+        // === 4. ЛЕНТА ===
         const Feed = {
-            tempImg: null,
+            media: null,
             preview: (inp) => {
                 const f = inp.files[0];
                 const r = new FileReader();
-                r.onload = e => { Feed.tempImg = e.target.result; document.getElementById('img-preview-name').innerText = "Фото добавлено"; };
+                r.onload = e => { 
+                    Feed.media = e.target.result; 
+                    document.getElementById('media-prev-name').innerText = f.type.startsWith('video') ? "Видео готово" : "Фото готово";
+                };
                 r.readAsDataURL(f);
             },
-            post: () => {
+            publish: () => {
                 const txt = document.getElementById('post-text').value;
-                if(!txt && !Feed.tempImg) return;
-
-                db.collection('users').doc(currentUser.uid).get().then(doc => {
+                if(!txt && !Feed.media) return;
+                
+                db.collection('users').doc(curUser.uid).get().then(doc => {
                     const u = doc.data();
                     db.collection('posts').add({
-                        text: txt,
-                        image: Feed.tempImg,
-                        author: u.username,
-                        authorId: currentUser.uid,
-                        verified: u.verified || false,
-                        likes: 0,
-                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                        text: txt, media: Feed.media, uid: curUser.uid, 
+                        author: u.username, time: firebase.firestore.FieldValue.serverTimestamp(),
+                        likes: []
                     });
                     document.getElementById('post-text').value = '';
-                    document.getElementById('img-preview-name').innerText = '';
-                    Feed.tempImg = null;
+                    document.getElementById('media-prev-name').innerText = '';
+                    Feed.media = null;
                 });
             },
             init: () => {
-                db.collection('posts').orderBy('timestamp', 'desc').onSnapshot(snap => {
+                db.collection('posts').orderBy('time', 'desc').limit(50).onSnapshot(snap => {
                     const list = document.getElementById('feed-list');
                     list.innerHTML = '';
-                    snap.forEach(doc => {
-                        const p = doc.data();
-                        let badge = '';
-                        if(p.author === 'mrakodum') badge = '<span class="badge-god"></span>';
-                        else if(p.verified) badge = '<span class="badge-verif"></span>';
-
-                        let delBtn = '';
-                        if(isGod || p.authorId === currentUser.uid) {
-                            delBtn = `<span class="god-delete" onclick="Feed.del('${doc.id}')">УДАЛИТЬ</span>`;
-                        }
-
-                        let imgHtml = p.image ? `<img src="${p.image}" class="post-img">` : '';
-
-                        list.innerHTML += `
-                        <div class="card">
-                            <div class="post-header">
-                                <div><b style="color:var(--gold)">@${p.author}</b> ${badge}</div>
-                                ${delBtn}
-                            </div>
-                            <div>${p.text}</div>
-                            ${imgHtml}
-                            <div style="margin-top:10px; border-top:1px solid #333; padding-top:10px;">
-                                <span class="like-btn" onclick="Feed.like('${doc.id}', ${p.likes})">❤️ ${p.likes}</span>
-                            </div>
-                        </div>`;
-                    });
+                    snap.forEach(doc => list.innerHTML += Feed.renderCard(doc.data(), doc.id));
                 });
             },
-            del: (id) => db.collection('posts').doc(id).delete(),
-            like: (id, current) => db.collection('posts').doc(id).update({ likes: current + 1 })
+            renderCard: (p, id) => {
+                // Кликабельный ник
+                const clickProfile = `onclick="Profile.open('${p.uid}')" style="cursor:pointer;"`;
+                
+                let mediaHtml = '';
+                if(p.media) {
+                    if(p.media.startsWith('data:video') || p.media.startsWith('data:audio')) {
+                        mediaHtml = `<video src="${p.media}" controls class="media-content"></video>`;
+                    } else {
+                        mediaHtml = `<img src="${p.media}" class="media-content">`;
+                    }
+                }
+
+                const isLiked = p.likes && p.likes.includes(curUser.uid);
+                const likeCount = p.likes ? p.likes.length : 0;
+                const likeColor = isLiked ? 'liked' : '';
+                let del = (isGod || p.uid === curUser.uid) ? `<span class="god-delete" onclick="db.collection('posts').doc('${id}').delete()">DEL</span>` : '';
+
+                // Асинхронная проверка галочки
+                setTimeout(() => {
+                    db.collection('users').doc(p.uid).get().then(uDoc => {
+                         if(uDoc.exists) {
+                             if(uDoc.data().verified) document.getElementById(`badge-${id}`).innerHTML = '<span class="badge-verif"></span>';
+                             if(uDoc.data().username === 'mrakodum') document.getElementById(`badge-${id}`).innerHTML = '<span class="badge-god"></span>';
+                         }
+                    });
+                }, 0);
+
+                return `
+                <div class="card">
+                    <div class="post-header">
+                        <div ${clickProfile}><b style="color:var(--gold)">@${p.author}</b> <span id="badge-${id}"></span></div>
+                        ${del}
+                    </div>
+                    <div>${p.text}</div>
+                    ${mediaHtml}
+                    <div class="actions">
+                        <div class="act-btn ${likeColor}" onclick="Feed.toggleLike('${id}')">
+                            ❤️ ${likeCount}
+                        </div>
+                    </div>
+                </div>`;
+            },
+            toggleLike: (id) => {
+                const ref = db.collection('posts').doc(id);
+                ref.get().then(doc => {
+                    const p = doc.data();
+                    if(p.likes && p.likes.includes(curUser.uid)) {
+                        ref.update({ likes: firebase.firestore.FieldValue.arrayRemove(curUser.uid) });
+                    } else {
+                        ref.update({ likes: firebase.firestore.FieldValue.arrayUnion(curUser.uid) });
+                    }
+                });
+            }
         };
 
-        // === 4. ПОИСК ===
-        const Search = {
-            init: () => {
-                Search.run(); // Загрузить всех при старте
+        // === 5. КАНАЛЫ ===
+        const Channels = {
+            create: () => {
+                const name = document.getElementById('chan-name').value;
+                if(!name) return;
+                db.collection('channels').add({ name: name, owner: curUser.uid, posts: [] });
+                alert("Канал создан!");
             },
+            init: () => {
+                db.collection('channels').onSnapshot(snap => {
+                    const list = document.getElementById('channels-list');
+                    list.innerHTML = '';
+                    snap.forEach(doc => {
+                        const c = doc.data();
+                        list.innerHTML += `<div class="card"><b>📢 ${c.name}</b></div>`;
+                    });
+                });
+            }
+        };
+
+        // === 6. ЧАТ И СПИСОК (С ПРОЧТЕНИЕМ) ===
+        const Chat = {
+            monitor: () => {
+                db.collection('users').doc(curUser.uid).collection('chats').orderBy('lastTime', 'desc').onSnapshot(snap => {
+                    const list = document.getElementById('chat-list');
+                    list.innerHTML = '';
+                    let totalUnread = 0;
+
+                    snap.forEach(doc => {
+                        const c = doc.data();
+                        const isUnread = c.unread ? true : false;
+                        if(isUnread) totalUnread++;
+
+                        list.innerHTML += `
+                        <div class="card chat-row" onclick="Chat.open('${doc.id}', '${c.username}')">
+                            <div>
+                                <b>@${c.username}</b>
+                                <div class="chat-preview" style="${isUnread?'font-weight:bold;color:white':''}">${c.lastMsg || 'Вложение'}</div>
+                            </div>
+                            ${isUnread ? '<div class="chat-unread"></div>' : ''}
+                        </div>`;
+                    });
+
+                    const dot = document.getElementById('nav-unread');
+                    if(totalUnread > 0) dot.style.display = 'block';
+                    else dot.style.display = 'none';
+                });
+            },
+            open: (uid, name) => {
+                activeChatId = uid;
+                document.getElementById('chat-modal').style.display = 'flex';
+                document.getElementById('chat-head-name').innerText = name;
+                
+                db.collection('users').doc(curUser.uid).collection('chats').doc(uid).update({ unread: false });
+
+                const chatId = [curUser.uid, uid].sort().join('_');
+                db.collection('messages').doc(chatId).collection('msg').orderBy('time').onSnapshot(snap => {
+                    const box = document.getElementById('chat-box');
+                    box.innerHTML = '';
+                    snap.forEach(doc => {
+                        const m = doc.data();
+                        const div = document.createElement('div');
+                        div.className = m.uid === curUser.uid ? 'msg me' : 'msg other';
+                        div.innerText = m.text;
+                        box.appendChild(div);
+                    });
+                    box.scrollTop = box.scrollHeight;
+                });
+            },
+            send: () => {
+                const txt = document.getElementById('chat-in').value;
+                if(!txt) return;
+                const chatId = [curUser.uid, activeChatId].sort().join('_');
+                
+                db.collection('messages').doc(chatId).collection('msg').add({
+                    text: txt, uid: curUser.uid, time: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                db.collection('users').doc(curUser.uid).collection('chats').doc(activeChatId).set({
+                    username: document.getElementById('chat-head-name').innerText, 
+                    lastMsg: "Вы: " + txt, lastTime: Date.now(), unread: false
+                }, {merge: true});
+
+                db.collection('users').doc(curUser.uid).get().then(doc => {
+                    const myName = doc.data().username;
+                    db.collection('users').doc(activeChatId).collection('chats').doc(curUser.uid).set({
+                        username: myName, lastMsg: txt, lastTime: Date.now(), unread: true
+                    }, {merge: true});
+                });
+
+                document.getElementById('chat-in').value = '';
+            },
+            close: () => {
+                document.getElementById('chat-modal').style.display = 'none';
+                activeChatId = null;
+            },
+            startFromProfile: () => {
+                const name = document.getElementById('view-name').innerText.replace('@','');
+                document.getElementById('view-profile').style.display = 'none';
+                Chat.open(targetProfileId, name);
+            }
+        };
+
+        // === 7. ПОИСК ===
+        const Search = {
+            init: () => Search.run(),
             run: () => {
-                const q = document.getElementById('search-in').value.toLowerCase();
-                db.collection('users').get().then(snap => {
-                    const list = document.getElementById('users-list');
+                const q = document.getElementById('search-q').value.toLowerCase();
+                db.collection('users').limit(20).get().then(snap => {
+                    const list = document.getElementById('search-res');
                     list.innerHTML = '';
                     snap.forEach(doc => {
                         const u = doc.data();
@@ -388,81 +594,28 @@
 
                         list.innerHTML += `
                         <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
-                            <div><b>@${u.username}</b> ${badge}</div>
-                            <button class="btn" style="width:auto; margin:0; font-size:0.8rem;" onclick="Chat.open('${doc.id}', '${u.username}')">ЧАТ</button>
+                            <b>@${u.username} ${badge}</b>
+                            <button class="btn btn-small" onclick="Profile.open('${doc.id}')">ПРОФИЛЬ</button>
                         </div>`;
                     });
                 });
             }
         };
 
-        // === 5. ЧАТЫ ===
-        const Chat = {
-            activeId: null,
-            open: (uid, name) => {
-                Chat.activeId = [currentUser.uid, uid].sort().join('_');
-                document.getElementById('chat-modal').style.display = 'flex';
-                document.getElementById('chat-title').innerText = name;
-                document.getElementById('chat-msgs').innerHTML = '';
-
-                // Сохраняем контакт
-                db.collection('users').doc(currentUser.uid).collection('chats').doc(uid).set({ username: name, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
-                db.collection('users').doc(uid).collection('chats').doc(currentUser.uid).set({ username: 'Входящий...', timestamp: firebase.firestore.FieldValue.serverTimestamp() });
-
-                // Слушаем сообщения
-                db.collection('messages').doc(Chat.activeId).collection('msg').orderBy('ts').onSnapshot(snap => {
-                    const box = document.getElementById('chat-msgs');
-                    box.innerHTML = '';
-                    snap.forEach(doc => {
-                        const m = doc.data();
-                        const div = document.createElement('div');
-                        div.className = m.uid === currentUser.uid ? 'msg me' : 'msg other';
-                        div.innerText = m.text;
-                        box.appendChild(div);
-                    });
-                    box.scrollTop = box.scrollHeight;
-                });
-            },
-            send: () => {
-                const t = document.getElementById('chat-in').value;
-                if(!t) return;
-                db.collection('messages').doc(Chat.activeId).collection('msg').add({
-                    text: t,
-                    uid: currentUser.uid,
-                    ts: firebase.firestore.FieldValue.serverTimestamp()
-                });
-                document.getElementById('chat-in').value = '';
-            },
-            initList: () => {
-                db.collection('users').doc(currentUser.uid).collection('chats').orderBy('timestamp', 'desc').onSnapshot(snap => {
-                    const list = document.getElementById('chat-list');
-                    list.innerHTML = '';
-                    snap.forEach(doc => {
-                        const d = doc.data();
-                        list.innerHTML += `<div class="card" onclick="Chat.open('${doc.id}', '${d.username}')" style="cursor:pointer;"><b>@${d.username}</b></div>`;
-                    });
-                });
-            }
-        };
-
-        // === 6. БОГ ===
+        // === 8. БОГ ===
         const God = {
             verify: () => {
-                const nick = document.getElementById('god-target').value;
-                db.collection('users').where('username', '==', nick).get().then(snap => {
-                    snap.forEach(doc => {
-                        db.collection('users').doc(doc.id).update({ verified: true });
-                        alert('Галочка выдана!');
-                    });
+                const n = document.getElementById('god-nick').value;
+                db.collection('users').where('username','==',n).get().then(s => {
+                    s.forEach(d => db.collection('users').doc(d.id).update({verified: true}));
+                    alert("Галочка выдана!");
                 });
             },
-            ban: () => {
-                const nick = document.getElementById('god-target').value;
-                db.collection('users').where('username', '==', nick).get().then(snap => {
-                    snap.forEach(doc => {
-                        db.collection('users').doc(doc.id).delete();
-                        alert('Пользователь удален из базы.');
-                    });
+            nuke: () => {
+                const n = document.getElementById('god-nick').value;
+                db.collection('users').where('username','==',n).get().then(s => {
+                    s.forEach(d => db.collection('users').doc(d.id).delete());
+                    alert("Юзер стерт.");
                 });
             }
         };
