@@ -16,7 +16,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
 
     <style>
-        /* === THEME: SUPPORT CENTER === */
+        /* === THEME: NATIVE UI === */
         :root {
             --bg-left: #17212b;
             --bg-right: #0e1621;
@@ -61,33 +61,28 @@
         .list-item:hover { background: #202b36; }
         .list-item.active { background: #2b5278; }
         
-        .ava-text { 
-            width: 48px; height: 48px; border-radius: 14px; background: var(--ava-bg);
-            flex-shrink: 0; display: flex; justify-content: center; align-items: center;
-            font-weight: 800; font-size: 1.4rem; color: #fff; text-transform: uppercase;
-        }
+        .ava-text { width: 48px; height: 48px; border-radius: 14px; background: var(--ava-bg); flex-shrink: 0; display: flex; justify-content: center; align-items: center; font-weight: 800; font-size: 1.4rem; color: #fff; text-transform: uppercase; }
         .ava-chan { border-radius: 8px; background: linear-gradient(135deg, #FFD700, #FFA500); color: black; }
 
         /* CHAT */
         .chat-head { height: 60px; background: var(--bg-left); border-bottom: 1px solid #000; display: flex; align-items: center; padding: 0 20px; gap: 15px; cursor: pointer; }
-        .chat-msgs { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 8px; padding-bottom: 80px; } /* Отступ для футера канала */
+        .chat-msgs { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 8px; padding-bottom: 80px; }
         
-        .chat-input-bar { min-height: 60px; background: var(--bg-left); padding: 10px 20px; display: flex; align-items: center; gap: 15px; }
-        .chat-input-bar.disabled { opacity: 0.5; pointer-events: none; filter: grayscale(1); }
+        .chat-input-bar { min-height: 60px; background: var(--bg-left); padding: 10px 20px; display: flex; align-items: center; gap: 15px; position: relative; }
         
+        /* POST HELPER FOR CHANNELS */
+        .post-helper {
+            position: absolute; top: -30px; left: 0; width: 100%; 
+            background: rgba(0,0,0,0.7); color: #ccc; font-size: 0.8rem; 
+            padding: 5px 20px; pointer-events: none;
+        }
+
         .msg { max-width: 70%; padding: 8px 12px; border-radius: 8px; font-size: 0.95rem; line-height: 1.4; word-wrap: break-word; }
         .msg.me { align-self: flex-end; background: var(--msg-out); color: white; }
         .msg.other { align-self: flex-start; background: var(--msg-in); color: white; }
 
-        /* CHANNEL FOOTER (FIXED BOTTOM) */
-        .channel-footer {
-            height: 60px; background: var(--bg-left); border-top: 1px solid #000;
-            display: none; align-items: center; justify-content: center; padding: 0 20px;
-        }
-        .chan-btn {
-            width: 100%; text-transform: uppercase; letter-spacing: 1px; font-weight: 800; padding: 12px;
-            background: var(--accent); color: white; border-radius: 8px; border: none; cursor: pointer;
-        }
+        .channel-footer { height: 60px; background: var(--bg-left); border-top: 1px solid #000; display: none; align-items: center; justify-content: center; padding: 0 20px; }
+        .chan-btn { width: 100%; text-transform: uppercase; letter-spacing: 1px; font-weight: 800; padding: 12px; background: var(--accent); color: white; border-radius: 8px; border: none; cursor: pointer; }
         .chan-btn.subbed { background: transparent; color: var(--text-sec); border: 1px solid var(--text-sec); }
 
         .post { width: 100%; max-width: 480px; align-self: center; background: var(--bg-left); border-radius: 10px; overflow: hidden; margin-bottom: 15px; }
@@ -95,7 +90,7 @@
         .post-body { padding: 15px; }
         .url-btn { display: block; background: rgba(82, 136, 193, 0.15); color: var(--accent); text-align: center; padding: 10px; border-radius: 6px; text-decoration: none; font-weight: 600; margin-top: 10px; }
 
-        /* MODAL PROFILE */
+        /* MODAL */
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 5000; display: none; justify-content: center; align-items: center; }
         .modal-box { width: 380px; background: var(--bg-left); border-radius: 16px; overflow: hidden; position: relative; display:flex; flex-direction:column; max-height: 90vh; overflow-y: auto; }
         .modal-cover { height: 100px; background: linear-gradient(135deg, #2b5278, #17212b); width: 100%; }
@@ -103,20 +98,25 @@
         .modal-ava-text { width: 100%; height: 100%; border-radius: 24px; background: var(--ava-bg); border: 6px solid var(--bg-left); box-shadow: 0 10px 20px rgba(0,0,0,0.3); display: flex; justify-content: center; align-items: center; font-size: 3rem; font-weight: 800; color: white; text-transform: uppercase; }
         .modal-ava-chan { background: linear-gradient(135deg, #FFD700, #FFA500); color: black; }
 
-        /* GOD & SUPPORT */
+        /* CREATE CHANNEL MODAL */
+        #create-chan-content { padding: 20px; text-align: center; }
+        .modal-input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: #0e1621; color: white; margin-bottom: 10px; }
+
         .god-panel-left { padding: 15px; border-top: 1px solid rgba(255,255,255,0.1); background: #131a24; }
         .req-badge { background: #FF3B30; color: white; padding: 2px 6px; border-radius: 10px; font-size: 0.7rem; margin-left: 5px; }
 
         .btn { background: var(--accent); color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer; font-weight: 600; width: 100%; margin-top: 10px; }
         .btn-gold { background: linear-gradient(135deg, #FFD700, #FFA500); color: black; border:none; }
-        
+        .btn-red { background: transparent; color: #ff5959; border: 2px solid #ff5959; }
+        .btn-sec { background: transparent; color: var(--accent); border: 2px solid var(--accent); }
+
         /* SOCIALS */
         .social-row { display: flex; justify-content: center; gap: 15px; margin-top: 20px; flex-wrap: wrap; }
         .social-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; justify-content: center; align-items: center; background: rgba(255,255,255,0.05); color: white; font-size: 1.4rem; text-decoration: none; }
         .custom-link { display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.05); padding: 12px 20px; border-radius: 12px; color: var(--accent); text-decoration: none; margin-top: 15px; font-weight: 600; border: 1px solid rgba(82, 136, 193, 0.3); }
 
-        .badge-verif { display: inline-block; width: 18px; height: 18px; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%235288c1'%3E%3Cpath d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z'/%3E%3C/svg%3E") no-repeat center; vertical-align: text-bottom; margin-left: 4px; }
-        .badge-god::after { content: '👑'; margin-left: 4px; font-size: 1.2rem; vertical-align: text-bottom; }
+        .badge-verif { display: inline-block; width: 18px; height: 18px; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%235288c1'%3E%3Cpath d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z'/%3E%3C/svg%3E") no-repeat center; vertical-align: middle; margin-left: 6px; }
+        .badge-god::after { content: '👑'; margin-left: 6px; font-size: 1.2rem; vertical-align: middle; }
         .icon { font-family: 'Material Symbols Rounded'; font-size: 24px; color: var(--text-sec); cursor: pointer; user-select: none; }
         .hidden { display: none !important; }
     </style>
@@ -183,11 +183,12 @@
                 <div id="chat-msgs" class="chat-msgs"></div>
                 
                 <div class="chat-input-bar" id="chat-input-bar">
+                    <div id="chan-helper" class="post-helper hidden">💡 Tip: <b>[Button Name + URL]</b> adds a button</div>
                     <label class="icon" style="transform:rotate(45deg);"><input type="file" hidden onchange="Chat.upl(this)">attach_file</label>
                     <input id="msg-in" type="text" placeholder="Write a message..." style="flex:1; background:transparent; border:none; color:white; font-size:1rem;">
                     <span class="icon" style="color:var(--accent);" onclick="Chat.send()">send</span>
                 </div>
-                <div id="blocked-msg" class="hidden" style="padding:20px; text-align:center; color:#7f91a4; background:var(--bg-left);">Wait for admin approval.</div>
+                <div id="blocked-msg" class="hidden" style="padding:20px; text-align:center; color:#7f91a4; background:var(--bg-left);">Request sent. Wait for approval.</div>
 
                 <div id="chan-footer" class="channel-footer">
                     <button id="chan-sub-btn" class="chan-btn">SUBSCRIBE</button>
@@ -203,14 +204,25 @@
             <div style="text-align:center; padding:0 20px 20px; margin-top: 10px;">
                 <h2 style="margin:0; display:flex; justify-content:center; align-items:center;"><span id="modal-name">Name</span> <span id="modal-badge"></span></h2>
                 <div id="modal-tag" style="color:var(--text-sec); margin-bottom:20px;">@tag</div>
-                
                 <div style="display:flex; justify-content:center; gap:30px; margin-bottom:20px;">
                     <div><b id="stat-1">0</b><br><small style="color:var(--text-sec);">Subscribers</small></div>
                     <div><b id="stat-2">0</b><br><small style="color:var(--text-sec);">Following</small></div>
                 </div>
-
                 <div id="social-area"></div>
                 <div id="modal-actions" style="margin-top:20px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-create-channel" class="modal" onclick="if(event.target===this)this.style.display='none'">
+        <div class="modal-box">
+            <div style="background:var(--bg-left); padding:20px; text-align:center; border-bottom:1px solid rgba(255,255,255,0.1);">
+                <h3 style="margin:0;">Create Channel</h3>
+            </div>
+            <div id="create-chan-content">
+                <input id="new-chan-name" class="modal-input" placeholder="Channel Name">
+                <input id="new-chan-slug" class="modal-input" placeholder="Username (@news)">
+                <button class="btn" onclick="Channels.confirmCreate()">Create</button>
             </div>
         </div>
     </div>
@@ -222,9 +234,9 @@
                 <small style="font-weight: 600;">Elite Status</small>
             </div>
             <div style="padding: 30px; text-align: left; color: white;">
-                <p>✅ Blue Verification Badge</p>
-                <p>✅ Social Link in Profile</p>
-                <p>✅ 10 Channels Limit</p>
+                <div class="prem-feature"><i class="fas fa-check-circle"></i> <span>Blue Verification Badge</span></div>
+                <div class="prem-feature"><i class="fas fa-link"></i> <span>Social Link in Profile</span></div>
+                <div class="prem-feature"><i class="fas fa-bullhorn"></i> <span>10 Channels Limit</span></div>
                 <button class="btn-gold" onclick="Premium.buy()" style="font-size:1.1rem; padding:15px; width:100%; margin-top:10px;">Buy for $25 (Lifetime)</button>
             </div>
         </div>
@@ -248,16 +260,19 @@
         let me = null;
         let isGod = false;
         let activeChat = null;
-        let supportMode = false; // Режим просмотра заявок для админа
+        let supportMode = false;
 
         auth.onAuthStateChanged(user => {
             if(user) {
                 me = user;
                 db.collection('users').doc(me.uid).get().then(doc => {
                     if(doc.exists) {
-                        if(doc.data().username === 'mrakodum') {
+                        me.username = doc.data().username; // Fix undefined
+                        me.displayName = doc.data().displayName;
+                        if(me.username === 'mrakodum') {
                             isGod = true;
                             document.getElementById('god-panel').classList.remove('hidden');
+                            Support.ensureExists();
                         }
                         document.getElementById('auth-screen').style.display='none';
                         document.getElementById('app').classList.add('active');
@@ -306,7 +321,7 @@
                 document.getElementById('list-search').classList.add('hidden');
                 document.getElementById('list-'+t).classList.remove('hidden');
                 document.getElementById('search-in').value = '';
-                supportMode = false; // Выход из режима саппорта
+                supportMode = false;
             },
             back: () => {
                 document.getElementById('right-panel').classList.remove('open');
@@ -318,17 +333,18 @@
         const Chats = {
             load: () => {
                 db.collection('users').doc(me.uid).collection('chats').orderBy('time','desc').onSnapshot(s => {
-                    if (supportMode) return; // Если админ смотрит заявки, не обновляем обычный список
+                    if (supportMode) return;
                     const l = document.getElementById('list-chats'); l.innerHTML='';
                     s.forEach(doc => {
                         const d = doc.data();
-                        // Админ не видит заявки в общем списке, чтобы не мусорить
-                        if (isGod && d.isRequest && !d.accepted) return;
+                        if (isGod && d.isRequest && !d.accepted) return; // Hide requests from main list for Admin
 
                         db.collection('users').doc(doc.id).get().then(u => {
                             if(!u.exists) return;
                             const ud = u.data();
-                            l.innerHTML += ItemHTML(doc.id, 'user', ud.displayName, d.lastMsg, ud.username==='mrakodum', ud.verified, d.unread);
+                            // For regular users, support chat looks like "Support Chronogram"
+                            const name = (doc.id === 'support_id_placeholder') ? 'Support Chronogram' : ud.displayName; 
+                            l.innerHTML += ItemHTML(doc.id, 'user', name, d.lastMsg, ud.username==='mrakodum', ud.verified, d.unread);
                         });
                     });
                 });
@@ -342,49 +358,56 @@
                 const list = document.getElementById('list-chats');
                 
                 if (supportMode) {
-                    btn.innerText = "🔙 Чаты";
-                    list.innerHTML = '<div style="padding:10px; color:grey; text-align:center;">Загрузка заявок...</div>';
-                    // Загружаем только заявки
+                    btn.innerText = "🔙 Chats";
+                    list.innerHTML = '<div style="padding:10px; color:grey; text-align:center;">Loading Requests...</div>';
                     db.collection('users').doc(me.uid).collection('chats').where('isRequest', '==', true).where('accepted', '==', false).get().then(snap => {
                         list.innerHTML = '';
-                        if(snap.empty) list.innerHTML = '<div style="padding:20px; color:grey; text-align:center;">Нет новых заявок</div>';
+                        if(snap.empty) list.innerHTML = '<div style="padding:20px; color:grey; text-align:center;">No Pending Requests</div>';
                         snap.forEach(doc => {
-                            const d = doc.data();
                             db.collection('users').doc(doc.id).get().then(u => {
                                 const ud = u.data();
-                                list.innerHTML += ItemHTML(doc.id, 'user', ud.displayName, "Заявка на Premium", false, ud.verified, true);
+                                list.innerHTML += ItemHTML(doc.id, 'user', ud.displayName, "Premium Request", false, ud.verified, true);
                             });
                         });
                     });
                 } else {
                     btn.innerText = "📨 Заявки";
-                    Chats.load(); // Возврат к чатам
+                    Chats.load();
                 }
             },
             accept: () => {
-                // Разблокировать чат для пользователя
                 db.collection('users').doc(activeChat.id).collection('chats').doc(me.uid).update({isRequest: false, accepted: true});
-                // Разблокировать у себя
                 db.collection('users').doc(me.uid).collection('chats').doc(activeChat.id).update({isRequest: false, accepted: true});
-                
-                alert("Диалог принят!");
-                Chat.open(activeChat.id, 'user', activeChat.name, false, activeChat.isV); // Перезагрузить интерфейс
+                alert("Dialog Accepted!");
+                Chat.open(activeChat.id, 'user', activeChat.name, false, activeChat.isV);
+            },
+            ensureExists: () => {
+                // Ensure there is a placeholder user if needed, but logic is handled by admin ID mapping
             }
         };
 
         const Channels = {
-            createModal: () => {
+            createModal: () => { document.getElementById('modal-create-channel').style.display = 'flex'; },
+            confirmCreate: () => {
+                const name = document.getElementById('new-chan-name').value;
+                const slug = document.getElementById('new-chan-slug').value.toLowerCase().replace('@','');
+                
+                if(!name || !slug) return alert("Fill all fields");
+
                 db.collection('users').doc(me.uid).get().then(doc => {
                     const u = doc.data();
                     db.collection('channels').where('owner', '==', me.uid).get().then(snap => {
                         const limit = u.verified ? 10 : 3;
-                        if(snap.size >= limit) return alert(`Limit reached! Max: ${limit}. Buy Premium for 10.`);
-                        const name = prompt('Channel Name:');
-                        const slug = prompt('Username (@name):');
-                        if(name && slug) {
-                            const s = slug.replace('@','').toLowerCase();
-                            db.collection('channels').add({name:name, username:s, owner:me.uid, subs:[me.uid]});
-                        }
+                        if(snap.size >= limit) return alert(`Limit reached! Max: ${limit}.`);
+                        
+                        Promise.all([
+                            db.collection('users').where('username','==',slug).get(),
+                            db.collection('channels').where('username','==',slug).get()
+                        ]).then(([uSnap, cSnap]) => {
+                            if(!uSnap.empty || !cSnap.empty) return alert('Username taken!');
+                            db.collection('channels').add({name:name, username:slug, owner:me.uid, subs:[me.uid]});
+                            document.getElementById('modal-create-channel').style.display='none';
+                        });
                     });
                 });
             },
@@ -442,53 +465,49 @@
                 document.getElementById('right-panel').classList.add('open');
                 if(window.innerWidth <= 768) document.querySelector('.back-btn').style.display='block';
 
-                // Настраиваем шапку
                 document.getElementById('chat-head-name').innerText = name;
                 document.getElementById('chat-head-badge').innerHTML = Render.badges(isG, isV);
                 const a = document.getElementById('chat-head-ava');
                 a.innerText = name[0].toUpperCase();
                 a.className = type==='channel' ? 'ava-text ava-chan' : 'ava-text';
 
-                // Сброс UI
+                // UI RESET
                 document.getElementById('chan-footer').style.display = 'none';
                 document.getElementById('chat-input-bar').style.display = 'flex';
                 document.getElementById('blocked-msg').classList.add('hidden');
                 document.getElementById('accept-req-btn').classList.add('hidden');
+                document.getElementById('chan-helper').classList.add('hidden');
 
                 if(type === 'channel') {
                     db.collection('channels').doc(id).onSnapshot(d => {
                         const c = d.data();
                         document.getElementById('chat-head-status').innerText = c.subs.length + ' Subscribers';
-                        
-                        // Низ канала (Подписка)
-                        const f = document.getElementById('chan-footer');
-                        f.style.display = 'flex';
+                        document.getElementById('chan-footer').style.display = 'flex';
                         const isSub = c.subs.includes(me.uid);
                         const btn = document.getElementById('chan-sub-btn');
-                        btn.innerText = isSub ? "ВЫ ПОДПИСАНЫ (ОТКЛЮЧИТЬ)" : "ПОДПИСАТЬСЯ";
+                        btn.innerText = isSub ? "UNSUBSCRIBE" : "SUBSCRIBE";
                         btn.className = isSub ? "chan-btn subbed" : "chan-btn";
-                        btn.onclick = () => Profile.sub(id, 'channel', isSub); // Используем логику профиля
+                        btn.onclick = () => Profile.sub(id, 'channel', isSub);
 
-                        // Ввод текста (Только владелец)
                         if(c.owner !== me.uid && !isGod) document.getElementById('chat-input-bar').style.display='none';
+                        else {
+                            document.getElementById('chat-input-bar').style.display='flex';
+                            document.getElementById('chan-helper').classList.remove('hidden'); // Tip for Admin
+                        }
                     });
                 } else {
                     document.getElementById('chat-head-status').innerText = 'Online';
                     
-                    // ЛОГИКА ПОДДЕРЖКИ / БЛОКИРОВКИ
                     db.collection('users').doc(me.uid).collection('chats').doc(id).get().then(doc => {
                         if(doc.exists) {
                             const d = doc.data();
-                            // Если я юзер и это реквест -> Блок
                             if(d.isRequest && !d.accepted && !isGod) {
                                 document.getElementById('chat-input-bar').style.display='none';
                                 document.getElementById('blocked-msg').classList.remove('hidden');
                             }
-                            // Если я Админ и это реквест -> Кнопка Принять
                             if(isGod && d.isRequest && !d.accepted) {
                                 document.getElementById('accept-req-btn').classList.remove('hidden');
                             }
-                            // Сброс непрочитанного
                             doc.ref.update({unread:false});
                         }
                     });
@@ -516,7 +535,6 @@
                 
                 const last = type==='text' ? v : 'File';
                 if(activeChat.type==='user') {
-                    // Обновляем чаты у обоих
                     db.collection('users').doc(me.uid).collection('chats').doc(activeChat.id).set({lastMsg:last, time:Date.now()}, {merge:true});
                     db.collection('users').doc(activeChat.id).collection('chats').doc(me.uid).set({lastMsg:last, time:Date.now(), unread:true}, {merge:true});
                 } 
@@ -555,10 +573,7 @@
                 
                 ref.onSnapshot(doc => {
                     const d = doc.data();
-                    const badgeHtml = Render.badges(d.username==='mrakodum', d.verified || type==='channel'); // Исправление галочек в профиле
-                    
                     document.getElementById('modal-name').innerText = d.displayName || d.name;
-                    document.getElementById('modal-badge').innerHTML = badgeHtml;
                     document.getElementById('modal-tag').innerText = '@' + d.username;
                     
                     const a = document.getElementById('modal-ava');
@@ -568,10 +583,8 @@
                     document.getElementById('stat-1').innerText = type==='user' ? (d.followers?.length||0) : (d.subs?.length||0);
                     document.getElementById('stat-2').innerText = type==='user' ? (d.following?.length||0) : '-';
 
-                    // SOCIAL LINKS
-                    const sa = document.getElementById('social-area');
-                    sa.innerHTML = '';
-                    
+                    // SOCIALS
+                    const sa = document.getElementById('social-area'); sa.innerHTML = '';
                     if (d.username === 'mrakodum') {
                         sa.innerHTML = `
                             <div class="social-row">
@@ -580,11 +593,9 @@
                                 <a href="https://tiktok.com/@chronogram_mrakodum" target="_blank" class="social-icon tiktok"><i class="fab fa-tiktok"></i></a>
                                 <a href="https://youtube.com/@mracodum" target="_blank" class="social-icon yt"><i class="fab fa-youtube"></i></a>
                             </div>`;
-                    } 
-                    else if (d.verified && d.socialLink && type==='user') {
+                    } else if (d.verified && d.socialLink && type==='user') {
                         sa.innerHTML = `<a href="${d.socialLink}" target="_blank" class="custom-link"><i class="fas fa-link"></i> Open Link</a>`;
-                    }
-                    else if (isMe && d.verified && type==='user') {
+                    } else if (isMe && d.verified && type==='user') {
                         sa.innerHTML = `<button class="btn-sec" style="margin-top:10px; font-size:0.8rem;" onclick="Social.add()">+ Add Link</button>`;
                     }
 
@@ -621,21 +632,19 @@
         const Premium = {
             open: () => { document.getElementById('modal-profile').style.display='none'; document.getElementById('modal-premium').style.display='flex'; },
             buy: () => {
-                // ПОИСК МРАКОДУМА (АДМИНА)
                 db.collection('users').where('username', '==', 'mrakodum').get().then(snap => {
                     if (snap.empty) return alert('Support unavailable');
                     const adminId = snap.docs[0].id;
                     
-                    // ВИЗУАЛЬНО ДЛЯ ЮЗЕРА: Support Chronogram
+                    // Open chat where user sees "Support Chronogram"
                     Chat.open(adminId, 'user', 'Support Chronogram', false, true); 
-                    
                     document.getElementById('modal-premium').style.display='none';
                     
-                    // ТЕХНИЧЕСКИ: Создаем флаг "isRequest" в чате с Мракодумом
-                    const reqMsg = `Заявка на Premium от @${me.username}`;
+                    // Fixed: Send message with current user's name
+                    const reqMsg = `Request for Premium from @${me.username}`;
                     Chat.send(reqMsg);
                     
-                    // Помечаем этот диалог как "Заявка" и "Не принят"
+                    // Mark as request
                     db.collection('users').doc(me.uid).collection('chats').doc(adminId).update({isRequest: true, accepted: false});
                     db.collection('users').doc(adminId).collection('chats').doc(me.uid).set({
                         isRequest: true, accepted: false, lastMsg: reqMsg, time: Date.now(), unread: true
