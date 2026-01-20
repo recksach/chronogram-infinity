@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>CHRONOGRAM X</title>
-    <link rel="icon" type="image1/jpeg" href="logo1.jpg">
-    <link rel="apple-touch-icon" href="logo1.jpg">
+    <title>CHRONOGRAM DESKTOP</title>
+    <link rel="icon" type="image1/jpeg" href="logo1.jpeg">
     
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0" />
@@ -16,305 +15,159 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
 
     <style>
-        /* === THEME: NOTIFICATIONS ALIVE === */
+        /* === THEME: TELEGRAM DESKTOP STYLE === */
         :root {
-            --bg: #050510;
-            --header: rgba(18, 22, 30, 0.98);
-            --card: rgba(255, 255, 255, 0.04);
-            --accent: #2979FF;
-            --gold: #FFD700;
-            --text: #ffffff;
-            --text-sec: #8aa0b6;
-            --incoming: #1f2633;
-            --outgoing: #2979FF;
+            --bg-master: #0e1621;       /* Темный фон списка */
+            --bg-detail: #17212b;       /* Фон чата/профиля */
+            --hover: #202b36;           /* Наведение */
+            --accent: #5288c1;          /* Telegram Blue */
+            --text: #f5f5f5;
+            --text-sec: #7f91a4;
+            --border: 1px solid rgba(0,0,0,0.2);
+            --msg-in: #182533;
+            --msg-out: #2b5278;
         }
 
         * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
-        
-        body { 
-            margin: 0; padding: 0; font-family: 'Manrope', sans-serif; 
-            color: var(--text); background: var(--bg);
-            height: 100dvh; overflow: hidden;
-        }
+        body { margin: 0; padding: 0; font-family: 'Manrope', sans-serif; color: var(--text); background: #000; height: 100vh; overflow: hidden; }
 
-        body::before {
-            content: ''; position: absolute; width: 100%; height: 100%; top: 0; left: 0; z-index: -1;
-            background: radial-gradient(circle at 50% 0%, #1a2236 0%, #000 70%);
-        }
-
-        .icon { font-family: 'Material Symbols Rounded'; font-size: 24px; vertical-align: middle; }
+        /* SCROLLBAR */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
 
         /* ВХОД */
-        #auth-screen {
-            position: fixed; top:0; left:0; width:100%; height:100%;
-            background: #000; z-index: 9999; display: flex; flex-direction: column;
-            justify-content: center; align-items: center;
-        }
-        .app-logo-lg {
-            width: 120px; height: 120px; border-radius: 50%;
-            background-image: url('logo1.jpg'); background-size: cover; background-position: center;
-            box-shadow: 0 0 60px rgba(41, 121, 255, 0.3); margin-bottom: 30px;
-        }
-
-        #app { display: none; height: 100%; width: 100%; flex-direction: column; }
+        #auth-screen { position: fixed; top:0; left:0; width:100%; height:100%; background: #0e1621; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        
+        /* ЛЕЙАУТ (DESKTOP FIRST) */
+        #app { display: none; width: 100%; height: 100%; background: var(--bg-master); }
         #app.active { display: flex; }
 
-        .main-header {
-            height: 60px; display: flex; align-items: center; justify-content: space-between;
-            padding: 0 15px; background: var(--header); border-bottom: 1px solid rgba(255,255,255,0.05);
-            font-size: 1.2rem; font-weight: 800; letter-spacing: 1px; z-index: 100;
+        /* ЛЕВАЯ КОЛОНКА (СПИСОК) */
+        .sidebar {
+            width: 350px; height: 100%; display: flex; flex-direction: column;
+            border-right: 1px solid #000; background: var(--bg-master); flex-shrink: 0;
         }
 
-        .tabs { display: flex; background: var(--header); border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .tab { flex: 1; text-align: center; padding: 15px 0; color: var(--text-sec); cursor: pointer; position: relative; font-weight: 600; }
-        .tab.active { color: var(--accent); }
-        .tab.active::after { content:''; position:absolute; bottom:0; left:20%; width:60%; height:3px; background:var(--accent); border-radius:3px 3px 0 0; }
-
-        .pages-container { flex: 1; position: relative; overflow: hidden; }
-        .page { position: absolute; top:0; left:0; width:100%; height:100%; overflow-y: auto; display: none; padding-bottom: 80px; }
-        .page.active { display: block; animation: fadeIn 0.2s; }
-        @keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
-
-        /* СПИСКИ */
-        .list-item {
-            display: flex; align-items: center; gap: 15px; padding: 15px;
-            border-bottom: 1px solid rgba(255,255,255,0.03); cursor: pointer;
+        /* ПРАВАЯ КОЛОНКА (ЧАТ/ПРОФИЛЬ) */
+        .main-view {
+            flex: 1; height: 100%; position: relative; background: #000;
+            background-image: url('https://www.transparenttextures.com/patterns/dark-matter.png'); 
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
         }
-        .list-item:active { background: rgba(255,255,255,0.05); }
+
+        /* МОБИЛЬНАЯ АДАПТАЦИЯ */
+        @media (max-width: 768px) {
+            .sidebar { width: 100%; }
+            .main-view { 
+                position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 100;
+                transform: translateX(100%); transition: transform 0.25s ease;
+            }
+            .main-view.active { transform: translateX(0); }
+        }
+
+        /* КОМПОНЕНТЫ */
+        .header {
+            height: 60px; padding: 0 15px; display: flex; align-items: center; justify-content: space-between;
+            background: var(--bg-master); border-bottom: var(--border); color: var(--text-sec);
+        }
+        .search-bar { padding: 10px; background: var(--bg-master); }
+        .search-in { width: 100%; background: #242f3d; border: none; padding: 10px 15px; border-radius: 20px; color: white; }
+
+        .tabs { display: flex; background: var(--bg-master); }
+        .tab { flex: 1; text-align: center; padding: 12px; cursor: pointer; color: var(--text-sec); font-weight: 600; font-size: 0.9rem; }
+        .tab.active { color: var(--accent); border-bottom: 2px solid var(--accent); }
+
+        .list-wrap { flex: 1; overflow-y: auto; }
+        .list-item { 
+            display: flex; align-items: center; gap: 12px; padding: 10px 15px; cursor: pointer; transition: 0.2s; 
+        }
+        .list-item:hover, .list-item.active { background: var(--hover); }
         
-        .ava { width: 50px; height: 50px; border-radius: 50%; background: #222; background-size: cover; background-position: center; flex-shrink: 0; position: relative; border: 1px solid rgba(255,255,255,0.1); }
-        .ava-sq { border-radius: 16px; } 
-        
-        .badge-verif { display: inline-block; width: 16px; height: 16px; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%232979FF'%3E%3Cpath d='M22.5 12.5c0-1.58-.875-2.95-2.148-3.6.154-.435.238-.905.238-1.4 0-2.21-1.71-3.998-3.818-3.998-.47 0-.92.114-1.335.314C14.63 2.662 13.385 2 12 2c-1.385 0-2.63.662-3.437 1.716-.415-.2-.865-.314-1.335-.314-2.11 0-3.818 1.79-3.818 4 0 .495.083.965.238 1.4-1.272.65-2.147 2.02-2.147 3.6 0 1.435.71 2.79 1.786 3.63-.09.39-.136.79-.136 1.2 0 2.7 2.19 4.9 4.9 4.9 1.455 0 2.76-.63 3.69-1.635.93 1.005 2.234 1.635 3.69 1.635 2.71 0 4.9-2.2 4.9-4.9 0-.41-.046-.81-.136-1.2 1.076-.84 1.786-2.195 1.786-3.63zM9.76 17.6l-4.48-4.48 1.413-1.414 3.067 3.067 6.907-6.907 1.413 1.414-8.32 8.32z'/%3E%3C/svg%3E") no-repeat center; vertical-align: middle; margin-left: 4px; }
-        .badge-god::after { content: '👑'; margin-left: 4px; font-size: 1.1rem; vertical-align: middle; }
+        .ava { width: 48px; height: 48px; border-radius: 50%; background: #2f3b4b; background-size: cover; background-position: center; flex-shrink: 0; }
+        .ava-sq { border-radius: 12px; }
 
         /* ЧАТ */
-        #chat-screen {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #050510; z-index: 2000; display: none; flex-direction: column;
-            transform: translateX(100%); transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+        .chat-head {
+            width: 100%; height: 60px; background: var(--bg-detail); border-bottom: var(--border);
+            display: flex; align-items: center; padding: 0 20px; gap: 15px; cursor: pointer;
         }
-        #chat-screen.open { display: flex; transform: translateX(0); }
-
-        .chat-header {
-            height: 60px; background: var(--header); display: flex; align-items: center;
-            padding: 0 10px; gap: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer;
-        }
-        .chat-body { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; background-image: url('https://www.transparenttextures.com/patterns/dark-matter.png'); }
-
-        .msg { max-width: 80%; padding: 10px 14px; border-radius: 18px; font-size: 0.95rem; line-height: 1.4; position: relative; word-wrap: break-word; }
-        .msg.me { align-self: flex-end; background: var(--outgoing); color: white; border-bottom-right-radius: 2px; }
-        .msg.other { align-self: flex-start; background: var(--incoming); color: white; border-bottom-left-radius: 2px; }
-        
-        .channel-post {
-            background: var(--card); border: 1px solid rgba(255,255,255,0.05);
-            border-radius: 18px; overflow: hidden; margin-bottom: 20px; width: 100%; max-width: 100%; align-self: center; position: relative;
-        }
-        .post-media { width: 100%; max-height: 450px; object-fit: cover; display: block; }
-        .post-content { padding: 15px; }
-        .post-text { white-space: pre-wrap; margin-bottom: 10px; font-size: 1rem; }
-        
-        .anim-text {
-            background: linear-gradient(90deg, #fff, #2979FF, #fff); background-size: 200% auto;
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            animation: shine 3s linear infinite; font-weight: 600;
-        }
-        @keyframes shine { to { background-position: 200% center; } }
-
-        /* ИНФО ПРОФИЛЬ */
-        #info-screen {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #050510; z-index: 2500; display: none; flex-direction: column; overflow-y: auto;
-        }
-        .info-header {
-            height: 300px; position: relative; background: linear-gradient(to bottom, #1a2236, #050510);
-            display: flex; flex-direction: column; align-items: center; justify-content: center; padding-top: 40px;
-        }
-        .big-ava { width: 120px; height: 120px; border-radius: 50%; background-size: cover; border: 4px solid #050510; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .stats-row { display: flex; gap: 40px; margin-top: 20px; }
-        .stat-item { text-align: center; cursor: pointer; }
-        .stat-val { font-size: 1.4rem; font-weight: 800; display: block; }
-        .stat-label { font-size: 0.8rem; color: var(--text-sec); }
-
-        .btn { background: var(--accent); color: white; border: none; padding: 14px; border-radius: 14px; font-weight: 700; width: 100%; margin-top: 10px; cursor: pointer; }
-        .btn-sec { background: rgba(255,255,255,0.1); }
-        .btn-gold { background: linear-gradient(135deg, #FFD700, #FFA000); color: black; }
-        .btn-danger { background: #FF3B30; color: white; }
-        .url-btn { display: block; width: 100%; padding: 12px; background: rgba(41, 121, 255, 0.15); color: var(--accent); text-align: center; border-radius: 10px; text-decoration: none; font-weight: 700; margin-top: 8px; border: 1px solid rgba(41, 121, 255, 0.3); }
-        
-        .input-bar {
-            min-height: 60px; background: var(--header); border-top: 1px solid rgba(255,255,255,0.05);
-            display: flex; align-items: center; padding: 10px; gap: 10px; padding-bottom: max(10px, env(safe-area-inset-bottom));
-        }
-        input { flex: 1; background: rgba(0,0,0,0.3); border: none; padding: 12px; border-radius: 20px; color: white; font-size: 1rem; }
-        
-        .video-circle { width: 220px; height: 220px; border-radius: 50%; object-fit: cover; border: 3px solid var(--accent); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        
-        .like-btn { cursor: pointer; display: flex; align-items: center; gap: 5px; background: rgba(255,255,255,0.05); padding: 5px 10px; border-radius: 20px; font-size: 0.9rem; width: fit-content; margin-top: 5px; }
-        .like-btn.liked { color: #FF3B30; background: rgba(255, 59, 48, 0.1); }
-        .views-count { font-size: 0.8rem; color: var(--text-sec); display: flex; align-items: center; gap: 4px; position: absolute; bottom: 15px; right: 15px; }
-
-        /* ВСПЛЫВАЮЩЕЕ УВЕДОМЛЕНИЕ (TOAST) */
-        #toast {
-            position: fixed; top: -100px; left: 5%; width: 90%; background: rgba(41, 121, 255, 0.9);
-            color: white; padding: 15px; border-radius: 16px; z-index: 9999;
-            backdrop-filter: blur(10px); box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            transition: top 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        .chat-content { flex: 1; width: 100%; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 8px; }
+        .chat-input {
+            width: 100%; min-height: 60px; background: var(--bg-detail); padding: 10px 20px;
             display: flex; align-items: center; gap: 15px;
         }
-        #toast.show { top: 20px; }
+        .msg { max-width: 70%; padding: 8px 12px; border-radius: 8px; font-size: 0.95rem; line-height: 1.4; position: relative; word-wrap: break-word; }
+        .msg.me { align-self: flex-end; background: var(--msg-out); color: white; }
+        .msg.other { align-self: flex-start; background: var(--msg-in); color: white; }
+
+        /* ПОСТЫ КАНАЛА */
+        .post { width: 100%; max-width: 500px; align-self: center; background: var(--bg-detail); border-radius: 10px; overflow: hidden; margin-bottom: 20px; }
+        .post-img { width: 100%; max-height: 400px; object-fit: cover; display: block; }
+        .post-body { padding: 15px; }
+        .post-text { white-space: pre-wrap; margin-bottom: 10px; }
+        .url-btn { display: block; background: rgba(82, 136, 193, 0.15); color: var(--accent); text-align: center; padding: 10px; border-radius: 6px; text-decoration: none; font-weight: 600; }
+
+        /* ПРОФИЛЬ (ВСТРОЕННЫЙ) */
+        .profile-view { width: 100%; height: 100%; background: var(--bg-master); display: flex; flex-direction: column; align-items: center; padding-top: 50px; overflow-y: auto; }
+        .big-ava { width: 140px; height: 140px; border-radius: 50%; background-size: cover; margin-bottom: 20px; cursor: pointer; position: relative; }
+        .big-ava:hover::after { content: 'Изменить'; position: absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); border-radius:50%; color:white; display:flex; justify-content:center; align-items:center; }
+
+        /* КНОПКИ */
+        .btn { background: var(--accent); color: white; border: none; padding: 10px 24px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.95rem; }
+        .btn:hover { opacity: 0.9; }
+        .btn-sec { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
+        .btn-red { background: transparent; color: #ff5959; border: 1px solid #ff5959; }
+
+        .icon { font-family: 'Material Symbols Rounded'; font-size: 24px; color: var(--text-sec); cursor: pointer; }
+        .icon:hover { color: var(--text); }
+        .badge-verif { display: inline-block; width: 16px; height: 16px; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%235288c1'%3E%3Cpath d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z'/%3E%3C/svg%3E") no-repeat center; vertical-align: middle; margin-left: 5px; }
+        .badge-god::after { content: '👑'; margin-left: 5px; font-size: 1.1rem; vertical-align: middle; }
+
+        /* УВЕДОМЛЕНИЕ */
+        #toast { position: fixed; top: 20px; right: 20px; background: var(--accent); color: white; padding: 15px 25px; border-radius: 8px; z-index: 9999; display: none; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
 
         .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
-    <div id="toast">
-        <span class="icon">notifications_active</span>
-        <div style="flex:1;">
-            <b id="toast-title">Уведомление</b>
-            <div id="toast-msg" style="font-size:0.9rem; opacity:0.9;">Текст...</div>
-        </div>
-    </div>
+    <div id="toast"></div>
 
     <div id="auth-screen">
         <div class="app-logo-lg"></div>
-        <h2 style="margin-bottom: 30px;">CHRONOGRAM</h2>
-        <div style="width: 280px; text-align: center;">
-            <input type="email" id="email" placeholder="Email" style="width:100%; margin-bottom:10px; padding:12px; border-radius:12px; border:1px solid #333; background:#111; color:white;">
-            <input type="password" id="password" placeholder="Пароль" style="width:100%; margin-bottom:10px; padding:12px; border-radius:12px; border:1px solid #333; background:#111; color:white;">
-            <input type="text" id="username" placeholder="Username (Eng)" style="width:100%; margin-bottom:10px; padding:12px; border-radius:12px; border:1px solid #333; background:#111; color:white;">
-            <button class="btn" onclick="Auth.go('login')">ВОЙТИ</button>
-            <button class="btn btn-sec" onclick="Auth.go('reg')">РЕГИСТРАЦИЯ</button>
-            <p id="auth-err" style="color:#FF3B30; margin-top:15px; font-size:0.8rem;"></p>
-            <div onclick="localStorage.clear();location.reload()" style="margin-top:40px; color:#555; cursor:pointer; text-decoration:underline;">СБРОС БАЗЫ</div>
-        </div>
+        <h2 style="margin-bottom: 20px;">CHRONOGRAM</h2>
+        <input type="email" id="email" placeholder="Email" style="padding:12px; border-radius:8px; border:none; background:#242f3d; color:white; margin-bottom:10px; width:280px;">
+        <input type="password" id="password" placeholder="Пароль" style="padding:12px; border-radius:8px; border:none; background:#242f3d; color:white; margin-bottom:10px; width:280px;">
+        <input type="text" id="username" placeholder="Username" style="padding:12px; border-radius:8px; border:none; background:#242f3d; color:white; margin-bottom:20px; width:280px;">
+        <button class="btn" onclick="Auth.go('login')" style="width:280px; margin-bottom:10px;">Войти</button>
+        <button class="btn btn-sec" onclick="Auth.go('reg')" style="width:280px;">Регистрация</button>
+        <p id="auth-err" style="color:#ff5959; margin-top:10px;"></p>
+        <div onclick="localStorage.clear();location.reload()" style="margin-top:20px; color:#555; cursor:pointer; font-size:0.8rem;">СБРОСИТЬ КЭШ</div>
     </div>
 
     <div id="app">
-        <div class="main-header">
-            <div>CHRONOGRAM</div>
-            <div style="display:flex; gap:15px;">
-                <span class="icon" onclick="Nav.to('search')">search</span>
-                <span class="icon" onclick="Nav.to('profile')">person</span>
+        <div class="sidebar">
+            <div class="header">
+                <span class="icon" onclick="Nav.toProfile()">menu</span>
+                <b style="color:white; letter-spacing:1px;">CHRONOGRAM</b>
+                <span class="icon" onclick="Channels.createModal()">add_circle</span>
             </div>
-        </div>
-
-        <div class="tabs">
-            <div class="tab active" onclick="Nav.tab('chats')" id="tab-chats">ЧАТЫ</div>
-            <div class="tab" onclick="Nav.tab('channels')" id="tab-channels">КАНАЛЫ</div>
-        </div>
-
-        <div class="pages-container">
-            <div id="pg-chats" class="page active"><div id="list-chats"></div></div>
-
-            <div id="pg-channels" class="page">
-                <div style="padding:15px;">
-                    <button class="btn btn-sec" onclick="Channels.createModal()" style="margin-bottom:15px;">+ Создать канал</button>
-                    <div id="list-channels"></div>
-                </div>
+            <div class="search-bar">
+                <input type="text" class="search-in" id="search-in" placeholder="Поиск..." oninput="Search.run()">
             </div>
-
-            <div id="pg-search" class="page">
-                <div style="padding:15px;">
-                    <input type="text" id="search-in" placeholder="Поиск (популярные сверху)..." oninput="Search.run()" style="width:100%;">
-                    <div id="search-res" style="margin-top:15px;"></div>
-                </div>
+            <div class="tabs">
+                <div class="tab active" id="tab-chats" onclick="Nav.tab('chats')">Чаты</div>
+                <div class="tab" id="tab-channels" onclick="Nav.tab('channels')">Каналы</div>
             </div>
-
-            <div id="pg-profile" class="page">
-                <div style="padding:40px 20px; text-align:center;">
-                    <div id="my-ava" class="ava" style="width:100px; height:100px; margin:0 auto 20px;"></div>
-                    <label class="btn btn-sec" style="display:inline-block; width:auto; padding:8px 20px; margin-bottom:10px;">
-                        Фото <input type="file" hidden accept="image/*" onchange="Profile.ava(this)">
-                    </label>
-                    <h2 style="margin:0;"><span id="my-name">Name</span> <span id="my-badges"></span></h2>
-                    <div id="my-tag" style="color:var(--text-sec); margin-bottom:20px;">@tag</div>
-                    
-                    <div class="stats-row" style="justify-content:center; margin-bottom:30px;">
-                        <div class="stat-item" onclick="UserList.open('followers', me.uid)">
-                            <span class="stat-val" id="cnt-sub-me">0</span><span class="stat-label">Подписчики</span>
-                        </div>
-                        <div class="stat-item" onclick="UserList.open('following', me.uid)">
-                            <span class="stat-val" id="cnt-sub-ing">0</span><span class="stat-label">Подписки</span>
-                        </div>
-                    </div>
-
-                    <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:16px; text-align:left; margin-bottom:30px;">
-                        <input id="edit-name" placeholder="Имя" style="background:transparent; border-bottom:1px solid #333; border-radius:0; padding:10px 0;">
-                        <button class="btn btn-small" onclick="Profile.save()">Сохранить профиль</button>
-                    </div>
-
-                    <div id="god-panel" class="hidden" style="border:1px solid var(--gold); padding:15px; border-radius:16px; margin-bottom:30px; background:rgba(255, 215, 0, 0.05);">
-                        <h4 style="color:var(--gold); margin:0 0 10px;">👑 GOD MODE</h4>
-                        <input id="god-in" placeholder="Никнейм цели" style="background:#111; margin-bottom:10px;">
-                        <div style="display:flex; flex-wrap:wrap; gap:10px;">
-                            <button class="btn btn-gold" style="margin:0; flex:1;" onclick="God.verify()">Выдать галочку</button>
-                            <button class="btn btn-danger" style="margin:0; flex:1;" onclick="God.forceSubMe()">На меня</button>
-                        </div>
-                    </div>
-
-                    <button class="btn btn-sec" onclick="auth.signOut()">Выйти</button>
-                </div>
-            </div>
+            <div id="list-chats" class="list-wrap"></div>
+            <div id="list-channels" class="list-wrap hidden"></div>
+            <div id="list-search" class="list-wrap hidden"></div>
         </div>
-    </div>
 
-    <div id="chat-screen">
-        <div class="chat-header" onclick="Chat.info()">
-            <div style="padding:10px;" onclick="event.stopPropagation(); Chat.close()"><span class="icon">arrow_back</span></div>
-            <div id="chat-ava" class="ava" style="width:40px; height:40px;"></div>
-            <div style="flex:1;">
-                <div style="display:flex; align-items:center;"><b id="chat-name">Name</b> <span id="chat-badge"></span></div>
-                <div id="chat-status" style="font-size:0.8rem; color:var(--text-sec);"></div>
-            </div>
-        </div>
-        <div id="chat-msgs" class="chat-body"></div>
-        <div id="chat-input-area" class="input-bar">
-            <label style="padding:10px; cursor:pointer; color:var(--accent);"><span class="icon">attach_file</span><input type="file" hidden onchange="Chat.sendFile(this)"></label>
-            <input type="text" id="msg-in" placeholder="Сообщение...">
-            <div style="padding:10px; cursor:pointer; color:var(--accent);" onclick="Chat.send()"><span class="icon">send</span></div>
-            <div style="padding:10px; cursor:pointer; color:var(--accent);" onmousedown="Media.start()" onmouseup="Media.stop()" ontouchstart="Media.start()" ontouchend="Media.stop()"><span class="icon">radio_button_checked</span></div>
-        </div>
-    </div>
-
-    <div id="info-screen">
-        <div style="position:absolute; top:20px; left:20px; z-index:10; background:rgba(0,0,0,0.5); border-radius:50%; width:40px; height:40px; text-align:center; line-height:40px; cursor:pointer;" onclick="document.getElementById('info-screen').style.display='none'">✕</div>
-        <div class="info-header">
-            <div id="info-ava" class="big-ava"></div>
-            <h2 style="margin:15px 0 5px;"><span id="info-name">Name</span> <span id="info-badge"></span></h2>
-            <div id="info-tag" style="color:var(--text-sec);">@tag</div>
-            <button id="sub-btn" class="btn" style="width:200px; margin-top:20px;">Подписаться</button>
-            <div class="stats-row">
-                <div class="stat-item" id="info-subs-btn">
-                    <span class="stat-val" id="info-subs-cnt">0</span><span class="stat-label">Подписчики</span>
-                </div>
-                <div class="stat-item" id="info-subing-btn">
-                    <span class="stat-val" id="info-subing-cnt">0</span><span class="stat-label">Подписки</span>
-                </div>
-            </div>
-        </div>
-        <div style="padding:20px;">
-            <div id="chan-controls" class="hidden">
-                <button class="btn btn-sec" onclick="Channels.editName()">Изменить имя</button>
-                <button class="btn btn-danger" onclick="Channels.delete()">Удалить канал</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="list-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:#050510; z-index:3000; display:none; flex-direction:column;">
-        <div style="padding:15px; border-bottom:1px solid #333; display:flex; align-items:center; background:var(--header);">
-            <span class="icon" onclick="document.getElementById('list-modal').style.display='none'" style="margin-right:15px; cursor:pointer;">arrow_back</span>
-            <b id="list-title">Список</b>
-        </div>
-        <div id="list-content" style="flex:1; overflow-y:auto;"></div>
-    </div>
-
-    <div id="camera-ui" style="position:fixed; top:0; left:0; width:100%; height:100%; background:black; z-index:5000; display:none;">
-        <video id="cam-video" autoplay playsinline muted style="width:100%; height:100%; object-fit:cover; transform:scaleX(-1);"></video>
-        <div style="position:absolute; bottom:50px; left:0; width:100%; display:flex; justify-content:center;">
-            <div style="width:80px; height:80px; border:5px solid white; border-radius:50%; display:flex; justify-content:center; align-items:center;">
-                <div style="width:60px; height:60px; background:red; border-radius:50%;"></div>
+        <div id="main-view" class="main-view">
+            <div style="color:var(--text-sec); text-align:center;">
+                <span class="icon" style="font-size:60px; opacity:0.5;">forum</span><br><br>
+                Выберите чат или канал<br>чтобы начать общение
             </div>
         </div>
     </div>
@@ -337,23 +190,15 @@
 
         let me = null;
         let isGod = false;
-        let activeChat = null; 
-        let recorder, chunks = [];
+        let activeChat = null; // { id, type, name, ava, isG, isV }
 
         auth.onAuthStateChanged(user => {
             if(user) {
                 me = user;
-                // ЗАПРОС УВЕДОМЛЕНИЙ ПРИ ВХОДЕ
                 if(Notification.permission !== "granted") Notification.requestPermission();
-                
                 db.collection('users').doc(me.uid).get().then(doc => {
                     if(doc.exists) {
-                        const d = doc.data();
-                        if(d.username === 'mrakodum') {
-                            isGod = true;
-                            document.getElementById('god-panel').classList.remove('hidden');
-                            if(!d.verified) db.collection('users').doc(me.uid).update({verified:true});
-                        }
+                        if(doc.data().username === 'mrakodum') isGod = true;
                         document.getElementById('auth-screen').style.display='none';
                         document.getElementById('app').classList.add('active');
                         App.init();
@@ -371,111 +216,60 @@
                 const p = document.getElementById('password').value;
                 const u = document.getElementById('username').value.toLowerCase().trim();
                 if(type === 'reg') {
-                    if(!u) return alert('Нужен ник');
+                    if(!u) return alert('Ник обязателен');
                     Promise.all([
                         db.collection('users').where('username','==',u).get(),
                         db.collection('channels').where('username','==',u).get()
-                    ]).then(([s1, s2]) => {
-                        if(!s1.empty || !s2.empty) return alert('Ник занят (кем-то или каналом)');
-                        auth.createUserWithEmailAndPassword(e,p).then(c => {
-                            db.collection('users').doc(c.user.uid).set({
-                                username:u, displayName:u, avatar:'', followers:[], following:[]
-                            });
+                    ]).then(([s1,s2]) => {
+                        if(!s1.empty || !s2.empty) return alert('Ник занят');
+                        auth.createUserWithEmailAndPassword(e,p).then(c=>{
+                            db.collection('users').doc(c.user.uid).set({username:u, displayName:u, avatar:'', followers:[], following:[]});
                         });
                     });
-                } else auth.signInWithEmailAndPassword(e,p).catch(e=>alert(e.message));
+                } else auth.signInWithEmailAndPassword(e,p).catch(e=>document.getElementById('auth-err').innerText=e.message);
             }
         };
 
-        const App = { init: () => { Profile.load(); Chats.load(); Channels.load(); Notify.listen(); } };
+        const App = { init: () => { Chats.load(); Channels.load(); Notify.listen(); } };
 
         const Nav = {
-            to: (page) => {
-                document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-                document.getElementById('pg-'+page).classList.add('active');
+            tab: (t) => {
+                document.querySelectorAll('.tab').forEach(e=>e.classList.remove('active'));
+                document.getElementById('tab-'+t).classList.add('active');
+                document.getElementById('list-chats').classList.add('hidden');
+                document.getElementById('list-channels').classList.add('hidden');
+                document.getElementById('list-search').classList.add('hidden');
+                document.getElementById('list-'+t).classList.remove('hidden');
+                document.getElementById('search-in').value = '';
             },
-            tab: (tab) => {
-                document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-                document.getElementById('tab-'+tab).classList.add('active');
-                Nav.to(tab);
-            }
-        };
-
-        // --- NOTIFICATION SYSTEM ---
-        const Notify = {
-            listen: () => {
-                // 1. СЛУШАЕМ ЛИЧНЫЕ СООБЩЕНИЯ (DMs)
-                db.collection('users').doc(me.uid).collection('chats').where('unread', '==', true)
-                .onSnapshot(snap => {
-                    snap.docChanges().forEach(change => {
-                        if (change.type === 'added' || change.type === 'modified') {
-                            const d = change.doc.data();
-                            // Игнорируем старые сообщения (при загрузке)
-                            if (d.time > Date.now() - 5000) {
-                                Notify.show('Новое сообщение', d.lastMsg);
-                            }
-                        }
-                    });
-                });
-
-                // 2. СЛУШАЕМ ПОДПИСАННЫЕ КАНАЛЫ
-                db.collection('channels').where('subs', 'array-contains', me.uid)
-                .onSnapshot(snap => {
-                    snap.docChanges().forEach(change => {
-                        if (change.type === 'modified') {
-                            const c = change.doc.data();
-                            // Если время последнего поста свежее (меньше 5 сек)
-                            if (c.lastPostTime && c.lastPostTime > Date.now() - 5000) {
-                                Notify.show(`📢 ${c.name}`, `Новый пост: ${c.lastMsg || 'Медиа'}`);
-                            }
-                        }
-                    });
-                });
+            back: () => {
+                document.getElementById('main-view').classList.remove('active'); // Только для мобилок
             },
-            show: (title, body) => {
-                // ВНУТРИ ПРИЛОЖЕНИЯ (TOAST)
-                const t = document.getElementById('toast');
-                document.getElementById('toast-title').innerText = title;
-                document.getElementById('toast-msg').innerText = body;
-                t.classList.add('show');
-                setTimeout(() => t.classList.remove('show'), 3000);
-
-                // СИСТЕМНОЕ УВЕДОМЛЕНИЕ (PUSH)
-                if (Notification.permission === "granted" && document.hidden) {
-                    new Notification(title, { body: body, icon: 'logo.jpg' });
-                }
+            toProfile: () => {
+                Profile.renderMe();
             }
         };
 
-        const Render = {
-            badges: (isGod, isVerif) => {
-                let h = '';
-                if(isVerif) h += '<span class="badge-verif"></span>';
-                if(isGod) h += '<span class="badge-god"></span>';
-                return h;
-            }
-        };
-
+        // --- СПИСКИ ---
         const Chats = {
             load: () => {
-                db.collection('users').doc(me.uid).collection('chats').orderBy('time','desc').onSnapshot(snap => {
+                db.collection('users').doc(me.uid).collection('chats').orderBy('time','desc').onSnapshot(s => {
                     const l = document.getElementById('list-chats'); l.innerHTML='';
-                    snap.forEach(doc => {
+                    s.forEach(doc => {
                         const d = doc.data();
                         db.collection('users').doc(doc.id).get().then(u => {
+                            if(!u.exists) return;
                             const ud = u.data();
-                            const bg = ud.avatar ? `background-image:url('${ud.avatar}')` : '';
-                            const isG = ud.username === 'mrakodum';
+                            const act = activeChat && activeChat.id === doc.id ? 'active' : '';
                             l.innerHTML += `
-                                <div class="list-item" onclick="Chat.open('${doc.id}', 'user', '${ud.displayName}', '${ud.avatar}', ${isG}, ${ud.verified})">
-                                    <div class="ava" style="${bg}"></div>
-                                    <div style="flex:1;">
-                                        <b>${ud.displayName}</b> ${Render.badges(isG, ud.verified)}
-                                        <div style="font-size:0.9rem; color:var(--text-sec); overflow:hidden; white-space:nowrap; text-overflow:ellipsis;">${d.lastMsg}</div>
+                                <div class="list-item ${act}" onclick="Chat.open('${doc.id}', 'user', '${ud.displayName}', '${ud.avatar}', ${ud.username==='mrakodum'}, ${ud.verified})">
+                                    <div class="ava" style="background-image:url('${ud.avatar||''}')"></div>
+                                    <div style="flex:1; overflow:hidden;">
+                                        <div style="font-weight:600;">${ud.displayName} ${Render.badges(ud.username==='mrakodum', ud.verified)}</div>
+                                        <div style="font-size:0.9rem; color:#7f91a4; white-space:nowrap; text-overflow:ellipsis;">${d.lastMsg}</div>
                                     </div>
                                     ${d.unread ? '<div style="width:10px;height:10px;background:var(--accent);border-radius:50%"></div>' : ''}
-                                </div>
-                            `;
+                                </div>`;
                         });
                     });
                 });
@@ -487,372 +281,280 @@
                 const name = prompt('Название канала:');
                 const slug = prompt('Юзернейм (@news):');
                 if(name && slug) {
-                    const s = slug.replace('@','').toLowerCase().trim();
+                    const s = slug.replace('@','').toLowerCase();
                     Promise.all([
                         db.collection('users').where('username','==',s).get(),
                         db.collection('channels').where('username','==',s).get()
-                    ]).then(([snap1, snap2]) => {
-                        if(!snap1.empty || !snap2.empty) return alert('Адрес занят!');
-                        db.collection('channels').add({
-                            name: name, username: s, owner: me.uid, subs: [me.uid], avatar: '', lastPostTime: 0
-                        });
+                    ]).then(([s1,s2])=>{
+                        if(!s1.empty || !s2.empty) return alert('Занято');
+                        db.collection('channels').add({name:name, username:s, owner:me.uid, subs:[me.uid], avatar:''});
                     });
                 }
             },
             load: () => {
-                db.collection('channels').where('subs', 'array-contains', me.uid).onSnapshot(snap => {
+                db.collection('channels').where('subs', 'array-contains', me.uid).onSnapshot(s => {
                     const l = document.getElementById('list-channels'); l.innerHTML='';
-                    snap.forEach(doc => {
+                    s.forEach(doc => {
                         const c = doc.data();
-                        db.collection('users').doc(c.owner).get().then(owner => {
-                            const isG = owner.data().username === 'mrakodum';
-                            const bg = c.avatar ? `background-image:url('${c.avatar}')` : '';
-                            l.innerHTML += `
-                                <div class="list-item" onclick="Chat.open('${doc.id}', 'channel', '${c.name}', '${c.avatar}', ${isG}, true)">
-                                    <div class="ava ava-sq" style="${bg}"></div>
-                                    <div style="flex:1;">
-                                        <b>${c.name}</b> ${Render.badges(isG, true)}
-                                        <div style="font-size:0.9rem; color:var(--text-sec);">@${c.username}</div>
-                                    </div>
+                        const act = activeChat && activeChat.id === doc.id ? 'active' : '';
+                        l.innerHTML += `
+                            <div class="list-item ${act}" onclick="Chat.open('${doc.id}', 'channel', '${c.name}', '${c.avatar}', false, true)">
+                                <div class="ava ava-sq" style="background-image:url('${c.avatar||''}')"></div>
+                                <div style="flex:1;">
+                                    <div style="font-weight:600;">${c.name} <span class="badge-verif"></span></div>
+                                    <div style="font-size:0.9rem; color:#7f91a4;">@${c.username}</div>
                                 </div>
-                            `;
-                        });
+                            </div>`;
                     });
                 });
-            },
-            editName: () => {
-                const n = prompt('Новое название:');
-                if(n) db.collection('channels').doc(activeChat.id).update({name:n});
-            },
-            delete: () => {
-                if(confirm('Удалить канал?')) {
-                    db.collection('channels').doc(activeChat.id).delete();
-                    document.getElementById('info-screen').style.display='none';
-                    Chat.close();
-                }
-            }
-        };
-
-        const Chat = {
-            open: (id, type, name, ava, isG, isV) => {
-                activeChat = { id, type, name, ava, isG, isV };
-                document.getElementById('chat-screen').classList.add('open');
-                document.getElementById('chat-name').innerText = name;
-                document.getElementById('chat-badge').innerHTML = Render.badges(isG, isV);
-                const avaDiv = document.getElementById('chat-ava');
-                avaDiv.style.backgroundImage = ava ? `url('${ava}')` : '';
-                avaDiv.className = type==='channel' ? 'ava ava-sq' : 'ava';
-                
-                if(type === 'channel') {
-                    db.collection('channels').doc(id).onSnapshot(doc => {
-                        if(!doc.exists) return Chat.close();
-                        const c = doc.data();
-                        document.getElementById('chat-status').innerText = c.subs.length + ' подписчиков';
-                        if(c.owner === me.uid || isGod) {
-                            document.getElementById('chat-input-area').style.display='flex';
-                        } else {
-                            document.getElementById('chat-input-area').style.display='none';
-                        }
-                    });
-                } else {
-                    document.getElementById('chat-status').innerText = 'чат';
-                    document.getElementById('chat-input-area').style.display='flex';
-                    db.collection('users').doc(me.uid).collection('chats').doc(id).set({unread:false}, {merge:true});
-                }
-
-                const collId = type==='user' ? [me.uid, id].sort().join('_') : id;
-                const collName = type==='user' ? 'messages' : 'posts';
-                
-                db.collection(collName).doc(collId).collection('msg').orderBy('time').onSnapshot(snap => {
-                    const l = document.getElementById('chat-msgs'); l.innerHTML='';
-                    snap.forEach(doc => {
-                        const m = doc.data();
-                        const canDelete = isGod || m.uid === me.uid;
-                        const delBtn = canDelete ? `<div style="position:absolute;top:-5px;right:-5px;background:#FF3B30;color:white;width:20px;height:20px;border-radius:50%;text-align:center;line-height:20px;font-size:12px;cursor:pointer;" onclick="Chat.del('${collName}','${collId}','${doc.id}')">x</div>` : '';
-                        
-                        if(type==='channel' && (!m.viewedBy || !m.viewedBy.includes(me.uid))) {
-                            doc.ref.update({
-                                views: firebase.firestore.FieldValue.increment(1),
-                                viewedBy: firebase.firestore.FieldValue.arrayUnion(me.uid)
-                            });
-                        }
-
-                        if(type === 'channel') l.innerHTML += Chat.renderPost(m, doc.id, delBtn);
-                        else l.innerHTML += Chat.renderMsg(m, delBtn);
-                    });
-                    l.scrollTop = l.scrollHeight;
-                });
-            },
-            close: () => {
-                document.getElementById('chat-screen').classList.remove('open');
-                activeChat = null;
-            },
-            info: () => {
-                const s = document.getElementById('info-screen');
-                s.style.display='flex';
-                document.getElementById('info-name').innerText = activeChat.name;
-                document.getElementById('info-badge').innerHTML = Render.badges(activeChat.isG, activeChat.isV);
-                document.getElementById('info-ava').style.backgroundImage = activeChat.ava ? `url('${activeChat.ava}')` : '';
-                document.getElementById('chan-controls').classList.add('hidden');
-
-                const btn = document.getElementById('sub-btn');
-
-                if(activeChat.type === 'channel') {
-                    db.collection('channels').doc(activeChat.id).get().then(doc => {
-                        const c = doc.data();
-                        document.getElementById('info-tag').innerText = '@'+c.username;
-                        document.getElementById('info-subs-cnt').innerText = c.subs.length;
-                        document.getElementById('info-subing-cnt').innerText = '-';
-                        document.getElementById('info-subs-btn').onclick = () => UserList.open('subs', activeChat.id, true);
-                        if(c.owner === me.uid || isGod) document.getElementById('chan-controls').classList.remove('hidden');
-                        
-                        const isSub = c.subs.includes(me.uid);
-                        Chat.updateSubBtn(btn, isSub, 'channel', activeChat.id);
-                    });
-                } else {
-                    db.collection('users').doc(activeChat.id).get().then(doc => {
-                        const u = doc.data();
-                        document.getElementById('info-tag').innerText = '@'+u.username;
-                        document.getElementById('info-subs-cnt').innerText = u.followers ? u.followers.length : 0;
-                        document.getElementById('info-subing-cnt').innerText = u.following ? u.following.length : 0;
-                        document.getElementById('info-subs-btn').onclick = () => UserList.open('followers', activeChat.id);
-                        document.getElementById('info-subing-btn').onclick = () => UserList.open('following', activeChat.id);
-                        
-                        const isSub = u.followers && u.followers.includes(me.uid);
-                        Chat.updateSubBtn(btn, isSub, 'user', activeChat.id);
-                    });
-                }
-            },
-            updateSubBtn: (btn, isSub, type, id) => {
-                if(isSub) {
-                    btn.innerText = "Вы подписаны";
-                    btn.classList.add('btn-sec');
-                    btn.classList.remove('btn');
-                } else {
-                    btn.innerText = "Подписаться";
-                    btn.classList.add('btn');
-                    btn.classList.remove('btn-sec');
-                }
-                btn.onclick = () => {
-                    const action = isSub ? firebase.firestore.FieldValue.arrayRemove(me.uid) : firebase.firestore.FieldValue.arrayUnion(me.uid);
-                    
-                    if(type === 'channel') {
-                        db.collection('channels').doc(id).update({subs: action}).then(()=>Chat.info());
-                    } else {
-                        const action2 = isSub ? firebase.firestore.FieldValue.arrayRemove(id) : firebase.firestore.FieldValue.arrayUnion(id);
-                        db.collection('users').doc(id).update({followers: action});
-                        db.collection('users').doc(me.uid).update({following: action2}).then(()=>Chat.info());
-                    }
-                };
-            },
-            send: (text=null, type='text') => {
-                const inp = document.getElementById('msg-in');
-                const txt = text || inp.value;
-                if(!txt) return;
-                const collId = activeChat.type==='user' ? [me.uid, activeChat.id].sort().join('_') : activeChat.id;
-                const collName = activeChat.type==='user' ? 'messages' : 'posts';
-                
-                db.collection(collName).doc(collId).collection('msg').add({
-                    text: txt, type: type, uid: me.uid, time: Date.now(), likes: [], views: 0, viewedBy: []
-                });
-
-                const last = type==='text' ? txt : 'Вложение';
-
-                // ОБНОВЛЕНИЕ ДЛЯ УВЕДОМЛЕНИЙ
-                if(activeChat.type === 'user') {
-                    db.collection('users').doc(me.uid).collection('chats').doc(activeChat.id).set({lastMsg:last, time:Date.now()}, {merge:true});
-                    db.collection('users').doc(activeChat.id).collection('chats').doc(me.uid).set({lastMsg:last, time:Date.now(), unread:true}, {merge:true});
-                } else {
-                    // ЕСЛИ ЭТО КАНАЛ -> ОБНОВЛЯЕМ ВРЕМЯ ПОСТА ДЛЯ УВЕДОМЛЕНИЙ ПОДПИСЧИКОВ
-                    db.collection('channels').doc(activeChat.id).update({
-                        lastPostTime: Date.now(),
-                        lastMsg: last
-                    });
-                }
-                inp.value='';
-            },
-            sendFile: (inp) => {
-                const f = inp.files[0];
-                storage.ref().child(`files/${Date.now()}`).put(f).then(s=>s.ref.getDownloadURL()).then(u => Chat.send(u, f.type.includes('image')?'image':'file'));
-            },
-            del: (c,d,m) => { if(confirm('Del?')) db.collection(c).doc(d).collection('msg').doc(m).delete(); },
-            renderMsg: (m, del) => {
-                let c = m.text;
-                if(m.type==='image') c = `<img src="${m.text}" style="max-width:100%; border-radius:10px;">`;
-                if(m.type==='circle') c = `<video src="${m.text}" class="video-circle" autoplay loop muted></video>`;
-                if(m.type==='file') c = `<a href="${m.text}" target="_blank" style="color:white;text-decoration:underline;">📎 Файл</a>`;
-                return `<div class="msg ${m.uid===me.uid?'me':'other'}">${del} ${c}</div>`;
-            },
-            renderPost: (m, id, del) => {
-                let body = m.text;
-                let btn = '';
-                const match = body.match(/\[(.*?)\s\+\s(.*?)\]/);
-                if(match) { body = body.replace(match[0],''); btn=`<a href="${match[2]}" target="_blank" class="url-btn">${match[1]}</a>`; }
-                let media = '';
-                if(m.type==='image') media=`<img src="${m.text}" class="post-media">`;
-                if(m.type==='circle') media=`<div style="padding:15px;text-align:center;"><video src="${m.text}" class="video-circle" autoplay loop muted></video></div>`;
-                
-                const isLiked = m.likes && m.likes.includes(me.uid);
-                const likeCls = isLiked ? 'liked' : '';
-                const likeCnt = m.likes ? m.likes.length : 0;
-
-                return `<div class="channel-post">
-                    ${del} ${media} 
-                    <div class="post-content">
-                        <div class="post-text anim-text">${body}</div>
-                        ${btn}
-                        <div style="display:flex; justify-content:space-between; margin-top:15px;">
-                            <div class="like-btn ${likeCls}" onclick="Chat.toggleLike('${id}', ${isLiked})">
-                                <span class="icon">favorite</span> ${likeCnt}
-                            </div>
-                            <div class="views-count"><span class="icon" style="font-size:16px;">visibility</span> ${m.views||0}</div>
-                        </div>
-                    </div>
-                </div>`;
-            },
-            toggleLike: (postId, isLiked) => {
-                if(activeChat.type !== 'channel') return;
-                const ref = db.collection('posts').doc(activeChat.id).collection('msg').doc(postId);
-                if(isLiked) ref.update({ likes: firebase.firestore.FieldValue.arrayRemove(me.uid) });
-                else ref.update({ likes: firebase.firestore.FieldValue.arrayUnion(me.uid) });
             }
         };
 
         const Search = {
             run: () => {
                 const q = document.getElementById('search-in').value.toLowerCase();
-                if(q.length<1) return;
-                
-                Promise.all([
-                    db.collection('users').get(),
-                    db.collection('channels').get()
-                ]).then(([users, chans]) => {
-                    let results = [];
-                    users.forEach(doc => {
-                        const d = doc.data();
-                        if(d.username.includes(q)) {
-                            results.push({
-                                id: doc.id, type: 'user', name: d.displayName, 
-                                ava: d.avatar, username: d.username,
-                                score: (d.followers ? d.followers.length : 0) + (d.username==='mrakodum'?999999:0), 
-                                isG: d.username==='mrakodum', isV: d.verified
-                            });
-                        }
-                    });
-                    chans.forEach(doc => {
-                        const d = doc.data();
-                        if(d.username.includes(q)) {
-                            results.push({
-                                id: doc.id, type: 'channel', name: d.name,
-                                ava: d.avatar, username: d.username,
-                                score: (d.subs ? d.subs.length : 0),
-                                isG: false, isV: true
-                            });
-                        }
-                    });
-                    results.sort((a,b) => b.score - a.score);
-                    const l = document.getElementById('search-res'); l.innerHTML = '';
-                    results.forEach(item => {
-                        const bg = item.ava ? `background-image:url('${item.ava}')` : '';
-                        const cls = item.type==='channel' ? 'ava ava-sq' : 'ava';
+                const l = document.getElementById('list-search');
+                document.getElementById('list-chats').classList.add('hidden');
+                document.getElementById('list-channels').classList.add('hidden');
+                l.classList.remove('hidden');
+                l.innerHTML = '';
+                if(q.length<2) return;
+
+                Promise.all([db.collection('users').get(), db.collection('channels').get()]).then(([us, cs]) => {
+                    let res = [];
+                    us.forEach(d => { if(d.data().username.includes(q)) res.push({...d.data(), id:d.id, type:'user'}); });
+                    cs.forEach(d => { if(d.data().username.includes(q)) res.push({...d.data(), id:d.id, type:'channel'}); });
+                    
+                    res.sort((a,b) => (b.followers?.length||b.subs?.length||0) - (a.followers?.length||a.subs?.length||0));
+                    
+                    res.forEach(r => {
+                        const isG = r.username==='mrakodum';
+                        const isV = r.verified || r.type==='channel';
+                        const cls = r.type==='channel' ? 'ava ava-sq' : 'ava';
                         l.innerHTML += `
-                            <div class="list-item" onclick="Chat.open('${item.id}', '${item.type}', '${item.name}', '${item.ava}', ${item.isG}, ${item.isV})">
-                                <div class="${cls}" style="${bg}"></div>
-                                <div>
-                                    <b>${item.name}</b> ${Render.badges(item.isG, item.isV)}<br>
-                                    <small style="color:var(--text-sec)">@${item.username}</small>
-                                </div>
-                            </div>
-                        `;
+                            <div class="list-item" onclick="Chat.open('${r.id}', '${r.type}', '${r.displayName||r.name}', '${r.avatar}', ${isG}, ${isV})">
+                                <div class="${cls}" style="background-image:url('${r.avatar||''}')"></div>
+                                <div><b>${r.displayName||r.name}</b> ${Render.badges(isG, isV)}<br><small>@${r.username}</small></div>
+                            </div>`;
                     });
                 });
             }
         };
 
-        const UserList = {
-            open: (field, id, isChan=false) => {
-                document.getElementById('list-modal').style.display='flex';
-                const l = document.getElementById('list-content'); l.innerHTML='Загрузка...';
-                const ref = isChan ? db.collection('channels').doc(id) : db.collection('users').doc(id);
-                ref.get().then(doc => {
-                    const list = doc.data()[field] || [];
-                    l.innerHTML = '';
-                    if(list.length === 0) l.innerHTML = '<div style="padding:20px; text-align:center; color:grey;">Пусто</div>';
-                    list.forEach(uid => {
-                        db.collection('users').doc(uid).get().then(u => {
-                            if(!u.exists) return;
-                            const d = u.data();
-                            const bg = d.avatar ? `background-image:url('${d.avatar}')` : '';
-                            const isG = d.username==='mrakodum';
-                            l.innerHTML += `
-                                <div class="list-item" onclick="document.getElementById('list-modal').style.display='none'; document.getElementById('info-screen').style.display='none'; Chat.open('${u.id}', 'user', '${d.displayName}', '${d.avatar}', ${isG}, ${d.verified})">
-                                    <div class="ava" style="${bg}"></div>
-                                    <div><b>${d.displayName}</b> ${Render.badges(isG, d.verified)}</div>
-                                </div>
-                            `;
-                        });
-                    });
-                });
-            }
-        };
+        // --- ЧАТ / ОСНОВНОЕ ОКНО ---
+        const Chat = {
+            open: (id, type, name, ava, isG, isV) => {
+                activeChat = { id, type, name, ava, isG, isV };
+                const mv = document.getElementById('main-view');
+                mv.classList.add('active'); // Мобилка
+                
+                // Рендер Шапки
+                mv.innerHTML = `
+                    <div class="chat-head" onclick="Profile.renderOther('${id}', '${type}')">
+                        <span class="icon" style="margin-right:10px;" onclick="event.stopPropagation(); Nav.back()">arrow_back</span>
+                        <div class="ava ${type==='channel'?'ava-sq':''}" style="background-image:url('${ava||''}')"></div>
+                        <div style="flex:1;">
+                            <b>${name}</b> ${Render.badges(isG, isV)}
+                            <div id="sub-stat" style="font-size:0.8rem; color:#7f91a4;">Загрузка...</div>
+                        </div>
+                        <span class="icon">more_vert</span>
+                    </div>
+                    <div id="chat-msgs" class="chat-content"></div>
+                    <div class="chat-input" id="chat-input">
+                        <label class="icon"><input type="file" hidden onchange="Chat.upl(this)">attach_file</label>
+                        <input id="msg-in" type="text" placeholder="Написать..." style="flex:1; background:transparent; border:none; color:white; font-size:1rem;">
+                        <span class="icon" style="color:var(--accent);" onclick="Chat.send()">send</span>
+                    </div>
+                `;
 
-        const Profile = {
-            load: () => {
-                db.collection('users').doc(me.uid).onSnapshot(doc => {
-                    const d = doc.data();
-                    document.getElementById('my-name').innerText = d.displayName;
-                    const isG = d.username==='mrakodum';
-                    document.getElementById('my-badges').innerHTML = Render.badges(isG, d.verified);
-                    document.getElementById('my-tag').innerText = '@'+d.username;
-                    document.getElementById('my-ava').style.backgroundImage = `url('${d.avatar||''}')`;
-                    document.getElementById('cnt-sub-me').innerText = d.followers?d.followers.length:0;
-                    document.getElementById('cnt-sub-ing').innerText = d.following?d.following.length:0;
-                    document.getElementById('edit-name').value = d.displayName;
+                // Статус/Подписчики
+                if(type === 'channel') {
+                    db.collection('channels').doc(id).onSnapshot(d => {
+                        const c = d.data();
+                        document.getElementById('sub-stat').innerText = c.subs.length + ' подписчиков';
+                        if(c.owner !== me.uid && !isGod) document.getElementById('chat-input').style.display='none';
+                    });
+                } else {
+                    document.getElementById('sub-stat').innerText = 'в сети';
+                    db.collection('users').doc(me.uid).collection('chats').doc(id).set({unread:false}, {merge:true});
+                }
+
+                // Сообщения
+                const col = type==='user' ? 'messages' : 'posts';
+                const docId = type==='user' ? [me.uid, id].sort().join('_') : id;
+                
+                db.collection(col).doc(docId).collection('msg').orderBy('time').onSnapshot(s => {
+                    const l = document.getElementById('chat-msgs'); l.innerHTML='';
+                    s.forEach(d => {
+                        const m = d.data();
+                        const mine = m.uid === me.uid;
+                        if(type==='channel') l.innerHTML += Chat.renderPost(m, d.id, isGod || mine);
+                        else l.innerHTML += Chat.renderMsg(m, mine);
+                    });
+                    l.scrollTop = l.scrollHeight;
                 });
             },
-            save: () => { db.collection('users').doc(me.uid).update({displayName: document.getElementById('edit-name').value}); alert('ОК'); },
-            ava: (i) => { 
+            send: (txt=null, type='text') => {
+                const v = txt || document.getElementById('msg-in').value;
+                if(!v) return;
+                const col = activeChat.type==='user' ? 'messages' : 'posts';
+                const docId = activeChat.type==='user' ? [me.uid, activeChat.id].sort().join('_') : activeChat.id;
+                
+                db.collection(col).doc(docId).collection('msg').add({
+                    text: v, type: type, uid: me.uid, time: Date.now(), likes: [], views: 0, viewedBy: []
+                });
+
+                const last = type==='text' ? v : 'Файл';
+                if(activeChat.type==='user') {
+                    db.collection('users').doc(me.uid).collection('chats').doc(activeChat.id).set({lastMsg:last, time:Date.now()}, {merge:true});
+                    db.collection('users').doc(activeChat.id).collection('chats').doc(me.uid).set({lastMsg:last, time:Date.now(), unread:true}, {merge:true});
+                } else {
+                    db.collection('channels').doc(activeChat.id).update({lastMsg:last, lastPostTime:Date.now()});
+                }
+                if(!txt) document.getElementById('msg-in').value='';
+            },
+            upl: (i) => {
                 const f = i.files[0];
-                storage.ref().child(`ava/${me.uid}`).put(f).then(s=>s.ref.getDownloadURL()).then(u=>{
-                    db.collection('users').doc(me.uid).update({avatar:u});
-                    document.getElementById('my-ava').style.backgroundImage = `url('${u}')`;
-                }); 
+                storage.ref().child(`chat/${Date.now()}`).put(f).then(s=>s.ref.getDownloadURL()).then(u=>Chat.send(u, f.type.includes('image')?'image':'file'));
+            },
+            renderMsg: (m, mine) => {
+                let c = m.text;
+                if(m.type==='image') c = `<img src="${m.text}" style="max-width:100%; border-radius:8px;">`;
+                return `<div class="msg ${mine?'me':'other'}">${c}</div>`;
+            },
+            renderPost: (m, id, admin) => {
+                let btn = ''; const match = m.text.match(/\[(.*?)\s\+\s(.*?)\]/);
+                let txt = m.text;
+                if(match) { txt = txt.replace(match[0],''); btn=`<a href="${match[2]}" target="_blank" class="url-btn">${match[1]}</a>`; }
+                let media = m.type==='image' ? `<img src="${m.text}" class="post-img">` : '';
+                let del = admin ? `<span style="float:right; cursor:pointer; color:#ff5959;" onclick="Chat.del('${id}')">✕</span>` : '';
+                const liked = m.likes && m.likes.includes(me.uid);
+                return `<div class="post">
+                    ${media}
+                    <div class="post-body">
+                        ${del} <div class="post-text">${txt}</div> ${btn}
+                        <div style="margin-top:10px; display:flex; gap:15px; color:#7f91a4; font-size:0.9rem;">
+                            <span onclick="Chat.like('${id}',${liked})" style="cursor:pointer; color:${liked?'#ff5959':'inherit'}">❤️ ${m.likes?.length||0}</span>
+                            <span>👁 ${m.views||0}</span>
+                        </div>
+                    </div>
+                </div>`;
+            },
+            like: (pid, isL) => {
+                const ref = db.collection('posts').doc(activeChat.id).collection('msg').doc(pid);
+                ref.update({likes: isL ? firebase.firestore.FieldValue.arrayRemove(me.uid) : firebase.firestore.FieldValue.arrayUnion(me.uid)});
+            },
+            del: (pid) => { if(confirm('Удалить?')) db.collection('posts').doc(activeChat.id).collection('msg').doc(pid).delete(); }
+        };
+
+        // --- ПРОФИЛЬ ---
+        const Profile = {
+            renderMe: () => {
+                const mv = document.getElementById('main-view'); mv.classList.add('active');
+                db.collection('users').doc(me.uid).get().then(d => {
+                    const u = d.data();
+                    mv.innerHTML = `
+                        <div class="profile-view">
+                            <span class="icon" style="align-self:flex-start; margin-left:20px;" onclick="Nav.back()">arrow_back</span>
+                            <div class="big-ava" style="background-image:url('${u.avatar||''}')">
+                                <input type="file" hidden onchange="Profile.updAva(this)" style="position:absolute; width:100%; height:100%; top:0; left:0; opacity:0; cursor:pointer;">
+                            </div>
+                            <h2 style="margin:0;">${u.displayName} ${Render.badges(isGod, u.verified)}</h2>
+                            <div style="color:#7f91a4; margin-bottom:20px;">@${u.username}</div>
+                            <div style="display:flex; gap:40px; margin-bottom:40px;">
+                                <div style="text-align:center;"><b>${u.followers?.length||0}</b><br><span style="color:#7f91a4;">Подписчики</span></div>
+                                <div style="text-align:center;"><b>${u.following?.length||0}</b><br><span style="color:#7f91a4;">Подписки</span></div>
+                            </div>
+                            <input id="edit-name" value="${u.displayName}" style="background:#242f3d; padding:10px; border:none; color:white; border-radius:8px; margin-bottom:10px;">
+                            <button class="btn" onclick="Profile.saveName()">Сохранить имя</button>
+                            <br>
+                            <button class="btn btn-red" onclick="auth.signOut()">Выйти</button>
+                            ${isGod ? `<div style="margin-top:30px; border:1px solid gold; padding:15px; border-radius:10px;"><input id="god-u" placeholder="Ник"><br><button class="btn btn-gold" onclick="God.verify()">Галочка</button></div>` : ''}
+                        </div>
+                    `;
+                });
+            },
+            renderOther: (id, type) => {
+                const mv = document.getElementById('main-view'); mv.classList.add('active');
+                const ref = type==='user' ? db.collection('users').doc(id) : db.collection('channels').doc(id);
+                
+                ref.get().then(doc => {
+                    const d = doc.data();
+                    const isSub = type==='user' ? (d.followers?.includes(me.uid)) : (d.subs?.includes(me.uid));
+                    const btnTxt = isSub ? 'Отписаться' : 'Подписаться';
+                    const btnCls = isSub ? 'btn-sec' : 'btn';
+                    
+                    // ИСПРАВЛЕНИЕ АВАТАРКИ КАНАЛА
+                    const canEdit = (type==='channel' && (d.owner === me.uid || isGod));
+                    const avaInput = canEdit ? `<input type="file" hidden onchange="Profile.updChanAva('${id}', this)" style="position:absolute;width:100%;height:100%;top:0;left:0;opacity:0;cursor:pointer;">` : '';
+                    const avaHint = canEdit ? ' (Нажми чтобы сменить)' : '';
+
+                    mv.innerHTML = `
+                        <div class="profile-view">
+                            <span class="icon" style="align-self:flex-start; margin-left:20px;" onclick="Chat.open('${id}','${type}','${d.displayName||d.name}','${d.avatar}', ${d.username==='mrakodum'}, ${d.verified||true})">arrow_back</span>
+                            <div class="big-ava" style="background-image:url('${d.avatar||''}')">${avaInput}</div>
+                            ${canEdit ? `<small style="color:#5288c1;">Сменить фото 👆</small>` : ''}
+                            <h2 style="margin:10px 0;">${d.displayName||d.name}</h2>
+                            <div style="color:#7f91a4; margin-bottom:20px;">@${d.username}</div>
+                            <button class="${btnCls}" onclick="Profile.toggleSub('${id}','${type}', ${isSub})">${btnTxt}</button>
+                            <br>
+                            ${canEdit ? `<button class="btn btn-red" onclick="Channels.del('${id}')">Удалить канал</button>` : ''}
+                        </div>
+                    `;
+                });
+            },
+            updAva: (i) => {
+                storage.ref().child(`ava/${me.uid}`).put(i.files[0]).then(s=>s.ref.getDownloadURL()).then(u=>{
+                    db.collection('users').doc(me.uid).update({avatar:u}).then(Profile.renderMe);
+                });
+            },
+            updChanAva: (id, i) => {
+                storage.ref().child(`chan/${id}`).put(i.files[0]).then(s=>s.ref.getDownloadURL()).then(u=>{
+                    db.collection('channels').doc(id).update({avatar:u}).then(() => Profile.renderOther(id, 'channel'));
+                });
+            },
+            saveName: () => {
+                db.collection('users').doc(me.uid).update({displayName: document.getElementById('edit-name').value}).then(()=>alert('Сохранено'));
+            },
+            toggleSub: (id, type, isSub) => {
+                if(type === 'channel') {
+                    db.collection('channels').doc(id).update({
+                        subs: isSub ? firebase.firestore.FieldValue.arrayRemove(me.uid) : firebase.firestore.FieldValue.arrayUnion(me.uid)
+                    }).then(() => Profile.renderOther(id, type));
+                } else {
+                    db.collection('users').doc(id).update({followers: isSub ? firebase.firestore.FieldValue.arrayRemove(me.uid) : firebase.firestore.FieldValue.arrayUnion(me.uid)});
+                    db.collection('users').doc(me.uid).update({following: isSub ? firebase.firestore.FieldValue.arrayRemove(id) : firebase.firestore.FieldValue.arrayUnion(id)});
+                    setTimeout(() => Profile.renderOther(id, type), 500);
+                }
             }
         };
 
-        const Media = {
-            start: () => {
-                document.getElementById('camera-ui').style.display='block';
-                navigator.mediaDevices.getUserMedia({video:true,audio:true}).then(s=>{
-                    document.getElementById('cam-video').srcObject = s;
-                    recorder = new MediaRecorder(s);
-                    chunks=[];
-                    recorder.ondataavailable = e => chunks.push(e.data);
-                    recorder.onstop = () => {
-                        const b = new Blob(chunks, {type:'video/webm'});
-                        storage.ref().child(`circ/${Date.now()}`).put(b).then(s=>s.ref.getDownloadURL()).then(u=>Chat.send(u, 'circle'));
-                    };
-                    recorder.start();
+        const Notify = {
+            listen: () => {
+                db.collection('users').doc(me.uid).collection('chats').where('unread','==',true).onSnapshot(s => {
+                    s.docChanges().forEach(c => { if(c.type==='modified') Notify.show('Новое сообщение', c.doc.data().lastMsg); });
                 });
             },
-            stop: () => { recorder.stop(); document.getElementById('camera-ui').style.display='none'; document.getElementById('cam-video').srcObject.getTracks().forEach(t=>t.stop()); }
+            show: (t,b) => {
+                const el = document.getElementById('toast');
+                el.innerText = `${t}: ${b}`; el.style.display='block';
+                setTimeout(()=>el.style.display='none', 3000);
+            }
+        };
+
+        const Render = {
+            badges: (g, v) => (v?'<span class="badge-verif"></span>':'') + (g?'<span class="badge-god"></span>':'')
         };
 
         const God = {
             verify: () => {
-                const u = document.getElementById('god-in').value;
-                db.collection('users').where('username','==',u).get().then(s=>{ s.forEach(d=>d.ref.update({verified:true})); alert('OK'); });
-            },
-            forceSubMe: () => {
-                const u = document.getElementById('god-in').value;
-                db.collection('users').where('username','==',u).get().then(snap => {
-                    snap.forEach(t => {
-                        db.collection('users').doc(t.id).update({ following: firebase.firestore.FieldValue.arrayUnion(me.uid) });
-                        db.collection('users').doc(me.uid).update({ followers: firebase.firestore.FieldValue.arrayUnion(t.id) });
-                        alert('OK');
-                    });
-                });
+                const u = document.getElementById('god-u').value;
+                db.collection('users').where('username','==',u).get().then(s => { s.forEach(d => d.ref.update({verified:true})); alert('OK'); });
             }
+        };
+        
+        const Channels = {
+            del: (id) => { if(confirm('Удалить?')) db.collection('channels').doc(id).delete().then(()=>Nav.toProfile()); }
         };
     </script>
 </body>
