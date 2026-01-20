@@ -3,14 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="theme-color" content="#17212b">
-    
     <title>CHRONOGRAM</title>
     <link rel="icon" type="image/jpeg" href="logo1.jpg">
-    <link rel="apple-touch-icon" href="logo1.jpg">
     
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0" />
@@ -22,7 +16,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
 
     <style>
-        /* === THEME: TELEGRAM BACKGROUNDS === */
+        /* === THEME: FINAL ROLES === */
         :root {
             --bg-left: #17212b;
             --bg-right: #0e1621;
@@ -36,7 +30,7 @@
         }
 
         * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
-        body { margin: 0; padding: 0; font-family: 'Manrope', sans-serif; color: var(--text); background: #000; height: 100dvh; overflow: hidden; }
+        body { margin: 0; padding: 0; font-family: 'Manrope', sans-serif; color: var(--text); background: #000; height: 100vh; overflow: hidden; }
 
         /* AUTH */
         #auth-screen { position: fixed; top:0; left:0; width:100%; height:100%; background: #17212b; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; }
@@ -48,19 +42,18 @@
 
         .left-panel { width: 380px; height: 100%; display: flex; flex-direction: column; background: var(--bg-left); border-right: 1px solid #000; flex-shrink: 0; z-index: 10; }
         
-        /* CHAT BACKGROUND (TELEGRAM STYLE) */
+        /* CHAT BACKGROUNDS */
         .right-panel { 
             flex: 1; height: 100%; position: relative; display: flex; flex-direction: column;
             background-color: #0f0f0f;
-            background-image: url('https://web.telegram.org/img/bg_0.png'); /* Классический фон */
-            background-size: cover;
-            background-attachment: fixed;
+            background-size: cover; background-position: center; background-repeat: no-repeat;
+            /* Default Background */
+            background-image: url('https://w0.peakpx.com/wallpaper/508/153/HD-wallpaper-whatsapp-doodle-black-pattern.jpg'); 
         }
         
-        /* Варианты фона для смены */
-        .bg-1 { background-image: url('https://web.telegram.org/img/bg_0.png') !important; }
-        .bg-2 { background-image: url('https://i.pinimg.com/originals/97/c0/07/97c00759d90d786d9b6096d274ad3e07.jpg') !important; }
-        .bg-3 { background-image: url('https://w0.peakpx.com/wallpaper/508/153/HD-wallpaper-whatsapp-doodle-black-pattern.jpg') !important; }
+        .bg-1 { background-image: url('https://w0.peakpx.com/wallpaper/508/153/HD-wallpaper-whatsapp-doodle-black-pattern.jpg') !important; }
+        .bg-2 { background-image: url('https://i.pinimg.com/736x/8c/98/99/8c98994518b575bfd8c949e91d20548b.jpg') !important; } 
+        .bg-3 { background-image: url('https://wallpaperaccess.com/full/1288076.jpg') !important; }
 
         @media (max-width: 768px) {
             .left-panel { width: 100%; }
@@ -83,26 +76,31 @@
         .ava-text { width: 48px; height: 48px; border-radius: 14px; background: var(--ava-bg); flex-shrink: 0; display: flex; justify-content: center; align-items: center; font-weight: 800; font-size: 1.4rem; color: #fff; text-transform: uppercase; }
         .ava-chan { border-radius: 8px; background: linear-gradient(135deg, #FFD700, #FFA500); color: black; }
 
-        /* CHAT */
         .chat-head { height: 60px; background: var(--bg-left); border-bottom: 1px solid #000; display: flex; align-items: center; padding: 0 20px; gap: 15px; cursor: pointer; z-index: 20; }
         .chat-msgs { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 8px; padding-bottom: 80px; }
         .chat-input-bar { min-height: 60px; background: var(--bg-left); padding: 10px 20px; display: flex; align-items: center; gap: 15px; position: relative; z-index: 20; }
         
+        .post-helper { position: absolute; top: -35px; left: 0; width: 100%; background: rgba(23, 33, 43, 0.9); color: var(--accent); font-size: 0.85rem; padding: 8px 20px; pointer-events: none; border-top: 1px solid #000; font-weight: 600; }
+
         .msg { max-width: 70%; padding: 8px 12px; border-radius: 8px; font-size: 0.95rem; line-height: 1.4; word-wrap: break-word; }
         .msg.me { align-self: flex-end; background: var(--msg-out); color: white; }
         .msg.other { align-self: flex-start; background: var(--msg-in); color: white; }
 
-        .channel-footer { height: 60px; background: var(--bg-left); border-top: 1px solid #000; display: none; align-items: center; justify-content: center; padding: 0 20px; }
+        .channel-footer { height: 60px; background: var(--bg-left); border-top: 1px solid #000; display: none; align-items: center; justify-content: center; padding: 0 20px; z-index: 20; }
         .chan-btn { width: 100%; text-transform: uppercase; letter-spacing: 1px; font-weight: 800; padding: 12px; background: var(--accent); color: white; border-radius: 8px; border: none; cursor: pointer; }
         .chan-btn.subbed { background: transparent; color: var(--text-sec); border: 1px solid var(--text-sec); }
 
-        /* DM APPROVAL */
-        .dm-approval-bar { height: 60px; background: var(--bg-left); border-top: 1px solid #000; display: flex; align-items: center; justify-content: space-around; padding: 0 20px; gap: 10px; }
-
-        .post { width: 100%; max-width: 480px; align-self: center; background: var(--bg-left); border-radius: 10px; overflow: hidden; margin-bottom: 15px; }
+        /* POSTS & BUTTONS */
+        .post { width: 100%; max-width: 480px; align-self: center; background: var(--bg-left); border-radius: 10px; overflow: hidden; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
         .post-img { width: 100%; max-height: 400px; object-fit: cover; display: block; }
         .post-body { padding: 15px; }
-        .url-btn { display: block; background: rgba(82, 136, 193, 0.15); color: var(--accent); text-align: center; padding: 12px; border-radius: 8px; text-decoration: none; font-weight: 700; margin-top: 10px; border: 1px solid rgba(82,136,193,0.3); }
+        .url-btn { 
+            display: block; background: rgba(82, 136, 193, 0.15); color: var(--accent); 
+            text-align: center; padding: 12px; border-radius: 8px; text-decoration: none; 
+            font-weight: 700; margin-top: 15px; border: 1px solid rgba(82, 136, 193, 0.3); 
+            transition: 0.2s; animation: pulse-btn 3s infinite;
+        }
+        .url-btn:hover { background: var(--accent); color: white; }
 
         /* MODAL */
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 5000; display: none; justify-content: center; align-items: center; }
@@ -114,15 +112,17 @@
 
         .app-input { width: 100%; padding: 14px; background: #0e1621; border: 1px solid rgba(255,255,255,0.1); color: white; border-radius: 10px; margin-bottom: 15px; font-size: 1rem; }
         .god-panel-left { padding: 15px; border-top: 1px solid rgba(255,255,255,0.1); background: #131a24; }
+        
         .btn { background: var(--accent); color: white; border: none; padding: 12px; border-radius: 10px; cursor: pointer; font-weight: 700; width: 100%; margin-top: 5px; }
         .btn-gold { background: linear-gradient(135deg, #FFD700, #FFA500); color: black; border:none; box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3); }
         .btn-red { background: transparent; color: #ff5959; border: 2px solid #ff5959; }
         .btn-sec { background: transparent; color: var(--accent); border: 2px solid var(--accent); }
 
-        /* ANIMATED SOCIALS */
-        @keyframes pulse-btn { 0% { transform: scale(1); } 50% { transform: scale(1.05); box-shadow: 0 0 10px rgba(82, 136, 193, 0.5); } 100% { transform: scale(1); } }
+        /* SOCIALS */
+        @keyframes pulse-btn { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
         .social-row { display: flex; justify-content: center; gap: 15px; margin-top: 20px; flex-wrap: wrap; }
-        .social-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; justify-content: center; align-items: center; background: rgba(255,255,255,0.05); color: white; font-size: 1.4rem; text-decoration: none; animation: pulse-btn 2s infinite ease-in-out; }
+        .social-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; justify-content: center; align-items: center; background: rgba(255,255,255,0.05); color: white; font-size: 1.4rem; text-decoration: none; animation: pulse-btn 2s infinite; }
+        .social-icon:hover { background: var(--accent); }
         .custom-link { display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.05); padding: 12px 20px; border-radius: 12px; color: var(--accent); text-decoration: none; margin-top: 15px; font-weight: 600; border: 1px solid rgba(82, 136, 193, 0.3); animation: pulse-btn 3s infinite; }
 
         .badge-verif { display: inline-block; width: 18px; height: 18px; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%235288c1'%3E%3Cpath d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z'/%3E%3C/svg%3E") no-repeat center; vertical-align: middle; margin-left: 6px; }
@@ -164,7 +164,7 @@
             <div id="god-panel" class="god-panel-left hidden">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
                     <span style="color:#FFD700; font-size:0.8rem; font-weight:800;">👑 GOD MODE</span>
-                    <button id="support-btn" class="btn-sec" style="margin:0; padding:4px 10px; font-size:0.8rem;" onclick="Support.toggle()">📨 Заявки</button>
+                    <button id="support-btn" class="btn-sec hidden" style="margin:0; padding:4px 10px; font-size:0.8rem;" onclick="Support.toggle()">📨 Заявки</button>
                 </div>
                 <input id="god-target" placeholder="User for action" class="app-input" style="padding:8px; margin-bottom:5px;">
                 <div style="display:flex; gap:5px;">
@@ -193,17 +193,13 @@
                 <div id="chat-msgs" class="chat-msgs"></div>
                 
                 <div class="chat-input-bar" id="chat-input-bar">
-                    <div id="chan-helper" class="post-helper hidden">💡 Button: <b>[Name + https://link]</b></div>
+                    <div id="chan-helper" class="post-helper hidden">Format: <b>[Button Name + https://link]</b></div>
                     <label class="icon" style="transform:rotate(45deg);"><input type="file" hidden onchange="Chat.upl(this)">attach_file</label>
                     <input id="msg-in" type="text" placeholder="Write a message..." style="flex:1; background:transparent; border:none; color:white; font-size:1rem;">
                     <span class="icon" style="color:var(--accent);" onclick="Chat.send()">send</span>
                 </div>
                 
-                <div id="blocked-msg" class="hidden" style="padding:20px; text-align:center; color:#7f91a4; background:var(--bg-left);">Wait for user approval.</div>
-                <div id="dm-approval-bar" class="dm-approval-bar hidden">
-                    <button class="btn-red" style="margin:0; width:45%;" onclick="Chat.block()">BLOCK</button>
-                    <button class="btn" style="margin:0; width:45%;" onclick="Chat.acceptDM()">ACCEPT</button>
-                </div>
+                <div id="blocked-msg" class="hidden" style="padding:20px; text-align:center; color:#7f91a4; background:var(--bg-left);">Wait for admin approval.</div>
 
                 <div id="chan-footer" class="channel-footer">
                     <button id="chan-sub-btn" class="chan-btn">SUBSCRIBE</button>
@@ -224,14 +220,16 @@
                     <div><b id="stat-2">0</b><br><small style="color:var(--text-sec);">Following</small></div>
                 </div>
                 <div id="social-area"></div>
-                <div id="settings-area" class="hidden" style="margin-top:15px;">
-                    <small style="color:gray;">Chat Background:</small>
-                    <div style="display:flex; gap:10px; justify-content:center; margin-top:5px;">
-                        <div onclick="Settings.bg(1)" style="width:30px; height:30px; background:#000; border:1px solid white; cursor:pointer;"></div>
-                        <div onclick="Settings.bg(2)" style="width:30px; height:30px; background:#2b5278; border:1px solid white; cursor:pointer;"></div>
-                        <div onclick="Settings.bg(3)" style="width:30px; height:30px; background:#555; border:1px solid white; cursor:pointer;"></div>
+                
+                <div id="settings-area" class="hidden" style="margin-top:15px; border-top:1px solid rgba(255,255,255,0.1); padding-top:10px;">
+                    <small style="color:gray; display:block; margin-bottom:5px;">Chat Background</small>
+                    <div style="display:flex; gap:10px; justify-content:center;">
+                        <div onclick="Settings.bg(1)" style="width:30px; height:30px; background-image:url('https://w0.peakpx.com/wallpaper/508/153/HD-wallpaper-whatsapp-doodle-black-pattern.jpg'); background-size:cover; border-radius:5px; cursor:pointer; border:1px solid #555;"></div>
+                        <div onclick="Settings.bg(2)" style="width:30px; height:30px; background-image:url('https://i.pinimg.com/736x/8c/98/99/8c98994518b575bfd8c949e91d20548b.jpg'); background-size:cover; border-radius:5px; cursor:pointer; border:1px solid #555;"></div>
+                        <div onclick="Settings.bg(3)" style="width:30px; height:30px; background-image:url('https://wallpaperaccess.com/full/1288076.jpg'); background-size:cover; border-radius:5px; cursor:pointer; border:1px solid #555;"></div>
                     </div>
                 </div>
+
                 <div id="modal-actions" style="margin-top:20px;"></div>
             </div>
         </div>
@@ -284,6 +282,7 @@
 
         let me = null;
         let isGod = false;
+        let isSupport = false;
         let activeChat = null;
         let supportMode = false;
         const GOD_USERS = ['mrakodum', 'help_center'];
@@ -295,10 +294,16 @@
                     if(doc.exists) {
                         me.username = doc.data().username;
                         me.displayName = doc.data().displayName;
+                        // ROLES
                         if(GOD_USERS.includes(me.username)) {
                             isGod = true;
                             document.getElementById('god-panel').classList.remove('hidden');
                         }
+                        if(me.username === 'help_center') {
+                            isSupport = true;
+                            document.getElementById('support-btn').classList.remove('hidden');
+                        }
+                        
                         document.getElementById('auth-screen').style.display='none';
                         document.getElementById('app').classList.add('active');
                         App.init();
@@ -347,7 +352,7 @@
                 document.getElementById('list-'+t).classList.remove('hidden');
                 document.getElementById('search-in').value = '';
                 supportMode = false;
-                document.getElementById('support-btn').innerText = "📨 Заявки";
+                if(isSupport) document.getElementById('support-btn').innerText = "📨 Заявки";
                 Chats.load();
             },
             back: () => {
@@ -364,12 +369,15 @@
                     const l = document.getElementById('list-chats'); l.innerHTML='';
                     s.forEach(doc => {
                         const d = doc.data();
-                        if (isGod && d.isRequest && !d.accepted) return; // Hide unaccepted requests from admin
                         
+                        // HIDE REQUESTS FROM MAIN LIST IF NOT ACCEPTED
+                        if (d.isRequest && !d.accepted) return;
+
                         db.collection('users').doc(doc.id).get().then(u => {
                             if(!u.exists) return;
                             const ud = u.data();
-                            const name = (doc.id === 'support_id_placeholder' || (d.isRequest && !isGod)) ? 'Support Chronogram' : ud.displayName; 
+                            // If user is regular, they see 'Support Chronogram' instead of help_center name
+                            const name = (doc.id === 'support_id_placeholder' || (d.isRequest && !isSupport)) ? 'Support Chronogram' : ud.displayName; 
                             l.innerHTML += ItemHTML(doc.id, 'user', name, d.lastMsg, ud.username==='mrakodum'||ud.username==='help_center', ud.verified, d.unread);
                         });
                     });
@@ -382,15 +390,18 @@
                 supportMode = !supportMode;
                 const btn = document.getElementById('support-btn');
                 const list = document.getElementById('list-chats');
+                
                 if (supportMode) {
-                    btn.innerText = "🔙 Chats";
+                    btn.innerText = "🔙 Чаты";
                     list.innerHTML = '<div style="padding:10px; color:grey; text-align:center;">Loading...</div>';
+                    // Show pending requests
                     db.collection('users').doc(me.uid).collection('chats').where('isRequest', '==', true).where('accepted', '==', false).get().then(snap => {
                         list.innerHTML = '';
                         if(snap.empty) list.innerHTML = '<div style="padding:20px; color:grey; text-align:center;">No Requests</div>';
                         snap.forEach(doc => {
                             db.collection('users').doc(doc.id).get().then(u => {
-                                list.innerHTML += ItemHTML(doc.id, 'user', u.data().displayName, "Premium Request", false, u.data().verified, true);
+                                const ud = u.data();
+                                list.innerHTML += ItemHTML(doc.id, 'user', ud.displayName, "Premium Request", false, ud.verified, true);
                             });
                         });
                     });
@@ -414,16 +425,18 @@
                 const name = document.getElementById('new-chan-name').value;
                 const slug = document.getElementById('new-chan-slug').value.toLowerCase().replace('@','');
                 if(!name || !slug) return alert("Fill all fields");
+
                 db.collection('users').doc(me.uid).get().then(doc => {
                     const u = doc.data();
                     db.collection('channels').where('owner', '==', me.uid).get().then(snap => {
                         const limit = u.verified ? 10 : 3;
-                        if(snap.size >= limit) return alert(`Limit: ${limit}.`);
+                        if(snap.size >= limit) return alert(`Limit reached! Max: ${limit}.`);
+                        
                         Promise.all([
                             db.collection('users').where('username','==',slug).get(),
                             db.collection('channels').where('username','==',slug).get()
                         ]).then(([uSnap, cSnap]) => {
-                            if(!uSnap.empty || !cSnap.empty) return alert('Taken!');
+                            if(!uSnap.empty || !cSnap.empty) return alert('Username taken!');
                             db.collection('channels').add({name:name, username:slug, owner:me.uid, subs:[me.uid]});
                             document.getElementById('modal-create-channel').style.display='none';
                         });
@@ -449,6 +462,7 @@
                 document.getElementById('list-channels').classList.add('hidden');
                 l.classList.remove('hidden'); l.innerHTML = '';
                 if(q.length<2) return;
+
                 Promise.all([db.collection('users').get(), db.collection('channels').get()]).then(([us, cs]) => {
                     us.forEach(d => { 
                         const r = d.data();
@@ -492,9 +506,8 @@
                 document.getElementById('chan-footer').style.display = 'none';
                 document.getElementById('chat-input-bar').style.display = 'flex';
                 document.getElementById('blocked-msg').classList.add('hidden');
-                document.getElementById('dm-approval-bar').classList.add('hidden');
-                document.getElementById('chan-helper').classList.add('hidden');
                 document.getElementById('accept-req-btn').classList.add('hidden');
+                document.getElementById('chan-helper').classList.add('hidden');
 
                 if(type === 'channel') {
                     db.collection('channels').doc(id).onSnapshot(d => {
@@ -506,6 +519,7 @@
                         btn.innerText = isSub ? "UNSUBSCRIBE" : "SUBSCRIBE";
                         btn.className = isSub ? "chan-btn subbed" : "chan-btn";
                         btn.onclick = () => Profile.sub(id, 'channel', isSub);
+
                         if(c.owner !== me.uid && !isGod) document.getElementById('chat-input-bar').style.display='none';
                         else {
                             document.getElementById('chat-input-bar').style.display='flex';
@@ -514,19 +528,19 @@
                     });
                 } else {
                     document.getElementById('chat-head-status').innerText = 'Online';
+                    
                     db.collection('users').doc(me.uid).collection('chats').doc(id).get().then(doc => {
                         if(doc.exists) {
                             const d = doc.data();
-                            // REQ CHECK
-                            if(d.isRequest && !d.accepted && !isGod) {
+                            // If request pending and I am NOT support -> Block
+                            if(d.isRequest && !d.accepted && !isSupport) {
                                 document.getElementById('chat-input-bar').style.display='none';
-                                document.getElementById('blocked-msg').innerText = "Request sent. Wait for admin approval.";
                                 document.getElementById('blocked-msg').classList.remove('hidden');
-                            } else if (d.incomingRequest && !d.accepted) {
-                                document.getElementById('chat-input-bar').style.display='none';
-                                document.getElementById('dm-approval-bar').classList.remove('hidden');
                             }
-                            if(isGod && d.isRequest && !d.accepted) document.getElementById('accept-req-btn').classList.remove('hidden');
+                            // If request pending and I AM support -> Show Accept
+                            if(isSupport && d.isRequest && !d.accepted) {
+                                document.getElementById('accept-req-btn').classList.remove('hidden');
+                            }
                             doc.ref.update({unread:false});
                         }
                     });
@@ -554,34 +568,13 @@
                 
                 const last = type==='text' ? v : 'File';
                 if(activeChat.type==='user') {
-                    // Logic for new DM Request
-                    const targetIsGod = GOD_USERS.includes(activeChat.name) || activeChat.name === 'Support Chronogram';
-                    if(!isGod && !targetIsGod) {
-                        db.collection('users').doc(me.uid).collection('chats').doc(activeChat.id).get().then(doc => {
-                            if(!doc.exists || !doc.data().accepted) {
-                                db.collection('users').doc(me.uid).collection('chats').doc(activeChat.id).set({lastMsg: last, time: Date.now(), isRequest: true, accepted: false}, {merge:true});
-                                db.collection('users').doc(activeChat.id).collection('chats').doc(me.uid).set({lastMsg: last, time: Date.now(), incomingRequest: true, accepted: false, unread: true}, {merge:true});
-                                Chat.open(activeChat.id, 'user', activeChat.name, activeChat.isG, activeChat.isV);
-                            } else {
-                                db.collection('users').doc(me.uid).collection('chats').doc(activeChat.id).set({lastMsg:last, time:Date.now()}, {merge:true});
-                                db.collection('users').doc(activeChat.id).collection('chats').doc(me.uid).set({lastMsg:last, time:Date.now(), unread:true}, {merge:true});
-                            }
-                        });
-                    } else {
-                        // Regular flow for Gods
-                        db.collection('users').doc(me.uid).collection('chats').doc(activeChat.id).set({lastMsg:last, time:Date.now()}, {merge:true});
-                        db.collection('users').doc(activeChat.id).collection('chats').doc(me.uid).set({lastMsg:last, time:Date.now(), unread:true}, {merge:true});
-                    }
+                    // Update User
+                    db.collection('users').doc(me.uid).collection('chats').doc(activeChat.id).set({lastMsg:last, time:Date.now()}, {merge:true});
+                    // Update Target (PRESERVE FLAGS)
+                    db.collection('users').doc(activeChat.id).collection('chats').doc(me.uid).set({lastMsg:last, time:Date.now(), unread:true}, {merge:true});
                 } 
                 if(!txt) document.getElementById('msg-in').value='';
             },
-            acceptDM: () => {
-                db.collection('users').doc(me.uid).collection('chats').doc(activeChat.id).update({accepted: true, incomingRequest: false});
-                db.collection('users').doc(activeChat.id).collection('chats').doc(me.uid).update({accepted: true, isRequest: false});
-                alert("Accepted!");
-                Chat.open(activeChat.id, 'user', activeChat.name, activeChat.isG, activeChat.isV);
-            },
-            block: () => alert("Blocked (Visual)"),
             upl: (i) => {
                 const f = i.files[0];
                 storage.ref().child(`chat/${Date.now()}`).put(f).then(s=>s.ref.getDownloadURL()).then(u=>Chat.send(u, f.type.includes('image')?'image':'file'));
@@ -591,16 +584,28 @@
                 return `<div class="msg ${mine?'me':'other'}">${c}</div>`;
             },
             renderPost: (m, id, admin) => {
-                let btn = ''; const match = m.text.match(/\[(.*?)\s\+\s(.*?)\]/);
-                let txt = m.text; if(match) { txt = txt.replace(match[0],''); btn=`<a href="${match[2]}" target="_blank" class="url-btn">${match[1]}</a>`; }
+                // FIXED BUTTON PARSING
+                const btnRegex = /\[(.*?)\s\+\s(.*?)\]/;
+                let btn = ''; 
+                let txt = m.text;
+                
+                const match = m.text.match(btnRegex);
+                if(match) { 
+                    txt = txt.replace(match[0],''); 
+                    btn = `<a href="${match[2]}" target="_blank" class="url-btn">${match[1]}</a>`; 
+                }
+                
                 let media = m.type==='image' ? `<img src="${m.text}" class="post-img">` : '';
                 let del = admin ? `<span style="float:right; cursor:pointer; color:#ff5959;" onclick="Chat.del('${id}')">✕</span>` : '';
-                const liked = m.likes && m.likes.includes(me.uid);
-                return `<div class="post">${media}<div class="post-body">${del} <div class="post-text">${txt}</div> ${btn}<div style="margin-top:10px; display:flex; gap:15px; color:#7f91a4; font-size:0.9rem;"><span onclick="Chat.like('${id}',${liked})" style="cursor:pointer; color:${liked?'#ff5959':'inherit'}">❤️ ${m.likes?.length||0}</span><span>👁 ${m.views||0}</span></div></div></div>`;
+                return `<div class="post">${media}<div class="post-body">${del} <div class="post-text">${txt}</div> ${btn}<div style="margin-top:10px; display:flex; gap:15px; color:#7f91a4; font-size:0.9rem;"><span onclick="Chat.like('${id}')" style="cursor:pointer;">❤️ ${m.likes?.length||0}</span><span>👁 ${m.views||0}</span></div></div></div>`;
             },
-            like: (pid, isL) => {
+            like: (pid) => {
                 const ref = db.collection('posts').doc(activeChat.id).collection('msg').doc(pid);
-                ref.update({likes: isL ? firebase.firestore.FieldValue.arrayRemove(me.uid) : firebase.firestore.FieldValue.arrayUnion(me.uid)});
+                ref.get().then(doc => {
+                    const likes = doc.data().likes || [];
+                    if(likes.includes(me.uid)) ref.update({likes: firebase.firestore.FieldValue.arrayRemove(me.uid)});
+                    else ref.update({likes: firebase.firestore.FieldValue.arrayUnion(me.uid)});
+                });
             },
             del: (pid) => { if(confirm('Delete?')) db.collection('posts').doc(activeChat.id).collection('msg').doc(pid).delete(); }
         };
@@ -613,15 +618,17 @@
                 const ref = type==='user' ? db.collection('users').doc(id) : db.collection('channels').doc(id);
                 ref.onSnapshot(doc => {
                     const d = doc.data();
+                    const badgeHtml = Render.badges(GOD_USERS.includes(d.username), d.verified || type==='channel');
                     document.getElementById('modal-name').innerText = d.displayName || d.name;
+                    document.getElementById('modal-badge').innerHTML = badgeHtml;
                     document.getElementById('modal-tag').innerText = '@' + d.username;
+                    const a = document.getElementById('modal-ava');
+                    a.innerText = (d.displayName||d.name)[0].toUpperCase();
+                    a.className = type==='channel' ? 'modal-ava-text modal-ava-chan' : 'modal-ava-text';
                     document.getElementById('stat-1').innerText = type==='user' ? (d.followers?.length||0) : (d.subs?.length||0);
                     document.getElementById('stat-2').innerText = type==='user' ? (d.following?.length||0) : '-';
-                    document.getElementById('modal-badge').innerHTML = Render.badges(GOD_USERS.includes(d.username), d.verified || type==='channel');
-                    document.getElementById('modal-ava').innerText = (d.displayName||d.name)[0].toUpperCase();
-                    document.getElementById('modal-ava').className = type==='channel' ? 'modal-ava-text modal-ava-chan' : 'modal-ava-text';
 
-                    // SETTINGS (BG)
+                    // SETTINGS
                     if(isMe) document.getElementById('settings-area').classList.remove('hidden');
                     else document.getElementById('settings-area').classList.add('hidden');
 
@@ -660,6 +667,8 @@
                     const act2 = isSub ? firebase.firestore.FieldValue.arrayRemove(id) : firebase.firestore.FieldValue.arrayUnion(id);
                     db.collection('users').doc(me.uid).update({following:act2});
                 }
+                // FIX REDIRECT: Reload CURRENT view, not me
+                setTimeout(() => Profile.render(id, type, false), 500);
             }
         };
 
@@ -673,7 +682,7 @@
 
         const Social = {
             add: () => {
-                const link = prompt("Paste your Social Link (TikTok, Insta, etc):");
+                const link = prompt("Link:");
                 if(link) db.collection('users').doc(me.uid).update({socialLink: link});
             }
         };
@@ -686,15 +695,14 @@
                     const supportId = snap.docs[0].id;
                     
                     db.collection('users').doc(me.uid).collection('chats').doc(supportId).get().then(chatSnap => {
-                        if(chatSnap.exists && chatSnap.data().isRequest && !chatSnap.data().accepted) return alert("Request already pending!");
+                        if(chatSnap.exists && chatSnap.data().isRequest && !chatSnap.data().accepted) return alert("Request pending!");
                         
                         Chat.open(supportId, 'user', 'Support Chronogram', true, true); 
                         document.getElementById('modal-premium').style.display='none';
                         
-                        const reqMsg = `💎 Заявка на Premium`;
+                        const reqMsg = `💎 Request for Premium`;
                         Chat.send(reqMsg);
                         
-                        // SET FLAGS FOR SUPPORT REQUEST
                         db.collection('users').doc(me.uid).collection('chats').doc(supportId).update({isRequest: true, accepted: false});
                         db.collection('users').doc(supportId).collection('chats').doc(me.uid).set({
                             isRequest: true, accepted: false, lastMsg: reqMsg, time: Date.now(), unread: true
