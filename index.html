@@ -16,7 +16,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
 
     <style>
-        /* === THEME: INSTA-PROFILE === */
+        /* === THEME: UNIQUE & BRANDED === */
         :root {
             --accent: #2979FF;
             --gold: #FFD700;
@@ -102,11 +102,12 @@
         input, textarea { width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 16px; border-radius: 16px; margin-bottom: 10px; font-family: inherit; font-size: 1rem; }
         input:focus, textarea:focus { border-color: var(--accent); background: rgba(0,0,0,0.5); }
 
-        .ava { width: 50px; height: 50px; border-radius: 50%; background: #2a3b55; background-size: cover; background-position: center; flex-shrink: 0; position: relative; overflow: hidden; }
+        .ava { width: 50px; height: 50px; border-radius: 50%; background: #2a3b55; background-size: cover; background-position: center; flex-shrink: 0; position: relative; overflow: hidden; display: flex; justify-content: center; align-items: center; }
         .ava-lg { width: 120px; height: 120px; }
         .ava-gold { border: 3px solid var(--gold); box-shadow: 0 0 25px rgba(255, 215, 0, 0.5); }
-        .ava-icon { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 30px; color: #fff; }
+        .ava-icon { font-size: 28px; color: #fff; }
 
+        /* МЕДИА */
         .media-post { width: 100%; border-radius: 18px; margin-top: 15px; max-height: 500px; object-fit: cover; background: transparent; }
         .video-circle { width: 280px; height: 280px; border-radius: 50%; object-fit: cover; border: 4px solid var(--accent); background: #000; box-shadow: 0 10px 50px rgba(41, 121, 255, 0.3); }
         .circle-wrap { display: flex; justify-content: center; margin: 25px 0; }
@@ -127,7 +128,6 @@
 
         .notif-row { padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; gap: 15px; align-items: center; }
         .notif-icon { color: var(--accent); }
-        
         .user-list-item { display: flex; align-items: center; gap: 15px; padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; }
         .user-list-item:hover { background: rgba(255,255,255,0.05); }
 
@@ -278,6 +278,7 @@
                     <div id="view-bio" style="margin:15px 0;"></div>
                     
                     <div id="view-stats" style="display:flex; justify-content:center; gap:40px; margin-bottom:20px;"></div>
+                    <div id="view-subs" style="margin-bottom:20px; display:none;"></div>
                     
                     <div style="display:flex; gap:10px; justify-content:center;">
                         <button id="btn-sub" class="btn btn-small">Подписаться</button>
@@ -548,26 +549,54 @@
                     else m = `<img src="${p.media}" class="media-post">`;
                 }
                 const liked = p.likes && p.likes.includes(me.uid);
+                const avaId = `ava-${id}`;
                 
                 setTimeout(()=>{
-                    db.collection('users').doc(p.uid).get().then(u=>{
-                        if(u.exists){
-                            if(u.data().username==='mrakodum') {
-                                document.getElementById('b-'+id).innerHTML='<span class="badge-god"></span>';
-                                document.getElementById('ava-'+id).classList.add('ava-gold');
+                    if(p.isChannel) {
+                        // ДЛЯ КАНАЛОВ: Ищем в коллекции channels
+                        db.collection('channels').doc(p.channelId).get().then(doc => {
+                            if(doc.exists) {
+                                const c = doc.data();
+                                const el = document.getElementById(avaId);
+                                if(c.avatar) {
+                                    el.style.backgroundImage=`url('${c.avatar}')`;
+                                    el.innerHTML='';
+                                } else {
+                                    el.innerHTML='<span class="icon">campaign</span>';
+                                }
+                                // Проверка на галочку (от админа)
+                                db.collection('users').doc(c.owner).get().then(u => {
+                                    if(u.exists && u.data().username === 'mrakodum') {
+                                        document.getElementById('b-'+id).innerHTML='<span class="badge-god"></span>';
+                                        el.classList.add('ava-gold');
+                                    }
+                                });
                             }
-                            else if(u.data().verified) document.getElementById('b-'+id).innerHTML='<span class="badge-verif"></span>';
-                            if(u.data().avatar) {
-                                document.getElementById('ava-'+id).style.backgroundImage=`url('${u.data().avatar}')`;
-                                document.getElementById('ava-'+id).innerHTML='';
+                        });
+                    } else {
+                        // ДЛЯ ЛЮДЕЙ
+                        db.collection('users').doc(p.uid).get().then(u=>{
+                            if(u.exists){
+                                const el = document.getElementById(avaId);
+                                if(u.data().username==='mrakodum') {
+                                    document.getElementById('b-'+id).innerHTML='<span class="badge-god"></span>';
+                                    el.classList.add('ava-gold');
+                                }
+                                else if(u.data().verified) document.getElementById('b-'+id).innerHTML='<span class="badge-verif"></span>';
+                                if(u.data().avatar) {
+                                    el.style.backgroundImage=`url('${u.data().avatar}')`;
+                                    el.innerHTML='';
+                                }
                             }
-                        }
-                    });
+                        });
+                    }
                 },0);
+
+                let clickAction = p.isChannel ? `Viewer.openChan('${p.channelId}')` : `Viewer.openUser('${p.uid}')`;
 
                 return `<div class="card">
                     <div style="display:flex;justify-content:space-between; margin-bottom:10px;">
-                        <div style="display:flex; gap:10px; cursor:pointer;" onclick="Viewer.openUser('${p.uid}')">
+                        <div style="display:flex; gap:10px; cursor:pointer;" onclick="${clickAction}">
                             <div id="ava-${id}" class="ava"><span class="ava-icon icon">person</span></div>
                             <div>
                                 <b style="color:var(--accent)">${p.dname||p.author}</b> <span id="b-${id}"></span><br>
@@ -604,8 +633,18 @@
                 const n = document.getElementById('chan-name').value;
                 const s = document.getElementById('chan-slug').value.toLowerCase().replace('@','');
                 if(!n||!s) return;
-                db.collection('channels').add({name:n, username:s, owner:me.uid, subs:[], avatar:'', isTop: false});
-                alert('Канал создан');
+                
+                // ПРОВЕРКА НА УНИКАЛЬНОСТЬ
+                db.collection('channels').where('username', '==', s).get().then(snap => {
+                    if(!snap.empty) return alert('Юзернейм канала уже занят!');
+                    
+                    db.collection('channels').add({
+                        name:n, username:s, owner:me.uid, subs:[me.uid], avatar:'', isTop: false
+                    }).then(() => {
+                        alert('Канал создан!');
+                        Channels.load();
+                    });
+                });
             },
             load: () => {
                 db.collection('channels').where('subs', 'array-contains', me.uid).get().then(s => {
@@ -613,7 +652,7 @@
                     if(s.empty) l.innerHTML = '<div style="color:#555; padding:10px;">Нет подписок</div>';
                     s.forEach(d => {
                         const c = d.data();
-                        let ava = c.avatar ? `<div class="ava" style="background-image:url('${c.avatar}')"></div>` : `<div style="font-size:30px;">📢</div>`;
+                        let ava = c.avatar ? `<div class="ava" style="background-image:url('${c.avatar}')"></div>` : `<div class="ava"><span class="icon">campaign</span></div>`;
                         l.innerHTML += `<div class="card" onclick="Viewer.openChan('${d.id}')" style="cursor:pointer; display:flex; align-items:center; gap:15px; padding:10px; margin-bottom:10px;">
                             ${ava}
                             <div><b>${c.name}</b><br><small style="color:var(--text-sec)">@${c.username}</small></div>
@@ -625,7 +664,7 @@
                     const l = document.getElementById('channels-list'); l.innerHTML='';
                     s.forEach(d => {
                         const c = d.data();
-                        let ava = c.avatar ? `<div class="ava" style="background-image:url('${c.avatar}')"></div>` : `<div style="font-size:30px;">📢</div>`;
+                        let ava = c.avatar ? `<div class="ava" style="background-image:url('${c.avatar}')"></div>` : `<div class="ava"><span class="icon">campaign</span></div>`;
                         let btn = isGod ? `<button class="btn-small btn-sec" onclick="Channels.toggleTop('${d.id}', false)">Убрать</button>` : '';
                         l.innerHTML += `<div class="card" style="display:flex; align-items:center; justify-content:space-between;">
                             <div onclick="Viewer.openChan('${d.id}')" style="cursor:pointer; display:flex; align-items:center; gap:15px;">
@@ -661,8 +700,8 @@
                     db.collection('posts').add({
                         text:t, media:mediaBlob, type:mediaType||'text',
                         uid:me.uid, 
-                        author: c.username, 
-                        dname: c.name, 
+                        author: c.username, // ИМЯ КАНАЛА
+                        dname: c.name, // НАЗВАНИЕ КАНАЛА
                         isChannel:true, channelId:activeEntity,
                         time:firebase.firestore.FieldValue.serverTimestamp(), likes:[], views:0, viewedBy:[]
                     });
@@ -673,7 +712,12 @@
             },
             rename: () => {
                 const n = document.getElementById('edit-chan-slug').value;
-                if(n) { db.collection('channels').doc(activeEntity).update({username:n}); alert('Готово'); }
+                if(n) { 
+                    db.collection('channels').where('username', '==', n).get().then(snap => {
+                        if(!snap.empty) return alert('Юзернейм занят!');
+                        db.collection('channels').doc(activeEntity).update({username:n}); alert('Готово'); 
+                    });
+                }
             },
             avatar: (inp) => {
                 const r = new FileReader();
@@ -690,6 +734,8 @@
                 document.getElementById('view-title').innerText='Профиль';
                 document.getElementById('chan-admin').classList.add('hidden');
                 document.getElementById('btn-pm').classList.remove('hidden');
+                document.getElementById('view-stats').style.display='flex';
+                document.getElementById('view-subs').style.display='none';
 
                 db.collection('users').doc(uid).onSnapshot(doc => {
                     const d = doc.data();
@@ -715,7 +761,6 @@
                         document.getElementById('view-ava').innerHTML = '<span class="ava-icon icon">person</span>';
                     }
                     
-                    // ПОЛНАЯ СТАТИСТИКА
                     document.getElementById('view-stats').innerHTML = `
                         <div onclick="UserList.open('followers', '${uid}')" style="cursor:pointer;">
                             <b style="font-size:1.3rem;">${d.followers ? d.followers.length : 0}</b><br>
@@ -726,7 +771,6 @@
                             <small style="color:var(--text-sec)">Подписки</small>
                         </div>
                     `;
-                    document.getElementById('view-subs').style.display = 'none'; // Скрываем старую статистику
                     
                     const btn = document.getElementById('btn-sub');
                     btn.onclick = () => Viewer.subUser(uid);
@@ -745,6 +789,8 @@
                 document.getElementById('viewer-modal').style.display='flex';
                 document.getElementById('view-title').innerText='Канал';
                 document.getElementById('btn-pm').classList.add('hidden');
+                document.getElementById('view-stats').style.display='none';
+                document.getElementById('view-subs').style.display='block';
 
                 db.collection('channels').doc(cid).onSnapshot(doc => {
                     const c = doc.data();
@@ -761,10 +807,6 @@
                     }
                     
                     document.getElementById('view-ava').classList.remove('ava-gold');
-                    
-                    // Для каналов оставляем старый вид статистики
-                    document.getElementById('view-stats').innerHTML = '';
-                    document.getElementById('view-subs').style.display = 'block';
                     document.getElementById('view-subs').innerText = (c.subs?c.subs.length:0) + " подписчиков";
 
                     const btn = document.getElementById('btn-sub');
