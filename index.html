@@ -3,8 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>CHRONOGRAM</title>
-    <link rel="icon" type="image/png" href="logo.png">
+    <link rel="icon" type="image/jpeg" href="logo1.jpg">
+    <link rel="apple-touch-icon" href="logo1.jpg">
     
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0" />
@@ -15,7 +18,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
 
     <style>
-        /* === THEME: ULTIMATE === */
+        /* === THEME: NOTIFICATIONS === */
         :root {
             --accent: #2979FF;
             --gold: #FFD700;
@@ -34,7 +37,7 @@
             background: radial-gradient(circle at 10% 20%, rgba(41, 121, 255, 0.15), transparent 40%),
                         radial-gradient(circle at 90% 80%, rgba(120, 50, 255, 0.15), transparent 40%),
                         radial-gradient(circle at 50% 50%, rgba(10, 15, 30, 1), #000);
-            animation: deepSpace 20s infinite alternate;
+            animation: deepSpace 20s infinite alternate; pointer-events: none;
         }
         @keyframes deepSpace { 0% { transform: scale(1); } 100% { transform: scale(1.1); } }
 
@@ -49,7 +52,7 @@
         }
         .app-logo-lg {
             width: 160px; height: 160px; border-radius: 50%;
-            background-image: url('logo1.png'); background-size: 200%; background-position: center;
+            background-image: url('logo1.jpg'); background-size: cover; background-position: center;
             box-shadow: 0 0 80px rgba(41, 121, 255, 0.4); margin-bottom: 40px;
         }
 
@@ -63,17 +66,17 @@
         }
         .mini-logo {
             width: 55px; height: 55px; border-radius: 50%;
-            background-image: url('logo1.png'); background-size: 170%; background-position: center;
-            margin-bottom: 50px; cursor: pointer; box-shadow: 0 5px 25px rgba(41, 121, 255, 0.3);
+            background-image: url('logo1.jpg'); background-size: cover; background-position: center;
+            margin-bottom: 30px; cursor: pointer; box-shadow: 0 5px 25px rgba(41, 121, 255, 0.3);
         }
         .nav-btn {
             width: 55px; height: 55px; border-radius: 18px; display: flex; justify-content: center; align-items: center;
-            color: var(--text-sec); cursor: pointer; margin-bottom: 20px; transition: 0.3s; position: relative;
+            color: var(--text-sec); cursor: pointer; margin-bottom: 15px; transition: 0.3s; position: relative;
         }
         .nav-btn .icon { font-size: 28px; }
         .nav-btn.active { color: #fff; background: linear-gradient(135deg, #2979FF, #00B0FF); box-shadow: 0 5px 15px rgba(41, 121, 255, 0.4); }
         .nav-btn:hover:not(.active) { color: #fff; background: rgba(255,255,255,0.05); }
-        .unread-dot { width: 10px; height: 10px; background: #FF3B30; border-radius: 50%; position: absolute; top: 12px; right: 12px; display: none; }
+        .unread-dot { width: 10px; height: 10px; background: #FF3B30; border-radius: 50%; position: absolute; top: 12px; right: 12px; border: 2px solid #12151a; display: none; }
 
         @media (max-width: 768px) {
             #app { flex-direction: column; }
@@ -90,7 +93,7 @@
         .container { width: 100%; max-width: 600px; padding-bottom: 100px; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .card { background: var(--glass); border: var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
+        .card { background: var(--glass); border: var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); position: relative; }
         .btn { background: linear-gradient(135deg, #2979FF, #00B0FF); color: white; border: none; padding: 14px; border-radius: 16px; font-weight: 700; cursor: pointer; width: 100%; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s; }
         .btn:active { transform: scale(0.98); }
         .btn-sec { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); }
@@ -104,17 +107,14 @@
         .ava { width: 50px; height: 50px; border-radius: 50%; background: #2a3b55; background-size: cover; background-position: center; flex-shrink: 0; position: relative; overflow: hidden; }
         .ava-lg { width: 120px; height: 120px; }
         .ava-gold { border: 3px solid var(--gold); box-shadow: 0 0 25px rgba(255, 215, 0, 0.5); }
-        /* Исправление: иконка по центру, если нет фото */
         .ava-icon { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 30px; color: #fff; }
-        /* Если есть фото, иконку скрываем JS-ом или перекрываем фоном */
 
-        .media-post { width: 100%; border-radius: 18px; margin-top: 15px; max-height: 500px; object-fit: contain; background: #000; }
+        .media-post { width: 100%; border-radius: 18px; margin-top: 15px; max-height: 500px; object-fit: cover; background: transparent; }
         .video-circle { width: 280px; height: 280px; border-radius: 50%; object-fit: cover; border: 4px solid var(--accent); background: #000; box-shadow: 0 10px 50px rgba(41, 121, 255, 0.3); }
         .circle-wrap { display: flex; justify-content: center; margin: 25px 0; }
 
         .badge-verif { display: inline-block; width: 18px; height: 18px; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%232979FF'%3E%3Cpath d='M22.5 12.5c0-1.58-.875-2.95-2.148-3.6.154-.435.238-.905.238-1.4 0-2.21-1.71-3.998-3.818-3.998-.47 0-.92.114-1.335.314C14.63 2.662 13.385 2 12 2c-1.385 0-2.63.662-3.437 1.716-.415-.2-.865-.314-1.335-.314-2.11 0-3.818 1.79-3.818 4 0 .495.083.965.238 1.4-1.272.65-2.147 2.02-2.147 3.6 0 1.435.71 2.79 1.786 3.63-.09.39-.136.79-.136 1.2 0 2.7 2.19 4.9 4.9 4.9 1.455 0 2.76-.63 3.69-1.635.93 1.005 2.234 1.635 3.69 1.635 2.71 0 4.9-2.2 4.9-4.9 0-.41-.046-.81-.136-1.2 1.076-.84 1.786-2.195 1.786-3.63zM9.76 17.6l-4.48-4.48 1.413-1.414 3.067 3.067 6.907-6.907 1.413 1.414-8.32 8.32z'/%3E%3C/svg%3E") no-repeat center; vertical-align: text-bottom; margin-left: 6px; }
-        .badge-god { margin-left: 6px; font-size: 1.3rem; filter: drop-shadow(0 0 12px var(--gold)); } 
-        .badge-god::after { content: '👑'; }
+        .badge-god { margin-left: 6px; font-size: 1.3rem; filter: drop-shadow(0 0 12px var(--gold)); } .badge-god::after { content: '👑'; }
 
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); z-index: 5000; display: none; align-items: center; justify-content: center; }
         .modal-content { width: 100%; max-width: 600px; height: 100%; background: #12161f; display: flex; flex-direction: column; position: relative; }
@@ -127,7 +127,11 @@
         .msg.me { align-self: flex-end; background: linear-gradient(135deg, #2979FF, #00B0FF); color: white; border-bottom-right-radius: 4px; }
         .msg.other { align-self: flex-start; background: #222c3d; color: white; border-bottom-left-radius: 4px; }
 
-        /* СПИСОК ПОДПИСЧИКОВ (НОВОЕ) */
+        /* УВЕДОМЛЕНИЯ */
+        .notif-row { padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; gap: 15px; align-items: center; }
+        .notif-icon { color: var(--accent); }
+        .notif-like { color: #FF3B30; }
+
         .user-list-item { display: flex; align-items: center; gap: 15px; padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; }
         .user-list-item:hover { background: rgba(255,255,255,0.05); }
 
@@ -163,9 +167,8 @@
             <div class="nav-btn active" onclick="Nav.to('feed')"><span class="icon">home</span></div>
             <div class="nav-btn" onclick="Nav.to('channels')"><span class="icon">campaign</span></div>
             <div class="nav-btn" onclick="Nav.to('search')"><span class="icon">search</span></div>
-            <div class="nav-btn" onclick="Nav.to('chats')">
-                <span class="icon">chat_bubble</span> <div id="nav-unread" class="unread-dot"></div>
-            </div>
+            <div class="nav-btn" onclick="Nav.to('chats')"><span class="icon">chat_bubble</span> <div id="nav-unread" class="unread-dot"></div></div>
+            <div class="nav-btn" onclick="Nav.to('notifs')"><span class="icon">notifications</span> <div id="notif-dot" class="unread-dot"></div></div>
             <div class="nav-btn" onclick="Nav.to('profile')"><span class="icon">person</span></div>
         </div>
 
@@ -202,10 +205,8 @@
                         <input type="text" id="chan-slug" placeholder="Юзернейм (@news)">
                         <button class="btn" onclick="Channels.create()"><span class="icon">add</span> Создать</button>
                     </div>
-                    
                     <h3>Мои Подписки</h3>
                     <div id="my-subs-list" style="margin-bottom:30px;"></div>
-
                     <h3>Топ Каналов</h3>
                     <div id="channels-list"></div>
                 </div>
@@ -221,6 +222,15 @@
             <div id="pg-chats" class="page">
                 <div class="container">
                     <div id="chat-list" class="card" style="padding:0; overflow:hidden;"></div>
+                </div>
+            </div>
+
+            <div id="pg-notifs" class="page">
+                <div class="container">
+                    <h3>Уведомления</h3>
+                    <div id="notif-list" class="card" style="padding:0; overflow:hidden;">
+                        <div style="padding:20px; color:#555;">Загрузка...</div>
+                    </div>
                 </div>
             </div>
 
@@ -273,13 +283,11 @@
                     <div style="color:var(--text-sec);">@<span id="view-uname"></span></div>
                     <div id="view-bio" style="margin:15px 0;"></div>
                     <div style="margin-bottom:20px;"><b id="view-subs">0</b> <span style="color:var(--text-sec)">подписчиков</span></div>
-                    
                     <div style="display:flex; gap:10px; justify-content:center;">
                         <button id="btn-sub" class="btn btn-small">Подписаться</button>
                         <button id="btn-pm" class="btn btn-small btn-sec">Написать</button>
                     </div>
                 </div>
-
                 <div id="chan-admin" class="card hidden">
                     <label class="btn btn-small btn-sec" style="width:100%; margin-bottom:10px;">
                         <span class="icon">photo_camera</span> Сменить аватарку <input type="file" hidden accept="image/*" onchange="Channels.avatar(this)">
@@ -287,7 +295,6 @@
                     <input type="text" id="edit-chan-slug" placeholder="Новый юзернейм">
                     <button class="btn btn-small btn-sec" onclick="Channels.rename()" style="margin-bottom:15px;">Сохранить адрес</button>
                     <textarea id="chan-text" placeholder="Написать в канал..." style="min-height:50px; background:transparent; border:none;"></textarea>
-                    
                     <div id="chan-preview" class="hidden" style="position:relative; margin-bottom:10px;">
                         <div onclick="document.getElementById('chan-preview').classList.add('hidden'); mediaBlob=null;" style="position:absolute; right:0; cursor:pointer;">✕</div>
                         <img id="cp-img" class="media-post hidden">
@@ -374,6 +381,8 @@
                         document.getElementById('auth-screen').style.display='none';
                         document.getElementById('app').classList.add('active');
                         App.start();
+                        // Запрос на уведомления при входе
+                        if(Notification.permission !== "granted") Notification.requestPermission();
                     } else auth.signOut();
                 });
             } else {
@@ -405,11 +414,50 @@
         };
 
         const App = {
-            start: () => { Profile.load(); Feed.load(); Chat.listen(); Channels.load(); },
+            start: () => { Profile.load(); Feed.load(); Chat.listen(); Channels.load(); Notifs.load(); },
             linkify: (text) => {
                 if(!text) return '';
                 return text.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>')
                            .replace(/@(\w+)/g, '<span style="color:var(--accent)">@$1</span>');
+            }
+        };
+
+        // СИСТЕМА УВЕДОМЛЕНИЙ
+        const Notifs = {
+            send: (uid, type, text) => {
+                if(uid === me.uid) return; // Не уведомлять самого себя
+                db.collection('users').doc(uid).collection('notifs').add({
+                    text: text, type: type, from: me.uid, time: firebase.firestore.FieldValue.serverTimestamp(), read: false
+                });
+            },
+            load: () => {
+                db.collection('users').doc(me.uid).collection('notifs').orderBy('time', 'desc').limit(20).onSnapshot(snap => {
+                    const l = document.getElementById('notif-list'); l.innerHTML = '';
+                    let unread = false;
+                    snap.forEach(d => {
+                        const n = d.data();
+                        if(!n.read) unread = true;
+                        
+                        // Системный пуш если приложение открыто
+                        if(!n.read && document.hidden) {
+                            new Notification("Chronogram", { body: n.text, icon: 'logo.jpg' });
+                        }
+
+                        let icon = 'notifications';
+                        if(n.type === 'like') icon = 'favorite';
+                        if(n.type === 'sub') icon = 'person_add';
+                        if(n.type === 'msg') icon = 'chat';
+
+                        l.innerHTML += `<div class="notif-row">
+                            <span class="icon notif-${n.type}" style="color:${n.type==='like'?'#FF3B30':'var(--accent)'}">${icon}</span>
+                            <div>${n.text}</div>
+                        </div>`;
+                        
+                        // Помечаем прочитанным при загрузке (упрощено)
+                        db.collection('users').doc(me.uid).collection('notifs').doc(d.id).update({read:true});
+                    });
+                    document.getElementById('notif-dot').style.display = unread ? 'block' : 'none';
+                });
             }
         };
 
@@ -424,14 +472,12 @@
                     if(f.type.includes('video')) mediaType = 'video';
                     else if(f.type.includes('audio')) mediaType = 'audio';
                     else mediaType = 'image';
-                    
                     const pfx = ctx==='feed'?'prev':'cp';
                     const box = ctx==='feed'?'preview-box':'chan-preview';
                     document.getElementById(box).classList.remove('hidden');
                     document.getElementById(pfx+'-img').classList.add('hidden');
                     document.getElementById(pfx+'-vid').classList.add('hidden');
                     document.getElementById(pfx+'-aud').classList.add('hidden');
-
                     if(mediaType==='video') { const v = document.getElementById(pfx+'-vid'); v.src=mediaBlob; v.classList.remove('hidden'); } 
                     else if(mediaType==='audio') { const a = document.getElementById(pfx+'-aud'); a.src=mediaBlob; a.classList.remove('hidden'); } 
                     else { const i = document.getElementById(pfx+'-img'); i.src=mediaBlob; i.classList.remove('hidden'); }
@@ -445,7 +491,7 @@
                     document.getElementById('cam-video').srcObject = s;
                     recorder = new MediaRecorder(s);
                     recorder.ondataavailable = e => { if(e.data.size>0) chunks.push(e.data); };
-                    recorder.onstop = Media.saveCam; // Автосохранение и отправка
+                    recorder.onstop = Media.saveCam;
                 });
             },
             recStart: () => { chunks=[]; recorder.start(); document.getElementById('rec-btn').classList.add('recording'); },
@@ -542,19 +588,23 @@
                     <div style="white-space:pre-wrap; line-height:1.5;">${App.linkify(p.text)}</div>
                     ${m}
                     <div style="margin-top:15px; border-top:var(--border); padding-top:10px; display:flex; gap:20px; color:var(--text-sec); align-items:center;">
-                        <div onclick="Feed.like('${id}', 'posts')" style="cursor:pointer; color:${liked?'#FF3B30':'inherit'}; font-weight:600;">
+                        <div onclick="Feed.like('${id}', '${p.uid}', 'posts')" style="cursor:pointer; color:${liked?'#FF3B30':'inherit'}; font-weight:600;">
                             <span class="icon" style="font-size:20px;">${liked?'favorite':'favorite_border'}</span> ${p.likes?p.likes.length:0}
                         </div>
                         <div style="display:flex; align-items:center; gap:5px;"><span class="icon" style="font-size:20px;">visibility</span> ${p.views||0}</div>
                     </div>
                 </div>`;
             },
-            like: (id, coll) => {
+            like: (id, ownerUid, coll) => {
                 const ref = db.collection(coll).doc(id);
                 ref.get().then(d => {
                     const likes = d.data().likes || [];
                     if(likes.includes(me.uid)) ref.update({likes: firebase.firestore.FieldValue.arrayRemove(me.uid)});
-                    else ref.update({likes: firebase.firestore.FieldValue.arrayUnion(me.uid)});
+                    else {
+                        ref.update({likes: firebase.firestore.FieldValue.arrayUnion(me.uid)});
+                        // Отправляем уведомление
+                        Notifs.send(ownerUid, 'like', `Пользователь @${me.username || 'кто-то'} оценил вашу запись.`);
+                    }
                 });
             }
         };
@@ -599,7 +649,7 @@
                     });
                 });
                 
-                // АДМИН: ВСЕ КАНАЛЫ (для добавления в топ)
+                // АДМИН: ВСЕ КАНАЛЫ
                 if(isGod) {
                      db.collection('channels').get().then(s => {
                         const l = document.getElementById('channels-list'); 
@@ -742,6 +792,8 @@
                     } else {
                         him.update({followers:firebase.firestore.FieldValue.arrayUnion(me.uid)});
                         meRef.update({following:firebase.firestore.FieldValue.arrayUnion(uid)});
+                        // Уведомление
+                        Notifs.send(uid, 'sub', `Пользователь @${me.username} подписался на вас.`);
                     }
                 });
             }
@@ -836,6 +888,9 @@
                 db.collection('users').doc(me.uid).get().then(u => {
                     db.collection('users').doc(activeChat).collection('chats').doc(me.uid).set({...up, username:u.data().username, unread:true}, {merge:true});
                 });
+                
+                // Уведомление о сообщении
+                Notifs.send(activeChat, 'msg', `Новое сообщение от @${me.username}`);
                 document.getElementById('chat-in').value='';
             }
         };
