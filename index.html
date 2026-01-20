@@ -16,7 +16,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
 
     <style>
-        /* === THEME: NATIVE UI === */
+        /* === THEME: ISOLATED SUPPORT === */
         :root {
             --bg-left: #17212b;
             --bg-right: #0e1621;
@@ -64,49 +64,40 @@
         .ava-text { width: 48px; height: 48px; border-radius: 14px; background: var(--ava-bg); flex-shrink: 0; display: flex; justify-content: center; align-items: center; font-weight: 800; font-size: 1.4rem; color: #fff; text-transform: uppercase; }
         .ava-chan { border-radius: 8px; background: linear-gradient(135deg, #FFD700, #FFA500); color: black; }
 
-        /* CHAT */
         .chat-head { height: 60px; background: var(--bg-left); border-bottom: 1px solid #000; display: flex; align-items: center; padding: 0 20px; gap: 15px; cursor: pointer; }
         .chat-msgs { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 8px; padding-bottom: 80px; }
-        
         .chat-input-bar { min-height: 60px; background: var(--bg-left); padding: 10px 20px; display: flex; align-items: center; gap: 15px; position: relative; }
         
-        /* POST HELPER FOR CHANNELS */
-        .post-helper {
-            position: absolute; top: -30px; left: 0; width: 100%; 
-            background: rgba(0,0,0,0.7); color: #ccc; font-size: 0.8rem; 
-            padding: 5px 20px; pointer-events: none;
-        }
+        /* HELPER FOR ADMIN */
+        .post-helper { position: absolute; top: -30px; left: 0; width: 100%; background: rgba(0,0,0,0.8); color: #ccc; font-size: 0.8rem; padding: 5px 20px; pointer-events: none; border-top: 1px solid #333; }
 
         .msg { max-width: 70%; padding: 8px 12px; border-radius: 8px; font-size: 0.95rem; line-height: 1.4; word-wrap: break-word; }
         .msg.me { align-self: flex-end; background: var(--msg-out); color: white; }
         .msg.other { align-self: flex-start; background: var(--msg-in); color: white; }
 
-        .channel-footer { height: 60px; background: var(--bg-left); border-top: 1px solid #000; display: none; align-items: center; justify-content: center; padding: 0 20px; }
-        .chan-btn { width: 100%; text-transform: uppercase; letter-spacing: 1px; font-weight: 800; padding: 12px; background: var(--accent); color: white; border-radius: 8px; border: none; cursor: pointer; }
-        .chan-btn.subbed { background: transparent; color: var(--text-sec); border: 1px solid var(--text-sec); }
-
         .post { width: 100%; max-width: 480px; align-self: center; background: var(--bg-left); border-radius: 10px; overflow: hidden; margin-bottom: 15px; }
         .post-img { width: 100%; max-height: 400px; object-fit: cover; display: block; }
         .post-body { padding: 15px; }
-        .url-btn { display: block; background: rgba(82, 136, 193, 0.15); color: var(--accent); text-align: center; padding: 10px; border-radius: 6px; text-decoration: none; font-weight: 600; margin-top: 10px; }
+        .url-btn { display: block; background: rgba(82, 136, 193, 0.15); color: var(--accent); text-align: center; padding: 12px; border-radius: 8px; text-decoration: none; font-weight: 700; margin-top: 10px; border: 1px solid rgba(82,136,193,0.3); }
 
-        /* MODAL */
+        /* MODAL COMMON */
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 5000; display: none; justify-content: center; align-items: center; }
-        .modal-box { width: 380px; background: var(--bg-left); border-radius: 16px; overflow: hidden; position: relative; display:flex; flex-direction:column; max-height: 90vh; overflow-y: auto; }
+        .modal-box { width: 380px; background: var(--bg-left); border-radius: 16px; overflow: hidden; position: relative; display:flex; flex-direction:column; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 50px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); }
+        
         .modal-cover { height: 100px; background: linear-gradient(135deg, #2b5278, #17212b); width: 100%; }
         .modal-ava-wrap { position: relative; margin-top: -50px; margin-left: auto; margin-right: auto; width: 100px; height: 100px; z-index: 10; }
         .modal-ava-text { width: 100%; height: 100%; border-radius: 24px; background: var(--ava-bg); border: 6px solid var(--bg-left); box-shadow: 0 10px 20px rgba(0,0,0,0.3); display: flex; justify-content: center; align-items: center; font-size: 3rem; font-weight: 800; color: white; text-transform: uppercase; }
         .modal-ava-chan { background: linear-gradient(135deg, #FFD700, #FFA500); color: black; }
 
-        /* CREATE CHANNEL MODAL */
-        #create-chan-content { padding: 20px; text-align: center; }
-        .modal-input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: #0e1621; color: white; margin-bottom: 10px; }
+        /* CREATE CHANNEL UI */
+        .app-input { width: 100%; padding: 14px; background: #0e1621; border: 1px solid rgba(255,255,255,0.1); color: white; border-radius: 10px; margin-bottom: 15px; font-size: 1rem; }
+        .app-input:focus { border-color: var(--accent); }
 
+        /* GOD PANEL */
         .god-panel-left { padding: 15px; border-top: 1px solid rgba(255,255,255,0.1); background: #131a24; }
-        .req-badge { background: #FF3B30; color: white; padding: 2px 6px; border-radius: 10px; font-size: 0.7rem; margin-left: 5px; }
-
-        .btn { background: var(--accent); color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer; font-weight: 600; width: 100%; margin-top: 10px; }
-        .btn-gold { background: linear-gradient(135deg, #FFD700, #FFA500); color: black; border:none; }
+        
+        .btn { background: var(--accent); color: white; border: none; padding: 12px; border-radius: 10px; cursor: pointer; font-weight: 700; width: 100%; margin-top: 5px; }
+        .btn-gold { background: linear-gradient(135deg, #FFD700, #FFA500); color: black; border:none; box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3); }
         .btn-red { background: transparent; color: #ff5959; border: 2px solid #ff5959; }
         .btn-sec { background: transparent; color: var(--accent); border: 2px solid var(--accent); }
 
@@ -126,9 +117,9 @@
     <div id="auth-screen">
         <div class="app-logo-lg"></div>
         <h2 style="margin-bottom: 20px; letter-spacing: 2px;">CHRONOGRAM</h2>
-        <input type="email" id="email-in" placeholder="Email" style="padding:12px; border-radius:10px; border:none; background:#242f3d; color:white; margin-bottom:10px; width:280px;">
-        <input type="password" id="password-in" placeholder="Password" style="padding:12px; border-radius:10px; border:none; background:#242f3d; color:white; margin-bottom:10px; width:280px;">
-        <input type="text" id="username-in" placeholder="Username (Eng)" style="padding:12px; border-radius:10px; border:none; background:#242f3d; color:white; margin-bottom:20px; width:280px;">
+        <input type="email" id="email-in" placeholder="Email" class="app-input" style="width:280px;">
+        <input type="password" id="password-in" placeholder="Password" class="app-input" style="width:280px;">
+        <input type="text" id="username-in" placeholder="Username (Eng)" class="app-input" style="width:280px;">
         <button class="btn" onclick="Auth.login()" style="width:280px; margin-bottom:10px;">Login</button>
         <button class="btn btn-sec" onclick="Auth.reg()" style="width:280px;">Register</button>
         <p id="auth-err" style="color:#ff5959; margin-top:10px; font-size:0.8rem;"></p>
@@ -152,11 +143,9 @@
             <div id="list-search" class="list-wrap hidden"></div>
 
             <div id="god-panel" class="god-panel-left hidden">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                    <span style="color:#FFD700; font-size:0.8rem; font-weight:800;">👑 GOD MODE</span>
-                    <button id="support-btn" class="btn-sec" style="margin:0; padding:4px 10px; font-size:0.8rem;" onclick="Support.toggle()">📨 Заявки</button>
-                </div>
-                <input id="god-target" placeholder="User for action" style="width:100%; padding:8px; background:#242f3d; border:none; color:white; border-radius:6px; margin-bottom:5px;">
+                <button class="btn-sec" onclick="Support.toggle()" style="width:100%; margin-bottom:15px;">🛡️ ЗАЯВКИ (SUPPORT)</button>
+                <div style="font-size:0.7rem; color:#7f91a4; margin-bottom:5px;">ADMIN TOOLS</div>
+                <input id="god-target" placeholder="User for action" class="app-input" style="padding:8px; margin-bottom:5px;">
                 <div style="display:flex; gap:5px;">
                     <button class="btn" style="margin:0; font-size:0.8rem;" onclick="God.verify()">Verify</button>
                     <button class="btn btn-red" style="margin:0; font-size:0.8rem;" onclick="God.forceSub()">Force Sub</button>
@@ -167,7 +156,7 @@
         <div id="right-panel" class="right-panel">
             <div id="empty-state" style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; color:var(--text-sec);">
                 <span style="background:#182533; padding:20px; border-radius:20px; margin-bottom:15px; font-size:40px;">💬</span>
-                Select a chat to start messaging
+                Select a chat
             </div>
             <div id="chat-interface" class="hidden" style="height:100%; display:flex; flex-direction:column;">
                 <div class="chat-head" onclick="Profile.openOther()">
@@ -177,20 +166,20 @@
                         <div style="display:flex;align-items:center;"><b id="chat-head-name">Name</b> <span id="chat-head-badge"></span></div>
                         <div id="chat-head-status" style="font-size:0.8rem; color:var(--text-sec);">Info</div>
                     </div>
-                    <button id="accept-req-btn" class="btn hidden" style="width:auto; padding:5px 15px; font-size:0.8rem;" onclick="event.stopPropagation(); Support.accept()">ПРИНЯТЬ ДИАЛОГ</button>
+                    <button id="accept-req-btn" class="btn hidden" style="width:auto; padding:5px 15px; font-size:0.8rem;" onclick="event.stopPropagation(); Support.accept()">ПРИНЯТЬ</button>
                     <span class="icon">more_vert</span>
                 </div>
                 <div id="chat-msgs" class="chat-msgs"></div>
                 
                 <div class="chat-input-bar" id="chat-input-bar">
-                    <div id="chan-helper" class="post-helper hidden">💡 Tip: <b>[Button Name + URL]</b> adds a button</div>
+                    <div id="chan-helper" class="post-helper hidden">💡 Button: <b>[Name + https://link]</b></div>
                     <label class="icon" style="transform:rotate(45deg);"><input type="file" hidden onchange="Chat.upl(this)">attach_file</label>
                     <input id="msg-in" type="text" placeholder="Write a message..." style="flex:1; background:transparent; border:none; color:white; font-size:1rem;">
                     <span class="icon" style="color:var(--accent);" onclick="Chat.send()">send</span>
                 </div>
-                <div id="blocked-msg" class="hidden" style="padding:20px; text-align:center; color:#7f91a4; background:var(--bg-left);">Request sent. Wait for approval.</div>
+                <div id="blocked-msg" class="hidden" style="padding:20px; text-align:center; color:#7f91a4; background:var(--bg-left);">Request sent. Wait for admin approval.</div>
 
-                <div id="chan-footer" class="channel-footer">
+                <div id="chan-footer" class="channel-footer" style="display:none;">
                     <button id="chan-sub-btn" class="chan-btn">SUBSCRIBE</button>
                 </div>
             </div>
@@ -215,13 +204,15 @@
     </div>
 
     <div id="modal-create-channel" class="modal" onclick="if(event.target===this)this.style.display='none'">
-        <div class="modal-box">
-            <div style="background:var(--bg-left); padding:20px; text-align:center; border-bottom:1px solid rgba(255,255,255,0.1);">
-                <h3 style="margin:0;">Create Channel</h3>
+        <div class="modal-box" style="padding:30px;">
+            <div style="text-align:center; margin-bottom:20px;">
+                <span class="icon" style="font-size:40px; color:var(--accent);">campaign</span>
+                <h2 style="margin:10px 0;">New Channel</h2>
             </div>
-            <div id="create-chan-content">
-                <input id="new-chan-name" class="modal-input" placeholder="Channel Name">
-                <input id="new-chan-slug" class="modal-input" placeholder="Username (@news)">
+            <input id="new-chan-name" class="app-input" placeholder="Channel Name">
+            <input id="new-chan-slug" class="app-input" placeholder="Link (e.g. news)">
+            <div style="display:flex; gap:10px;">
+                <button class="btn-sec" onclick="document.getElementById('modal-create-channel').style.display='none'">Cancel</button>
                 <button class="btn" onclick="Channels.confirmCreate()">Create</button>
             </div>
         </div>
@@ -267,12 +258,11 @@
                 me = user;
                 db.collection('users').doc(me.uid).get().then(doc => {
                     if(doc.exists) {
-                        me.username = doc.data().username; // Fix undefined
+                        me.username = doc.data().username;
                         me.displayName = doc.data().displayName;
                         if(me.username === 'mrakodum') {
                             isGod = true;
                             document.getElementById('god-panel').classList.remove('hidden');
-                            Support.ensureExists();
                         }
                         document.getElementById('auth-screen').style.display='none';
                         document.getElementById('app').classList.add('active');
@@ -322,6 +312,8 @@
                 document.getElementById('list-'+t).classList.remove('hidden');
                 document.getElementById('search-in').value = '';
                 supportMode = false;
+                document.getElementById('support-btn').innerText = "📨 Заявки";
+                Chats.load();
             },
             back: () => {
                 document.getElementById('right-panel').classList.remove('open');
@@ -337,14 +329,18 @@
                     const l = document.getElementById('list-chats'); l.innerHTML='';
                     s.forEach(doc => {
                         const d = doc.data();
-                        if (isGod && d.isRequest && !d.accepted) return; // Hide requests from main list for Admin
+                        
+                        // Strict filter: If it's a request AND NOT accepted -> Hide from main list for Admin
+                        // If it's a request AND NOT accepted -> Hide from main list for User (they only see it inside Support chat if open)
+                        // Actually, users should see "Support Chronogram" in their list, but Admins should NOT see user requests in MAIN list.
+                        if (isGod && d.isRequest && !d.accepted) return;
 
                         db.collection('users').doc(doc.id).get().then(u => {
                             if(!u.exists) return;
                             const ud = u.data();
-                            // For regular users, support chat looks like "Support Chronogram"
-                            const name = (doc.id === 'support_id_placeholder') ? 'Support Chronogram' : ud.displayName; 
-                            l.innerHTML += ItemHTML(doc.id, 'user', name, d.lastMsg, ud.username==='mrakodum', ud.verified, d.unread);
+                            // For regular users, admin chat looks like "Support Chronogram"
+                            const name = (doc.id === 'support_id_placeholder' || (d.isRequest && !isGod)) ? 'Support Chronogram' : ud.displayName; 
+                            l.innerHTML += ItemHTML(doc.id, 'user', name, d.lastMsg, ud.username==='mrakodum', (ud.verified || name==='Support Chronogram'), d.unread);
                         });
                     });
                 });
@@ -358,15 +354,16 @@
                 const list = document.getElementById('list-chats');
                 
                 if (supportMode) {
-                    btn.innerText = "🔙 Chats";
-                    list.innerHTML = '<div style="padding:10px; color:grey; text-align:center;">Loading Requests...</div>';
+                    btn.innerText = "🔙 Чаты";
+                    list.innerHTML = '<div style="padding:10px; color:grey; text-align:center;">Загрузка заявок...</div>';
+                    // Show ONLY requests
                     db.collection('users').doc(me.uid).collection('chats').where('isRequest', '==', true).where('accepted', '==', false).get().then(snap => {
                         list.innerHTML = '';
-                        if(snap.empty) list.innerHTML = '<div style="padding:20px; color:grey; text-align:center;">No Pending Requests</div>';
+                        if(snap.empty) list.innerHTML = '<div style="padding:20px; color:grey; text-align:center;">Нет новых заявок</div>';
                         snap.forEach(doc => {
                             db.collection('users').doc(doc.id).get().then(u => {
                                 const ud = u.data();
-                                list.innerHTML += ItemHTML(doc.id, 'user', ud.displayName, "Premium Request", false, ud.verified, true);
+                                list.innerHTML += ItemHTML(doc.id, 'user', ud.displayName, "Заявка на Premium", false, ud.verified, true);
                             });
                         });
                     });
@@ -376,14 +373,13 @@
                 }
             },
             accept: () => {
+                // Unlock both sides
                 db.collection('users').doc(activeChat.id).collection('chats').doc(me.uid).update({isRequest: false, accepted: true});
                 db.collection('users').doc(me.uid).collection('chats').doc(activeChat.id).update({isRequest: false, accepted: true});
                 alert("Dialog Accepted!");
                 Chat.open(activeChat.id, 'user', activeChat.name, false, activeChat.isV);
             },
-            ensureExists: () => {
-                // Ensure there is a placeholder user if needed, but logic is handled by admin ID mapping
-            }
+            ensureExists: () => {}
         };
 
         const Channels = {
@@ -482,6 +478,7 @@
                     db.collection('channels').doc(id).onSnapshot(d => {
                         const c = d.data();
                         document.getElementById('chat-head-status').innerText = c.subs.length + ' Subscribers';
+                        
                         document.getElementById('chan-footer').style.display = 'flex';
                         const isSub = c.subs.includes(me.uid);
                         const btn = document.getElementById('chan-sub-btn');
@@ -492,7 +489,7 @@
                         if(c.owner !== me.uid && !isGod) document.getElementById('chat-input-bar').style.display='none';
                         else {
                             document.getElementById('chat-input-bar').style.display='flex';
-                            document.getElementById('chan-helper').classList.remove('hidden'); // Tip for Admin
+                            document.getElementById('chan-helper').classList.remove('hidden'); 
                         }
                     });
                 } else {
@@ -501,10 +498,12 @@
                     db.collection('users').doc(me.uid).collection('chats').doc(id).get().then(doc => {
                         if(doc.exists) {
                             const d = doc.data();
+                            // USER VIEW: If request pending -> BLOCK
                             if(d.isRequest && !d.accepted && !isGod) {
                                 document.getElementById('chat-input-bar').style.display='none';
                                 document.getElementById('blocked-msg').classList.remove('hidden');
                             }
+                            // ADMIN VIEW: If request pending -> SHOW ACCEPT
                             if(isGod && d.isRequest && !d.accepted) {
                                 document.getElementById('accept-req-btn').classList.remove('hidden');
                             }
@@ -535,7 +534,9 @@
                 
                 const last = type==='text' ? v : 'File';
                 if(activeChat.type==='user') {
+                    // Update User
                     db.collection('users').doc(me.uid).collection('chats').doc(activeChat.id).set({lastMsg:last, time:Date.now()}, {merge:true});
+                    // Update Target (BUT PRESERVE FLAGS)
                     db.collection('users').doc(activeChat.id).collection('chats').doc(me.uid).set({lastMsg:last, time:Date.now(), unread:true}, {merge:true});
                 } 
                 if(!txt) document.getElementById('msg-in').value='';
@@ -573,7 +574,9 @@
                 
                 ref.onSnapshot(doc => {
                     const d = doc.data();
+                    const badgeHtml = Render.badges(d.username==='mrakodum', d.verified || type==='channel');
                     document.getElementById('modal-name').innerText = d.displayName || d.name;
+                    document.getElementById('modal-badge').innerHTML = badgeHtml;
                     document.getElementById('modal-tag').innerText = '@' + d.username;
                     
                     const a = document.getElementById('modal-ava');
@@ -636,15 +639,13 @@
                     if (snap.empty) return alert('Support unavailable');
                     const adminId = snap.docs[0].id;
                     
-                    // Open chat where user sees "Support Chronogram"
                     Chat.open(adminId, 'user', 'Support Chronogram', false, true); 
                     document.getElementById('modal-premium').style.display='none';
                     
-                    // Fixed: Send message with current user's name
                     const reqMsg = `Request for Premium from @${me.username}`;
                     Chat.send(reqMsg);
                     
-                    // Mark as request
+                    // MARK AS REQUEST FOR ADMIN ONLY
                     db.collection('users').doc(me.uid).collection('chats').doc(adminId).update({isRequest: true, accepted: false});
                     db.collection('users').doc(adminId).collection('chats').doc(me.uid).set({
                         isRequest: true, accepted: false, lastMsg: reqMsg, time: Date.now(), unread: true
