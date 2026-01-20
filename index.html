@@ -3,8 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#17212b">
+    
     <title>CHRONOGRAM</title>
     <link rel="icon" type="image/jpeg" href="logo1.jpg">
+    <link rel="apple-touch-icon" href="logo1.jpg">
     
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0" />
@@ -16,7 +21,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
 
     <style>
-        /* === THEME: IRONCLAD === */
+        /* === THEME: SHARE & CONTROL === */
         :root {
             --bg-left: #17212b;
             --bg-right: #0e1621;
@@ -32,9 +37,11 @@
         * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
         body { margin: 0; padding: 0; font-family: 'Manrope', sans-serif; color: var(--text); background: #000; height: 100vh; overflow: hidden; }
 
+        /* AUTH */
         #auth-screen { position: fixed; top:0; left:0; width:100%; height:100%; background: #17212b; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; }
         .app-logo-lg { width: 120px; height: 120px; border-radius: 24px; background-image: url('logo.jpg'); background-size: cover; margin-bottom: 20px; box-shadow: 0 0 40px rgba(82,136,193,0.3); }
 
+        /* LAYOUT */
         #app { display: none; width: 100%; height: 100%; }
         #app.active { display: flex; }
 
@@ -71,6 +78,7 @@
         .ava-text { width: 48px; height: 48px; border-radius: 14px; background: var(--ava-bg); flex-shrink: 0; display: flex; justify-content: center; align-items: center; font-weight: 800; font-size: 1.4rem; color: #fff; text-transform: uppercase; }
         .ava-chan { border-radius: 8px; background: linear-gradient(135deg, #FFD700, #FFA500); color: black; }
 
+        /* CHAT */
         .chat-head { height: 60px; background: var(--bg-left); border-bottom: 1px solid #000; display: flex; align-items: center; padding: 0 20px; gap: 15px; cursor: pointer; z-index: 20; }
         .chat-msgs { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 8px; padding-bottom: 80px; }
         .chat-input-bar { min-height: 60px; background: var(--bg-left); padding: 10px 20px; display: flex; align-items: center; gap: 15px; position: relative; z-index: 20; }
@@ -85,6 +93,9 @@
         .chan-btn { width: 100%; text-transform: uppercase; letter-spacing: 1px; font-weight: 800; padding: 12px; background: var(--accent); color: white; border-radius: 8px; border: none; cursor: pointer; }
         .chan-btn.subbed { background: transparent; color: var(--text-sec); border: 1px solid var(--text-sec); }
 
+        /* DM APPROVAL */
+        .dm-approval-bar { height: 60px; background: var(--bg-left); border-top: 1px solid #000; display: flex; align-items: center; justify-content: space-around; padding: 0 20px; gap: 10px; }
+
         .post { width: 100%; max-width: 480px; align-self: center; background: var(--bg-left); border-radius: 10px; overflow: hidden; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
         .post-img { width: 100%; max-height: 400px; object-fit: cover; display: block; }
         .post-body { padding: 15px; }
@@ -96,6 +107,7 @@
         }
         .url-btn:hover { background: var(--accent); color: white; }
 
+        /* MODAL */
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 5000; display: none; justify-content: center; align-items: center; }
         .modal-box { width: 380px; background: var(--bg-left); border-radius: 16px; overflow: hidden; position: relative; display:flex; flex-direction:column; max-height: 90vh; overflow-y: auto; }
         .modal-cover { height: 100px; background: linear-gradient(135deg, #2b5278, #17212b); width: 100%; }
@@ -111,6 +123,7 @@
         .btn-red { background: transparent; color: #ff5959; border: 2px solid #ff5959; }
         .btn-sec { background: transparent; color: var(--accent); border: 2px solid var(--accent); }
 
+        /* SOCIALS */
         @keyframes pulse-btn { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
         .social-row { display: flex; justify-content: center; gap: 15px; margin-top: 20px; flex-wrap: wrap; }
         .social-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; justify-content: center; align-items: center; background: rgba(255,255,255,0.05); color: white; font-size: 1.4rem; text-decoration: none; animation: pulse-btn 2s infinite; }
@@ -191,7 +204,11 @@
                     <span class="icon" style="color:var(--accent);" onclick="Chat.send()">send</span>
                 </div>
                 
-                <div id="blocked-msg" class="hidden" style="padding:20px; text-align:center; color:#7f91a4; background:var(--bg-left);">Wait for admin approval.</div>
+                <div id="blocked-msg" class="hidden" style="padding:20px; text-align:center; color:#7f91a4; background:var(--bg-left);">Wait for approval.</div>
+                <div id="dm-approval-bar" class="dm-approval-bar hidden">
+                    <button class="btn-red" style="margin:0; width:45%;" onclick="Chat.block()">BLOCK</button>
+                    <button class="btn" style="margin:0; width:45%;" onclick="Chat.acceptDM()">ACCEPT</button>
+                </div>
 
                 <div id="chan-footer" class="channel-footer">
                     <button id="chan-sub-btn" class="chan-btn">SUBSCRIBE</button>
@@ -279,6 +296,31 @@
         let supportMode = false;
         const GOD_USERS = ['mrakodum', 'support_agent'];
 
+        // ROUTER FOR DEEP LINKS
+        const Routing = {
+            check: () => {
+                const hash = window.location.hash.substring(1); // #@username -> @username
+                if(hash.startsWith('@')) {
+                    const target = hash.substring(1);
+                    // Try users
+                    db.collection('users').where('username','==',target).get().then(snap => {
+                        if(!snap.empty) {
+                            const u = snap.docs[0].data();
+                            Chat.open(snap.docs[0].id, 'user', u.displayName, GOD_USERS.includes(u.username), u.verified);
+                        } else {
+                            // Try channels
+                            db.collection('channels').where('username','==',target).get().then(csnap => {
+                                if(!csnap.empty) {
+                                    const c = csnap.docs[0].data();
+                                    Chat.open(csnap.docs[0].id, 'channel', c.name, false, true);
+                                }
+                            });
+                        }
+                    });
+                }
+            }
+        };
+
         auth.onAuthStateChanged(user => {
             if(user) {
                 me = user;
@@ -286,12 +328,11 @@
                     if(doc.exists) {
                         me.username = doc.data().username;
                         me.displayName = doc.data().displayName;
-                        // ROLES
+                        
                         if(GOD_USERS.includes(me.username)) {
                             isGod = true;
                             document.getElementById('god-panel').classList.remove('hidden');
                         }
-                        // SUPPORT ONLY sees the Request button
                         if(me.username === 'support_agent') {
                             isSupport = true;
                             document.getElementById('support-btn').classList.remove('hidden');
@@ -300,6 +341,7 @@
                         document.getElementById('auth-screen').style.display='none';
                         document.getElementById('app').classList.add('active');
                         App.init();
+                        Routing.check(); // Check deep link
                     } else auth.signOut();
                 });
             } else {
@@ -325,7 +367,6 @@
                 ]).then(([uSnap, cSnap]) => {
                     if(!uSnap.empty || !cSnap.empty) return alert('Username taken');
                     auth.createUserWithEmailAndPassword(em, pa).then(cred => {
-                        // AUTO-VERIFY GODS
                         db.collection('users').doc(cred.user.uid).set({
                             username: un, displayName: un, avatar: '', followers: [], following: [], verified: GOD_USERS.includes(un)
                         });
@@ -363,17 +404,13 @@
                     const l = document.getElementById('list-chats'); l.innerHTML='';
                     s.forEach(doc => {
                         const d = doc.data();
-                        
-                        // ONLY SUPPORT AGENT CAN SEE UNACCEPTED REQUESTS IN "SUPPORT MODE"
-                        if (d.isRequest && !d.accepted) return;
+                        if (isGod && d.isRequest && !d.accepted) return; 
 
                         db.collection('users').doc(doc.id).get().then(u => {
                             if(!u.exists) return;
                             const ud = u.data();
-                            // USER VIEW: Chat with "Support Team"
-                            const name = (doc.id === 'support_id_placeholder' || (d.isRequest && !isSupport)) ? 'Support Team' : ud.displayName; 
-                            const isV = (d.isRequest && !isSupport) ? true : ud.verified; // Support gets badge visually
-                            l.innerHTML += ItemHTML(doc.id, 'user', name, d.lastMsg, ud.username==='mrakodum'||ud.username==='support_agent', isV, d.unread);
+                            const name = (doc.id === 'support_id_placeholder' || (d.isRequest && !isSupport)) ? 'Support Chronogram' : ud.displayName; 
+                            l.innerHTML += ItemHTML(doc.id, 'user', name, d.lastMsg, ud.username==='mrakodum'||ud.username==='support_agent', (ud.verified || name==='Support Chronogram'), d.unread);
                         });
                     });
                 });
@@ -385,18 +422,15 @@
                 supportMode = !supportMode;
                 const btn = document.getElementById('support-btn');
                 const list = document.getElementById('list-chats');
-                
                 if (supportMode) {
                     btn.innerText = "🔙 Chats";
                     list.innerHTML = '<div style="padding:10px; color:grey; text-align:center;">Loading...</div>';
-                    // Show pending requests
                     db.collection('users').doc(me.uid).collection('chats').where('isRequest', '==', true).where('accepted', '==', false).get().then(snap => {
                         list.innerHTML = '';
                         if(snap.empty) list.innerHTML = '<div style="padding:20px; color:grey; text-align:center;">No Requests</div>';
                         snap.forEach(doc => {
                             db.collection('users').doc(doc.id).get().then(u => {
-                                const ud = u.data();
-                                list.innerHTML += ItemHTML(doc.id, 'user', ud.displayName, "Premium Request", false, ud.verified, true);
+                                list.innerHTML += ItemHTML(doc.id, 'user', u.data().displayName, "Premium Request", false, u.data().verified, true);
                             });
                         });
                     });
@@ -406,7 +440,6 @@
                 }
             },
             accept: () => {
-                // Unlock both sides
                 db.collection('users').doc(activeChat.id).collection('chats').doc(me.uid).update({isRequest: false, accepted: true});
                 db.collection('users').doc(me.uid).collection('chats').doc(activeChat.id).update({isRequest: false, accepted: true});
                 alert("Accepted!");
@@ -421,18 +454,16 @@
                 const name = document.getElementById('new-chan-name').value;
                 const slug = document.getElementById('new-chan-slug').value.toLowerCase().replace('@','');
                 if(!name || !slug) return alert("Fill all fields");
-
                 db.collection('users').doc(me.uid).get().then(doc => {
                     const u = doc.data();
                     db.collection('channels').where('owner', '==', me.uid).get().then(snap => {
                         const limit = u.verified ? 10 : 3;
                         if(snap.size >= limit) return alert(`Limit reached! Max: ${limit}.`);
-                        
                         Promise.all([
                             db.collection('users').where('username','==',slug).get(),
                             db.collection('channels').where('username','==',slug).get()
                         ]).then(([uSnap, cSnap]) => {
-                            if(!uSnap.empty || !cSnap.empty) return alert('Username taken!');
+                            if(!uSnap.empty || !cSnap.empty) return alert('Taken!');
                             db.collection('channels').add({name:name, username:slug, owner:me.uid, subs:[me.uid]});
                             document.getElementById('modal-create-channel').style.display='none';
                         });
@@ -447,6 +478,14 @@
                         l.innerHTML += ItemHTML(doc.id, 'channel', c.name, '@'+c.username, false, true, false);
                     });
                 });
+            },
+            del: (id) => {
+                if(confirm('Delete Channel? Cannot be undone.')) {
+                    db.collection('channels').doc(id).delete().then(() => {
+                        document.getElementById('modal-profile').style.display = 'none';
+                        alert('Channel Deleted.');
+                    });
+                }
             }
         };
 
@@ -458,7 +497,6 @@
                 document.getElementById('list-channels').classList.add('hidden');
                 l.classList.remove('hidden'); l.innerHTML = '';
                 if(q.length<2) return;
-
                 Promise.all([db.collection('users').get(), db.collection('channels').get()]).then(([us, cs]) => {
                     us.forEach(d => { 
                         const r = d.data();
@@ -498,12 +536,12 @@
                 const a = document.getElementById('chat-head-ava'); a.innerText = name[0].toUpperCase();
                 a.className = type==='channel' ? 'ava-text ava-chan' : 'ava-text';
 
-                // UI RESET
                 document.getElementById('chan-footer').style.display = 'none';
                 document.getElementById('chat-input-bar').style.display = 'flex';
                 document.getElementById('blocked-msg').classList.add('hidden');
-                document.getElementById('accept-req-btn').classList.add('hidden');
+                document.getElementById('dm-approval-bar').classList.add('hidden');
                 document.getElementById('chan-helper').classList.add('hidden');
+                document.getElementById('accept-req-btn').classList.add('hidden');
 
                 if(type === 'channel') {
                     db.collection('channels').doc(id).onSnapshot(d => {
@@ -515,7 +553,6 @@
                         btn.innerText = isSub ? "UNSUBSCRIBE" : "SUBSCRIBE";
                         btn.className = isSub ? "chan-btn subbed" : "chan-btn";
                         btn.onclick = () => Profile.sub(id, 'channel', isSub);
-
                         if(c.owner !== me.uid && !isGod) document.getElementById('chat-input-bar').style.display='none';
                         else {
                             document.getElementById('chat-input-bar').style.display='flex';
@@ -524,19 +561,18 @@
                     });
                 } else {
                     document.getElementById('chat-head-status').innerText = 'Online';
-                    
                     db.collection('users').doc(me.uid).collection('chats').doc(id).get().then(doc => {
                         if(doc.exists) {
                             const d = doc.data();
-                            // If request pending and I am NOT support -> Block
                             if(d.isRequest && !d.accepted && !isSupport) {
                                 document.getElementById('chat-input-bar').style.display='none';
+                                document.getElementById('blocked-msg').innerText = "Request sent. Wait for admin approval.";
                                 document.getElementById('blocked-msg').classList.remove('hidden');
+                            } else if (d.incomingRequest && !d.accepted) {
+                                document.getElementById('chat-input-bar').style.display='none';
+                                document.getElementById('dm-approval-bar').classList.remove('hidden');
                             }
-                            // If request pending and I AM support -> Show Accept
-                            if(isSupport && d.isRequest && !d.accepted) {
-                                document.getElementById('accept-req-btn').classList.remove('hidden');
-                            }
+                            if(isSupport && d.isRequest && !d.accepted) document.getElementById('accept-req-btn').classList.remove('hidden');
                             doc.ref.update({unread:false});
                         }
                     });
@@ -564,13 +600,32 @@
                 
                 const last = type==='text' ? v : 'File';
                 if(activeChat.type==='user') {
-                    // Update User
-                    db.collection('users').doc(me.uid).collection('chats').doc(activeChat.id).set({lastMsg:last, time:Date.now()}, {merge:true});
-                    // Update Target (PRESERVE FLAGS)
-                    db.collection('users').doc(activeChat.id).collection('chats').doc(me.uid).set({lastMsg:last, time:Date.now(), unread:true}, {merge:true});
+                    const targetIsGod = GOD_USERS.includes(activeChat.name) || activeChat.name === 'Support Chronogram';
+                    if(!isGod && !targetIsGod) {
+                        db.collection('users').doc(me.uid).collection('chats').doc(activeChat.id).get().then(doc => {
+                            if(!doc.exists || !doc.data().accepted) {
+                                db.collection('users').doc(me.uid).collection('chats').doc(activeChat.id).set({lastMsg: last, time: Date.now(), isRequest: true, accepted: false}, {merge:true});
+                                db.collection('users').doc(activeChat.id).collection('chats').doc(me.uid).set({lastMsg: last, time: Date.now(), incomingRequest: true, accepted: false, unread: true}, {merge:true});
+                                Chat.open(activeChat.id, 'user', activeChat.name, activeChat.isG, activeChat.isV);
+                            } else {
+                                db.collection('users').doc(me.uid).collection('chats').doc(activeChat.id).set({lastMsg:last, time:Date.now()}, {merge:true});
+                                db.collection('users').doc(activeChat.id).collection('chats').doc(me.uid).set({lastMsg:last, time:Date.now(), unread:true}, {merge:true});
+                            }
+                        });
+                    } else {
+                        db.collection('users').doc(me.uid).collection('chats').doc(activeChat.id).set({lastMsg:last, time:Date.now()}, {merge:true});
+                        db.collection('users').doc(activeChat.id).collection('chats').doc(me.uid).set({lastMsg:last, time:Date.now(), unread:true}, {merge:true});
+                    }
                 } 
                 if(!txt) document.getElementById('msg-in').value='';
             },
+            acceptDM: () => {
+                db.collection('users').doc(me.uid).collection('chats').doc(activeChat.id).update({accepted: true, incomingRequest: false});
+                db.collection('users').doc(activeChat.id).collection('chats').doc(me.uid).update({accepted: true, isRequest: false});
+                alert("Accepted!");
+                Chat.open(activeChat.id, 'user', activeChat.name, activeChat.isG, activeChat.isV);
+            },
+            block: () => alert("Blocked (Visual)"),
             upl: (i) => {
                 const f = i.files[0];
                 storage.ref().child(`chat/${Date.now()}`).put(f).then(s=>s.ref.getDownloadURL()).then(u=>Chat.send(u, f.type.includes('image')?'image':'file'));
@@ -580,16 +635,21 @@
                 return `<div class="msg ${mine?'me':'other'}">${c}</div>`;
             },
             renderPost: (m, id, admin) => {
-                let btn = ''; const match = m.text.match(/\[(.*?)\s\+\s(.*?)\]/);
-                let txt = m.text; if(match) { txt = txt.replace(match[0],''); btn=`<a href="${match[2]}" target="_blank" class="url-btn">${match[1]}</a>`; }
+                const btnRegex = /\[(.*?)\s\+\s(.*?)\]/;
+                let btn = ''; let txt = m.text;
+                const match = m.text.match(btnRegex);
+                if(match) { txt = txt.replace(match[0],''); btn = `<a href="${match[2]}" target="_blank" class="url-btn">${match[1]}</a>`; }
                 let media = m.type==='image' ? `<img src="${m.text}" class="post-img">` : '';
                 let del = admin ? `<span style="float:right; cursor:pointer; color:#ff5959;" onclick="Chat.del('${id}')">✕</span>` : '';
-                const liked = m.likes && m.likes.includes(me.uid);
-                return `<div class="post">${media}<div class="post-body">${del} <div class="post-text">${txt}</div> ${btn}<div style="margin-top:10px; display:flex; gap:15px; color:#7f91a4; font-size:0.9rem;"><span onclick="Chat.like('${id}',${liked})" style="cursor:pointer; color:${liked?'#ff5959':'inherit'}">❤️ ${m.likes?.length||0}</span><span>👁 ${m.views||0}</span></div></div></div>`;
+                return `<div class="post">${media}<div class="post-body">${del} <div class="post-text">${txt}</div> ${btn}<div style="margin-top:10px; display:flex; gap:15px; color:#7f91a4; font-size:0.9rem;"><span onclick="Chat.like('${id}')" style="cursor:pointer;">❤️ ${m.likes?.length||0}</span><span>👁 ${m.views||0}</span></div></div></div>`;
             },
-            like: (pid, isL) => {
+            like: (pid) => {
                 const ref = db.collection('posts').doc(activeChat.id).collection('msg').doc(pid);
-                ref.update({likes: isL ? firebase.firestore.FieldValue.arrayRemove(me.uid) : firebase.firestore.FieldValue.arrayUnion(me.uid)});
+                ref.get().then(doc => {
+                    const likes = doc.data().likes || [];
+                    if(likes.includes(me.uid)) ref.update({likes: firebase.firestore.FieldValue.arrayRemove(me.uid)});
+                    else ref.update({likes: firebase.firestore.FieldValue.arrayUnion(me.uid)});
+                });
             },
             del: (pid) => { if(confirm('Delete?')) db.collection('posts').doc(activeChat.id).collection('msg').doc(pid).delete(); }
         };
@@ -612,11 +672,9 @@
                     document.getElementById('stat-1').innerText = type==='user' ? (d.followers?.length||0) : (d.subs?.length||0);
                     document.getElementById('stat-2').innerText = type==='user' ? (d.following?.length||0) : '-';
 
-                    // SETTINGS
                     if(isMe) document.getElementById('settings-area').classList.remove('hidden');
                     else document.getElementById('settings-area').classList.add('hidden');
 
-                    // SOCIALS
                     const sa = document.getElementById('social-area'); sa.innerHTML = '';
                     if (d.username === 'mrakodum') {
                         sa.innerHTML = `
@@ -631,6 +689,9 @@
                     } else if (isMe && d.verified && type==='user') {
                         sa.innerHTML = `<button class="btn-sec" style="margin-top:10px; font-size:0.8rem;" onclick="Social.add()">+ Add Link</button>`;
                     }
+                    
+                    // COPY LINK BUTTON
+                    sa.innerHTML += `<button class="btn-sec" style="margin-top:10px; font-size:0.8rem;" onclick="Profile.share('${d.username}')">🔗 COPY LINK</button>`;
 
                     const acts = document.getElementById('modal-actions');
                     if(isMe) {
@@ -640,6 +701,12 @@
                     } else {
                         const isSub = type==='user' ? d.followers?.includes(me.uid) : d.subs?.includes(me.uid);
                         acts.innerHTML = `<button class="${isSub?'btn-sec':'btn'}" onclick="Profile.sub('${id}','${type}',${isSub})">${isSub?'Unsubscribe':'Subscribe'}</button>`;
+                        
+                        // DELETE BUTTON (ONLY FOR OWNER OR GOD)
+                        const isOwner = d.owner === me.uid;
+                        if (type==='channel' && (isOwner || isGod)) {
+                            acts.innerHTML += `<button class="btn-red" style="margin-top:10px;" onclick="Channels.del('${id}')">DELETE CHANNEL</button>`;
+                        }
                     }
                 });
             },
@@ -651,6 +718,10 @@
                     const act2 = isSub ? firebase.firestore.FieldValue.arrayRemove(id) : firebase.firestore.FieldValue.arrayUnion(id);
                     db.collection('users').doc(me.uid).update({following:act2});
                 }
+            },
+            share: (username) => {
+                const link = window.location.origin + window.location.pathname + '#@' + username;
+                navigator.clipboard.writeText(link).then(() => alert('Link copied to clipboard!'));
             }
         };
 
@@ -675,17 +746,12 @@
                 db.collection('users').where('username', '==', 'support_agent').get().then(snap => {
                     if (snap.empty) return alert('Support unavailable');
                     const supportId = snap.docs[0].id;
-                    
                     db.collection('users').doc(me.uid).collection('chats').doc(supportId).get().then(chatSnap => {
                         if(chatSnap.exists && chatSnap.data().isRequest && !chatSnap.data().accepted) return alert("Request pending!");
-                        
                         Chat.open(supportId, 'user', 'Support Chronogram', true, true); 
                         document.getElementById('modal-premium').style.display='none';
-                        
                         const reqMsg = `💎 Заявка на Premium`;
                         Chat.send(reqMsg);
-                        
-                        // SET FLAGS FOR SUPPORT REQUEST
                         db.collection('users').doc(me.uid).collection('chats').doc(supportId).update({isRequest: true, accepted: false});
                         db.collection('users').doc(supportId).collection('chats').doc(me.uid).set({
                             isRequest: true, accepted: false, lastMsg: reqMsg, time: Date.now(), unread: true
