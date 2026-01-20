@@ -16,7 +16,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
 
     <style>
-        /* === THEME: FINAL ROLES === */
+        /* === THEME: IRONCLAD === */
         :root {
             --bg-left: #17212b;
             --bg-right: #0e1621;
@@ -32,22 +32,17 @@
         * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
         body { margin: 0; padding: 0; font-family: 'Manrope', sans-serif; color: var(--text); background: #000; height: 100vh; overflow: hidden; }
 
-        /* AUTH */
         #auth-screen { position: fixed; top:0; left:0; width:100%; height:100%; background: #17212b; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; }
         .app-logo-lg { width: 120px; height: 120px; border-radius: 24px; background-image: url('logo.jpg'); background-size: cover; margin-bottom: 20px; box-shadow: 0 0 40px rgba(82,136,193,0.3); }
 
-        /* LAYOUT */
         #app { display: none; width: 100%; height: 100%; }
         #app.active { display: flex; }
 
         .left-panel { width: 380px; height: 100%; display: flex; flex-direction: column; background: var(--bg-left); border-right: 1px solid #000; flex-shrink: 0; z-index: 10; }
-        
-        /* CHAT BACKGROUNDS */
         .right-panel { 
             flex: 1; height: 100%; position: relative; display: flex; flex-direction: column;
             background-color: #0f0f0f;
-            background-size: cover; background-position: center; background-repeat: no-repeat;
-            /* Default Background */
+            background-size: cover; background-position: center; 
             background-image: url('https://w0.peakpx.com/wallpaper/508/153/HD-wallpaper-whatsapp-doodle-black-pattern.jpg'); 
         }
         
@@ -90,7 +85,6 @@
         .chan-btn { width: 100%; text-transform: uppercase; letter-spacing: 1px; font-weight: 800; padding: 12px; background: var(--accent); color: white; border-radius: 8px; border: none; cursor: pointer; }
         .chan-btn.subbed { background: transparent; color: var(--text-sec); border: 1px solid var(--text-sec); }
 
-        /* POSTS & BUTTONS */
         .post { width: 100%; max-width: 480px; align-self: center; background: var(--bg-left); border-radius: 10px; overflow: hidden; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
         .post-img { width: 100%; max-height: 400px; object-fit: cover; display: block; }
         .post-body { padding: 15px; }
@@ -102,7 +96,6 @@
         }
         .url-btn:hover { background: var(--accent); color: white; }
 
-        /* MODAL */
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 5000; display: none; justify-content: center; align-items: center; }
         .modal-box { width: 380px; background: var(--bg-left); border-radius: 16px; overflow: hidden; position: relative; display:flex; flex-direction:column; max-height: 90vh; overflow-y: auto; }
         .modal-cover { height: 100px; background: linear-gradient(135deg, #2b5278, #17212b); width: 100%; }
@@ -118,7 +111,6 @@
         .btn-red { background: transparent; color: #ff5959; border: 2px solid #ff5959; }
         .btn-sec { background: transparent; color: var(--accent); border: 2px solid var(--accent); }
 
-        /* SOCIALS */
         @keyframes pulse-btn { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
         .social-row { display: flex; justify-content: center; gap: 15px; margin-top: 20px; flex-wrap: wrap; }
         .social-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; justify-content: center; align-items: center; background: rgba(255,255,255,0.05); color: white; font-size: 1.4rem; text-decoration: none; animation: pulse-btn 2s infinite; }
@@ -285,7 +277,7 @@
         let isSupport = false;
         let activeChat = null;
         let supportMode = false;
-        const GOD_USERS = ['mrakodum', 'help_center'];
+        const GOD_USERS = ['mrakodum', 'support_agent'];
 
         auth.onAuthStateChanged(user => {
             if(user) {
@@ -299,7 +291,8 @@
                             isGod = true;
                             document.getElementById('god-panel').classList.remove('hidden');
                         }
-                        if(me.username === 'help_center') {
+                        // SUPPORT ONLY sees the Request button
+                        if(me.username === 'support_agent') {
                             isSupport = true;
                             document.getElementById('support-btn').classList.remove('hidden');
                         }
@@ -332,6 +325,7 @@
                 ]).then(([uSnap, cSnap]) => {
                     if(!uSnap.empty || !cSnap.empty) return alert('Username taken');
                     auth.createUserWithEmailAndPassword(em, pa).then(cred => {
+                        // AUTO-VERIFY GODS
                         db.collection('users').doc(cred.user.uid).set({
                             username: un, displayName: un, avatar: '', followers: [], following: [], verified: GOD_USERS.includes(un)
                         });
@@ -370,15 +364,16 @@
                     s.forEach(doc => {
                         const d = doc.data();
                         
-                        // HIDE REQUESTS FROM MAIN LIST IF NOT ACCEPTED
+                        // ONLY SUPPORT AGENT CAN SEE UNACCEPTED REQUESTS IN "SUPPORT MODE"
                         if (d.isRequest && !d.accepted) return;
 
                         db.collection('users').doc(doc.id).get().then(u => {
                             if(!u.exists) return;
                             const ud = u.data();
-                            // If user is regular, they see 'Support Chronogram' instead of help_center name
-                            const name = (doc.id === 'support_id_placeholder' || (d.isRequest && !isSupport)) ? 'Support Chronogram' : ud.displayName; 
-                            l.innerHTML += ItemHTML(doc.id, 'user', name, d.lastMsg, ud.username==='mrakodum'||ud.username==='help_center', ud.verified, d.unread);
+                            // USER VIEW: Chat with "Support Team"
+                            const name = (doc.id === 'support_id_placeholder' || (d.isRequest && !isSupport)) ? 'Support Team' : ud.displayName; 
+                            const isV = (d.isRequest && !isSupport) ? true : ud.verified; // Support gets badge visually
+                            l.innerHTML += ItemHTML(doc.id, 'user', name, d.lastMsg, ud.username==='mrakodum'||ud.username==='support_agent', isV, d.unread);
                         });
                     });
                 });
@@ -392,7 +387,7 @@
                 const list = document.getElementById('list-chats');
                 
                 if (supportMode) {
-                    btn.innerText = "🔙 Чаты";
+                    btn.innerText = "🔙 Chats";
                     list.innerHTML = '<div style="padding:10px; color:grey; text-align:center;">Loading...</div>';
                     // Show pending requests
                     db.collection('users').doc(me.uid).collection('chats').where('isRequest', '==', true).where('accepted', '==', false).get().then(snap => {
@@ -411,6 +406,7 @@
                 }
             },
             accept: () => {
+                // Unlock both sides
                 db.collection('users').doc(activeChat.id).collection('chats').doc(me.uid).update({isRequest: false, accepted: true});
                 db.collection('users').doc(me.uid).collection('chats').doc(activeChat.id).update({isRequest: false, accepted: true});
                 alert("Accepted!");
@@ -584,28 +580,16 @@
                 return `<div class="msg ${mine?'me':'other'}">${c}</div>`;
             },
             renderPost: (m, id, admin) => {
-                // FIXED BUTTON PARSING
-                const btnRegex = /\[(.*?)\s\+\s(.*?)\]/;
-                let btn = ''; 
-                let txt = m.text;
-                
-                const match = m.text.match(btnRegex);
-                if(match) { 
-                    txt = txt.replace(match[0],''); 
-                    btn = `<a href="${match[2]}" target="_blank" class="url-btn">${match[1]}</a>`; 
-                }
-                
+                let btn = ''; const match = m.text.match(/\[(.*?)\s\+\s(.*?)\]/);
+                let txt = m.text; if(match) { txt = txt.replace(match[0],''); btn=`<a href="${match[2]}" target="_blank" class="url-btn">${match[1]}</a>`; }
                 let media = m.type==='image' ? `<img src="${m.text}" class="post-img">` : '';
                 let del = admin ? `<span style="float:right; cursor:pointer; color:#ff5959;" onclick="Chat.del('${id}')">✕</span>` : '';
-                return `<div class="post">${media}<div class="post-body">${del} <div class="post-text">${txt}</div> ${btn}<div style="margin-top:10px; display:flex; gap:15px; color:#7f91a4; font-size:0.9rem;"><span onclick="Chat.like('${id}')" style="cursor:pointer;">❤️ ${m.likes?.length||0}</span><span>👁 ${m.views||0}</span></div></div></div>`;
+                const liked = m.likes && m.likes.includes(me.uid);
+                return `<div class="post">${media}<div class="post-body">${del} <div class="post-text">${txt}</div> ${btn}<div style="margin-top:10px; display:flex; gap:15px; color:#7f91a4; font-size:0.9rem;"><span onclick="Chat.like('${id}',${liked})" style="cursor:pointer; color:${liked?'#ff5959':'inherit'}">❤️ ${m.likes?.length||0}</span><span>👁 ${m.views||0}</span></div></div></div>`;
             },
-            like: (pid) => {
+            like: (pid, isL) => {
                 const ref = db.collection('posts').doc(activeChat.id).collection('msg').doc(pid);
-                ref.get().then(doc => {
-                    const likes = doc.data().likes || [];
-                    if(likes.includes(me.uid)) ref.update({likes: firebase.firestore.FieldValue.arrayRemove(me.uid)});
-                    else ref.update({likes: firebase.firestore.FieldValue.arrayUnion(me.uid)});
-                });
+                ref.update({likes: isL ? firebase.firestore.FieldValue.arrayRemove(me.uid) : firebase.firestore.FieldValue.arrayUnion(me.uid)});
             },
             del: (pid) => { if(confirm('Delete?')) db.collection('posts').doc(activeChat.id).collection('msg').doc(pid).delete(); }
         };
@@ -650,7 +634,7 @@
 
                     const acts = document.getElementById('modal-actions');
                     if(isMe) {
-                        if (!d.verified && d.username !== 'help_center') acts.innerHTML = `<button class="btn-gold" onclick="Premium.open()">Get Premium 💎</button><br>`;
+                        if (!d.verified && d.username !== 'support_agent') acts.innerHTML = `<button class="btn-gold" onclick="Premium.open()">Get Premium 💎</button><br>`;
                         else acts.innerHTML = '';
                         acts.innerHTML += `<button class="btn-red" onclick="auth.signOut()">Log Out</button>`;
                     } else {
@@ -667,8 +651,6 @@
                     const act2 = isSub ? firebase.firestore.FieldValue.arrayRemove(id) : firebase.firestore.FieldValue.arrayUnion(id);
                     db.collection('users').doc(me.uid).update({following:act2});
                 }
-                // FIX REDIRECT: Reload CURRENT view, not me
-                setTimeout(() => Profile.render(id, type, false), 500);
             }
         };
 
@@ -690,7 +672,7 @@
         const Premium = {
             open: () => { document.getElementById('modal-profile').style.display='none'; document.getElementById('modal-premium').style.display='flex'; },
             buy: () => {
-                db.collection('users').where('username', '==', 'help_center').get().then(snap => {
+                db.collection('users').where('username', '==', 'support_agent').get().then(snap => {
                     if (snap.empty) return alert('Support unavailable');
                     const supportId = snap.docs[0].id;
                     
@@ -700,9 +682,10 @@
                         Chat.open(supportId, 'user', 'Support Chronogram', true, true); 
                         document.getElementById('modal-premium').style.display='none';
                         
-                        const reqMsg = `💎 Request for Premium`;
+                        const reqMsg = `💎 Заявка на Premium`;
                         Chat.send(reqMsg);
                         
+                        // SET FLAGS FOR SUPPORT REQUEST
                         db.collection('users').doc(me.uid).collection('chats').doc(supportId).update({isRequest: true, accepted: false});
                         db.collection('users').doc(supportId).collection('chats').doc(me.uid).set({
                             isRequest: true, accepted: false, lastMsg: reqMsg, time: Date.now(), unread: true
