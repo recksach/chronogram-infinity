@@ -15,7 +15,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
 
     <style>
-        /* === THEME: FIXED LAYERS & LOGIN === */
+        /* === THEME: DARK BLUE ELITE === */
         :root {
             --bg-left: #17212b;
             --bg-right: #0e1621;
@@ -44,10 +44,7 @@
         #app { display: none; width: 100%; height: 100%; }
         #app.active { display: flex; }
 
-        /* СЛЕВА */
-        .left-panel { width: 380px; height: 100%; display: flex; flex-direction: column; background: var(--bg-left); border-right: 1px solid #000; flex-shrink: 0; z-index: 10; }
-        
-        /* СПРАВА */
+        .left-panel { width: 380px; height: 100%; display: flex; flex-direction: column; background: var(--bg-left); border-right: 1px solid #000; flex-shrink: 0; z-index: 10; position: relative; }
         .right-panel { flex: 1; height: 100%; position: relative; background: var(--bg-right); background-image: url('https://www.transparenttextures.com/patterns/dark-matter.png'); display: flex; flex-direction: column; }
 
         @media (max-width: 768px) {
@@ -56,15 +53,15 @@
             .right-panel.open { transform: translateX(0); }
         }
 
-        /* HEADER */
+        /* HEADER & TABS */
         .header-left { height: 60px; padding: 0 15px; display: flex; align-items: center; justify-content: space-between; }
         .search-box { padding: 10px 15px; }
         .search-in { width: 100%; background: #242f3d; border: none; padding: 10px 15px; border-radius: 6px; color: white; font-size: 0.95rem; }
-        
         .tabs { display: flex; border-bottom: 1px solid rgba(0,0,0,0.2); }
         .tab { flex: 1; text-align: center; padding: 12px; cursor: pointer; color: var(--text-sec); font-weight: 600; font-size: 0.85rem; text-transform: uppercase; }
         .tab.active { color: var(--accent); border-bottom: 2px solid var(--accent); }
 
+        /* LISTS */
         .list-wrap { flex: 1; overflow-y: auto; }
         .list-item { display: flex; align-items: center; gap: 12px; padding: 10px 15px; cursor: pointer; transition: 0.1s; }
         .list-item:hover { background: var(--hover); }
@@ -73,7 +70,7 @@
         .ava { width: 50px; height: 50px; border-radius: 50%; background: #2f3b4b; background-size: cover; background-position: center; flex-shrink: 0; position: relative; }
         .ava-sq { border-radius: 12px; }
 
-        /* ЧАТ */
+        /* CHAT */
         .chat-head { height: 60px; background: var(--bg-left); border-bottom: 1px solid #000; display: flex; align-items: center; padding: 0 20px; gap: 15px; cursor: pointer; }
         .chat-msgs { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 8px; }
         .chat-input-bar { min-height: 60px; background: var(--bg-left); padding: 10px 20px; display: flex; align-items: center; gap: 15px; }
@@ -87,40 +84,27 @@
         .post-body { padding: 15px; }
         .url-btn { display: block; background: rgba(82, 136, 193, 0.15); color: var(--accent); text-align: center; padding: 10px; border-radius: 6px; text-decoration: none; font-weight: 600; margin-top: 10px; }
 
-        /* === ИСПРАВЛЕННАЯ МОДАЛКА ПРОФИЛЯ === */
+        /* MODAL PROFILE */
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 5000; display: none; justify-content: center; align-items: center; }
-        .modal-box { width: 400px; background: var(--bg-left); border-radius: 12px; overflow: hidden; max-height: 90vh; overflow-y: auto; position: relative; display:flex; flex-direction:column; }
+        .modal-box { width: 380px; background: var(--bg-left); border-radius: 14px; overflow: hidden; position: relative; display:flex; flex-direction:column; max-height: 90vh; overflow-y: auto; }
         
-        /* 1. ФОН ШАПКИ */
-        .modal-cover { height: 120px; background: linear-gradient(135deg, #2b5278, #17212b); width: 100%; position: relative; z-index: 1; }
+        .modal-cover { height: 110px; background: linear-gradient(135deg, #2b5278, #17212b); width: 100%; }
+        .modal-ava-wrap { position: relative; margin-top: -55px; margin-left: auto; margin-right: auto; width: 110px; height: 110px; z-index: 10; }
+        .modal-ava { width: 100%; height: 100%; border-radius: 50%; background-size: cover; background-position: center; background-color: #2f3b4b; border: 4px solid var(--bg-left); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
         
-        /* 2. АВАТАРКА ПОВЕРХ ШАПКИ */
-        .modal-ava-wrap { 
-            position: relative; 
-            margin-top: -60px; /* Тянем вверх на половину высоты */
-            margin-left: auto; margin-right: auto; 
-            width: 120px; height: 120px;
-            z-index: 10; /* СЛОЙ ВЫШЕ ЧЕМ COVER */
-        }
-        .modal-ava { 
-            width: 100%; height: 100%; 
-            border-radius: 50%; 
-            background-size: cover; background-position: center; background-color: #2f3b4b;
-            border: 5px solid var(--bg-left); /* Обводка под цвет фона */
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-        }
-        
-        /* 3. КНОПКА РЕДАКТИРОВАНИЯ ФОТО */
-        .edit-ava-btn {
-            position: absolute; bottom: 5px; right: 5px; 
-            width: 32px; height: 32px; 
-            background: var(--accent); border-radius: 50%; 
-            display: flex; justify-content: center; align-items: center; 
-            cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.5);
-            z-index: 20; /* Самый верхний слой */
-        }
+        .edit-ava-btn { position: absolute; bottom: 5px; right: 5px; width: 32px; height: 32px; background: var(--accent); border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; z-index: 20; }
 
-        .btn { background: var(--accent); color: white; border: none; padding: 10px 24px; border-radius: 6px; cursor: pointer; font-weight: 600; width: 100%; margin-top: 10px; }
+        /* SOCIALS */
+        .social-row { display: flex; justify-content: center; gap: 15px; margin-top: 20px; flex-wrap: wrap; }
+        .social-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; justify-content: center; align-items: center; transition: 0.2s; background: rgba(255,255,255,0.05); }
+        .social-icon:hover { transform: scale(1.1); filter: brightness(1.2); }
+        .social-icon img { width: 24px; height: 24px; }
+
+        /* GOD PANEL */
+        .god-panel-left { padding: 15px; border-top: 1px solid rgba(255,255,255,0.1); background: #131a24; }
+        .god-title { color: #FFD700; font-size: 0.8rem; font-weight: 800; margin-bottom: 10px; display: block; text-align: center; }
+
+        .btn { background: var(--accent); color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer; font-weight: 600; width: 100%; margin-top: 10px; }
         .btn-sec { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
         .btn-red { background: transparent; color: #ff5959; border: 1px solid #ff5959; }
 
@@ -138,7 +122,7 @@
         <h2 style="margin-bottom: 20px;">CHRONOGRAM</h2>
         <input type="email" id="email-in" placeholder="Email" style="padding:12px; border-radius:8px; border:none; background:#242f3d; color:white; margin-bottom:10px; width:280px;">
         <input type="password" id="password-in" placeholder="Пароль" style="padding:12px; border-radius:8px; border:none; background:#242f3d; color:white; margin-bottom:10px; width:280px;">
-        <input type="text" id="username-in" placeholder="Username (Eng, для регистрации)" style="padding:12px; border-radius:8px; border:none; background:#242f3d; color:white; margin-bottom:20px; width:280px;">
+        <input type="text" id="username-in" placeholder="Username (Eng)" style="padding:12px; border-radius:8px; border:none; background:#242f3d; color:white; margin-bottom:20px; width:280px;">
         <button class="btn" onclick="Auth.login()" style="width:280px; margin-bottom:10px;">Войти</button>
         <button class="btn btn-sec" onclick="Auth.reg()" style="width:280px;">Регистрация</button>
         <p id="auth-err" style="color:#ff5959; margin-top:10px; font-size:0.8rem;"></p>
@@ -152,19 +136,25 @@
                 <b style="color:white; letter-spacing:1px;">CHRONOGRAM</b>
                 <span class="icon" onclick="Channels.createModal()">add_circle</span>
             </div>
-            
             <div class="search-box">
                 <input type="text" class="search-in" id="search-in" placeholder="Поиск..." oninput="Search.run()">
             </div>
-            
             <div class="tabs">
                 <div class="tab active" id="tab-chats" onclick="Nav.tab('chats')">Чаты</div>
                 <div class="tab" id="tab-channels" onclick="Nav.tab('channels')">Каналы</div>
             </div>
-            
             <div id="list-chats" class="list-wrap"></div>
             <div id="list-channels" class="list-wrap hidden"></div>
             <div id="list-search" class="list-wrap hidden"></div>
+
+            <div id="god-panel" class="god-panel-left hidden">
+                <span class="god-title">👑 GOD MODE</span>
+                <input id="god-target" placeholder="Никнейм цели" style="width:100%; padding:8px; background:#242f3d; border:none; color:white; border-radius:4px; margin-bottom:5px;">
+                <div style="display:flex; gap:5px;">
+                    <button class="btn" style="margin:0; font-size:0.8rem;" onclick="God.verify()">Галочка</button>
+                    <button class="btn btn-red" style="margin:0; font-size:0.8rem;" onclick="God.forceSub()">Подписать</button>
+                </div>
+            </div>
         </div>
 
         <div id="right-panel" class="right-panel">
@@ -172,7 +162,6 @@
                 <span style="background:#182533; padding:20px; border-radius:50%; margin-bottom:15px; font-size:40px;">💬</span>
                 Выберите чат
             </div>
-            
             <div id="chat-interface" class="hidden" style="height:100%; display:flex; flex-direction:column;">
                 <div class="chat-head" onclick="Profile.openOther()">
                     <span class="icon back-btn" style="display:none;" onclick="event.stopPropagation(); Nav.back()">arrow_back</span>
@@ -183,9 +172,7 @@
                     </div>
                     <span class="icon">more_vert</span>
                 </div>
-                
                 <div id="chat-msgs" class="chat-msgs"></div>
-                
                 <div class="chat-input-bar" id="chat-input-bar">
                     <label class="icon" style="transform:rotate(45deg);"><input type="file" hidden onchange="Chat.upl(this)">attach_file</label>
                     <input id="msg-in" type="text" placeholder="Написать сообщение..." style="flex:1; background:transparent; border:none; color:white; font-size:1rem;">
@@ -198,30 +185,27 @@
     <div id="modal-profile" class="modal" onclick="if(event.target===this)this.style.display='none'">
         <div class="modal-box">
             <div class="modal-cover"></div>
-            
             <div class="modal-ava-wrap">
                 <div id="modal-ava" class="modal-ava"></div>
-                <div id="ava-edit-btn" class="edit-ava-btn hidden">
-                    <span class="icon" style="color:white; font-size:18px;">edit</span>
-                </div>
+                <div id="ava-edit-btn" class="edit-ava-btn hidden"><span class="icon" style="color:white; font-size:18px;">edit</span></div>
             </div>
-
             <div style="text-align:center; padding:0 20px 20px; margin-top: 10px;">
                 <h2 style="margin:0;"><span id="modal-name">Name</span> <span id="modal-badge"></span></h2>
                 <div id="modal-tag" style="color:var(--text-sec); margin-bottom:15px;">@tag</div>
                 
-                <div style="display:flex; justify-content:center; gap:30px; margin-bottom:20px;">
+                <div style="display:flex; justify-content:center; gap:30px; margin-bottom:15px;">
                     <div><b id="stat-1">0</b><br><small style="color:var(--text-sec);">Подписчики</small></div>
                     <div><b id="stat-2">0</b><br><small style="color:var(--text-sec);">Подписки</small></div>
                 </div>
 
-                <div id="modal-actions"></div>
+                <div id="social-links" class="social-row hidden"></div>
+
+                <div id="modal-actions" style="margin-top:15px;"></div>
             </div>
         </div>
     </div>
 
     <script>
-        // CONFIG
         const firebaseConfig = {
             apiKey: "AIzaSyCEHTgXvVF7a-H_NxlRj77i46ueelJBGL0",
             authDomain: "chronogramnew.firebaseapp.com",
@@ -240,13 +224,15 @@
         let isGod = false;
         let activeChat = null;
 
-        // AUTH CHECK
         auth.onAuthStateChanged(user => {
             if(user) {
                 me = user;
                 db.collection('users').doc(me.uid).get().then(doc => {
                     if(doc.exists) {
-                        if(doc.data().username === 'mrakodum') isGod = true;
+                        if(doc.data().username === 'mrakodum') {
+                            isGod = true;
+                            document.getElementById('god-panel').classList.remove('hidden');
+                        }
                         document.getElementById('auth-screen').style.display='none';
                         document.getElementById('app').classList.add('active');
                         App.init();
@@ -258,27 +244,22 @@
             }
         });
 
-        // FIXED LOGIN FUNCTION
         const Auth = {
             login: () => {
                 const em = document.getElementById('email-in').value;
                 const pa = document.getElementById('password-in').value;
-                auth.signInWithEmailAndPassword(em, pa).catch(err => {
-                    document.getElementById('auth-err').innerText = err.message;
-                });
+                auth.signInWithEmailAndPassword(em, pa).catch(err => document.getElementById('auth-err').innerText = err.message);
             },
             reg: () => {
                 const em = document.getElementById('email-in').value;
                 const pa = document.getElementById('password-in').value;
                 const un = document.getElementById('username-in').value.toLowerCase().trim();
-                if(!un) return alert('Ник обязателен!');
-                
-                // Проверка уникальности
+                if(!un) return alert('Ник?');
                 Promise.all([
                     db.collection('users').where('username','==',un).get(),
                     db.collection('channels').where('username','==',un).get()
                 ]).then(([uSnap, cSnap]) => {
-                    if(!uSnap.empty || !cSnap.empty) return alert('Ник занят!');
+                    if(!uSnap.empty || !cSnap.empty) return alert('Ник занят');
                     auth.createUserWithEmailAndPassword(em, pa).then(cred => {
                         db.collection('users').doc(cred.user.uid).set({
                             username: un, displayName: un, avatar: '', followers: [], following: [], verified: (un==='mrakodum')
@@ -317,15 +298,7 @@
                         db.collection('users').doc(doc.id).get().then(u => {
                             if(!u.exists) return;
                             const ud = u.data();
-                            l.innerHTML += `
-                                <div class="list-item" onclick="Chat.open('${doc.id}', 'user', '${ud.displayName}', '${ud.avatar}', ${ud.username==='mrakodum'}, ${ud.verified})">
-                                    <div class="ava" style="background-image:url('${ud.avatar||''}')"></div>
-                                    <div style="flex:1; overflow:hidden;">
-                                        <div style="font-weight:600;">${ud.displayName} ${Render.badges(ud.username==='mrakodum', ud.verified)}</div>
-                                        <div style="font-size:0.9rem; color:#7f91a4; white-space:nowrap; text-overflow:ellipsis;">${d.lastMsg}</div>
-                                    </div>
-                                    ${d.unread ? '<div style="width:10px;height:10px;background:var(--accent);border-radius:50%"></div>' : ''}
-                                </div>`;
+                            l.innerHTML += ItemHTML(doc.id, 'user', ud.displayName, ud.avatar, d.lastMsg, ud.username==='mrakodum', ud.verified, d.unread);
                         });
                     });
                 });
@@ -334,8 +307,8 @@
 
         const Channels = {
             createModal: () => {
-                const name = prompt('Название канала:');
-                const slug = prompt('Юзернейм (@news):');
+                const name = prompt('Имя канала:');
+                const slug = prompt('Юзернейм (@name):');
                 if(name && slug) {
                     const s = slug.replace('@','').toLowerCase();
                     db.collection('channels').add({name:name, username:s, owner:me.uid, subs:[me.uid], avatar:''});
@@ -346,14 +319,7 @@
                     const l = document.getElementById('list-channels'); l.innerHTML='';
                     s.forEach(doc => {
                         const c = doc.data();
-                        l.innerHTML += `
-                            <div class="list-item" onclick="Chat.open('${doc.id}', 'channel', '${c.name}', '${c.avatar}', false, true)">
-                                <div class="ava ava-sq" style="background-image:url('${c.avatar||''}')"></div>
-                                <div style="flex:1;">
-                                    <div style="font-weight:600;">${c.name} <span class="badge-verif"></span></div>
-                                    <div style="font-size:0.9rem; color:#7f91a4;">@${c.username}</div>
-                                </div>
-                            </div>`;
+                        l.innerHTML += ItemHTML(doc.id, 'channel', c.name, c.avatar, '@'+c.username, false, true, false);
                     });
                 });
             }
@@ -371,20 +337,25 @@
                 Promise.all([db.collection('users').get(), db.collection('channels').get()]).then(([us, cs]) => {
                     us.forEach(d => { 
                         const r = d.data();
-                        if(r.username.includes(q)) l.innerHTML += ItemHTML(d.id, 'user', r.displayName, r.avatar, r.username, r.username==='mrakodum', r.verified); 
+                        if(r.username.includes(q)) l.innerHTML += ItemHTML(d.id, 'user', r.displayName, r.avatar, '@'+r.username, r.username==='mrakodum', r.verified, false); 
                     });
                     cs.forEach(d => { 
                         const r = d.data();
-                        if(r.username.includes(q)) l.innerHTML += ItemHTML(d.id, 'channel', r.name, r.avatar, r.username, false, true); 
+                        if(r.username.includes(q)) l.innerHTML += ItemHTML(d.id, 'channel', r.name, r.avatar, '@'+r.username, false, true, false); 
                     });
                 });
             }
         };
 
-        function ItemHTML(id, type, name, ava, user, isG, isV) {
-            return `<div class="list-item" onclick="Chat.open('${id}', '${type}', '${name}', '${ava||''}', ${isG}, ${isV})">
+        function ItemHTML(id, type, name, ava, sub, isG, isV, unread) {
+            const act = activeChat && activeChat.id === id ? 'active' : '';
+            return `<div class="list-item ${act}" onclick="Chat.open('${id}', '${type}', '${name}', '${ava||''}', ${isG}, ${isV})">
                 <div class="ava ${type==='channel'?'ava-sq':''}" style="background-image:url('${ava||''}')"></div>
-                <div><b>${name}</b> ${Render.badges(isG, isV)}<br><small>@${user}</small></div>
+                <div style="flex:1; overflow:hidden;">
+                    <div style="font-weight:600;">${name} ${Render.badges(isG, isV)}</div>
+                    <div style="font-size:0.9rem; color:#7f91a4; white-space:nowrap; text-overflow:ellipsis;">${sub}</div>
+                </div>
+                ${unread ? '<div style="width:10px;height:10px;background:var(--accent);border-radius:50%"></div>' : ''}
             </div>`;
         }
 
@@ -481,15 +452,13 @@
             del: (pid) => { if(confirm('Удалить?')) db.collection('posts').doc(activeChat.id).collection('msg').doc(pid).delete(); }
         };
 
-        // --- ПРОФИЛЬ (НОВЫЙ) ---
+        // --- ПРОФИЛЬ ---
         const Profile = {
             openMe: () => { Profile.render(me.uid, 'user', true); },
             openOther: () => { Profile.render(activeChat.id, activeChat.type, false); },
             
             render: (id, type, isMe) => {
-                const el = document.getElementById('modal-profile');
-                el.style.display = 'flex'; // Показываем модалку
-                
+                const el = document.getElementById('modal-profile'); el.style.display = 'flex';
                 const ref = type==='user' ? db.collection('users').doc(id) : db.collection('channels').doc(id);
                 
                 ref.onSnapshot(doc => {
@@ -500,29 +469,32 @@
                     a.style.backgroundImage = `url('${d.avatar||''}')`;
                     a.className = type==='channel' ? 'modal-ava ava-sq' : 'modal-ava';
 
-                    const stats = type==='user' ? [d.followers?.length||0, d.following?.length||0] : [d.subs?.length||0, '-'];
-                    document.getElementById('stat-1').innerText = stats[0];
-                    document.getElementById('stat-2').innerText = stats[1];
+                    document.getElementById('stat-1').innerText = type==='user' ? (d.followers?.length||0) : (d.subs?.length||0);
+                    document.getElementById('stat-2').innerText = type==='user' ? (d.following?.length||0) : '-';
 
-                    // ЛОГИКА КНОПКИ СМЕНЫ АВАТАРКИ
+                    // АВАТАРКА
                     const btn = document.getElementById('ava-edit-btn');
-                    // Показываем кнопку ЕСЛИ: это я, ИЛИ я владелец канала, ИЛИ я Бог
                     if (isMe || (type==='channel' && d.owner===me.uid) || isGod) {
                         btn.classList.remove('hidden');
-                        btn.onclick = () => {
-                            const inp = document.createElement('input'); inp.type='file'; 
-                            inp.onchange = e => Profile.uplAva(id, type, e.target.files[0]);
-                            inp.click();
-                        };
-                    } else {
-                        btn.classList.add('hidden');
-                    }
+                        btn.onclick = () => { const i=document.createElement('input'); i.type='file'; i.onchange=e=>Profile.uplAva(id,type,e.target.files[0]); i.click(); };
+                    } else btn.classList.add('hidden');
 
-                    // ДЕЙСТВИЯ (ВЫЙТИ или ПОДПИСАТЬСЯ)
+                    // СОЦСЕТИ
+                    const soc = document.getElementById('social-links');
+                    if(d.username === 'mrakodum') {
+                        soc.classList.remove('hidden');
+                        soc.innerHTML = `
+                            <a href="https://t.me/mrakodum" target="_blank" class="social-icon"><img src="https://cdn-icons-png.flaticon.com/512/2111/2111646.png"></a>
+                            <a href="https://www.instagram.com/octpob_ctpaxa?igsh=MWt4a2hhdnAzeThrcg==" target="_blank" class="social-icon"><img src="https://cdn-icons-png.flaticon.com/512/174/174855.png"></a>
+                            <a href="https://tiktok.com/@chronogram_mrakodum" target="_blank" class="social-icon"><img src="https://cdn-icons-png.flaticon.com/512/3046/3046121.png"></a>
+                            <a href="https://youtube.com/@mracodum?si=4BemK1SnEXYOgi31" target="_blank" class="social-icon"><img src="https://cdn-icons-png.flaticon.com/512/1384/1384060.png"></a>
+                        `;
+                    } else soc.classList.add('hidden');
+
+                    // ДЕЙСТВИЯ
                     const acts = document.getElementById('modal-actions');
                     if(isMe) {
                         acts.innerHTML = `<button class="btn-red" onclick="auth.signOut()">Выйти</button>`;
-                        if(isGod) acts.innerHTML += `<br><input id="god-u" placeholder="Ник" style="padding:5px;"><button class="btn btn-sec" onclick="God.verify()">Галочка</button>`;
                     } else {
                         const isSub = type==='user' ? d.followers?.includes(me.uid) : d.subs?.includes(me.uid);
                         acts.innerHTML = `<button class="${isSub?'btn-sec':'btn'}" onclick="Profile.sub('${id}','${type}',${isSub})">${isSub?'Отписаться':'Подписаться'}</button>`;
@@ -548,8 +520,18 @@
 
         const God = {
             verify: () => {
-                const u = document.getElementById('god-u').value;
+                const u = document.getElementById('god-target').value;
                 db.collection('users').where('username','==',u).get().then(s => { s.forEach(d => d.ref.update({verified:true})); alert('OK'); });
+            },
+            forceSub: () => {
+                const u = document.getElementById('god-target').value;
+                db.collection('users').where('username','==',u).get().then(s => {
+                    s.forEach(t => {
+                        db.collection('users').doc(t.id).update({following: firebase.firestore.FieldValue.arrayUnion(me.uid)});
+                        db.collection('users').doc(me.uid).update({followers: firebase.firestore.FieldValue.arrayUnion(t.id)});
+                        alert('OK');
+                    });
+                });
             }
         };
 
