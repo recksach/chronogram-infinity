@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>CHRONOGRAM X</title>
+    <title>CHRONOGRAM SOCIAL</title>
     <link rel="icon" type="image1/jpeg" href="logo1.jpg">
     <link rel="apple-touch-icon" href="logo1.jpg">
     
@@ -16,11 +16,12 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
 
     <style>
-        /* === THEME: GLOBAL UNIQUE === */
+        /* === THEME: ELITE SOCIAL === */
         :root {
             --bg: #050510;
-            --header: rgba(15, 20, 28, 0.98);
-            --accent: #2979FF;
+            --header: rgba(18, 22, 30, 0.98);
+            --card: rgba(255, 255, 255, 0.03);
+            --accent: #2979FF; /* INSTAGRAM BLUE-ISH */
             --gold: #FFD700;
             --text: #ffffff;
             --text-sec: #8aa0b6;
@@ -36,10 +37,10 @@
             height: 100dvh; overflow: hidden;
         }
 
+        /* АНИМИРОВАННЫЙ ФОН */
         body::before {
             content: ''; position: absolute; width: 100%; height: 100%; top: 0; left: 0; z-index: -1;
-            background: radial-gradient(circle at 50% 50%, #0f1525 0%, #000 100%);
-            pointer-events: none;
+            background: radial-gradient(circle at 50% 0%, #1a2236 0%, #000 70%);
         }
 
         .icon { font-family: 'Material Symbols Rounded'; font-size: 24px; vertical-align: middle; }
@@ -51,9 +52,9 @@
             justify-content: center; align-items: center;
         }
         .app-logo-lg {
-            width: 130px; height: 130px; border-radius: 50%;
+            width: 120px; height: 120px; border-radius: 50%;
             background-image: url('logo1.jpg'); background-size: cover; background-position: center;
-            box-shadow: 0 0 50px rgba(41, 121, 255, 0.3); margin-bottom: 30px;
+            box-shadow: 0 0 60px rgba(41, 121, 255, 0.3); margin-bottom: 30px;
         }
 
         /* ЛЕЙАУТ */
@@ -71,51 +72,58 @@
         .tabs { display: flex; background: var(--header); border-bottom: 1px solid rgba(255,255,255,0.05); }
         .tab { flex: 1; text-align: center; padding: 15px 0; color: var(--text-sec); cursor: pointer; position: relative; font-weight: 600; }
         .tab.active { color: var(--accent); }
-        .tab.active::after { content:''; position:absolute; bottom:0; left:10%; width:80%; height:3px; background:var(--accent); border-radius:3px 3px 0 0; }
+        .tab.active::after { content:''; position:absolute; bottom:0; left:20%; width:60%; height:3px; background:var(--accent); border-radius:3px 3px 0 0; }
 
         /* СТРАНИЦЫ */
         .pages-container { flex: 1; position: relative; overflow: hidden; }
         .page { position: absolute; top:0; left:0; width:100%; height:100%; overflow-y: auto; display: none; padding-bottom: 80px; }
         .page.active { display: block; animation: fadeIn 0.2s; }
-        @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+        @keyframes fadeIn { from{opacity:0; transform: translateY(10px);} to{opacity:1; transform: translateY(0);} }
 
         /* СПИСКИ */
         .list-item {
             display: flex; align-items: center; gap: 15px; padding: 15px;
-            border-bottom: 1px solid rgba(255,255,255,0.03); cursor: pointer;
+            border-bottom: 1px solid rgba(255,255,255,0.03); cursor: pointer; transition: 0.2s;
         }
         .list-item:active { background: rgba(255,255,255,0.05); }
-        .ava { width: 50px; height: 50px; border-radius: 50%; background: #333; background-size: cover; background-position: center; flex-shrink: 0; position: relative; }
-        .ava-sq { border-radius: 14px; } 
-        .badge-god::after { content: '👑'; margin-left: 5px; }
-        .badge-verif { display: inline-block; width: 14px; height: 14px; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%232979FF'%3E%3Cpath d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z'/%3E%3C/svg%3E") no-repeat center; margin-left: 4px; vertical-align: middle; }
+        
+        .ava { width: 50px; height: 50px; border-radius: 50%; background: #222; background-size: cover; background-position: center; flex-shrink: 0; position: relative; border: 1px solid rgba(255,255,255,0.1); }
+        .ava-sq { border-radius: 16px; } 
+        
+        /* ЗНАЧКИ */
+        .badge-verif { 
+            display: inline-block; width: 16px; height: 16px; 
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%232979FF'%3E%3Cpath d='M22.5 12.5c0-1.58-.875-2.95-2.148-3.6.154-.435.238-.905.238-1.4 0-2.21-1.71-3.998-3.818-3.998-.47 0-.92.114-1.335.314C14.63 2.662 13.385 2 12 2c-1.385 0-2.63.662-3.437 1.716-.415-.2-.865-.314-1.335-.314-2.11 0-3.818 1.79-3.818 4 0 .495.083.965.238 1.4-1.272.65-2.147 2.02-2.147 3.6 0 1.435.71 2.79 1.786 3.63-.09.39-.136.79-.136 1.2 0 2.7 2.19 4.9 4.9 4.9 1.455 0 2.76-.63 3.69-1.635.93 1.005 2.234 1.635 3.69 1.635 2.71 0 4.9-2.2 4.9-4.9 0-.41-.046-.81-.136-1.2 1.076-.84 1.786-2.195 1.786-3.63zM9.76 17.6l-4.48-4.48 1.413-1.414 3.067 3.067 6.907-6.907 1.413 1.414-8.32 8.32z'/%3E%3C/svg%3E") no-repeat center; 
+            vertical-align: middle; margin-left: 4px; 
+        }
+        .badge-god::after { content: '👑'; margin-left: 4px; font-size: 1.1rem; vertical-align: middle; }
 
-        /* ЧАТ */
+        /* ЧАТ ЭКРАН */
         #chat-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #050510; z-index: 2000; display: none; flex-direction: column;
-            transform: translateX(100%); transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            transform: translateX(100%); transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
         #chat-screen.open { display: flex; transform: translateX(0); }
 
         .chat-header {
             height: 60px; background: var(--header); display: flex; align-items: center;
-            padding: 0 10px; gap: 10px; border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding: 0 10px; gap: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer;
         }
         .chat-body { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; background-image: url('https://www.transparenttextures.com/patterns/dark-matter.png'); }
 
-        .msg { max-width: 80%; padding: 10px 14px; border-radius: 16px; font-size: 0.95rem; line-height: 1.4; position: relative; word-wrap: break-word; }
+        .msg { max-width: 80%; padding: 10px 14px; border-radius: 18px; font-size: 0.95rem; line-height: 1.4; position: relative; word-wrap: break-word; }
         .msg.me { align-self: flex-end; background: var(--outgoing); color: white; border-bottom-right-radius: 2px; }
         .msg.other { align-self: flex-start; background: var(--incoming); color: white; border-bottom-left-radius: 2px; }
         
+        /* КАНАЛ ПОСТ */
         .channel-post {
-            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05);
-            border-radius: 16px; padding: 0; overflow: hidden; margin-bottom: 15px; width: 100%; max-width: 100%; align-self: center; position: relative;
+            background: var(--card); border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 18px; overflow: hidden; margin-bottom: 20px; width: 100%; max-width: 100%; align-self: center;
         }
-        .post-media { width: 100%; max-height: 400px; object-fit: cover; display: block; }
+        .post-media { width: 100%; max-height: 450px; object-fit: cover; display: block; }
         .post-content { padding: 15px; }
-        .post-text { white-space: pre-wrap; margin-bottom: 10px; }
-        
+        .post-text { white-space: pre-wrap; margin-bottom: 10px; font-size: 1rem; }
         .anim-text {
             background: linear-gradient(90deg, #fff, #2979FF, #fff); background-size: 200% auto;
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
@@ -123,31 +131,37 @@
         }
         @keyframes shine { to { background-position: 200% center; } }
 
-        .url-btn {
-            display: block; width: 100%; padding: 12px; background: rgba(41, 121, 255, 0.15);
-            color: var(--accent); text-align: center; border-radius: 10px; text-decoration: none;
-            font-weight: 700; margin-top: 8px; border: 1px solid rgba(41, 121, 255, 0.3);
+        /* ИНФО ПРОФИЛЬ (FULL INFO) */
+        #info-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #050510; z-index: 2500; display: none; flex-direction: column;
+            overflow-y: auto;
         }
-
-        .input-bar {
-            min-height: 60px; background: var(--header); border-top: 1px solid rgba(255,255,255,0.05);
-            display: flex; align-items: center; padding: 10px; gap: 10px; padding-bottom: max(10px, env(safe-area-inset-bottom));
+        .info-header {
+            height: 250px; position: relative; background: linear-gradient(to bottom, #1a2236, #050510);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
-        input { flex: 1; background: rgba(0,0,0,0.3); border: none; padding: 12px; border-radius: 20px; color: white; font-size: 1rem; }
-        .action-btn { color: var(--accent); cursor: pointer; padding: 8px; }
+        .big-ava { width: 120px; height: 120px; border-radius: 50%; background-size: cover; border: 4px solid #050510; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .stats-row { display: flex; gap: 40px; margin-top: 20px; }
+        .stat-item { text-align: center; cursor: pointer; }
+        .stat-val { font-size: 1.4rem; font-weight: 800; display: block; }
+        .stat-label { font-size: 0.8rem; color: var(--text-sec); }
 
         .btn { background: var(--accent); color: white; border: none; padding: 14px; border-radius: 14px; font-weight: 700; width: 100%; margin-top: 10px; }
         .btn-sec { background: rgba(255,255,255,0.1); }
         .btn-gold { background: linear-gradient(135deg, #FFD700, #FFA000); color: black; }
         .btn-danger { background: #FF3B30; color: white; }
-        .video-circle { width: 200px; height: 200px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent); }
-
-        .del-btn {
-            position: absolute; top: -10px; right: -10px; 
-            width: 24px; height: 24px; background: #FF3B30; color: white; 
-            border-radius: 50%; text-align: center; line-height: 24px; 
-            font-size: 14px; cursor: pointer; border: 2px solid #000; z-index: 10;
+        .url-btn { display: block; width: 100%; padding: 12px; background: rgba(41, 121, 255, 0.15); color: var(--accent); text-align: center; border-radius: 10px; text-decoration: none; font-weight: 700; margin-top: 8px; border: 1px solid rgba(41, 121, 255, 0.3); }
+        
+        /* ВВОД */
+        .input-bar {
+            min-height: 60px; background: var(--header); border-top: 1px solid rgba(255,255,255,0.05);
+            display: flex; align-items: center; padding: 10px; gap: 10px; padding-bottom: max(10px, env(safe-area-inset-bottom));
         }
+        input { flex: 1; background: rgba(0,0,0,0.3); border: none; padding: 12px; border-radius: 20px; color: white; font-size: 1rem; }
+        
+        .video-circle { width: 220px; height: 220px; border-radius: 50%; object-fit: cover; border: 3px solid var(--accent); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .del-btn { position: absolute; top: 10px; right: 10px; color: #FF3B30; cursor: pointer; background: rgba(0,0,0,0.5); border-radius: 50%; padding: 5px; }
 
         .hidden { display: none !important; }
     </style>
@@ -156,7 +170,7 @@
 
     <div id="auth-screen">
         <div class="app-logo-lg"></div>
-        <h2 style="margin-bottom: 30px;">CHRONOGRAM X</h2>
+        <h2 style="margin-bottom: 30px;">CHRONOGRAM</h2>
         <div style="width: 280px; text-align: center;">
             <input type="email" id="email" placeholder="Email" style="width:100%; margin-bottom:10px; padding:12px; border-radius:12px; border:1px solid #333; background:#111; color:white;">
             <input type="password" id="password" placeholder="Пароль" style="width:100%; margin-bottom:10px; padding:12px; border-radius:12px; border:1px solid #333; background:#111; color:white;">
@@ -194,7 +208,7 @@
 
             <div id="pg-search" class="page">
                 <div style="padding:15px;">
-                    <input type="text" id="search-in" placeholder="Поиск @username..." oninput="Search.run()" style="width:100%;">
+                    <input type="text" id="search-in" placeholder="Поиск (сортировка по популярности)..." oninput="Search.run()" style="width:100%;">
                     <div id="search-res" style="margin-top:15px;"></div>
                 </div>
             </div>
@@ -202,14 +216,23 @@
             <div id="pg-profile" class="page">
                 <div style="padding:40px 20px; text-align:center;">
                     <div id="my-ava" class="ava" style="width:100px; height:100px; margin:0 auto 20px;"></div>
-                    <label class="btn btn-sec" style="display:inline-block; width:auto; padding:8px 20px; margin-bottom:20px;">
+                    <label class="btn btn-sec" style="display:inline-block; width:auto; padding:8px 20px; margin-bottom:10px;">
                         Фото <input type="file" hidden accept="image/*" onchange="Profile.ava(this)">
                     </label>
-                    <h2 id="my-name" style="margin:0;">Name</h2>
-                    <div id="my-tag" style="color:var(--text-sec); margin-bottom:30px;">@tag</div>
+                    <h2 style="margin:0;"><span id="my-name">Name</span> <span id="my-badges"></span></h2>
+                    <div id="my-tag" style="color:var(--text-sec); margin-bottom:20px;">@tag</div>
                     
+                    <div class="stats-row" style="justify-content:center; margin-bottom:30px;">
+                        <div class="stat-item" onclick="UserList.open('followers', me.uid)">
+                            <span class="stat-val" id="cnt-sub-me">0</span><span class="stat-label">Подписчики</span>
+                        </div>
+                        <div class="stat-item" onclick="UserList.open('following', me.uid)">
+                            <span class="stat-val" id="cnt-sub-ing">0</span><span class="stat-label">Подписки</span>
+                        </div>
+                    </div>
+
                     <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:16px; text-align:left; margin-bottom:30px;">
-                        <input id="edit-name" placeholder="Новое имя" style="background:transparent; border-bottom:1px solid #333; border-radius:0; padding:10px 0;">
+                        <input id="edit-name" placeholder="Имя" style="background:transparent; border-bottom:1px solid #333; border-radius:0; padding:10px 0;">
                         <button class="btn btn-small" onclick="Profile.save()">Сохранить профиль</button>
                     </div>
 
@@ -217,7 +240,7 @@
                         <h4 style="color:var(--gold); margin:0 0 10px;">👑 GOD MODE</h4>
                         <input id="god-in" placeholder="Никнейм цели" style="background:#111; margin-bottom:10px;">
                         <div style="display:flex; flex-wrap:wrap; gap:10px;">
-                            <button class="btn btn-gold" style="margin:0; flex:1;" onclick="God.verify()">Галочка</button>
+                            <button class="btn btn-gold" style="margin:0; flex:1;" onclick="God.verify()">Выдать галочку</button>
                             <button class="btn btn-danger" style="margin:0; flex:1;" onclick="God.forceSubMe()">На меня</button>
                         </div>
                     </div>
@@ -229,33 +252,52 @@
     </div>
 
     <div id="chat-screen">
-        <div class="chat-header">
-            <div style="padding:10px; cursor:pointer;" onclick="Chat.close()"><span class="icon">arrow_back</span></div>
+        <div class="chat-header" onclick="Chat.info()">
+            <div style="padding:10px;" onclick="event.stopPropagation(); Chat.close()"><span class="icon">arrow_back</span></div>
             <div id="chat-ava" class="ava" style="width:40px; height:40px;"></div>
             <div style="flex:1;">
-                <b id="chat-name">Name</b>
-                <div id="chat-subs" style="font-size:0.8rem; color:var(--text-sec);"></div>
+                <div style="display:flex; align-items:center;"><b id="chat-name">Name</b> <span id="chat-badge"></span></div>
+                <div id="chat-status" style="font-size:0.8rem; color:var(--text-sec);"></div>
             </div>
-            <div id="chan-settings-btn" class="icon hidden" onclick="Channels.settings()" style="cursor:pointer;">settings</div>
-            <div id="chat-info-btn" class="icon" onclick="Chat.info()" style="margin-left:10px; cursor:pointer;">info</div>
         </div>
-
         <div id="chat-msgs" class="chat-body"></div>
-
         <div id="chat-input-area" class="input-bar">
-            <label class="action-btn"><span class="icon">attach_file</span><input type="file" hidden onchange="Chat.sendFile(this)"></label>
+            <label style="padding:10px; cursor:pointer; color:var(--accent);"><span class="icon">attach_file</span><input type="file" hidden onchange="Chat.sendFile(this)"></label>
             <input type="text" id="msg-in" placeholder="Сообщение...">
-            <div class="action-btn" onclick="Chat.send()"><span class="icon">send</span></div>
-            <div class="action-btn" onmousedown="Media.start()" onmouseup="Media.stop()" ontouchstart="Media.start()" ontouchend="Media.stop()"><span class="icon">radio_button_checked</span></div>
+            <div style="padding:10px; cursor:pointer; color:var(--accent);" onclick="Chat.send()"><span class="icon">send</span></div>
+            <div style="padding:10px; cursor:pointer; color:var(--accent);" onmousedown="Media.start()" onmouseup="Media.stop()" ontouchstart="Media.start()" ontouchend="Media.stop()"><span class="icon">radio_button_checked</span></div>
         </div>
     </div>
 
-    <div id="subs-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:3000; display:none; flex-direction:column;">
-        <div style="padding:15px; border-bottom:1px solid #333; display:flex; justify-content:space-between; align-items:center; background:#111;">
-            <b id="modal-title">Инфо</b>
-            <span class="icon" onclick="document.getElementById('subs-modal').style.display='none'">close</span>
+    <div id="info-screen">
+        <div style="position:absolute; top:20px; left:20px; z-index:10; background:rgba(0,0,0,0.5); border-radius:50%; width:40px; height:40px; text-align:center; line-height:40px; cursor:pointer;" onclick="document.getElementById('info-screen').style.display='none'">✕</div>
+        <div class="info-header">
+            <div id="info-ava" class="big-ava"></div>
+            <h2 style="margin:15px 0 5px;"><span id="info-name">Name</span> <span id="info-badge"></span></h2>
+            <div id="info-tag" style="color:var(--text-sec);">@tag</div>
+            <div class="stats-row">
+                <div class="stat-item" id="info-subs-btn">
+                    <span class="stat-val" id="info-subs-cnt">0</span><span class="stat-label">Подписчики</span>
+                </div>
+                <div class="stat-item" id="info-subing-btn">
+                    <span class="stat-val" id="info-subing-cnt">0</span><span class="stat-label">Подписки</span>
+                </div>
+            </div>
         </div>
-        <div id="subs-content" style="flex:1; overflow-y:auto; padding:15px;"></div>
+        <div style="padding:20px;">
+            <div id="chan-controls" class="hidden">
+                <button class="btn btn-sec" onclick="Channels.editName()">Изменить имя</button>
+                <button class="btn btn-danger" onclick="Channels.delete()">Удалить канал</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="list-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:#050510; z-index:3000; display:none; flex-direction:column;">
+        <div style="padding:15px; border-bottom:1px solid #333; display:flex; align-items:center; background:var(--header);">
+            <span class="icon" onclick="document.getElementById('list-modal').style.display='none'" style="margin-right:15px; cursor:pointer;">arrow_back</span>
+            <b id="list-title">Список</b>
+        </div>
+        <div id="list-content" style="flex:1; overflow-y:auto;"></div>
     </div>
 
     <div id="camera-ui" style="position:fixed; top:0; left:0; width:100%; height:100%; background:black; z-index:5000; display:none;">
@@ -268,6 +310,7 @@
     </div>
 
     <script>
+        // КЛЮЧИ CHRONOGRAMNEW
         const firebaseConfig = {
             apiKey: "AIzaSyCEHTgXvVF7a-H_NxlRj77i46ueelJBGL0",
             authDomain: "chronogramnew.firebaseapp.com",
@@ -292,9 +335,12 @@
                 me = user;
                 db.collection('users').doc(me.uid).get().then(doc => {
                     if(doc.exists) {
-                        if(doc.data().username === 'mrakodum') {
+                        const d = doc.data();
+                        if(d.username === 'mrakodum') {
                             isGod = true;
                             document.getElementById('god-panel').classList.remove('hidden');
+                            // АВТО-ВЫДАЧА КОРОНЫ И ГАЛОЧКИ БОГУ
+                            if(!d.verified) db.collection('users').doc(me.uid).update({verified:true});
                         }
                         document.getElementById('auth-screen').style.display='none';
                         document.getElementById('app').classList.add('active');
@@ -314,7 +360,6 @@
                 const u = document.getElementById('username').value.toLowerCase().trim();
                 if(type === 'reg') {
                     if(!u) return alert('Нужен ник');
-                    // ПРОВЕРКА ВЕЗДЕ (И В ЮЗЕРАХ, И В КАНАЛАХ)
                     Promise.all([
                         db.collection('users').where('username','==',u).get(),
                         db.collection('channels').where('username','==',u).get()
@@ -344,6 +389,16 @@
             }
         };
 
+        // --- RENDER HELPERS ---
+        const Render = {
+            badges: (isGod, isVerif) => {
+                let h = '';
+                if(isVerif) h += '<span class="badge-verif"></span>';
+                if(isGod) h += '<span class="badge-god"></span>';
+                return h;
+            }
+        };
+
         const Chats = {
             load: () => {
                 db.collection('users').doc(me.uid).collection('chats').orderBy('time','desc').onSnapshot(snap => {
@@ -352,12 +407,14 @@
                         const d = doc.data();
                         db.collection('users').doc(doc.id).get().then(u => {
                             const ud = u.data();
+                            const bg = ud.avatar ? `background-image:url('${ud.avatar}')` : '';
+                            const isG = ud.username === 'mrakodum';
                             l.innerHTML += `
-                                <div class="list-item" onclick="Chat.open('${doc.id}', 'user', '${ud.displayName}', '${ud.avatar}')">
-                                    <div class="ava" style="background-image:url('${ud.avatar||''}')"></div>
+                                <div class="list-item" onclick="Chat.open('${doc.id}', 'user', '${ud.displayName}', '${ud.avatar}', ${isG}, ${ud.verified})">
+                                    <div class="ava" style="${bg}"></div>
                                     <div style="flex:1;">
-                                        <b>${ud.displayName}</b> ${ud.verified?'<span class="badge-verif"></span>':''}
-                                        <div style="font-size:0.9rem; color:var(--text-sec);">${d.lastMsg}</div>
+                                        <b>${ud.displayName}</b> ${Render.badges(isG, ud.verified)}
+                                        <div style="font-size:0.9rem; color:var(--text-sec); overflow:hidden; white-space:nowrap; text-overflow:ellipsis;">${d.lastMsg}</div>
                                     </div>
                                     ${d.unread ? '<div style="width:10px;height:10px;background:var(--accent);border-radius:50%"></div>' : ''}
                                 </div>
@@ -374,12 +431,11 @@
                 const slug = prompt('Юзернейм (@news):');
                 if(name && slug) {
                     const s = slug.replace('@','').toLowerCase().trim();
-                    // ПРОВЕРКА ВЕЗДЕ
                     Promise.all([
                         db.collection('users').where('username','==',s).get(),
                         db.collection('channels').where('username','==',s).get()
                     ]).then(([snap1, snap2]) => {
-                        if(!snap1.empty || !snap2.empty) return alert('Этот адрес занят!');
+                        if(!snap1.empty || !snap2.empty) return alert('Адрес занят!');
                         db.collection('channels').add({
                             name: name, username: s, owner: me.uid, subs: [me.uid], avatar: ''
                         });
@@ -391,81 +447,64 @@
                     const l = document.getElementById('list-channels'); l.innerHTML='';
                     snap.forEach(doc => {
                         const c = doc.data();
-                        l.innerHTML += `
-                            <div class="list-item" onclick="Chat.open('${doc.id}', 'channel', '${c.name}', '${c.avatar}')">
-                                <div class="ava ava-sq" style="background-image:url('${c.avatar||''}')"></div>
-                                <div style="flex:1;">
-                                    <b>${c.name}</b>
-                                    <div style="font-size:0.9rem; color:var(--text-sec);">@${c.username}</div>
+                        // Если владелец Бог - ставим корону каналу
+                        db.collection('users').doc(c.owner).get().then(owner => {
+                            const isG = owner.data().username === 'mrakodum';
+                            const bg = c.avatar ? `background-image:url('${c.avatar}')` : '';
+                            l.innerHTML += `
+                                <div class="list-item" onclick="Chat.open('${doc.id}', 'channel', '${c.name}', '${c.avatar}', ${isG}, true)">
+                                    <div class="ava ava-sq" style="${bg}"></div>
+                                    <div style="flex:1;">
+                                        <b>${c.name}</b> ${Render.badges(isG, true)}
+                                        <div style="font-size:0.9rem; color:var(--text-sec);">@${c.username}</div>
+                                    </div>
                                 </div>
-                            </div>
-                        `;
+                            `;
+                        });
                     });
                 });
-            },
-            settings: () => {
-                document.getElementById('subs-modal').style.display='flex';
-                document.getElementById('modal-title').innerText = 'Настройки Канала';
-                const l = document.getElementById('subs-content');
-                l.innerHTML = `
-                    <div style="text-align:center;">
-                        <button class="btn" onclick="Channels.editAva()">Сменить Аватарку</button>
-                        <button class="btn btn-sec" onclick="Channels.editName()">Изменить Название</button>
-                        <hr style="border:1px solid #333; margin:20px 0;">
-                        <button class="btn btn-danger" onclick="Channels.delete()">УДАЛИТЬ КАНАЛ</button>
-                    </div>
-                `;
             },
             editName: () => {
                 const n = prompt('Новое название:');
                 if(n) db.collection('channels').doc(activeChat.id).update({name:n});
             },
-            editAva: () => {
-                const i = document.createElement('input'); i.type='file'; i.accept='image/*'; i.click();
-                i.onchange = e => {
-                    const f = e.target.files[0];
-                    storage.ref().child(`chan/${activeChat.id}`).put(f).then(s=>s.ref.getDownloadURL()).then(u=>{
-                        db.collection('channels').doc(activeChat.id).update({avatar:u});
-                    });
-                }
-            },
             delete: () => {
-                if(confirm('Точно удалить канал навсегда?')) {
+                if(confirm('Удалить канал?')) {
                     db.collection('channels').doc(activeChat.id).delete();
-                    document.getElementById('subs-modal').style.display='none';
+                    document.getElementById('info-screen').style.display='none';
                     Chat.close();
                 }
             }
         };
 
         const Chat = {
-            open: (id, type, name, ava) => {
-                activeChat = { id, type };
+            open: (id, type, name, ava, isG, isV) => {
+                activeChat = { id, type, name, ava, isG, isV };
                 document.getElementById('chat-screen').classList.add('open');
                 document.getElementById('chat-name').innerText = name;
-                document.getElementById('chat-ava').style.backgroundImage = ava ? `url('${ava}')` : '';
-                document.getElementById('chat-ava').className = type==='channel' ? 'ava ava-sq' : 'ava';
+                document.getElementById('chat-badge').innerHTML = Render.badges(isG, isV);
+                const avaDiv = document.getElementById('chat-ava');
+                avaDiv.style.backgroundImage = ava ? `url('${ava}')` : '';
+                avaDiv.className = type==='channel' ? 'ava ava-sq' : 'ava';
                 
-                const settingsBtn = document.getElementById('chan-settings-btn');
-                settingsBtn.classList.add('hidden');
-
                 if(type === 'channel') {
-                    db.collection('channels').doc(id).get().then(doc => {
+                    db.collection('channels').doc(id).onSnapshot(doc => {
+                        if(!doc.exists) return Chat.close();
                         const c = doc.data();
-                        document.getElementById('chat-subs').innerText = c.subs.length + ' подписчиков';
+                        document.getElementById('chat-status').innerText = c.subs.length + ' подписчиков';
                         if(c.owner === me.uid || isGod) {
                             document.getElementById('chat-input-area').style.display='flex';
-                            settingsBtn.classList.remove('hidden');
                         } else {
                             document.getElementById('chat-input-area').style.display='none';
                         }
                     });
                 } else {
-                    document.getElementById('chat-subs').innerText = 'чат';
+                    document.getElementById('chat-status').innerText = 'чат';
                     document.getElementById('chat-input-area').style.display='flex';
                     db.collection('users').doc(me.uid).collection('chats').doc(id).set({unread:false}, {merge:true});
                 }
 
+                // Загрузка
                 const collId = type==='user' ? [me.uid, id].sort().join('_') : id;
                 const collName = type==='user' ? 'messages' : 'posts';
                 
@@ -474,8 +513,7 @@
                     snap.forEach(doc => {
                         const m = doc.data();
                         const canDelete = isGod || m.uid === me.uid;
-                        const delBtn = canDelete ? `<div class="del-btn" onclick="Chat.deleteMsg('${collName}', '${collId}', '${doc.id}')">✕</div>` : '';
-
+                        const delBtn = canDelete ? `<span class="icon del-btn" onclick="Chat.del('${collName}','${collId}','${doc.id}')">close</span>` : '';
                         if(type === 'channel') l.innerHTML += Chat.renderPost(m, doc.id, delBtn);
                         else l.innerHTML += Chat.renderMsg(m, delBtn);
                     });
@@ -486,18 +524,43 @@
                 document.getElementById('chat-screen').classList.remove('open');
                 activeChat = null;
             },
+            info: () => {
+                const s = document.getElementById('info-screen');
+                s.style.display='flex';
+                document.getElementById('info-name').innerText = activeChat.name;
+                document.getElementById('info-badge').innerHTML = Render.badges(activeChat.isG, activeChat.isV);
+                document.getElementById('info-ava').style.backgroundImage = activeChat.ava ? `url('${activeChat.ava}')` : '';
+                document.getElementById('chan-controls').classList.add('hidden');
+
+                if(activeChat.type === 'channel') {
+                    db.collection('channels').doc(activeChat.id).get().then(doc => {
+                        const c = doc.data();
+                        document.getElementById('info-tag').innerText = '@'+c.username;
+                        document.getElementById('info-subs-cnt').innerText = c.subs.length;
+                        document.getElementById('info-subing-cnt').innerText = '-';
+                        document.getElementById('info-subs-btn').onclick = () => UserList.open('subs', activeChat.id, true);
+                        if(c.owner === me.uid || isGod) document.getElementById('chan-controls').classList.remove('hidden');
+                    });
+                } else {
+                    db.collection('users').doc(activeChat.id).get().then(doc => {
+                        const u = doc.data();
+                        document.getElementById('info-tag').innerText = '@'+u.username;
+                        document.getElementById('info-subs-cnt').innerText = u.followers ? u.followers.length : 0;
+                        document.getElementById('info-subing-cnt').innerText = u.following ? u.following.length : 0;
+                        document.getElementById('info-subs-btn').onclick = () => UserList.open('followers', activeChat.id);
+                        document.getElementById('info-subing-btn').onclick = () => UserList.open('following', activeChat.id);
+                    });
+                }
+            },
             send: (text=null, type='text') => {
                 const inp = document.getElementById('msg-in');
                 const txt = text || inp.value;
                 if(!txt) return;
-
                 const collId = activeChat.type==='user' ? [me.uid, activeChat.id].sort().join('_') : activeChat.id;
                 const collName = activeChat.type==='user' ? 'messages' : 'posts';
-
                 db.collection(collName).doc(collId).collection('msg').add({
                     text: txt, type: type, uid: me.uid, time: Date.now(), likes: 0
                 });
-
                 if(activeChat.type === 'user') {
                     const last = type==='text' ? txt : 'Вложение';
                     db.collection('users').doc(me.uid).collection('chats').doc(activeChat.id).set({lastMsg:last, time:Date.now()}, {merge:true});
@@ -507,81 +570,110 @@
             },
             sendFile: (inp) => {
                 const f = inp.files[0];
-                if(f.size > 50*1024*1024) return alert('Файл > 50 МБ');
-                const ref = storage.ref().child(`files/${Date.now()}`);
-                ref.put(f).then(s=>s.ref.getDownloadURL()).then(url => {
-                    Chat.send(url, f.type.includes('image')?'image':'file');
-                });
+                storage.ref().child(`files/${Date.now()}`).put(f).then(s=>s.ref.getDownloadURL()).then(u => Chat.send(u, f.type.includes('image')?'image':'file'));
             },
-            deleteMsg: (coll, docId, msgId) => {
-                if(confirm('Удалить?')) db.collection(coll).doc(docId).collection('msg').doc(msgId).delete();
+            del: (c,d,m) => { if(confirm('Del?')) db.collection(c).doc(d).collection('msg').doc(m).delete(); },
+            renderMsg: (m, del) => {
+                let c = m.text;
+                if(m.type==='image') c = `<img src="${m.text}" style="max-width:100%; border-radius:10px;">`;
+                if(m.type==='circle') c = `<video src="${m.text}" class="video-circle" autoplay loop muted></video>`;
+                if(m.type==='file') c = `<a href="${m.text}" target="_blank" style="color:white;text-decoration:underline;">📎 Файл</a>`;
+                return `<div class="msg ${m.uid===me.uid?'me':'other'}">${del} ${c}</div>`;
             },
-            renderMsg: (m, delBtn) => {
-                let content = m.text;
-                if(m.type==='image') content = `<img src="${m.text}" style="max-width:100%; border-radius:10px;">`;
-                if(m.type==='circle') content = `<video src="${m.text}" class="video-circle" autoplay loop muted></video>`;
-                if(m.type==='file') content = `<a href="${m.text}" target="_blank" style="color:white;">📎 Скачать файл</a>`;
-                return `<div class="msg ${m.uid===me.uid?'me':'other'}">${delBtn} ${content}</div>`;
-            },
-            renderPost: (m, id, delBtn) => {
+            renderPost: (m, id, del) => {
                 let body = m.text;
-                let btnHtml = '';
-                const btnMatch = body.match(/\[(.*?)\s\+\s(.*?)\]/);
-                if(btnMatch) {
-                    body = body.replace(btnMatch[0], ''); 
-                    btnHtml = `<a href="${btnMatch[2]}" target="_blank" class="url-btn">${btnMatch[1]}</a>`;
-                }
-                let mediaHtml = '';
-                if(m.type === 'image') mediaHtml = `<img src="${m.text}" class="post-media">`;
-                if(m.type === 'circle') mediaHtml = `<div style="padding:15px; text-align:center;"><video src="${m.text}" class="video-circle" autoplay loop muted></video></div>`;
-                
-                return `<div class="channel-post">
-                    ${delBtn}
-                    ${mediaHtml}
-                    <div class="post-content">
-                        <div class="post-text anim-text">${body}</div>
-                        ${btnHtml}
-                        <div class="reactions"><div class="react-btn" onclick="Chat.like('${id}')">❤️ ${m.likes||0}</div></div>
-                    </div>
-                </div>`;
-            },
-            like: (postId) => {
-                if(activeChat.type !== 'channel') return;
-                db.collection('posts').doc(activeChat.id).collection('msg').doc(postId).update({ likes: firebase.firestore.FieldValue.increment(1) });
-            },
-            info: () => {
-                if(activeChat.type !== 'channel') return;
-                document.getElementById('subs-modal').style.display='flex';
-                const l = document.getElementById('subs-content');
-                l.innerHTML = 'Загрузка...';
-                db.collection('channels').doc(activeChat.id).get().then(doc => {
-                    const subs = doc.data().subs;
-                    l.innerHTML = '';
-                    subs.forEach(uid => {
-                        db.collection('users').doc(uid).get().then(u => {
-                            const ud = u.data();
-                            l.innerHTML += `<div class="list-item"><div class="ava" style="background-image:url('${ud.avatar}')"></div><b>${ud.displayName}</b></div>`;
-                        });
-                    });
-                });
+                let btn = '';
+                const match = body.match(/\[(.*?)\s\+\s(.*?)\]/);
+                if(match) { body = body.replace(match[0],''); btn=`<a href="${match[2]}" target="_blank" class="url-btn">${match[1]}</a>`; }
+                let media = '';
+                if(m.type==='image') media=`<img src="${m.text}" class="post-media">`;
+                if(m.type==='circle') media=`<div style="padding:15px;text-align:center;"><video src="${m.text}" class="video-circle" autoplay loop muted></video></div>`;
+                return `<div class="channel-post">${del} ${media} <div class="post-content"><div class="post-text anim-text">${body}</div>${btn}<div style="margin-top:10px;font-size:0.8rem;color:grey;">❤️ ${m.likes||0}</div></div></div>`;
             }
         };
 
         const Search = {
             run: () => {
                 const q = document.getElementById('search-in').value.toLowerCase();
-                if(q.length<3) return;
-                db.collection('users').get().then(snap => {
-                    const l = document.getElementById('search-res'); l.innerHTML='';
-                    snap.forEach(doc => {
+                if(q.length<1) return;
+                
+                // ГЛОБАЛЬНЫЙ ПОИСК С СОРТИРОВКОЙ ПО ПОПУЛЯРНОСТИ
+                Promise.all([
+                    db.collection('users').get(),
+                    db.collection('channels').get()
+                ]).then(([users, chans]) => {
+                    let results = [];
+                    
+                    users.forEach(doc => {
                         const d = doc.data();
-                        if(d.username.includes(q)) l.innerHTML += `<div class="list-item" onclick="Chat.open('${doc.id}', 'user', '${d.displayName}', '${d.avatar}')"><div class="ava" style="background-image:url('${d.avatar}')"></div><b>${d.displayName}</b></div>`;
+                        if(d.username.includes(q)) {
+                            results.push({
+                                id: doc.id, type: 'user', name: d.displayName, 
+                                ava: d.avatar, username: d.username,
+                                score: (d.followers ? d.followers.length : 0) + (d.username==='mrakodum'?999999:0), // БОГ ВСЕГДА ТОП 1
+                                isG: d.username==='mrakodum', isV: d.verified
+                            });
+                        }
+                    });
+                    
+                    chans.forEach(doc => {
+                        const d = doc.data();
+                        if(d.username.includes(q)) {
+                            results.push({
+                                id: doc.id, type: 'channel', name: d.name,
+                                ava: d.avatar, username: d.username,
+                                score: (d.subs ? d.subs.length : 0),
+                                isG: false, isV: true
+                            });
+                        }
+                    });
+
+                    // Сортировка: Сначала Бог, потом по кол-ву подписчиков
+                    results.sort((a,b) => b.score - a.score);
+
+                    const l = document.getElementById('search-res'); l.innerHTML = '';
+                    results.forEach(item => {
+                        const bg = item.ava ? `background-image:url('${item.ava}')` : '';
+                        const cls = item.type==='channel' ? 'ava ava-sq' : 'ava';
+                        l.innerHTML += `
+                            <div class="list-item" onclick="Chat.open('${item.id}', '${item.type}', '${item.name}', '${item.ava}', ${item.isG}, ${item.isV})">
+                                <div class="${cls}" style="${bg}"></div>
+                                <div>
+                                    <b>${item.name}</b> ${Render.badges(item.isG, item.isV)}<br>
+                                    <small style="color:var(--text-sec)">@${item.username}</small>
+                                </div>
+                            </div>
+                        `;
                     });
                 });
-                db.collection('channels').get().then(snap => {
-                    snap.forEach(doc => {
-                        const d = doc.data();
-                        if(d.username.includes(q)) document.getElementById('search-res').innerHTML += `<div class="list-item" onclick="Chat.open('${doc.id}', 'channel', '${d.name}', '${d.avatar}')"><div class="ava ava-sq" style="background-image:url('${d.avatar}')"></div><b>${d.name}</b></div>`;
+            }
+        };
+
+        const UserList = {
+            open: (field, id, isChan=false) => {
+                document.getElementById('list-modal').style.display='flex';
+                const l = document.getElementById('list-content'); l.innerHTML='Загрузка...';
+                
+                const ref = isChan ? db.collection('channels').doc(id) : db.collection('users').doc(id);
+                
+                ref.get().then(doc => {
+                    const list = doc.data()[field] || [];
+                    l.innerHTML = '';
+                    if(list.length === 0) l.innerHTML = '<div style="padding:20px; text-align:center; color:grey;">Пусто</div>';
+                    
+                    list.forEach(uid => {
+                        db.collection('users').doc(uid).get().then(u => {
+                            if(!u.exists) return;
+                            const d = u.data();
+                            const bg = d.avatar ? `background-image:url('${d.avatar}')` : '';
+                            const isG = d.username==='mrakodum';
+                            l.innerHTML += `
+                                <div class="list-item" onclick="document.getElementById('list-modal').style.display='none'; document.getElementById('info-screen').style.display='none'; Chat.open('${u.id}', 'user', '${d.displayName}', '${d.avatar}', ${isG}, ${d.verified})">
+                                    <div class="ava" style="${bg}"></div>
+                                    <div><b>${d.displayName}</b> ${Render.badges(isG, d.verified)}</div>
+                                </div>
+                            `;
+                        });
                     });
                 });
             }
@@ -592,21 +684,17 @@
                 db.collection('users').doc(me.uid).onSnapshot(doc => {
                     const d = doc.data();
                     document.getElementById('my-name').innerText = d.displayName;
+                    const isG = d.username==='mrakodum';
+                    document.getElementById('my-badges').innerHTML = Render.badges(isG, d.verified);
                     document.getElementById('my-tag').innerText = '@'+d.username;
-                    document.getElementById('edit-name').value = d.displayName;
                     document.getElementById('my-ava').style.backgroundImage = `url('${d.avatar||''}')`;
+                    document.getElementById('cnt-sub-me').innerText = d.followers?d.followers.length:0;
+                    document.getElementById('cnt-sub-ing').innerText = d.following?d.following.length:0;
+                    document.getElementById('edit-name').value = d.displayName;
                 });
             },
-            save: () => {
-                db.collection('users').doc(me.uid).update({displayName: document.getElementById('edit-name').value});
-                alert('Сохранено');
-            },
-            ava: (inp) => {
-                const f = inp.files[0];
-                storage.ref().child(`ava/${me.uid}`).put(f).then(s=>s.ref.getDownloadURL()).then(u=>{
-                    db.collection('users').doc(me.uid).update({avatar:u});
-                });
-            }
+            save: () => { db.collection('users').doc(me.uid).update({displayName: document.getElementById('edit-name').value}); alert('ОК'); },
+            ava: (i) => { storage.ref().child(`ava/${me.uid}`).put(i.files[0]).then(s=>s.ref.getDownloadURL()).then(u=>db.collection('users').doc(me.uid).update({avatar:u})); }
         };
 
         const Media = {
@@ -617,49 +705,32 @@
                     recorder = new MediaRecorder(s);
                     chunks=[];
                     recorder.ondataavailable = e => chunks.push(e.data);
-                    recorder.onstop = Media.upl;
+                    recorder.onstop = () => {
+                        const b = new Blob(chunks, {type:'video/webm'});
+                        storage.ref().child(`circ/${Date.now()}`).put(b).then(s=>s.ref.getDownloadURL()).then(u=>Chat.send(u, 'circle'));
+                    };
                     recorder.start();
                 });
             },
-            stop: () => {
-                recorder.stop();
-                document.getElementById('camera-ui').style.display='none';
-                const t = document.getElementById('cam-video').srcObject.getTracks();
-                t.forEach(track=>track.stop());
-            },
-            upl: () => {
-                const b = new Blob(chunks, {type:'video/webm'});
-                storage.ref().child(`circ/${Date.now()}`).put(b).then(s=>s.ref.getDownloadURL()).then(u=>{
-                    Chat.send(u, 'circle');
-                });
-            }
+            stop: () => { recorder.stop(); document.getElementById('camera-ui').style.display='none'; document.getElementById('cam-video').srcObject.getTracks().forEach(t=>t.stop()); }
         };
 
         const God = {
             verify: () => {
                 const u = document.getElementById('god-in').value;
-                db.collection('users').where('username','==',u).get().then(s=>{
-                    s.forEach(d=>d.ref.update({verified:true}));
-                    alert('Галочка выдана');
-                });
+                db.collection('users').where('username','==',u).get().then(s=>{ s.forEach(d=>d.ref.update({verified:true})); alert('OK'); });
             },
             forceSubMe: () => {
                 const u = document.getElementById('god-in').value;
                 db.collection('users').where('username','==',u).get().then(snap => {
-                    if(snap.empty) return alert('Юзер не найден');
-                    snap.forEach(target => {
-                        db.collection('users').doc(target.id).update({
-                            following: firebase.firestore.FieldValue.arrayUnion(me.uid)
-                        });
-                        db.collection('users').doc(me.uid).update({
-                            followers: firebase.firestore.FieldValue.arrayUnion(target.id)
-                        });
-                        alert('Теперь он подписан на вас!');
+                    snap.forEach(t => {
+                        db.collection('users').doc(t.id).update({ following: firebase.firestore.FieldValue.arrayUnion(me.uid) });
+                        db.collection('users').doc(me.uid).update({ followers: firebase.firestore.FieldValue.arrayUnion(t.id) });
+                        alert('OK');
                     });
                 });
             }
         };
-
     </script>
 </body>
 </html>
