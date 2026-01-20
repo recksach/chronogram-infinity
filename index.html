@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>CHRONOGRAM DESKTOP</title>
-    <link rel="icon" type="image1/jpeg" href="logo1.jpeg">
+    <title>CHRONOGRAM</title>
+    <link rel="icon" type="image1/jpeg" href="logo1.jpg">
     
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0" />
@@ -15,15 +15,16 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
 
     <style>
-        /* === THEME: TELEGRAM DESKTOP STYLE === */
+        /* === THEME: TELEGRAM DESKTOP REAL === */
         :root {
-            --bg-master: #0e1621;       /* Темный фон списка */
-            --bg-detail: #17212b;       /* Фон чата/профиля */
-            --hover: #202b36;           /* Наведение */
-            --accent: #5288c1;          /* Telegram Blue */
+            --left-bg: #17212b;       /* Темная панель слева */
+            --right-bg: #0e1621;      /* Фон чата */
+            --hover: #202b36;         /* Наведение */
+            --active: #2b5278;        /* Активный чат */
+            --accent: #5288c1;        /* Голубой */
             --text: #f5f5f5;
             --text-sec: #7f91a4;
-            --border: 1px solid rgba(0,0,0,0.2);
+            --border: 1px solid rgba(0,0,0,0.3);
             --msg-in: #182533;
             --msg-out: #2b5278;
         }
@@ -32,106 +33,120 @@
         body { margin: 0; padding: 0; font-family: 'Manrope', sans-serif; color: var(--text); background: #000; height: 100vh; overflow: hidden; }
 
         /* SCROLLBAR */
-        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
 
         /* ВХОД */
-        #auth-screen { position: fixed; top:0; left:0; width:100%; height:100%; background: #0e1621; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        
-        /* ЛЕЙАУТ (DESKTOP FIRST) */
-        #app { display: none; width: 100%; height: 100%; background: var(--bg-master); }
+        #auth-screen { position: fixed; top:0; left:0; width:100%; height:100%; background: #17212b; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .app-logo-lg { width: 120px; height: 120px; border-radius: 50%; background-image: url('logo.jpg'); background-size: cover; margin-bottom: 20px; box-shadow: 0 0 40px rgba(82,136,193,0.3); }
+
+        /* ЛЕЙАУТ */
+        #app { display: none; width: 100%; height: 100%; }
         #app.active { display: flex; }
 
         /* ЛЕВАЯ КОЛОНКА (СПИСОК) */
-        .sidebar {
-            width: 350px; height: 100%; display: flex; flex-direction: column;
-            border-right: 1px solid #000; background: var(--bg-master); flex-shrink: 0;
+        .left-panel {
+            width: 380px; height: 100%; display: flex; flex-direction: column;
+            background: var(--left-bg); border-right: 1px solid #000; flex-shrink: 0; z-index: 10;
         }
 
-        /* ПРАВАЯ КОЛОНКА (ЧАТ/ПРОФИЛЬ) */
-        .main-view {
-            flex: 1; height: 100%; position: relative; background: #000;
+        /* ПРАВАЯ КОЛОНКА (ЧАТ) */
+        .right-panel {
+            flex: 1; height: 100%; position: relative; background: var(--right-bg);
             background-image: url('https://www.transparenttextures.com/patterns/dark-matter.png'); 
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            display: flex; flex-direction: column;
         }
 
         /* МОБИЛЬНАЯ АДАПТАЦИЯ */
         @media (max-width: 768px) {
-            .sidebar { width: 100%; }
-            .main-view { 
+            .left-panel { width: 100%; }
+            .right-panel { 
                 position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 100;
                 transform: translateX(100%); transition: transform 0.25s ease;
             }
-            .main-view.active { transform: translateX(0); }
+            .right-panel.open { transform: translateX(0); }
         }
 
-        /* КОМПОНЕНТЫ */
-        .header {
+        /* HEADER LEFT */
+        .header-left {
             height: 60px; padding: 0 15px; display: flex; align-items: center; justify-content: space-between;
-            background: var(--bg-master); border-bottom: var(--border); color: var(--text-sec);
+            /* background: var(--left-bg); */
         }
-        .search-bar { padding: 10px; background: var(--bg-master); }
-        .search-in { width: 100%; background: #242f3d; border: none; padding: 10px 15px; border-radius: 20px; color: white; }
+        .menu-btn { cursor: pointer; color: var(--text-sec); }
+        .search-box { padding: 10px 15px; }
+        .search-in { width: 100%; background: #242f3d; border: none; padding: 10px 15px; border-radius: 6px; color: white; font-size: 0.95rem; }
+        .search-in:focus { background: #2b5278; }
 
-        .tabs { display: flex; background: var(--bg-master); }
-        .tab { flex: 1; text-align: center; padding: 12px; cursor: pointer; color: var(--text-sec); font-weight: 600; font-size: 0.9rem; }
+        .tabs { display: flex; border-bottom: 1px solid rgba(0,0,0,0.2); }
+        .tab { flex: 1; text-align: center; padding: 12px; cursor: pointer; color: var(--text-sec); font-weight: 600; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; }
         .tab.active { color: var(--accent); border-bottom: 2px solid var(--accent); }
 
+        /* СПИСОК */
         .list-wrap { flex: 1; overflow-y: auto; }
         .list-item { 
-            display: flex; align-items: center; gap: 12px; padding: 10px 15px; cursor: pointer; transition: 0.2s; 
+            display: flex; align-items: center; gap: 12px; padding: 10px 15px; cursor: pointer; transition: 0.1s; 
         }
-        .list-item:hover, .list-item.active { background: var(--hover); }
+        .list-item:hover { background: var(--hover); }
+        .list-item.active { background: var(--active); }
         
-        .ava { width: 48px; height: 48px; border-radius: 50%; background: #2f3b4b; background-size: cover; background-position: center; flex-shrink: 0; }
+        .ava { width: 50px; height: 50px; border-radius: 50%; background: #2f3b4b; background-size: cover; background-position: center; flex-shrink: 0; position: relative; }
         .ava-sq { border-radius: 12px; }
 
-        /* ЧАТ */
+        /* ЧАТ ХЕДЕР */
         .chat-head {
-            width: 100%; height: 60px; background: var(--bg-detail); border-bottom: var(--border);
+            height: 60px; background: var(--left-bg); border-bottom: 1px solid #000;
             display: flex; align-items: center; padding: 0 20px; gap: 15px; cursor: pointer;
         }
-        .chat-content { flex: 1; width: 100%; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 8px; }
-        .chat-input {
-            width: 100%; min-height: 60px; background: var(--bg-detail); padding: 10px 20px;
+        .back-btn { display: none; cursor: pointer; }
+        @media (max-width: 768px) { .back-btn { display: block; } }
+
+        /* СООБЩЕНИЯ */
+        .chat-msgs { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 8px; }
+        .chat-input-bar {
+            min-height: 60px; background: var(--left-bg); padding: 10px 20px;
             display: flex; align-items: center; gap: 15px;
         }
+        
         .msg { max-width: 70%; padding: 8px 12px; border-radius: 8px; font-size: 0.95rem; line-height: 1.4; position: relative; word-wrap: break-word; }
         .msg.me { align-self: flex-end; background: var(--msg-out); color: white; }
         .msg.other { align-self: flex-start; background: var(--msg-in); color: white; }
 
         /* ПОСТЫ КАНАЛА */
-        .post { width: 100%; max-width: 500px; align-self: center; background: var(--bg-detail); border-radius: 10px; overflow: hidden; margin-bottom: 20px; }
+        .post { width: 100%; max-width: 480px; align-self: center; background: var(--left-bg); border-radius: 10px; overflow: hidden; margin-bottom: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
         .post-img { width: 100%; max-height: 400px; object-fit: cover; display: block; }
         .post-body { padding: 15px; }
         .post-text { white-space: pre-wrap; margin-bottom: 10px; }
-        .url-btn { display: block; background: rgba(82, 136, 193, 0.15); color: var(--accent); text-align: center; padding: 10px; border-radius: 6px; text-decoration: none; font-weight: 600; }
+        .url-btn { display: block; background: rgba(82, 136, 193, 0.15); color: var(--accent); text-align: center; padding: 10px; border-radius: 6px; text-decoration: none; font-weight: 600; margin-top: 10px; }
 
-        /* ПРОФИЛЬ (ВСТРОЕННЫЙ) */
-        .profile-view { width: 100%; height: 100%; background: var(--bg-master); display: flex; flex-direction: column; align-items: center; padding-top: 50px; overflow-y: auto; }
-        .big-ava { width: 140px; height: 140px; border-radius: 50%; background-size: cover; margin-bottom: 20px; cursor: pointer; position: relative; }
-        .big-ava:hover::after { content: 'Изменить'; position: absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); border-radius:50%; color:white; display:flex; justify-content:center; align-items:center; }
+        /* ПРОФИЛЬ (МОДАЛКА) */
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 5000; display: none; justify-content: center; align-items: center; }
+        .modal-box { width: 400px; background: var(--left-bg); border-radius: 12px; overflow: hidden; max-height: 90vh; overflow-y: auto; position: relative; }
+        .modal-cover { height: 120px; background: #2b5278; }
+        .modal-ava { width: 100px; height: 100px; border-radius: 50%; background-size: cover; border: 4px solid var(--left-bg); margin: -50px auto 10px; position: relative; }
+        
+        /* КНОПКА СМЕНЫ АВАТАРКИ */
+        .edit-ava-btn {
+            position: absolute; bottom: 0; right: 0; width: 30px; height: 30px; 
+            background: var(--accent); border-radius: 50%; display: flex; justify-content: center; align-items: center; 
+            cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
 
         /* КНОПКИ */
-        .btn { background: var(--accent); color: white; border: none; padding: 10px 24px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.95rem; }
-        .btn:hover { opacity: 0.9; }
+        .btn { background: var(--accent); color: white; border: none; padding: 10px 24px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.95rem; width: 100%; margin-top: 10px; }
         .btn-sec { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
         .btn-red { background: transparent; color: #ff5959; border: 1px solid #ff5959; }
 
-        .icon { font-family: 'Material Symbols Rounded'; font-size: 24px; color: var(--text-sec); cursor: pointer; }
+        .icon { font-family: 'Material Symbols Rounded'; font-size: 24px; color: var(--text-sec); cursor: pointer; user-select: none; }
         .icon:hover { color: var(--text); }
         .badge-verif { display: inline-block; width: 16px; height: 16px; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%235288c1'%3E%3Cpath d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z'/%3E%3C/svg%3E") no-repeat center; vertical-align: middle; margin-left: 5px; }
         .badge-god::after { content: '👑'; margin-left: 5px; font-size: 1.1rem; vertical-align: middle; }
 
-        /* УВЕДОМЛЕНИЕ */
-        #toast { position: fixed; top: 20px; right: 20px; background: var(--accent); color: white; padding: 15px 25px; border-radius: 8px; z-index: 9999; display: none; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
-
+        #empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: var(--text-sec); }
         .hidden { display: none !important; }
     </style>
 </head>
 <body>
-
-    <div id="toast"></div>
 
     <div id="auth-screen">
         <div class="app-logo-lg"></div>
@@ -141,33 +156,77 @@
         <input type="text" id="username" placeholder="Username" style="padding:12px; border-radius:8px; border:none; background:#242f3d; color:white; margin-bottom:20px; width:280px;">
         <button class="btn" onclick="Auth.go('login')" style="width:280px; margin-bottom:10px;">Войти</button>
         <button class="btn btn-sec" onclick="Auth.go('reg')" style="width:280px;">Регистрация</button>
-        <p id="auth-err" style="color:#ff5959; margin-top:10px;"></p>
+        <p id="auth-err" style="color:#ff5959; margin-top:10px; font-size:0.8rem;"></p>
         <div onclick="localStorage.clear();location.reload()" style="margin-top:20px; color:#555; cursor:pointer; font-size:0.8rem;">СБРОСИТЬ КЭШ</div>
     </div>
 
     <div id="app">
-        <div class="sidebar">
-            <div class="header">
-                <span class="icon" onclick="Nav.toProfile()">menu</span>
-                <b style="color:white; letter-spacing:1px;">CHRONOGRAM</b>
-                <span class="icon" onclick="Channels.createModal()">add_circle</span>
+        
+        <div class="left-panel">
+            <div class="header-left">
+                <span class="icon" onclick="Profile.openMe()">menu</span>
+                <b style="letter-spacing:1px;">CHRONOGRAM</b>
+                <span class="icon" onclick="Channels.createModal()">edit_square</span>
             </div>
-            <div class="search-bar">
+            
+            <div class="search-box">
                 <input type="text" class="search-in" id="search-in" placeholder="Поиск..." oninput="Search.run()">
             </div>
+            
             <div class="tabs">
                 <div class="tab active" id="tab-chats" onclick="Nav.tab('chats')">Чаты</div>
                 <div class="tab" id="tab-channels" onclick="Nav.tab('channels')">Каналы</div>
             </div>
+            
             <div id="list-chats" class="list-wrap"></div>
             <div id="list-channels" class="list-wrap hidden"></div>
             <div id="list-search" class="list-wrap hidden"></div>
         </div>
 
-        <div id="main-view" class="main-view">
-            <div style="color:var(--text-sec); text-align:center;">
-                <span class="icon" style="font-size:60px; opacity:0.5;">forum</span><br><br>
-                Выберите чат или канал<br>чтобы начать общение
+        <div id="right-panel" class="right-panel">
+            <div id="empty-state">
+                <span style="background:#182533; padding:15px; border-radius:50%; margin-bottom:15px; font-size:40px;">💬</span>
+                Выберите чат, чтобы начать общение
+            </div>
+            
+            <div id="chat-interface" class="hidden" style="height:100%; display:flex; flex-direction:column;">
+                <div class="chat-head" onclick="Profile.openOther()">
+                    <span class="icon back-btn" onclick="event.stopPropagation(); Nav.back()">arrow_back</span>
+                    <div id="chat-head-ava" class="ava"></div>
+                    <div style="flex:1;">
+                        <b id="chat-head-name">Name</b> <span id="chat-head-badge"></span>
+                        <div id="chat-head-status" style="font-size:0.8rem; color:var(--text-sec);">Online</div>
+                    </div>
+                    <span class="icon">more_vert</span>
+                </div>
+                
+                <div id="chat-msgs" class="chat-msgs"></div>
+                
+                <div class="chat-input-bar" id="chat-input-bar">
+                    <label class="icon" style="transform:rotate(45deg);"><input type="file" hidden onchange="Chat.upl(this)">attach_file</label>
+                    <input id="msg-in" type="text" placeholder="Написать сообщение..." style="flex:1; background:transparent; border:none; color:white; font-size:1rem;">
+                    <span class="icon" style="color:var(--accent);" onclick="Chat.send()">send</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-profile" class="modal" onclick="if(event.target===this)this.style.display='none'">
+        <div class="modal-box">
+            <div class="modal-cover"></div>
+            <div id="modal-ava" class="modal-ava">
+                <div id="ava-edit-btn" class="hidden"></div>
+            </div>
+            <div style="text-align:center; padding:0 20px 20px;">
+                <h2 style="margin:0;"><span id="modal-name">Name</span> <span id="modal-badge"></span></h2>
+                <div id="modal-tag" style="color:var(--text-sec); margin-bottom:15px;">@tag</div>
+                
+                <div style="display:flex; justify-content:center; gap:30px; margin-bottom:20px;">
+                    <div><b id="stat-1">0</b><br><small style="color:var(--text-sec);">Подписчики</small></div>
+                    <div><b id="stat-2">0</b><br><small style="color:var(--text-sec);">Подписки</small></div>
+                </div>
+
+                <div id="modal-actions"></div>
             </div>
         </div>
     </div>
@@ -190,12 +249,11 @@
 
         let me = null;
         let isGod = false;
-        let activeChat = null; // { id, type, name, ava, isG, isV }
+        let activeChat = null; 
 
         auth.onAuthStateChanged(user => {
             if(user) {
                 me = user;
-                if(Notification.permission !== "granted") Notification.requestPermission();
                 db.collection('users').doc(me.uid).get().then(doc => {
                     if(doc.exists) {
                         if(doc.data().username === 'mrakodum') isGod = true;
@@ -212,25 +270,19 @@
 
         const Auth = {
             go: (type) => {
-                const e = document.getElementById('email').value;
-                const p = document.getElementById('password').value;
-                const u = document.getElementById('username').value.toLowerCase().trim();
+                const em = document.getElementById('email').value;
+                const pa = document.getElementById('password').value;
+                const un = document.getElementById('username').value.toLowerCase().trim();
                 if(type === 'reg') {
-                    if(!u) return alert('Ник обязателен');
-                    Promise.all([
-                        db.collection('users').where('username','==',u).get(),
-                        db.collection('channels').where('username','==',u).get()
-                    ]).then(([s1,s2]) => {
-                        if(!s1.empty || !s2.empty) return alert('Ник занят');
-                        auth.createUserWithEmailAndPassword(e,p).then(c=>{
-                            db.collection('users').doc(c.user.uid).set({username:u, displayName:u, avatar:'', followers:[], following:[]});
-                        });
-                    });
-                } else auth.signInWithEmailAndPassword(e,p).catch(e=>document.getElementById('auth-err').innerText=e.message);
+                    if(!un) return alert('Ник?');
+                    auth.createUserWithEmailAndPassword(em,pa).then(c=>{
+                        db.collection('users').doc(c.user.uid).set({username:un, displayName:un, avatar:'', followers:[], following:[]});
+                    }).catch(e=>document.getElementById('auth-err').innerText=e.message);
+                } else auth.signInWithEmailAndPassword(em,pa).catch(e=>document.getElementById('auth-err').innerText=e.message);
             }
         };
 
-        const App = { init: () => { Chats.load(); Channels.load(); Notify.listen(); } };
+        const App = { init: () => { Chats.load(); Channels.load(); } };
 
         const Nav = {
             tab: (t) => {
@@ -243,10 +295,10 @@
                 document.getElementById('search-in').value = '';
             },
             back: () => {
-                document.getElementById('main-view').classList.remove('active'); // Только для мобилок
-            },
-            toProfile: () => {
-                Profile.renderMe();
+                document.getElementById('right-panel').classList.remove('open');
+                activeChat = null;
+                // Сброс выделения
+                document.querySelectorAll('.list-item').forEach(e=>e.classList.remove('active'));
             }
         };
 
@@ -282,13 +334,7 @@
                 const slug = prompt('Юзернейм (@news):');
                 if(name && slug) {
                     const s = slug.replace('@','').toLowerCase();
-                    Promise.all([
-                        db.collection('users').where('username','==',s).get(),
-                        db.collection('channels').where('username','==',s).get()
-                    ]).then(([s1,s2])=>{
-                        if(!s1.empty || !s2.empty) return alert('Занято');
-                        db.collection('channels').add({name:name, username:s, owner:me.uid, subs:[me.uid], avatar:''});
-                    });
+                    db.collection('channels').add({name:name, username:s, owner:me.uid, subs:[me.uid], avatar:''});
                 }
             },
             load: () => {
@@ -321,61 +367,50 @@
                 if(q.length<2) return;
 
                 Promise.all([db.collection('users').get(), db.collection('channels').get()]).then(([us, cs]) => {
-                    let res = [];
-                    us.forEach(d => { if(d.data().username.includes(q)) res.push({...d.data(), id:d.id, type:'user'}); });
-                    cs.forEach(d => { if(d.data().username.includes(q)) res.push({...d.data(), id:d.id, type:'channel'}); });
-                    
-                    res.sort((a,b) => (b.followers?.length||b.subs?.length||0) - (a.followers?.length||a.subs?.length||0));
-                    
-                    res.forEach(r => {
-                        const isG = r.username==='mrakodum';
-                        const isV = r.verified || r.type==='channel';
-                        const cls = r.type==='channel' ? 'ava ava-sq' : 'ava';
-                        l.innerHTML += `
-                            <div class="list-item" onclick="Chat.open('${r.id}', '${r.type}', '${r.displayName||r.name}', '${r.avatar}', ${isG}, ${isV})">
-                                <div class="${cls}" style="background-image:url('${r.avatar||''}')"></div>
-                                <div><b>${r.displayName||r.name}</b> ${Render.badges(isG, isV)}<br><small>@${r.username}</small></div>
-                            </div>`;
+                    us.forEach(d => { 
+                        const r = d.data();
+                        if(r.username.includes(q)) l.innerHTML += ItemHTML(d.id, 'user', r.displayName, r.avatar, r.username, r.username==='mrakodum', r.verified); 
+                    });
+                    cs.forEach(d => { 
+                        const r = d.data();
+                        if(r.username.includes(q)) l.innerHTML += ItemHTML(d.id, 'channel', r.name, r.avatar, r.username, false, true); 
                     });
                 });
             }
         };
 
-        // --- ЧАТ / ОСНОВНОЕ ОКНО ---
+        function ItemHTML(id, type, name, ava, user, isG, isV) {
+            return `<div class="list-item" onclick="Chat.open('${id}', '${type}', '${name}', '${ava||''}', ${isG}, ${isV})">
+                <div class="ava ${type==='channel'?'ava-sq':''}" style="background-image:url('${ava||''}')"></div>
+                <div><b>${name}</b> ${Render.badges(isG, isV)}<br><small>@${user}</small></div>
+            </div>`;
+        }
+
+        // --- ЧАТ ---
         const Chat = {
             open: (id, type, name, ava, isG, isV) => {
                 activeChat = { id, type, name, ava, isG, isV };
-                const mv = document.getElementById('main-view');
-                mv.classList.add('active'); // Мобилка
-                
-                // Рендер Шапки
-                mv.innerHTML = `
-                    <div class="chat-head" onclick="Profile.renderOther('${id}', '${type}')">
-                        <span class="icon" style="margin-right:10px;" onclick="event.stopPropagation(); Nav.back()">arrow_back</span>
-                        <div class="ava ${type==='channel'?'ava-sq':''}" style="background-image:url('${ava||''}')"></div>
-                        <div style="flex:1;">
-                            <b>${name}</b> ${Render.badges(isG, isV)}
-                            <div id="sub-stat" style="font-size:0.8rem; color:#7f91a4;">Загрузка...</div>
-                        </div>
-                        <span class="icon">more_vert</span>
-                    </div>
-                    <div id="chat-msgs" class="chat-content"></div>
-                    <div class="chat-input" id="chat-input">
-                        <label class="icon"><input type="file" hidden onchange="Chat.upl(this)">attach_file</label>
-                        <input id="msg-in" type="text" placeholder="Написать..." style="flex:1; background:transparent; border:none; color:white; font-size:1rem;">
-                        <span class="icon" style="color:var(--accent);" onclick="Chat.send()">send</span>
-                    </div>
-                `;
+                document.getElementById('empty-state').classList.add('hidden');
+                document.getElementById('chat-interface').classList.remove('hidden');
+                document.getElementById('right-panel').classList.add('open'); // Mobile
 
-                // Статус/Подписчики
+                // Шапка
+                document.getElementById('chat-head-name').innerText = name;
+                document.getElementById('chat-head-badge').innerHTML = Render.badges(isG, isV);
+                const a = document.getElementById('chat-head-ava');
+                a.style.backgroundImage = ava ? `url('${ava}')` : '';
+                a.className = type==='channel'?'ava ava-sq':'ava';
+
                 if(type === 'channel') {
                     db.collection('channels').doc(id).onSnapshot(d => {
                         const c = d.data();
-                        document.getElementById('sub-stat').innerText = c.subs.length + ' подписчиков';
-                        if(c.owner !== me.uid && !isGod) document.getElementById('chat-input').style.display='none';
+                        document.getElementById('chat-head-status').innerText = c.subs.length + ' подписчиков';
+                        if(c.owner !== me.uid && !isGod) document.getElementById('chat-input-bar').style.display='none';
+                        else document.getElementById('chat-input-bar').style.display='flex';
                     });
                 } else {
-                    document.getElementById('sub-stat').innerText = 'в сети';
+                    document.getElementById('chat-head-status').innerText = 'В сети';
+                    document.getElementById('chat-input-bar').style.display='flex';
                     db.collection('users').doc(me.uid).collection('chats').doc(id).set({unread:false}, {merge:true});
                 }
 
@@ -401,16 +436,14 @@
                 const docId = activeChat.type==='user' ? [me.uid, activeChat.id].sort().join('_') : activeChat.id;
                 
                 db.collection(col).doc(docId).collection('msg').add({
-                    text: v, type: type, uid: me.uid, time: Date.now(), likes: [], views: 0, viewedBy: []
+                    text: v, type: type, uid: me.uid, time: Date.now(), likes: [], views: 0
                 });
 
                 const last = type==='text' ? v : 'Файл';
                 if(activeChat.type==='user') {
                     db.collection('users').doc(me.uid).collection('chats').doc(activeChat.id).set({lastMsg:last, time:Date.now()}, {merge:true});
                     db.collection('users').doc(activeChat.id).collection('chats').doc(me.uid).set({lastMsg:last, time:Date.now(), unread:true}, {merge:true});
-                } else {
-                    db.collection('channels').doc(activeChat.id).update({lastMsg:last, lastPostTime:Date.now()});
-                }
+                } 
                 if(!txt) document.getElementById('msg-in').value='';
             },
             upl: (i) => {
@@ -449,113 +482,69 @@
 
         // --- ПРОФИЛЬ ---
         const Profile = {
-            renderMe: () => {
-                const mv = document.getElementById('main-view'); mv.classList.add('active');
-                db.collection('users').doc(me.uid).get().then(d => {
-                    const u = d.data();
-                    mv.innerHTML = `
-                        <div class="profile-view">
-                            <span class="icon" style="align-self:flex-start; margin-left:20px;" onclick="Nav.back()">arrow_back</span>
-                            <div class="big-ava" style="background-image:url('${u.avatar||''}')">
-                                <input type="file" hidden onchange="Profile.updAva(this)" style="position:absolute; width:100%; height:100%; top:0; left:0; opacity:0; cursor:pointer;">
-                            </div>
-                            <h2 style="margin:0;">${u.displayName} ${Render.badges(isGod, u.verified)}</h2>
-                            <div style="color:#7f91a4; margin-bottom:20px;">@${u.username}</div>
-                            <div style="display:flex; gap:40px; margin-bottom:40px;">
-                                <div style="text-align:center;"><b>${u.followers?.length||0}</b><br><span style="color:#7f91a4;">Подписчики</span></div>
-                                <div style="text-align:center;"><b>${u.following?.length||0}</b><br><span style="color:#7f91a4;">Подписки</span></div>
-                            </div>
-                            <input id="edit-name" value="${u.displayName}" style="background:#242f3d; padding:10px; border:none; color:white; border-radius:8px; margin-bottom:10px;">
-                            <button class="btn" onclick="Profile.saveName()">Сохранить имя</button>
-                            <br>
-                            <button class="btn btn-red" onclick="auth.signOut()">Выйти</button>
-                            ${isGod ? `<div style="margin-top:30px; border:1px solid gold; padding:15px; border-radius:10px;"><input id="god-u" placeholder="Ник"><br><button class="btn btn-gold" onclick="God.verify()">Галочка</button></div>` : ''}
-                        </div>
-                    `;
-                });
-            },
-            renderOther: (id, type) => {
-                const mv = document.getElementById('main-view'); mv.classList.add('active');
+            openMe: () => { Profile.render(me.uid, 'user', true); },
+            openOther: () => { Profile.render(activeChat.id, activeChat.type, false); },
+            
+            render: (id, type, isMe) => {
+                document.getElementById('modal-profile').style.display='flex';
                 const ref = type==='user' ? db.collection('users').doc(id) : db.collection('channels').doc(id);
                 
-                ref.get().then(doc => {
+                ref.onSnapshot(doc => {
                     const d = doc.data();
-                    const isSub = type==='user' ? (d.followers?.includes(me.uid)) : (d.subs?.includes(me.uid));
-                    const btnTxt = isSub ? 'Отписаться' : 'Подписаться';
-                    const btnCls = isSub ? 'btn-sec' : 'btn';
-                    
-                    // ИСПРАВЛЕНИЕ АВАТАРКИ КАНАЛА
-                    const canEdit = (type==='channel' && (d.owner === me.uid || isGod));
-                    const avaInput = canEdit ? `<input type="file" hidden onchange="Profile.updChanAva('${id}', this)" style="position:absolute;width:100%;height:100%;top:0;left:0;opacity:0;cursor:pointer;">` : '';
-                    const avaHint = canEdit ? ' (Нажми чтобы сменить)' : '';
+                    document.getElementById('modal-name').innerText = d.displayName || d.name;
+                    document.getElementById('modal-tag').innerText = '@' + d.username;
+                    const a = document.getElementById('modal-ava');
+                    a.style.backgroundImage = `url('${d.avatar||''}')`;
+                    a.className = type==='channel' ? 'modal-ava ava-sq' : 'modal-ava'; // Квадрат для канала
 
-                    mv.innerHTML = `
-                        <div class="profile-view">
-                            <span class="icon" style="align-self:flex-start; margin-left:20px;" onclick="Chat.open('${id}','${type}','${d.displayName||d.name}','${d.avatar}', ${d.username==='mrakodum'}, ${d.verified||true})">arrow_back</span>
-                            <div class="big-ava" style="background-image:url('${d.avatar||''}')">${avaInput}</div>
-                            ${canEdit ? `<small style="color:#5288c1;">Сменить фото 👆</small>` : ''}
-                            <h2 style="margin:10px 0;">${d.displayName||d.name}</h2>
-                            <div style="color:#7f91a4; margin-bottom:20px;">@${d.username}</div>
-                            <button class="${btnCls}" onclick="Profile.toggleSub('${id}','${type}', ${isSub})">${btnTxt}</button>
-                            <br>
-                            ${canEdit ? `<button class="btn btn-red" onclick="Channels.del('${id}')">Удалить канал</button>` : ''}
-                        </div>
-                    `;
+                    const stats = type==='user' ? [d.followers?.length||0, d.following?.length||0] : [d.subs?.length||0, '-'];
+                    document.getElementById('stat-1').innerText = stats[0];
+                    document.getElementById('stat-2').innerText = stats[1];
+
+                    // КНОПКА СМЕНЫ АВАТАРКИ
+                    const btn = document.getElementById('ava-edit-btn');
+                    btn.innerHTML = '<span class="icon" style="color:white; font-size:18px;">edit</span>';
+                    
+                    // Если я - юзер ИЛИ я владелец канала ИЛИ я Бог -> показываем кнопку
+                    if (isMe || (type==='channel' && d.owner===me.uid) || isGod) {
+                        btn.classList.remove('hidden');
+                        btn.onclick = () => {
+                            const inp = document.createElement('input'); inp.type='file'; 
+                            inp.onchange = e => Profile.uplAva(id, type, e.target.files[0]);
+                            inp.click();
+                        };
+                    } else {
+                        btn.classList.add('hidden');
+                    }
+
+                    // КНОПКИ ДЕЙСТВИЙ
+                    const acts = document.getElementById('modal-actions');
+                    if(isMe) {
+                        acts.innerHTML = `<button class="btn-red" onclick="auth.signOut()">Выйти</button>`;
+                    } else {
+                        const isSub = type==='user' ? d.followers?.includes(me.uid) : d.subs?.includes(me.uid);
+                        acts.innerHTML = `<button class="${isSub?'btn-sec':'btn'}" onclick="Profile.sub('${id}','${type}',${isSub})">${isSub?'Отписаться':'Подписаться'}</button>`;
+                    }
                 });
             },
-            updAva: (i) => {
-                storage.ref().child(`ava/${me.uid}`).put(i.files[0]).then(s=>s.ref.getDownloadURL()).then(u=>{
-                    db.collection('users').doc(me.uid).update({avatar:u}).then(Profile.renderMe);
+            uplAva: (id, type, file) => {
+                storage.ref().child(`ava/${id}`).put(file).then(s=>s.ref.getDownloadURL()).then(u => {
+                    const col = type==='user' ? 'users' : 'channels';
+                    db.collection(col).doc(id).update({avatar: u});
                 });
             },
-            updChanAva: (id, i) => {
-                storage.ref().child(`chan/${id}`).put(i.files[0]).then(s=>s.ref.getDownloadURL()).then(u=>{
-                    db.collection('channels').doc(id).update({avatar:u}).then(() => Profile.renderOther(id, 'channel'));
-                });
-            },
-            saveName: () => {
-                db.collection('users').doc(me.uid).update({displayName: document.getElementById('edit-name').value}).then(()=>alert('Сохранено'));
-            },
-            toggleSub: (id, type, isSub) => {
-                if(type === 'channel') {
-                    db.collection('channels').doc(id).update({
-                        subs: isSub ? firebase.firestore.FieldValue.arrayRemove(me.uid) : firebase.firestore.FieldValue.arrayUnion(me.uid)
-                    }).then(() => Profile.renderOther(id, type));
-                } else {
-                    db.collection('users').doc(id).update({followers: isSub ? firebase.firestore.FieldValue.arrayRemove(me.uid) : firebase.firestore.FieldValue.arrayUnion(me.uid)});
-                    db.collection('users').doc(me.uid).update({following: isSub ? firebase.firestore.FieldValue.arrayRemove(id) : firebase.firestore.FieldValue.arrayUnion(id)});
-                    setTimeout(() => Profile.renderOther(id, type), 500);
+            sub: (id, type, isSub) => {
+                const act = isSub ? firebase.firestore.FieldValue.arrayRemove(me.uid) : firebase.firestore.FieldValue.arrayUnion(me.uid);
+                if(type==='channel') db.collection('channels').doc(id).update({subs:act});
+                else {
+                    db.collection('users').doc(id).update({followers:act});
+                    const act2 = isSub ? firebase.firestore.FieldValue.arrayRemove(id) : firebase.firestore.FieldValue.arrayUnion(id);
+                    db.collection('users').doc(me.uid).update({following:act2});
                 }
             }
         };
 
-        const Notify = {
-            listen: () => {
-                db.collection('users').doc(me.uid).collection('chats').where('unread','==',true).onSnapshot(s => {
-                    s.docChanges().forEach(c => { if(c.type==='modified') Notify.show('Новое сообщение', c.doc.data().lastMsg); });
-                });
-            },
-            show: (t,b) => {
-                const el = document.getElementById('toast');
-                el.innerText = `${t}: ${b}`; el.style.display='block';
-                setTimeout(()=>el.style.display='none', 3000);
-            }
-        };
-
-        const Render = {
-            badges: (g, v) => (v?'<span class="badge-verif"></span>':'') + (g?'<span class="badge-god"></span>':'')
-        };
-
-        const God = {
-            verify: () => {
-                const u = document.getElementById('god-u').value;
-                db.collection('users').where('username','==',u).get().then(s => { s.forEach(d => d.ref.update({verified:true})); alert('OK'); });
-            }
-        };
-        
-        const Channels = {
-            del: (id) => { if(confirm('Удалить?')) db.collection('channels').doc(id).delete().then(()=>Nav.toProfile()); }
-        };
+        const Render = { badges: (g, v) => (v?'<span class="badge-verif"></span>':'') + (g?'<span class="badge-god"></span>':'') };
     </script>
 </body>
 </html>
