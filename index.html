@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>CHRONOGRAM SOCIAL</title>
+    <title>CHRONOGRAM X</title>
     <link rel="icon" type="image1/jpeg" href="logo1.jpg">
     <link rel="apple-touch-icon" href="logo1.jpg">
     
@@ -16,12 +16,12 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
 
     <style>
-        /* === THEME: ELITE SOCIAL === */
+        /* === THEME: NOTIFICATIONS ALIVE === */
         :root {
             --bg: #050510;
             --header: rgba(18, 22, 30, 0.98);
-            --card: rgba(255, 255, 255, 0.03);
-            --accent: #2979FF; /* INSTAGRAM BLUE-ISH */
+            --card: rgba(255, 255, 255, 0.04);
+            --accent: #2979FF;
             --gold: #FFD700;
             --text: #ffffff;
             --text-sec: #8aa0b6;
@@ -37,7 +37,6 @@
             height: 100dvh; overflow: hidden;
         }
 
-        /* АНИМИРОВАННЫЙ ФОН */
         body::before {
             content: ''; position: absolute; width: 100%; height: 100%; top: 0; left: 0; z-index: -1;
             background: radial-gradient(circle at 50% 0%, #1a2236 0%, #000 70%);
@@ -57,48 +56,39 @@
             box-shadow: 0 0 60px rgba(41, 121, 255, 0.3); margin-bottom: 30px;
         }
 
-        /* ЛЕЙАУТ */
         #app { display: none; height: 100%; width: 100%; flex-direction: column; }
         #app.active { display: flex; }
 
-        /* HEADER */
         .main-header {
             height: 60px; display: flex; align-items: center; justify-content: space-between;
             padding: 0 15px; background: var(--header); border-bottom: 1px solid rgba(255,255,255,0.05);
             font-size: 1.2rem; font-weight: 800; letter-spacing: 1px; z-index: 100;
         }
 
-        /* TABS */
         .tabs { display: flex; background: var(--header); border-bottom: 1px solid rgba(255,255,255,0.05); }
         .tab { flex: 1; text-align: center; padding: 15px 0; color: var(--text-sec); cursor: pointer; position: relative; font-weight: 600; }
         .tab.active { color: var(--accent); }
         .tab.active::after { content:''; position:absolute; bottom:0; left:20%; width:60%; height:3px; background:var(--accent); border-radius:3px 3px 0 0; }
 
-        /* СТРАНИЦЫ */
         .pages-container { flex: 1; position: relative; overflow: hidden; }
         .page { position: absolute; top:0; left:0; width:100%; height:100%; overflow-y: auto; display: none; padding-bottom: 80px; }
         .page.active { display: block; animation: fadeIn 0.2s; }
-        @keyframes fadeIn { from{opacity:0; transform: translateY(10px);} to{opacity:1; transform: translateY(0);} }
+        @keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
 
         /* СПИСКИ */
         .list-item {
             display: flex; align-items: center; gap: 15px; padding: 15px;
-            border-bottom: 1px solid rgba(255,255,255,0.03); cursor: pointer; transition: 0.2s;
+            border-bottom: 1px solid rgba(255,255,255,0.03); cursor: pointer;
         }
         .list-item:active { background: rgba(255,255,255,0.05); }
         
         .ava { width: 50px; height: 50px; border-radius: 50%; background: #222; background-size: cover; background-position: center; flex-shrink: 0; position: relative; border: 1px solid rgba(255,255,255,0.1); }
         .ava-sq { border-radius: 16px; } 
         
-        /* ЗНАЧКИ */
-        .badge-verif { 
-            display: inline-block; width: 16px; height: 16px; 
-            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%232979FF'%3E%3Cpath d='M22.5 12.5c0-1.58-.875-2.95-2.148-3.6.154-.435.238-.905.238-1.4 0-2.21-1.71-3.998-3.818-3.998-.47 0-.92.114-1.335.314C14.63 2.662 13.385 2 12 2c-1.385 0-2.63.662-3.437 1.716-.415-.2-.865-.314-1.335-.314-2.11 0-3.818 1.79-3.818 4 0 .495.083.965.238 1.4-1.272.65-2.147 2.02-2.147 3.6 0 1.435.71 2.79 1.786 3.63-.09.39-.136.79-.136 1.2 0 2.7 2.19 4.9 4.9 4.9 1.455 0 2.76-.63 3.69-1.635.93 1.005 2.234 1.635 3.69 1.635 2.71 0 4.9-2.2 4.9-4.9 0-.41-.046-.81-.136-1.2 1.076-.84 1.786-2.195 1.786-3.63zM9.76 17.6l-4.48-4.48 1.413-1.414 3.067 3.067 6.907-6.907 1.413 1.414-8.32 8.32z'/%3E%3C/svg%3E") no-repeat center; 
-            vertical-align: middle; margin-left: 4px; 
-        }
+        .badge-verif { display: inline-block; width: 16px; height: 16px; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%232979FF'%3E%3Cpath d='M22.5 12.5c0-1.58-.875-2.95-2.148-3.6.154-.435.238-.905.238-1.4 0-2.21-1.71-3.998-3.818-3.998-.47 0-.92.114-1.335.314C14.63 2.662 13.385 2 12 2c-1.385 0-2.63.662-3.437 1.716-.415-.2-.865-.314-1.335-.314-2.11 0-3.818 1.79-3.818 4 0 .495.083.965.238 1.4-1.272.65-2.147 2.02-2.147 3.6 0 1.435.71 2.79 1.786 3.63-.09.39-.136.79-.136 1.2 0 2.7 2.19 4.9 4.9 4.9 1.455 0 2.76-.63 3.69-1.635.93 1.005 2.234 1.635 3.69 1.635 2.71 0 4.9-2.2 4.9-4.9 0-.41-.046-.81-.136-1.2 1.076-.84 1.786-2.195 1.786-3.63zM9.76 17.6l-4.48-4.48 1.413-1.414 3.067 3.067 6.907-6.907 1.413 1.414-8.32 8.32z'/%3E%3C/svg%3E") no-repeat center; vertical-align: middle; margin-left: 4px; }
         .badge-god::after { content: '👑'; margin-left: 4px; font-size: 1.1rem; vertical-align: middle; }
 
-        /* ЧАТ ЭКРАН */
+        /* ЧАТ */
         #chat-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #050510; z-index: 2000; display: none; flex-direction: column;
@@ -116,14 +106,14 @@
         .msg.me { align-self: flex-end; background: var(--outgoing); color: white; border-bottom-right-radius: 2px; }
         .msg.other { align-self: flex-start; background: var(--incoming); color: white; border-bottom-left-radius: 2px; }
         
-        /* КАНАЛ ПОСТ */
         .channel-post {
             background: var(--card); border: 1px solid rgba(255,255,255,0.05);
-            border-radius: 18px; overflow: hidden; margin-bottom: 20px; width: 100%; max-width: 100%; align-self: center;
+            border-radius: 18px; overflow: hidden; margin-bottom: 20px; width: 100%; max-width: 100%; align-self: center; position: relative;
         }
         .post-media { width: 100%; max-height: 450px; object-fit: cover; display: block; }
         .post-content { padding: 15px; }
         .post-text { white-space: pre-wrap; margin-bottom: 10px; font-size: 1rem; }
+        
         .anim-text {
             background: linear-gradient(90deg, #fff, #2979FF, #fff); background-size: 200% auto;
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
@@ -131,15 +121,14 @@
         }
         @keyframes shine { to { background-position: 200% center; } }
 
-        /* ИНФО ПРОФИЛЬ (FULL INFO) */
+        /* ИНФО ПРОФИЛЬ */
         #info-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #050510; z-index: 2500; display: none; flex-direction: column;
-            overflow-y: auto;
+            background: #050510; z-index: 2500; display: none; flex-direction: column; overflow-y: auto;
         }
         .info-header {
-            height: 250px; position: relative; background: linear-gradient(to bottom, #1a2236, #050510);
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            height: 300px; position: relative; background: linear-gradient(to bottom, #1a2236, #050510);
+            display: flex; flex-direction: column; align-items: center; justify-content: center; padding-top: 40px;
         }
         .big-ava { width: 120px; height: 120px; border-radius: 50%; background-size: cover; border: 4px solid #050510; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         .stats-row { display: flex; gap: 40px; margin-top: 20px; }
@@ -147,13 +136,12 @@
         .stat-val { font-size: 1.4rem; font-weight: 800; display: block; }
         .stat-label { font-size: 0.8rem; color: var(--text-sec); }
 
-        .btn { background: var(--accent); color: white; border: none; padding: 14px; border-radius: 14px; font-weight: 700; width: 100%; margin-top: 10px; }
+        .btn { background: var(--accent); color: white; border: none; padding: 14px; border-radius: 14px; font-weight: 700; width: 100%; margin-top: 10px; cursor: pointer; }
         .btn-sec { background: rgba(255,255,255,0.1); }
         .btn-gold { background: linear-gradient(135deg, #FFD700, #FFA000); color: black; }
         .btn-danger { background: #FF3B30; color: white; }
         .url-btn { display: block; width: 100%; padding: 12px; background: rgba(41, 121, 255, 0.15); color: var(--accent); text-align: center; border-radius: 10px; text-decoration: none; font-weight: 700; margin-top: 8px; border: 1px solid rgba(41, 121, 255, 0.3); }
         
-        /* ВВОД */
         .input-bar {
             min-height: 60px; background: var(--header); border-top: 1px solid rgba(255,255,255,0.05);
             display: flex; align-items: center; padding: 10px; gap: 10px; padding-bottom: max(10px, env(safe-area-inset-bottom));
@@ -161,12 +149,33 @@
         input { flex: 1; background: rgba(0,0,0,0.3); border: none; padding: 12px; border-radius: 20px; color: white; font-size: 1rem; }
         
         .video-circle { width: 220px; height: 220px; border-radius: 50%; object-fit: cover; border: 3px solid var(--accent); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .del-btn { position: absolute; top: 10px; right: 10px; color: #FF3B30; cursor: pointer; background: rgba(0,0,0,0.5); border-radius: 50%; padding: 5px; }
+        
+        .like-btn { cursor: pointer; display: flex; align-items: center; gap: 5px; background: rgba(255,255,255,0.05); padding: 5px 10px; border-radius: 20px; font-size: 0.9rem; width: fit-content; margin-top: 5px; }
+        .like-btn.liked { color: #FF3B30; background: rgba(255, 59, 48, 0.1); }
+        .views-count { font-size: 0.8rem; color: var(--text-sec); display: flex; align-items: center; gap: 4px; position: absolute; bottom: 15px; right: 15px; }
+
+        /* ВСПЛЫВАЮЩЕЕ УВЕДОМЛЕНИЕ (TOAST) */
+        #toast {
+            position: fixed; top: -100px; left: 5%; width: 90%; background: rgba(41, 121, 255, 0.9);
+            color: white; padding: 15px; border-radius: 16px; z-index: 9999;
+            backdrop-filter: blur(10px); box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            transition: top 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex; align-items: center; gap: 15px;
+        }
+        #toast.show { top: 20px; }
 
         .hidden { display: none !important; }
     </style>
 </head>
 <body>
+
+    <div id="toast">
+        <span class="icon">notifications_active</span>
+        <div style="flex:1;">
+            <b id="toast-title">Уведомление</b>
+            <div id="toast-msg" style="font-size:0.9rem; opacity:0.9;">Текст...</div>
+        </div>
+    </div>
 
     <div id="auth-screen">
         <div class="app-logo-lg"></div>
@@ -208,7 +217,7 @@
 
             <div id="pg-search" class="page">
                 <div style="padding:15px;">
-                    <input type="text" id="search-in" placeholder="Поиск (сортировка по популярности)..." oninput="Search.run()" style="width:100%;">
+                    <input type="text" id="search-in" placeholder="Поиск (популярные сверху)..." oninput="Search.run()" style="width:100%;">
                     <div id="search-res" style="margin-top:15px;"></div>
                 </div>
             </div>
@@ -275,6 +284,7 @@
             <div id="info-ava" class="big-ava"></div>
             <h2 style="margin:15px 0 5px;"><span id="info-name">Name</span> <span id="info-badge"></span></h2>
             <div id="info-tag" style="color:var(--text-sec);">@tag</div>
+            <button id="sub-btn" class="btn" style="width:200px; margin-top:20px;">Подписаться</button>
             <div class="stats-row">
                 <div class="stat-item" id="info-subs-btn">
                     <span class="stat-val" id="info-subs-cnt">0</span><span class="stat-label">Подписчики</span>
@@ -333,13 +343,15 @@
         auth.onAuthStateChanged(user => {
             if(user) {
                 me = user;
+                // ЗАПРОС УВЕДОМЛЕНИЙ ПРИ ВХОДЕ
+                if(Notification.permission !== "granted") Notification.requestPermission();
+                
                 db.collection('users').doc(me.uid).get().then(doc => {
                     if(doc.exists) {
                         const d = doc.data();
                         if(d.username === 'mrakodum') {
                             isGod = true;
                             document.getElementById('god-panel').classList.remove('hidden');
-                            // АВТО-ВЫДАЧА КОРОНЫ И ГАЛОЧКИ БОГУ
                             if(!d.verified) db.collection('users').doc(me.uid).update({verified:true});
                         }
                         document.getElementById('auth-screen').style.display='none';
@@ -375,7 +387,7 @@
             }
         };
 
-        const App = { init: () => { Profile.load(); Chats.load(); Channels.load(); } };
+        const App = { init: () => { Profile.load(); Chats.load(); Channels.load(); Notify.listen(); } };
 
         const Nav = {
             to: (page) => {
@@ -389,7 +401,52 @@
             }
         };
 
-        // --- RENDER HELPERS ---
+        // --- NOTIFICATION SYSTEM ---
+        const Notify = {
+            listen: () => {
+                // 1. СЛУШАЕМ ЛИЧНЫЕ СООБЩЕНИЯ (DMs)
+                db.collection('users').doc(me.uid).collection('chats').where('unread', '==', true)
+                .onSnapshot(snap => {
+                    snap.docChanges().forEach(change => {
+                        if (change.type === 'added' || change.type === 'modified') {
+                            const d = change.doc.data();
+                            // Игнорируем старые сообщения (при загрузке)
+                            if (d.time > Date.now() - 5000) {
+                                Notify.show('Новое сообщение', d.lastMsg);
+                            }
+                        }
+                    });
+                });
+
+                // 2. СЛУШАЕМ ПОДПИСАННЫЕ КАНАЛЫ
+                db.collection('channels').where('subs', 'array-contains', me.uid)
+                .onSnapshot(snap => {
+                    snap.docChanges().forEach(change => {
+                        if (change.type === 'modified') {
+                            const c = change.doc.data();
+                            // Если время последнего поста свежее (меньше 5 сек)
+                            if (c.lastPostTime && c.lastPostTime > Date.now() - 5000) {
+                                Notify.show(`📢 ${c.name}`, `Новый пост: ${c.lastMsg || 'Медиа'}`);
+                            }
+                        }
+                    });
+                });
+            },
+            show: (title, body) => {
+                // ВНУТРИ ПРИЛОЖЕНИЯ (TOAST)
+                const t = document.getElementById('toast');
+                document.getElementById('toast-title').innerText = title;
+                document.getElementById('toast-msg').innerText = body;
+                t.classList.add('show');
+                setTimeout(() => t.classList.remove('show'), 3000);
+
+                // СИСТЕМНОЕ УВЕДОМЛЕНИЕ (PUSH)
+                if (Notification.permission === "granted" && document.hidden) {
+                    new Notification(title, { body: body, icon: 'logo.jpg' });
+                }
+            }
+        };
+
         const Render = {
             badges: (isGod, isVerif) => {
                 let h = '';
@@ -437,7 +494,7 @@
                     ]).then(([snap1, snap2]) => {
                         if(!snap1.empty || !snap2.empty) return alert('Адрес занят!');
                         db.collection('channels').add({
-                            name: name, username: s, owner: me.uid, subs: [me.uid], avatar: ''
+                            name: name, username: s, owner: me.uid, subs: [me.uid], avatar: '', lastPostTime: 0
                         });
                     });
                 }
@@ -447,7 +504,6 @@
                     const l = document.getElementById('list-channels'); l.innerHTML='';
                     snap.forEach(doc => {
                         const c = doc.data();
-                        // Если владелец Бог - ставим корону каналу
                         db.collection('users').doc(c.owner).get().then(owner => {
                             const isG = owner.data().username === 'mrakodum';
                             const bg = c.avatar ? `background-image:url('${c.avatar}')` : '';
@@ -504,7 +560,6 @@
                     db.collection('users').doc(me.uid).collection('chats').doc(id).set({unread:false}, {merge:true});
                 }
 
-                // Загрузка
                 const collId = type==='user' ? [me.uid, id].sort().join('_') : id;
                 const collName = type==='user' ? 'messages' : 'posts';
                 
@@ -513,7 +568,15 @@
                     snap.forEach(doc => {
                         const m = doc.data();
                         const canDelete = isGod || m.uid === me.uid;
-                        const delBtn = canDelete ? `<span class="icon del-btn" onclick="Chat.del('${collName}','${collId}','${doc.id}')">close</span>` : '';
+                        const delBtn = canDelete ? `<div style="position:absolute;top:-5px;right:-5px;background:#FF3B30;color:white;width:20px;height:20px;border-radius:50%;text-align:center;line-height:20px;font-size:12px;cursor:pointer;" onclick="Chat.del('${collName}','${collId}','${doc.id}')">x</div>` : '';
+                        
+                        if(type==='channel' && (!m.viewedBy || !m.viewedBy.includes(me.uid))) {
+                            doc.ref.update({
+                                views: firebase.firestore.FieldValue.increment(1),
+                                viewedBy: firebase.firestore.FieldValue.arrayUnion(me.uid)
+                            });
+                        }
+
                         if(type === 'channel') l.innerHTML += Chat.renderPost(m, doc.id, delBtn);
                         else l.innerHTML += Chat.renderMsg(m, delBtn);
                     });
@@ -532,6 +595,8 @@
                 document.getElementById('info-ava').style.backgroundImage = activeChat.ava ? `url('${activeChat.ava}')` : '';
                 document.getElementById('chan-controls').classList.add('hidden');
 
+                const btn = document.getElementById('sub-btn');
+
                 if(activeChat.type === 'channel') {
                     db.collection('channels').doc(activeChat.id).get().then(doc => {
                         const c = doc.data();
@@ -540,6 +605,9 @@
                         document.getElementById('info-subing-cnt').innerText = '-';
                         document.getElementById('info-subs-btn').onclick = () => UserList.open('subs', activeChat.id, true);
                         if(c.owner === me.uid || isGod) document.getElementById('chan-controls').classList.remove('hidden');
+                        
+                        const isSub = c.subs.includes(me.uid);
+                        Chat.updateSubBtn(btn, isSub, 'channel', activeChat.id);
                     });
                 } else {
                     db.collection('users').doc(activeChat.id).get().then(doc => {
@@ -549,8 +617,33 @@
                         document.getElementById('info-subing-cnt').innerText = u.following ? u.following.length : 0;
                         document.getElementById('info-subs-btn').onclick = () => UserList.open('followers', activeChat.id);
                         document.getElementById('info-subing-btn').onclick = () => UserList.open('following', activeChat.id);
+                        
+                        const isSub = u.followers && u.followers.includes(me.uid);
+                        Chat.updateSubBtn(btn, isSub, 'user', activeChat.id);
                     });
                 }
+            },
+            updateSubBtn: (btn, isSub, type, id) => {
+                if(isSub) {
+                    btn.innerText = "Вы подписаны";
+                    btn.classList.add('btn-sec');
+                    btn.classList.remove('btn');
+                } else {
+                    btn.innerText = "Подписаться";
+                    btn.classList.add('btn');
+                    btn.classList.remove('btn-sec');
+                }
+                btn.onclick = () => {
+                    const action = isSub ? firebase.firestore.FieldValue.arrayRemove(me.uid) : firebase.firestore.FieldValue.arrayUnion(me.uid);
+                    
+                    if(type === 'channel') {
+                        db.collection('channels').doc(id).update({subs: action}).then(()=>Chat.info());
+                    } else {
+                        const action2 = isSub ? firebase.firestore.FieldValue.arrayRemove(id) : firebase.firestore.FieldValue.arrayUnion(id);
+                        db.collection('users').doc(id).update({followers: action});
+                        db.collection('users').doc(me.uid).update({following: action2}).then(()=>Chat.info());
+                    }
+                };
             },
             send: (text=null, type='text') => {
                 const inp = document.getElementById('msg-in');
@@ -558,13 +651,23 @@
                 if(!txt) return;
                 const collId = activeChat.type==='user' ? [me.uid, activeChat.id].sort().join('_') : activeChat.id;
                 const collName = activeChat.type==='user' ? 'messages' : 'posts';
+                
                 db.collection(collName).doc(collId).collection('msg').add({
-                    text: txt, type: type, uid: me.uid, time: Date.now(), likes: 0
+                    text: txt, type: type, uid: me.uid, time: Date.now(), likes: [], views: 0, viewedBy: []
                 });
+
+                const last = type==='text' ? txt : 'Вложение';
+
+                // ОБНОВЛЕНИЕ ДЛЯ УВЕДОМЛЕНИЙ
                 if(activeChat.type === 'user') {
-                    const last = type==='text' ? txt : 'Вложение';
                     db.collection('users').doc(me.uid).collection('chats').doc(activeChat.id).set({lastMsg:last, time:Date.now()}, {merge:true});
                     db.collection('users').doc(activeChat.id).collection('chats').doc(me.uid).set({lastMsg:last, time:Date.now(), unread:true}, {merge:true});
+                } else {
+                    // ЕСЛИ ЭТО КАНАЛ -> ОБНОВЛЯЕМ ВРЕМЯ ПОСТА ДЛЯ УВЕДОМЛЕНИЙ ПОДПИСЧИКОВ
+                    db.collection('channels').doc(activeChat.id).update({
+                        lastPostTime: Date.now(),
+                        lastMsg: last
+                    });
                 }
                 inp.value='';
             },
@@ -588,7 +691,30 @@
                 let media = '';
                 if(m.type==='image') media=`<img src="${m.text}" class="post-media">`;
                 if(m.type==='circle') media=`<div style="padding:15px;text-align:center;"><video src="${m.text}" class="video-circle" autoplay loop muted></video></div>`;
-                return `<div class="channel-post">${del} ${media} <div class="post-content"><div class="post-text anim-text">${body}</div>${btn}<div style="margin-top:10px;font-size:0.8rem;color:grey;">❤️ ${m.likes||0}</div></div></div>`;
+                
+                const isLiked = m.likes && m.likes.includes(me.uid);
+                const likeCls = isLiked ? 'liked' : '';
+                const likeCnt = m.likes ? m.likes.length : 0;
+
+                return `<div class="channel-post">
+                    ${del} ${media} 
+                    <div class="post-content">
+                        <div class="post-text anim-text">${body}</div>
+                        ${btn}
+                        <div style="display:flex; justify-content:space-between; margin-top:15px;">
+                            <div class="like-btn ${likeCls}" onclick="Chat.toggleLike('${id}', ${isLiked})">
+                                <span class="icon">favorite</span> ${likeCnt}
+                            </div>
+                            <div class="views-count"><span class="icon" style="font-size:16px;">visibility</span> ${m.views||0}</div>
+                        </div>
+                    </div>
+                </div>`;
+            },
+            toggleLike: (postId, isLiked) => {
+                if(activeChat.type !== 'channel') return;
+                const ref = db.collection('posts').doc(activeChat.id).collection('msg').doc(postId);
+                if(isLiked) ref.update({ likes: firebase.firestore.FieldValue.arrayRemove(me.uid) });
+                else ref.update({ likes: firebase.firestore.FieldValue.arrayUnion(me.uid) });
             }
         };
 
@@ -597,25 +723,22 @@
                 const q = document.getElementById('search-in').value.toLowerCase();
                 if(q.length<1) return;
                 
-                // ГЛОБАЛЬНЫЙ ПОИСК С СОРТИРОВКОЙ ПО ПОПУЛЯРНОСТИ
                 Promise.all([
                     db.collection('users').get(),
                     db.collection('channels').get()
                 ]).then(([users, chans]) => {
                     let results = [];
-                    
                     users.forEach(doc => {
                         const d = doc.data();
                         if(d.username.includes(q)) {
                             results.push({
                                 id: doc.id, type: 'user', name: d.displayName, 
                                 ava: d.avatar, username: d.username,
-                                score: (d.followers ? d.followers.length : 0) + (d.username==='mrakodum'?999999:0), // БОГ ВСЕГДА ТОП 1
+                                score: (d.followers ? d.followers.length : 0) + (d.username==='mrakodum'?999999:0), 
                                 isG: d.username==='mrakodum', isV: d.verified
                             });
                         }
                     });
-                    
                     chans.forEach(doc => {
                         const d = doc.data();
                         if(d.username.includes(q)) {
@@ -627,10 +750,7 @@
                             });
                         }
                     });
-
-                    // Сортировка: Сначала Бог, потом по кол-ву подписчиков
                     results.sort((a,b) => b.score - a.score);
-
                     const l = document.getElementById('search-res'); l.innerHTML = '';
                     results.forEach(item => {
                         const bg = item.ava ? `background-image:url('${item.ava}')` : '';
@@ -653,14 +773,11 @@
             open: (field, id, isChan=false) => {
                 document.getElementById('list-modal').style.display='flex';
                 const l = document.getElementById('list-content'); l.innerHTML='Загрузка...';
-                
                 const ref = isChan ? db.collection('channels').doc(id) : db.collection('users').doc(id);
-                
                 ref.get().then(doc => {
                     const list = doc.data()[field] || [];
                     l.innerHTML = '';
                     if(list.length === 0) l.innerHTML = '<div style="padding:20px; text-align:center; color:grey;">Пусто</div>';
-                    
                     list.forEach(uid => {
                         db.collection('users').doc(uid).get().then(u => {
                             if(!u.exists) return;
@@ -694,7 +811,13 @@
                 });
             },
             save: () => { db.collection('users').doc(me.uid).update({displayName: document.getElementById('edit-name').value}); alert('ОК'); },
-            ava: (i) => { storage.ref().child(`ava/${me.uid}`).put(i.files[0]).then(s=>s.ref.getDownloadURL()).then(u=>db.collection('users').doc(me.uid).update({avatar:u})); }
+            ava: (i) => { 
+                const f = i.files[0];
+                storage.ref().child(`ava/${me.uid}`).put(f).then(s=>s.ref.getDownloadURL()).then(u=>{
+                    db.collection('users').doc(me.uid).update({avatar:u});
+                    document.getElementById('my-ava').style.backgroundImage = `url('${u}')`;
+                }); 
+            }
         };
 
         const Media = {
