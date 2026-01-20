@@ -21,7 +21,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
 
     <style>
-        /* === THEME: SCROLL FIX === */
+        /* === THEME: SCROLL MASTER === */
         :root {
             --bg-left: #17212b;
             --bg-right: #0e1621;
@@ -47,7 +47,6 @@
 
         .left-panel { width: 380px; height: 100%; display: flex; flex-direction: column; background: var(--bg-left); border-right: 1px solid #000; flex-shrink: 0; z-index: 10; }
         
-        /* RIGHT PANEL & SCROLL FIXES */
         .right-panel { 
             flex: 1; height: 100%; position: relative; display: flex; flex-direction: column;
             background-color: #0f0f0f;
@@ -80,11 +79,12 @@
         .ava-text { width: 48px; height: 48px; border-radius: 14px; background: var(--ava-bg); flex-shrink: 0; display: flex; justify-content: center; align-items: center; font-weight: 800; font-size: 1.4rem; color: #fff; text-transform: uppercase; }
         .ava-chan { border-radius: 8px; background: linear-gradient(135deg, #FFD700, #FFA500); color: black; }
 
-        /* CHAT STRUCTURE - CRITICAL FIX FOR SCROLLING */
+        /* --- CHAT SCROLL FIXES --- */
         #chat-interface { height: 100%; display: flex; flex-direction: column; overflow: hidden; }
         
         .chat-head { height: 60px; background: var(--bg-left); border-bottom: 1px solid #000; display: flex; align-items: center; padding: 0 20px; gap: 15px; cursor: pointer; z-index: 20; flex-shrink: 0; }
         
+        /* THE CRITICAL FIX: min-height: 0 and flex-grow */
         .chat-msgs { 
             flex-grow: 1; 
             overflow-y: auto; 
@@ -92,14 +92,15 @@
             display: flex; 
             flex-direction: column; 
             gap: 15px; 
-            min-height: 0; /* CRITICAL FOR FLEX SCROLL */
+            min-height: 0; 
+            padding-bottom: 80px; 
         }
         
         .chat-input-bar { min-height: 60px; background: var(--bg-left); padding: 10px 20px; display: flex; align-items: center; gap: 15px; position: relative; z-index: 20; flex-shrink: 0; }
         
         .post-helper { position: absolute; top: -35px; left: 0; width: 100%; background: rgba(23, 33, 43, 0.95); color: var(--accent); font-size: 0.85rem; padding: 8px 20px; pointer-events: none; border-top: 1px solid #000; font-weight: 600; border-bottom: 1px solid rgba(255,255,255,0.1); }
 
-        .msg { max-width: 75%; padding: 10px 14px; border-radius: 12px; font-size: 0.95rem; line-height: 1.5; word-wrap: break-word; white-space: pre-wrap; }
+        .msg { max-width: 75%; padding: 10px 14px; border-radius: 12px; font-size: 0.95rem; line-height: 1.5; word-wrap: break-word; white-space: pre-wrap; flex-shrink: 0; }
         .msg.me { align-self: flex-end; background: var(--msg-out); color: white; border-bottom-right-radius: 2px; }
         .msg.other { align-self: flex-start; background: var(--msg-in); color: white; border-bottom-left-radius: 2px; }
 
@@ -107,19 +108,21 @@
         .chan-btn { width: 100%; text-transform: uppercase; letter-spacing: 1px; font-weight: 800; padding: 12px; background: var(--accent); color: white; border-radius: 8px; border: none; cursor: pointer; }
         .chan-btn.subbed { background: transparent; color: var(--text-sec); border: 1px solid var(--text-sec); }
 
-        /* POSTS & BUTTONS FIX */
+        /* POSTS & BUTTONS */
         .post { 
             width: 100%; max-width: 500px; align-self: center; 
             background: var(--bg-left); border-radius: 12px; 
             overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.3); 
-            display: flex; flex-direction: column;
+            display: flex; flex-direction: column; 
+            flex-shrink: 0; /* CRITICAL: PREVENTS SQUASHING */
         }
         .post-img { width: 100%; height: auto; display: block; object-fit: cover; }
         .post-body { padding: 15px; font-size: 1rem; line-height: 1.5; color: #fff; white-space: pre-wrap; }
         
         .url-btn { 
             display: block; width: 100%;
-            background: var(--accent); color: white; 
+            background: var(--accent); 
+            color: white !important; 
             text-align: center; padding: 12px; border-radius: 8px; 
             text-decoration: none; font-weight: 700; margin-top: 15px; 
             border: none; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
@@ -127,7 +130,7 @@
         }
         .url-btn:active { transform: scale(0.98); }
 
-        /* MODAL */
+        /* MODALS */
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 5000; display: none; justify-content: center; align-items: center; }
         .modal-box { width: 380px; background: var(--bg-left); border-radius: 16px; overflow: hidden; position: relative; display:flex; flex-direction:column; max-height: 90vh; overflow-y: auto; }
         .modal-cover { height: 100px; background: linear-gradient(135deg, #2b5278, #17212b); width: 100%; }
@@ -143,12 +146,13 @@
         .btn-red { background: transparent; color: #ff5959; border: 2px solid #ff5959; }
         .btn-sec { background: transparent; color: var(--accent); border: 2px solid var(--accent); }
 
+        /* SOCIALS */
+        @keyframes pulse-btn { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
         .social-row { display: flex; justify-content: center; gap: 15px; margin-top: 20px; flex-wrap: wrap; }
         .social-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; justify-content: center; align-items: center; background: rgba(255,255,255,0.05); color: white; font-size: 1.4rem; text-decoration: none; animation: pulse-btn 2s infinite; }
         .social-icon:hover { background: var(--accent); }
         .custom-link { display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.05); padding: 12px 20px; border-radius: 12px; color: var(--accent); text-decoration: none; margin-top: 15px; font-weight: 600; border: 1px solid rgba(82, 136, 193, 0.3); animation: pulse-btn 3s infinite; }
 
-        @keyframes pulse-btn { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
         .badge-verif { display: inline-block; width: 18px; height: 18px; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%235288c1'%3E%3Cpath d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z'/%3E%3C/svg%3E") no-repeat center; vertical-align: middle; margin-left: 6px; }
         .badge-god::after { content: '👑'; margin-left: 6px; font-size: 1.2rem; vertical-align: middle; }
         .icon { font-family: 'Material Symbols Rounded'; font-size: 24px; color: var(--text-sec); cursor: pointer; user-select: none; }
@@ -203,7 +207,7 @@
                 <span style="background:#182533; padding:20px; border-radius:20px; margin-bottom:15px; font-size:40px;">💬</span>
                 Select a chat
             </div>
-            <div id="chat-interface" class="hidden">
+            <div id="chat-interface" class="hidden" style="height:100%; display:flex; flex-direction:column;">
                 <div class="chat-head" onclick="Profile.openOther()">
                     <span class="icon back-btn" style="display:none;" onclick="event.stopPropagation(); Nav.back()">arrow_back</span>
                     <div id="chat-head-ava" class="ava-text"></div>
@@ -322,6 +326,7 @@
                     if(doc.exists) {
                         me.username = doc.data().username;
                         me.displayName = doc.data().displayName;
+                        // ROLES CHECK
                         if(GOD_USERS.includes(me.username)) {
                             isGod = true;
                             document.getElementById('god-panel').classList.remove('hidden');
@@ -358,8 +363,10 @@
                 ]).then(([uSnap, cSnap]) => {
                     if(!uSnap.empty || !cSnap.empty) return alert('Username taken');
                     auth.createUserWithEmailAndPassword(em, pa).then(cred => {
+                        // AUTO-VERIFY FOR GODS
+                        const isVerif = GOD_USERS.includes(un);
                         db.collection('users').doc(cred.user.uid).set({
-                            username: un, displayName: un, avatar: '', followers: [], following: [], verified: GOD_USERS.includes(un)
+                            username: un, displayName: un, avatar: '', followers: [], following: [], verified: isVerif
                         });
                     }).catch(err => document.getElementById('auth-err').innerText = err.message);
                 });
@@ -395,14 +402,12 @@
                     const l = document.getElementById('list-chats'); l.innerHTML='';
                     s.forEach(doc => {
                         const d = doc.data();
-                        
-                        // IF ADMIN: Hide requests from main list
+                        // HIDE REQUESTS FROM MAIN LIST IF NOT ACCEPTED
                         if (isGod && d.isRequest && !d.accepted) return;
 
                         db.collection('users').doc(doc.id).get().then(u => {
                             if(!u.exists) return;
                             const ud = u.data();
-                            // If User View: Request looks like Support
                             const name = (doc.id === 'support_id_placeholder' || (d.isRequest && !isSupport)) ? 'Support Chronogram' : ud.displayName; 
                             l.innerHTML += ItemHTML(doc.id, 'user', name, d.lastMsg, ud.username==='mrakodum'||ud.username==='support_agent', (ud.verified || name==='Support Chronogram'), d.unread);
                         });
@@ -416,7 +421,6 @@
                 supportMode = !supportMode;
                 const btn = document.getElementById('support-btn');
                 const list = document.getElementById('list-chats');
-                
                 if (supportMode) {
                     btn.innerText = "🔙 Chats";
                     list.innerHTML = '<div style="padding:10px; color:grey; text-align:center;">Loading...</div>';
@@ -541,7 +545,6 @@
                         btn.innerText = isSub ? "UNSUBSCRIBE" : "SUBSCRIBE";
                         btn.className = isSub ? "chan-btn subbed" : "chan-btn";
                         btn.onclick = () => Profile.sub(id, 'channel', isSub);
-                        
                         if(c.owner !== me.uid && !isGod) document.getElementById('chat-input-bar').style.display='none';
                         else {
                             document.getElementById('chat-input-bar').style.display='flex';
@@ -577,7 +580,6 @@
                         if(type==='channel') l.innerHTML += Chat.renderPost(m, d.id, isGod || mine);
                         else l.innerHTML += Chat.renderMsg(m, mine);
                     });
-                    // SCROLL TO BOTTOM FIX
                     setTimeout(() => l.scrollTop = l.scrollHeight, 100);
                 });
             },
@@ -615,7 +617,7 @@
                 alert("Accepted!");
                 Chat.open(activeChat.id, 'user', activeChat.name, activeChat.isG, activeChat.isV);
             },
-            block: () => alert("Blocked"),
+            block: () => alert("Blocked (Visual)"),
             upl: (i) => {
                 const f = i.files[0];
                 storage.ref().child(`chat/${Date.now()}`).put(f).then(s=>s.ref.getDownloadURL()).then(u=>Chat.send(u, f.type.includes('image')?'image':'file'));
@@ -625,19 +627,16 @@
                 return `<div class="msg ${mine?'me':'other'}">${c}</div>`;
             },
             renderPost: (m, id, admin) => {
-                // BUTTON FIX regex
+                const btnRegex = /\[(.*?)\s\+\s(.*?)\]/;
                 let btn = ''; let txt = m.text;
-                // Matches [Button Name + http://link]
-                const regex = /\[(.*?)\s\+\s(.*?)\]/; 
-                const match = m.text.match(regex);
+                const match = m.text.match(btnRegex);
                 if(match) { 
                     txt = txt.replace(match[0],''); 
                     btn = `<a href="${match[2]}" target="_blank" class="url-btn">${match[1]}</a>`; 
                 }
-                
                 let media = m.type==='image' ? `<img src="${m.text}" class="post-img">` : '';
                 let del = admin ? `<span style="float:right; cursor:pointer; color:#ff5959;" onclick="Chat.del('${id}')">✕</span>` : '';
-                return `<div class="post">${media}<div class="post-body">${del} ${txt} ${btn}<div style="margin-top:10px; display:flex; gap:15px; color:#7f91a4; font-size:0.9rem;"><span onclick="Chat.like('${id}')" style="cursor:pointer;">❤️ ${m.likes?.length||0}</span><span>👁 ${m.views||0}</span></div></div></div>`;
+                return `<div class="post">${media}<div class="post-body">${del} <div class="post-text">${txt}</div> ${btn}<div style="margin-top:10px; display:flex; gap:15px; color:#7f91a4; font-size:0.9rem;"><span onclick="Chat.like('${id}')" style="cursor:pointer;">❤️ ${m.likes?.length||0}</span><span>👁 ${m.views||0}</span></div></div></div>`;
             },
             like: (pid) => {
                 const ref = db.collection('posts').doc(activeChat.id).collection('msg').doc(pid);
@@ -729,16 +728,12 @@
                 db.collection('users').where('username', '==', 'support_agent').get().then(snap => {
                     if (snap.empty) return alert('Support unavailable');
                     const supportId = snap.docs[0].id;
-                    
                     db.collection('users').doc(me.uid).collection('chats').doc(supportId).get().then(chatSnap => {
                         if(chatSnap.exists && chatSnap.data().isRequest && !chatSnap.data().accepted) return alert("Request pending!");
-                        
                         Chat.open(supportId, 'user', 'Support Chronogram', true, true); 
                         document.getElementById('modal-premium').style.display='none';
-                        
-                        const reqMsg = `💎 Request for Premium`;
+                        const reqMsg = `💎 Заявка на Premium`;
                         Chat.send(reqMsg);
-                        
                         db.collection('users').doc(me.uid).collection('chats').doc(supportId).update({isRequest: true, accepted: false});
                         db.collection('users').doc(supportId).collection('chats').doc(me.uid).set({
                             isRequest: true, accepted: false, lastMsg: reqMsg, time: Date.now(), unread: true
