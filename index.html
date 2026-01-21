@@ -21,7 +21,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
 
     <style>
-        /* === THEME: STABLE === */
+        /* === THEME: STABLE LIST === */
         :root {
             --bg-left: #17212b;
             --bg-right: #0e1621;
@@ -35,21 +35,15 @@
         }
 
         * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
-        
-        /* FIXED VIEWPORT */
-        body { 
-            margin: 0; padding: 0; font-family: 'Manrope', sans-serif; 
-            color: var(--text); background: #000; 
-            height: 100dvh; width: 100%; overflow: hidden; /* NO BODY SCROLL */
-        }
+        body { margin: 0; padding: 0; font-family: 'Manrope', sans-serif; color: var(--text); background: #000; height: 100vh; overflow: hidden; }
 
         /* AUTH */
         #auth-screen { position: fixed; top:0; left:0; width:100%; height:100%; background: #17212b; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; }
         .app-logo-lg { width: 120px; height: 120px; border-radius: 24px; background-image: url('logo.jpg'); background-size: cover; margin-bottom: 20px; box-shadow: 0 0 40px rgba(82,136,193,0.3); }
 
-        /* MAIN LAYOUT */
-        #app { display: none; width: 100%; height: 100%; display: flex; }
-        #app.hidden { display: none !important; }
+        /* LAYOUT */
+        #app { display: none; width: 100%; height: 100%; }
+        #app.active { display: flex; }
 
         .left-panel { width: 380px; height: 100%; display: flex; flex-direction: column; background: var(--bg-left); border-right: 1px solid #000; flex-shrink: 0; z-index: 10; }
         
@@ -58,10 +52,8 @@
             background-color: #0f0f0f;
             background-size: cover; background-position: center; 
             background-image: url('https://w0.peakpx.com/wallpaper/508/153/HD-wallpaper-whatsapp-doodle-black-pattern.jpg'); 
-            overflow: hidden; /* Contain chat */
         }
         
-        /* Backgrounds */
         .bg-1 { background-image: url('https://w0.peakpx.com/wallpaper/508/153/HD-wallpaper-whatsapp-doodle-black-pattern.jpg') !important; }
         .bg-2 { background-image: url('https://i.pinimg.com/736x/8c/98/99/8c98994518b575bfd8c949e91d20548b.jpg') !important; } 
         .bg-3 { background-image: url('https://wallpaperaccess.com/full/1288076.jpg') !important; }
@@ -72,10 +64,10 @@
             .right-panel.open { transform: translateX(0); }
         }
 
-        .header-left { height: 60px; padding: 0 15px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+        .header-left { height: 60px; padding: 0 15px; display: flex; align-items: center; justify-content: space-between; }
         .search-in { width: 100%; background: #242f3d; border: none; padding: 10px 15px; border-radius: 8px; color: white; margin: 10px 15px; width: calc(100% - 30px); }
         
-        .tabs { display: flex; border-bottom: 1px solid rgba(0,0,0,0.2); flex-shrink: 0; }
+        .tabs { display: flex; border-bottom: 1px solid rgba(0,0,0,0.2); }
         .tab { flex: 1; text-align: center; padding: 12px; cursor: pointer; color: var(--text-sec); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
         .tab.active { color: var(--accent); border-bottom: 2px solid var(--accent); }
 
@@ -87,23 +79,11 @@
         .ava-text { width: 48px; height: 48px; border-radius: 14px; background: var(--ava-bg); flex-shrink: 0; display: flex; justify-content: center; align-items: center; font-weight: 800; font-size: 1.4rem; color: #fff; text-transform: uppercase; }
         .ava-chan { border-radius: 8px; background: linear-gradient(135deg, #FFD700, #FFA500); color: black; }
 
-        /* === CHAT SCROLL AREA === */
+        /* CHAT STRUCTURE */
         #chat-interface { height: 100%; display: flex; flex-direction: column; overflow: hidden; }
-        
         .chat-head { height: 60px; background: var(--bg-left); border-bottom: 1px solid #000; display: flex; align-items: center; padding: 0 20px; gap: 15px; cursor: pointer; z-index: 20; flex-shrink: 0; }
-        
-        .chat-msgs { 
-            flex: 1; /* Takes available space */
-            overflow-y: auto; /* Enables scroll */
-            padding: 20px; 
-            display: flex; 
-            flex-direction: column; 
-            gap: 15px; 
-            min-height: 0; /* Important for flex child scroll */
-        }
-        
+        .chat-msgs { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; min-height: 0; padding-bottom: 80px; }
         .chat-input-bar { min-height: 60px; background: var(--bg-left); padding: 10px 20px; display: flex; align-items: center; gap: 15px; position: relative; z-index: 20; flex-shrink: 0; }
-        
         .post-helper { position: absolute; top: -35px; left: 0; width: 100%; background: rgba(23, 33, 43, 0.95); color: var(--accent); font-size: 0.85rem; padding: 8px 20px; pointer-events: none; border-top: 1px solid #000; font-weight: 600; border-bottom: 1px solid rgba(255,255,255,0.1); }
 
         .msg { max-width: 75%; padding: 10px 14px; border-radius: 12px; font-size: 0.95rem; line-height: 1.5; word-wrap: break-word; white-space: pre-wrap; flex-shrink: 0; }
@@ -115,24 +95,11 @@
         .chan-btn.subbed { background: transparent; color: var(--text-sec); border: 1px solid var(--text-sec); }
 
         /* POSTS & BUTTONS */
-        .post { 
-            width: 100%; max-width: 500px; align-self: center; 
-            background: var(--bg-left); border-radius: 12px; 
-            overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.3); 
-            display: flex; flex-direction: column; flex-shrink: 0; 
-        }
+        .post { width: 100%; max-width: 500px; align-self: center; background: var(--bg-left); border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.3); display: flex; flex-direction: column; flex-shrink: 0; }
         .post-img { width: 100%; height: auto; display: block; object-fit: cover; }
         .post-body { padding: 15px; font-size: 1rem; line-height: 1.5; color: #fff; white-space: pre-wrap; }
         
-        .url-btn { 
-            display: block; width: 100%;
-            background: var(--accent) !important; /* Force Blue */
-            color: white !important; 
-            text-align: center; padding: 12px; border-radius: 8px; 
-            text-decoration: none; font-weight: 700; margin-top: 15px; 
-            border: none; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            transition: transform 0.1s;
-        }
+        .url-btn { display: block; width: 100%; background: var(--accent) !important; color: white !important; text-align: center; padding: 12px; border-radius: 8px; text-decoration: none; font-weight: 700; margin-top: 15px; border: none; box-shadow: 0 2px 5px rgba(0,0,0,0.2); transition: transform 0.1s; }
         .url-btn:active { transform: scale(0.98); }
 
         /* MODAL */
@@ -257,7 +224,6 @@
                     <div><b id="stat-2">0</b><br><small style="color:var(--text-sec);">Following</small></div>
                 </div>
                 <div id="social-area"></div>
-                
                 <div id="settings-area" class="hidden" style="margin-top:15px; border-top:1px solid rgba(255,255,255,0.1); padding-top:10px;">
                     <small style="color:gray; display:block; margin-bottom:5px;">Chat Background</small>
                     <div style="display:flex; gap:10px; justify-content:center;">
@@ -266,7 +232,6 @@
                         <div onclick="Settings.bg(3)" style="width:30px; height:30px; background-image:url('https://wallpaperaccess.com/full/1288076.jpg'); background-size:cover; border-radius:5px; cursor:pointer; border:1px solid #555;"></div>
                     </div>
                 </div>
-
                 <div id="modal-actions" style="margin-top:20px;"></div>
             </div>
         </div>
@@ -331,7 +296,6 @@
                     if(doc.exists) {
                         me.username = doc.data().username;
                         me.displayName = doc.data().displayName;
-                        // ROLES
                         if(GOD_USERS.includes(me.username)) {
                             isGod = true;
                             document.getElementById('god-panel').classList.remove('hidden');
@@ -341,13 +305,13 @@
                             document.getElementById('support-btn').classList.remove('hidden');
                         }
                         document.getElementById('auth-screen').style.display='none';
-                        document.getElementById('app').classList.remove('hidden'); // SHOW APP
+                        document.getElementById('app').classList.add('active');
                         App.init();
                     } else auth.signOut();
                 });
             } else {
                 document.getElementById('auth-screen').style.display='flex';
-                document.getElementById('app').classList.add('hidden'); // HIDE APP
+                document.getElementById('app').classList.remove('active');
             }
         });
 
@@ -368,7 +332,6 @@
                 ]).then(([uSnap, cSnap]) => {
                     if(!uSnap.empty || !cSnap.empty) return alert('Username taken');
                     auth.createUserWithEmailAndPassword(em, pa).then(cred => {
-                        // AUTO-VERIFY GODS
                         db.collection('users').doc(cred.user.uid).set({
                             username: un, displayName: un, avatar: '', followers: [], following: [], verified: GOD_USERS.includes(un)
                         });
@@ -401,22 +364,30 @@
 
         const Chats = {
             load: () => {
-                db.collection('users').doc(me.uid).collection('chats').orderBy('time','desc').onSnapshot(s => {
+                db.collection('users').doc(me.uid).collection('chats').orderBy('time','desc').onSnapshot(async s => {
                     if (supportMode) return;
-                    const l = document.getElementById('list-chats'); l.innerHTML='';
-                    s.forEach(doc => {
+                    const l = document.getElementById('list-chats'); 
+                    
+                    // 1. Сбор данных
+                    const promises = s.docs.map(async doc => {
                         const d = doc.data();
+                        if (isGod && d.isRequest && !d.accepted) return null; // Filter logic
                         
-                        // HIDE REQUESTS FROM MAIN LIST FOR SUPPORT AGENT (Only in support mode)
-                        // AND FOR ADMIN (Never see requests in main list)
-                        if (isGod && d.isRequest && !d.accepted) return;
+                        const uSnap = await db.collection('users').doc(doc.id).get();
+                        if (!uSnap.exists) return null;
+                        
+                        const ud = uSnap.data();
+                        return { id: doc.id, ...d, ud };
+                    });
 
-                        db.collection('users').doc(doc.id).get().then(u => {
-                            if(!u.exists) return;
-                            const ud = u.data();
-                            const name = (doc.id === 'support_id_placeholder' || (d.isRequest && !isSupport)) ? 'Support Chronogram' : ud.displayName; 
-                            l.innerHTML += ItemHTML(doc.id, 'user', name, d.lastMsg, ud.username==='mrakodum'||ud.username==='support_agent', (ud.verified || name==='Support Chronogram'), d.unread);
-                        });
+                    // 2. Рендер (Все сразу)
+                    const results = await Promise.all(promises);
+                    l.innerHTML = ''; // Clear once
+                    
+                    results.forEach(item => {
+                        if(!item) return;
+                        const name = (item.id === 'support_id_placeholder' || (item.isRequest && !isSupport)) ? 'Support Chronogram' : item.ud.displayName; 
+                        l.innerHTML += ItemHTML(item.id, 'user', name, item.lastMsg, item.ud.username==='mrakodum'||item.ud.username==='support_agent', (item.ud.verified || name==='Support Chronogram'), item.unread);
                     });
                 });
             }
@@ -427,11 +398,9 @@
                 supportMode = !supportMode;
                 const btn = document.getElementById('support-btn');
                 const list = document.getElementById('list-chats');
-                
                 if (supportMode) {
                     btn.innerText = "🔙 Chats";
                     list.innerHTML = '<div style="padding:10px; color:grey; text-align:center;">Loading...</div>';
-                    // Show pending requests
                     db.collection('users').doc(me.uid).collection('chats').where('isRequest', '==', true).where('accepted', '==', false).get().then(snap => {
                         list.innerHTML = '';
                         if(snap.empty) list.innerHTML = '<div style="padding:20px; color:grey; text-align:center;">No Requests</div>';
@@ -470,7 +439,7 @@
                             db.collection('users').where('username','==',slug).get(),
                             db.collection('channels').where('username','==',slug).get()
                         ]).then(([uSnap, cSnap]) => {
-                            if(!uSnap.empty || !cSnap.empty) return alert('Username taken!');
+                            if(!uSnap.empty || !cSnap.empty) return alert('Taken!');
                             db.collection('channels').add({name:name, username:slug, owner:me.uid, subs:[me.uid]});
                             document.getElementById('modal-create-channel').style.display='none';
                         });
@@ -579,14 +548,18 @@
 
                 const col = type==='user' ? 'messages' : 'posts';
                 const docId = type==='user' ? [me.uid, id].sort().join('_') : id;
-                db.collection(col).doc(docId).collection('msg').orderBy('time').onSnapshot(s => {
+                db.collection(col).doc(docId).collection('msg').orderBy('time').onSnapshot(async s => {
                     const l = document.getElementById('chat-msgs'); l.innerHTML='';
+                    
+                    // BATCH RENDER FOR SCROLL STABILITY
                     s.forEach(d => {
                         const m = d.data();
                         const mine = m.uid === me.uid;
                         if(type==='channel') l.innerHTML += Chat.renderPost(m, d.id, isGod || mine);
                         else l.innerHTML += Chat.renderMsg(m, mine);
                     });
+                    
+                    // Auto Scroll to bottom
                     setTimeout(() => l.scrollTop = l.scrollHeight, 100);
                 });
             },
@@ -599,6 +572,7 @@
                 
                 const last = type==='text' ? v : 'File';
                 if(activeChat.type==='user') {
+                    // Logic for new DM Request
                     const targetIsGod = GOD_USERS.includes(activeChat.name) || activeChat.name === 'Support Chronogram';
                     if(!isGod && !targetIsGod) {
                         db.collection('users').doc(me.uid).collection('chats').doc(activeChat.id).get().then(doc => {
@@ -634,7 +608,6 @@
                 return `<div class="msg ${mine?'me':'other'}">${c}</div>`;
             },
             renderPost: (m, id, admin) => {
-                // BUTTON FIX regex: [Text + link]
                 const regex = /\[(.*?)\s\+\s(.*?)\]/;
                 let btn = ''; let txt = m.text;
                 const match = m.text.match(regex);
@@ -713,7 +686,6 @@
                     const act2 = isSub ? firebase.firestore.FieldValue.arrayRemove(id) : firebase.firestore.FieldValue.arrayUnion(id);
                     db.collection('users').doc(me.uid).update({following:act2});
                 }
-                // NO REDIRECT
             }
         };
 
@@ -742,7 +714,7 @@
                         if(chatSnap.exists && chatSnap.data().isRequest && !chatSnap.data().accepted) return alert("Request pending!");
                         Chat.open(supportId, 'user', 'Support Chronogram', true, true); 
                         document.getElementById('modal-premium').style.display='none';
-                        const reqMsg = `💎 Заявка на Premium`;
+                        const reqMsg = `💎 Request for Premium`;
                         Chat.send(reqMsg);
                         db.collection('users').doc(me.uid).collection('chats').doc(supportId).update({isRequest: true, accepted: false});
                         db.collection('users').doc(supportId).collection('chats').doc(me.uid).set({
