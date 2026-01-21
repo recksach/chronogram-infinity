@@ -8,19 +8,21 @@
     <meta name="theme-color" content="#17212b">
     
     <title>CHRONOGRAM</title>
-    <link rel="icon" type="image/png" href="https://img.icons8.com/color/48/telegram-app.png"> 
+    <link rel="icon" type="image/jpeg" href="logo1.jpg">
+    <link rel="apple-touch-icon" href="logo1.jpg">
     
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
+    
+    <script src="https://unpkg.com/tonweb@0.0.66/dist/tonweb.js"></script>
 
     <style>
-        /* === THEME: REAL WALLET === */
+        /* === THEME: REAL CRYPTO === */
         :root {
             --bg-left: #17212b;
             --bg-right: #0e1621;
@@ -37,24 +39,15 @@
         * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
         body { margin: 0; padding: 0; font-family: 'Manrope', sans-serif; color: var(--text); background: #000; height: 100vh; overflow: hidden; }
 
-        /* AUTH SCREEN */
         #auth-screen { position: fixed; top:0; left:0; width:100%; height:100%; background: #17212b; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        .app-logo-lg { width: 100px; height: 100px; border-radius: 20px; background-image: url('logo.jpg'); background-size: cover; margin-bottom: 20px; box-shadow: 0 0 30px rgba(82,136,193,0.3); background-color: #2b5278; }
+        .app-logo-lg { width: 100px; height: 100px; border-radius: 24px; background-image: url('logo.jpg'); background-size: cover; margin-bottom: 20px; box-shadow: 0 0 40px rgba(82,136,193,0.3); }
 
-        /* APP LAYOUT */
         #app { display: none; width: 100%; height: 100%; }
         #app.active { display: flex; }
 
         .left-panel { width: 380px; height: 100%; display: flex; flex-direction: column; background: var(--bg-left); border-right: 1px solid #000; flex-shrink: 0; z-index: 10; position: relative; }
+        .right-panel { flex: 1; height: 100%; position: relative; display: flex; flex-direction: column; background-color: #0f0f0f; background-size: cover; background-position: center; background-image: url('https://w0.peakpx.com/wallpaper/508/153/HD-wallpaper-whatsapp-doodle-black-pattern.jpg'); }
         
-        .right-panel { 
-            flex: 1; height: 100%; position: relative; display: flex; flex-direction: column;
-            background-color: #0f0f0f;
-            background-size: cover; background-position: center; 
-            background-image: url('https://w0.peakpx.com/wallpaper/508/153/HD-wallpaper-whatsapp-doodle-black-pattern.jpg'); 
-        }
-        
-        /* BG CLASSES */
         .bg-1 { background-image: url('https://w0.peakpx.com/wallpaper/508/153/HD-wallpaper-whatsapp-doodle-black-pattern.jpg') !important; }
         .bg-2 { background-image: url('https://i.pinimg.com/736x/8c/98/99/8c98994518b575bfd8c949e91d20548b.jpg') !important; } 
         .bg-3 { background-image: url('https://wallpaperaccess.com/full/1288076.jpg') !important; }
@@ -65,10 +58,8 @@
             .right-panel.open { transform: translateX(0); }
         }
 
-        /* HEADER */
         .header-left { height: 60px; padding: 0 15px; display: flex; align-items: center; justify-content: space-between; }
         .search-in { width: 100%; background: #242f3d; border: none; padding: 10px 15px; border-radius: 8px; color: white; margin: 10px 15px; width: calc(100% - 30px); }
-        
         .tabs { display: flex; border-bottom: 1px solid rgba(0,0,0,0.2); }
         .tab { flex: 1; text-align: center; padding: 12px; cursor: pointer; color: var(--text-sec); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
         .tab.active { color: var(--accent); border-bottom: 2px solid var(--accent); }
@@ -81,19 +72,10 @@
         .ava-text { width: 48px; height: 48px; border-radius: 14px; background: var(--ava-bg); flex-shrink: 0; display: flex; justify-content: center; align-items: center; font-weight: 800; font-size: 1.4rem; color: #fff; text-transform: uppercase; }
         .ava-chan { border-radius: 8px; background: linear-gradient(135deg, #FFD700, #FFA500); color: black; }
 
-        /* CHAT UI - SCROLL FIXED */
         #chat-interface { height: 100%; display: flex; flex-direction: column; overflow: hidden; }
         .chat-head { height: 60px; background: var(--bg-left); border-bottom: 1px solid #000; display: flex; align-items: center; padding: 0 20px; gap: 15px; cursor: pointer; z-index: 20; flex-shrink: 0; }
-        
-        .chat-msgs { 
-            flex: 1; overflow-y: auto; padding: 20px; 
-            display: flex; flex-direction: column; gap: 15px; 
-            min-height: 0; /* Crucial for scroll */
-            padding-bottom: 80px; 
-        }
-        
+        .chat-msgs { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; min-height: 0; padding-bottom: 80px; }
         .chat-input-bar { min-height: 60px; background: var(--bg-left); padding: 10px 20px; display: flex; align-items: center; gap: 15px; position: relative; z-index: 20; flex-shrink: 0; }
-        
         .post-helper { position: absolute; top: -35px; left: 0; width: 100%; background: rgba(23, 33, 43, 0.95); color: var(--accent); font-size: 0.85rem; padding: 8px 20px; pointer-events: none; border-top: 1px solid #000; font-weight: 600; border-bottom: 1px solid rgba(255,255,255,0.1); }
 
         .msg { max-width: 75%; padding: 10px 14px; border-radius: 12px; font-size: 0.95rem; line-height: 1.5; word-wrap: break-word; white-space: pre-wrap; flex-shrink: 0; }
@@ -104,15 +86,12 @@
         .chan-btn { width: 100%; text-transform: uppercase; letter-spacing: 1px; font-weight: 800; padding: 12px; background: var(--accent); color: white; border-radius: 8px; border: none; cursor: pointer; }
         .chan-btn.subbed { background: transparent; color: var(--text-sec); border: 1px solid var(--text-sec); }
 
-        /* POSTS */
         .post { width: 100%; max-width: 500px; align-self: center; background: var(--bg-left); border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.3); display: flex; flex-direction: column; flex-shrink: 0; }
         .post-body { padding: 15px; font-size: 1rem; line-height: 1.5; color: #fff; white-space: pre-wrap; }
         .url-btn { display: block; width: 100%; background: var(--accent) !important; color: white !important; text-align: center; padding: 12px; border-radius: 8px; text-decoration: none; font-weight: 700; margin-top: 15px; border: none; box-shadow: 0 2px 5px rgba(0,0,0,0.2); transition: transform 0.1s; }
-        .url-btn:active { transform: scale(0.98); }
         
         .cheat-view-btn { font-size: 0.75rem; color: #00FF00; cursor: pointer; background: rgba(0,255,0,0.15); padding: 4px 8px; border-radius: 6px; margin-left: 8px; font-weight: bold; border: 1px solid rgba(0,255,0,0.3); }
 
-        /* MODALS */
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 5000; display: none; justify-content: center; align-items: center; }
         .modal-box { width: 380px; background: var(--bg-left); border-radius: 16px; overflow: hidden; position: relative; display:flex; flex-direction:column; max-height: 90vh; overflow-y: auto; }
         .modal-cover { height: 100px; background: linear-gradient(135deg, #2b5278, #17212b); width: 100%; }
@@ -121,7 +100,6 @@
         .modal-ava-chan { background: linear-gradient(135deg, #FFD700, #FFA500); color: black; }
 
         .app-input { width: 100%; padding: 14px; background: #0e1621; border: 1px solid rgba(255,255,255,0.1); color: white; border-radius: 10px; margin-bottom: 15px; font-size: 1rem; }
-        
         .god-panel-left { padding: 15px; border-top: 1px solid rgba(255,255,255,0.1); background: #131a24; }
         
         .btn { background: var(--accent); color: white; border: none; padding: 12px; border-radius: 10px; cursor: pointer; font-weight: 700; width: 100%; margin-top: 5px; }
@@ -129,11 +107,10 @@
         .btn-ton { background: var(--ton); color: white; border:none; box-shadow: 0 4px 15px rgba(0, 152, 234, 0.3); }
         .btn-red { background: transparent; color: #ff5959; border: 2px solid #ff5959; }
         .btn-sec { background: transparent; color: var(--accent); border: 2px solid var(--accent); }
-        .btn-mini { padding: 4px 8px; font-size: 0.7rem; border-radius: 4px; border: 1px solid var(--text-sec); background: transparent; color: var(--text-sec); margin-left: 5px; cursor: pointer; }
+        .btn-tiny { padding: 2px 6px; font-size: 0.7rem; margin-left: 5px; cursor: pointer; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; border-radius: 4px; }
 
         .gift-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; padding: 10px 0; }
-        .gift-item { background: rgba(255,255,255,0.05); border-radius: 10px; padding: 8px; text-align: center; position: relative; cursor: pointer; border: 1px solid transparent; }
-        .gift-item:hover { border-color: var(--gold); }
+        .gift-item { background: rgba(255,255,255,0.05); border-radius: 10px; padding: 8px; text-align: center; position: relative; cursor: pointer; }
         .gift-icon { font-size: 2rem; }
         .nft-badge { position: absolute; top: -5px; right: -5px; background: var(--ton); color: white; font-size: 0.5rem; padding: 2px 4px; border-radius: 4px; font-weight: bold; }
 
@@ -146,7 +123,8 @@
         .icon { font-family: 'Material Symbols Rounded'; font-size: 24px; color: var(--text-sec); cursor: pointer; user-select: none; }
         .hidden { display: none !important; }
         
-        .copy-box { background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; margin: 10px 0; font-family: monospace; word-break: break-all; font-size: 0.8rem; border: 1px dashed var(--text-sec); }
+        .copy-box { background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; margin: 10px 0; font-family: monospace; word-break: break-all; font-size: 0.8rem; border: 1px dashed var(--text-sec); text-align: center; }
+        .balance-hero { font-size: 32px; font-weight: 800; color: white; text-align: center; margin: 10px 0; text-shadow: 0 0 20px rgba(0,152,234,0.5); }
     </style>
 </head>
 <body>
@@ -168,7 +146,8 @@
             <div class="header-left">
                 <span class="icon" onclick="Profile.openMe()">menu</span>
                 <b style="color:white; letter-spacing:1px;">CHRONOGRAM</b>
-                <span class="icon" onclick="Channels.createModal()">add_circle</span> </div>
+                <span class="icon" onclick="Channels.createModal()">add_circle</span>
+            </div>
             <input type="text" class="search-in" id="search-in" placeholder="Search..." oninput="Search.run()">
             <div class="tabs">
                 <div class="tab active" id="tab-chats" onclick="Nav.tab('chats')">Chats</div>
@@ -206,7 +185,6 @@
                         <div id="chat-head-status" style="font-size:0.8rem; color:var(--text-sec);">Info</div>
                     </div>
                     <button id="accept-req-btn" class="btn hidden" style="width:auto; padding:5px 15px; font-size:0.8rem;" onclick="event.stopPropagation(); Support.accept()">ПРИНЯТЬ</button>
-                    <button id="conf-pay-btn" class="btn-gold hidden" style="width:auto; padding:5px 15px; font-size:0.8rem; margin-right:5px;" onclick="event.stopPropagation(); Support.confirmPay()">CONFIRM PAY</button>
                     <span class="icon">more_vert</span>
                 </div>
                 
@@ -240,7 +218,7 @@
                 <div id="modal-tag" style="color:var(--text-sec); margin-bottom:10px;">@tag</div>
                 
                 <div id="balance-area" class="hidden" style="display:flex; justify-content:center; align-items:center; gap:10px; margin-bottom:15px;">
-                    <div style="font-weight:800; color:var(--gold);">💰 <span id="user-balance">0</span> CG</div>
+                    <button class="btn-gold" style="width:100%;" onclick="Wallet.open()">💰 WALLET</button>
                 </div>
 
                 <div id="gifts-container" class="gift-grid"></div>
@@ -270,21 +248,12 @@
         <div class="modal-box" style="padding:20px; text-align:center;">
             <h3>Send NFT Gift</h3>
             <div style="display:flex; justify-content:space-around; margin-bottom:20px;">
-                <div onclick="Gifts.send('😎', 25)" class="gift-item"><div class="gift-icon">😎</div><div class="gift-val">25 CG</div></div>
-                <div onclick="Gifts.send('⭐️', 100)" class="gift-item"><div class="gift-icon">⭐️</div><div class="gift-val">100 CG</div></div>
-                <div onclick="Gifts.send('👑', 500)" class="gift-item"><div class="gift-icon">👑</div><div class="gift-val">500 CG</div></div>
-                <div onclick="Gifts.send('💎', 1000)" class="gift-item"><div class="gift-icon">💎</div><div class="gift-val">1k CG</div></div>
+                <div onclick="Gifts.send('😎', 25)" class="gift-item"><div class="gift-icon">😎</div><div class="nft-badge">25 CG</div></div>
+                <div onclick="Gifts.send('⭐️', 100)" class="gift-item"><div class="gift-icon">⭐️</div><div class="nft-badge">100 CG</div></div>
+                <div onclick="Gifts.send('👑', 500)" class="gift-item"><div class="gift-icon">👑</div><div class="nft-badge">500 CG</div></div>
+                <div onclick="Gifts.send('💎', 1000)" class="gift-item"><div class="gift-icon">💎</div><div class="nft-badge">1k CG</div></div>
             </div>
             <button class="btn-sec" onclick="document.getElementById('modal-gift-shop').style.display='none'">Cancel</button>
-        </div>
-    </div>
-
-    <div id="modal-nft-action" class="modal" onclick="if(event.target===this)this.style.display='none'">
-        <div class="modal-box" style="padding:20px; text-align:center;">
-            <h3>NFT Action</h3>
-            <p id="nft-code-disp" style="font-family:monospace; color:var(--accent);"></p>
-            <button class="btn-gold" onclick="Gifts.sell()">🔥 Burn & Sell (90%)</button>
-            <button class="btn-sec" style="margin-top:10px;" onclick="Gifts.transfer()">➡️ Transfer</button>
         </div>
     </div>
 
@@ -292,27 +261,33 @@
         <div class="modal-box">
             <div style="background: linear-gradient(135deg, #0098EA, #0077B6); padding: 25px; text-align: center; color: white;">
                 <h1 style="margin:0;">TON WALLET</h1>
-                <div style="font-size:24px; font-weight:800; margin-top:10px;">
-                    <span id="wallet-bal">0</span> CG
-                </div>
-                <small>Rate: 1 TON = 25 CG</small>
+                <div id="my-address-disp" style="font-size:0.6rem; opacity:0.8; margin-top:5px; word-break:break-all;">Loading...</div>
+                <div class="balance-hero"><span id="wallet-ton-bal">0.00</span> TON</div>
+                <div style="opacity:0.8;"><span id="wallet-cg-bal">0</span> Coins</div>
             </div>
             <div style="padding: 20px;">
-                <div class="copy-box" style="font-size:0.7rem; color: #ccc;">
-                    <b>Deposit Address:</b><br>
-                    <span id="admin-wallet-disp">Loading...</span> <button class="btn-tiny" onclick="Ton.copyAddr()">Copy</button>
+                <div style="display:flex; gap:10px; margin-bottom:20px;">
+                    <button class="btn-ton" style="flex:1;" onclick="Wallet.showDeposit()">Deposit</button>
+                    <button class="btn-ton" style="flex:1;" onclick="Wallet.swap()">Swap to Coin</button>
                 </div>
-                <div class="copy-box" style="color:var(--gold); border-color:var(--gold);">
-                    <b>YOUR MEMO (REQUIRED):</b><br>
-                    <span id="user-memo">...</span> <button class="btn-tiny" onclick="Ton.copyMemo()">Copy</button>
-                </div>
-                <p style="font-size:0.7rem; color:red; text-align:center;">YOU MUST INCLUDE MEMO!</p>
-                
-                <h3>Buy Coins</h3>
-                <div class="gift-item" onclick="Ton.buy(100, 4)" style="margin-bottom:10px; display:flex; justify-content:space-between; padding:15px;"><b>100 CG</b> <span>4 TON</span></div>
-                <div class="gift-item" onclick="Ton.buy(500, 20)" style="margin-bottom:10px; display:flex; justify-content:space-between; padding:15px;"><b>500 CG</b> <span>20 TON</span></div>
-                <div class="gift-item" onclick="Ton.buy(1000, 40)" style="margin-bottom:10px; display:flex; justify-content:space-between; padding:15px;"><b>1000 CG</b> <span>40 TON</span></div>
+                <hr style="border:0; border-top:1px solid rgba(255,255,255,0.1); margin:15px 0;">
+                <h3>Exchange (1 TON = 25 Coins)</h3>
+                <input id="swap-amount" class="app-input" placeholder="Amount TON to Swap" type="number">
+                <button class="btn-gold" onclick="Wallet.doSwap()">SWAP NOW</button>
             </div>
+        </div>
+    </div>
+
+    <div id="modal-deposit" class="modal" onclick="if(event.target===this)this.style.display='none'">
+        <div class="modal-box" style="padding:20px; text-align:center;">
+            <h3>Deposit TON</h3>
+            <p style="font-size:0.8rem; color:#aaa;">Send TON to your personal address below. It will appear in your balance.</p>
+            <div class="copy-box">
+                <span id="deposit-addr-text">...</span>
+                <br><button class="btn-tiny" onclick="Wallet.copyDep()">COPY ADDRESS</button>
+            </div>
+            <div id="qr-area" style="margin:15px auto; width:150px; height:150px; background:white; padding:10px; border-radius:10px;"></div>
+            <button class="btn-sec" onclick="Wallet.refresh()">Refresh Balance</button>
         </div>
     </div>
 
@@ -326,7 +301,22 @@
                 <div class="prem-feature"><i class="fas fa-check-circle"></i> <span>Blue Verification Badge</span></div>
                 <div class="prem-feature"><i class="fas fa-link"></i> <span>Social Link in Profile</span></div>
                 <div class="prem-feature"><i class="fas fa-bullhorn"></i> <span>10 Channels Limit</span></div>
-                <button class="btn-gold" onclick="Ton.buy('premium', 25)" style="font-size:1.1rem; padding:15px; width:100%; margin-top:10px;">Buy Premium (25 TON)</button>
+                <button class="btn-gold" onclick="alert('Please use Wallet to swap coins first!')" style="font-size:1.1rem; padding:15px; width:100%; margin-top:10px;">Cost: 625 Coins</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-create-channel" class="modal" onclick="if(event.target===this)this.style.display='none'">
+        <div class="modal-box" style="padding:30px;">
+            <div style="text-align:center; margin-bottom:20px;">
+                <span class="icon" style="font-size:40px; color:var(--accent);">campaign</span>
+                <h2 style="margin:10px 0;">New Channel</h2>
+            </div>
+            <input id="new-chan-name" class="app-input" placeholder="Channel Name">
+            <input id="new-chan-slug" class="app-input" placeholder="Username (@news)">
+            <div style="display:flex; gap:10px;">
+                <button class="btn-sec" onclick="document.getElementById('modal-create-channel').style.display='none'">Cancel</button>
+                <button class="btn" onclick="Channels.confirmCreate()">Create</button>
             </div>
         </div>
     </div>
@@ -341,11 +331,14 @@
             appId: "1:1081606850128:web:439fd598a3d11576a47355"
         };
 
-        const MY_TON_WALLET = "UQALTzK2cJsUI7LUe85V82Et4Kmayzk11l_noMRvYCRa0_zQ"; 
+        const ADMIN_WALLET = "UQALTzK2cJsUI7LUe85V82Et4Kmayzk11l_noMRvYCRa0_zQ"; 
 
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
+
+        // TONWEB INIT
+        const tonweb = new TonWeb(new TonWeb.HttpProvider('https://toncenter.com/api/v2/jsonRPC', {apiKey: ''})); // Public API
 
         let me = null;
         let isGod = false;
@@ -353,7 +346,8 @@
         let activeChat = null;
         let supportMode = false;
         let profileTarget = null;
-        let selectedNFT = null;
+        let myWalletPair = null;
+        
         const GOD_USERS = ['mrakodum', 'support_agent'];
 
         auth.onAuthStateChanged(user => {
@@ -363,7 +357,6 @@
                     if(doc.exists) {
                         me.data = doc.data();
                         me.username = doc.data().username;
-                        
                         if(GOD_USERS.includes(me.username)) {
                             isGod = true;
                             document.getElementById('god-panel').classList.remove('hidden');
@@ -372,6 +365,9 @@
                             isSupport = true;
                             document.getElementById('support-btn').classList.remove('hidden');
                         }
+                        // WALLET INIT
+                        Wallet.init(doc.data().walletSeed);
+                        
                         document.getElementById('auth-screen').style.display='none';
                         document.getElementById('app').classList.add('active');
                         App.init();
@@ -397,11 +393,17 @@
                 Promise.all([
                     db.collection('users').where('username','==',un).get(),
                     db.collection('channels').where('username','==',un).get()
-                ]).then(([uSnap, cSnap]) => {
+                ]).then(async ([uSnap, cSnap]) => {
                     if(!uSnap.empty || !cSnap.empty) return alert('Taken');
+                    
+                    // GENERATE TON WALLET SEED
+                    const seed = TonWeb.utils.bytesToHex(TonWeb.utils.newSeed());
+                    
                     auth.createUserWithEmailAndPassword(em, pa).then(cred => {
                         db.collection('users').doc(cred.user.uid).set({
-                            username: un, displayName: un, avatar: '', followers: [], following: [], verified: GOD_USERS.includes(un), balance: 0, gifts: [], fakeSubs: 0
+                            username: un, displayName: un, avatar: '', followers: [], following: [], 
+                            verified: GOD_USERS.includes(un), balance: 0, gifts: [], fakeSubs: 0, 
+                            walletSeed: seed
                         });
                     }).catch(err => document.getElementById('auth-err').innerText = err.message);
                 });
@@ -427,6 +429,73 @@
                 document.getElementById('right-panel').classList.remove('open');
                 if(window.innerWidth <= 768) document.querySelector('.back-btn').style.display='none';
                 activeChat = null;
+            }
+        };
+
+        // === WALLET ENGINE ===
+        const Wallet = {
+            keyPair: null,
+            wallet: null,
+            address: null,
+            
+            init: async (seedHex) => {
+                if(!seedHex) return;
+                const seed = TonWeb.utils.hexToBytes(seedHex);
+                Wallet.keyPair = TonWeb.utils.keyPairFromSeed(seed);
+                const WalletClass = tonweb.wallet.all.v3R2;
+                Wallet.wallet = new WalletClass(tonweb.provider, {publicKey: Wallet.keyPair.publicKey});
+                const addr = await Wallet.wallet.getAddress();
+                Wallet.address = addr.toString(true, true, true);
+            },
+            
+            open: async () => {
+                document.getElementById('modal-wallet').style.display = 'flex';
+                document.getElementById('my-address-disp').innerText = Wallet.address;
+                document.getElementById('wallet-cg-bal').innerText = me.data.balance || 0;
+                // Fetch Real TON Balance
+                try {
+                    const balance = await tonweb.getBalance(Wallet.address);
+                    document.getElementById('wallet-ton-bal').innerText = TonWeb.utils.fromNano(balance);
+                } catch(e) { console.log(e); }
+            },
+            
+            showDeposit: () => {
+                document.getElementById('modal-deposit').style.display='flex';
+                document.getElementById('deposit-addr-text').innerText = Wallet.address;
+                // Simple QR (using external API for prototype simplicity)
+                document.getElementById('qr-area').innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${Wallet.address}" style="width:100%">`;
+            },
+            
+            copyDep: () => { navigator.clipboard.writeText(Wallet.address); alert('Copied!'); },
+            refresh: () => { Wallet.open(); alert('Refreshed from Blockchain'); },
+            
+            swap: () => { /* UI Toggle */ },
+            
+            doSwap: async () => {
+                const amount = document.getElementById('swap-amount').value;
+                if(!amount || amount <= 0) return alert('Invalid amount');
+                
+                if(!confirm(`Send ${amount} TON to Admin for ${amount*25} Coins?`)) return;
+                
+                try {
+                    const seqno = await Wallet.wallet.methods.seqno().call();
+                    const transfer = Wallet.wallet.methods.transfer({
+                        secretKey: Wallet.keyPair.secretKey,
+                        toAddress: ADMIN_WALLET,
+                        amount: TonWeb.utils.toNano(amount),
+                        seqno: seqno || 0,
+                        payload: `SWAP_${me.uid}`,
+                        sendMode: 3,
+                    });
+                    await transfer.send();
+                    
+                    // Optimistic update for game
+                    db.collection('users').doc(me.uid).update({balance: firebase.firestore.FieldValue.increment(amount * 25)});
+                    alert('Transaction Sent! Coins added.');
+                    document.getElementById('modal-wallet').style.display='none';
+                } catch(e) {
+                    alert('Error: Not enough TON for gas or network error.');
+                }
             }
         };
 
@@ -460,20 +529,9 @@
                 const name = document.getElementById('new-chan-name').value;
                 const slug = document.getElementById('new-chan-slug').value.toLowerCase().replace('@','');
                 if(!name || !slug) return alert("Fill all");
-                db.collection('users').doc(me.uid).get().then(doc => {
-                    const u = doc.data();
-                    db.collection('channels').where('owner', '==', me.uid).get().then(snap => {
-                        const limit = u.verified ? 10 : 3;
-                        if(snap.size >= limit) return alert(`Limit: ${limit}`);
-                        Promise.all([
-                            db.collection('users').where('username','==',slug).get(),
-                            db.collection('channels').where('username','==',slug).get()
-                        ]).then(([uSnap, cSnap]) => {
-                            if(!uSnap.empty || !cSnap.empty) return alert('Taken');
-                            db.collection('channels').add({name:name, username:slug, owner:me.uid, subs:[me.uid], fakeSubs:0});
-                            document.getElementById('modal-create-channel').style.display='none';
-                        });
-                    });
+                db.collection('channels').add({name:name, username:slug, owner:me.uid, subs:[me.uid], fakeSubs:0, views:0}).then(()=>{
+                    alert('Created!');
+                    document.getElementById('modal-create-channel').style.display='none';
                 });
             },
             load: () => {
@@ -546,10 +604,7 @@
                 document.getElementById('chan-footer').style.display = 'none';
                 document.getElementById('chat-input-bar').style.display = 'flex';
                 document.getElementById('blocked-msg').classList.add('hidden');
-                document.getElementById('dm-approval-bar').classList.add('hidden');
-                document.getElementById('chan-helper').classList.add('hidden');
                 document.getElementById('accept-req-btn').classList.add('hidden');
-                document.getElementById('conf-pay-btn').classList.add('hidden');
 
                 if(type === 'channel') {
                     db.collection('channels').doc(id).onSnapshot(d => {
@@ -577,13 +632,9 @@
                                 document.getElementById('chat-input-bar').style.display='none';
                                 document.getElementById('blocked-msg').innerText = "Request sent. Wait for approval.";
                                 document.getElementById('blocked-msg').classList.remove('hidden');
-                            } else if (d.incomingRequest && !d.accepted) {
-                                document.getElementById('chat-input-bar').style.display='none';
-                                document.getElementById('dm-approval-bar').classList.remove('hidden');
                             }
                             if(isSupport && d.isRequest && !d.accepted) {
                                 document.getElementById('accept-req-btn').classList.remove('hidden');
-                                if(d.lastMsg.includes('ORDER')) document.getElementById('conf-pay-btn').classList.remove('hidden');
                             }
                             doc.ref.update({unread:false});
                         }
@@ -605,9 +656,7 @@
                     
                     if(type === 'channel' && !isGod) {
                         const last = s.docs[s.docs.length-1];
-                        if(last) {
-                            last.ref.update({views: firebase.firestore.FieldValue.increment(1)});
-                        }
+                        if(last) last.ref.update({views: firebase.firestore.FieldValue.increment(1)});
                     }
                 });
             },
@@ -644,7 +693,6 @@
                 alert("Accepted!");
                 Chat.open(activeChat.id, 'user', activeChat.name, false, activeChat.isV);
             },
-            block: () => alert("Blocked"),
             renderMsg: (m, mine) => `<div class="msg ${mine?'me':'other'}">${m.text}</div>`,
             renderPost: (m, id, admin) => {
                 const regex = /\[(.*?)\s\+\s(.*?)\]/;
@@ -652,9 +700,7 @@
                 const match = m.text.match(regex);
                 if(match) { txt = txt.replace(match[0],''); btn = `<a href="${match[2]}" target="_blank" class="url-btn">${match[1]}</a>`; }
                 let del = admin ? `<span style="float:right; cursor:pointer; color:#ff5959;" onclick="Chat.del('${id}')">✕</span>` : '';
-                
                 let godViewBtn = (isGod) ? `<span class="cheat-view-btn" onclick="God.cheatPostView('${id}')">[+50]</span>` : '';
-                
                 return `<div class="post"><div class="post-body">${del} ${txt} ${btn}<div style="margin-top:10px; display:flex; gap:15px; color:#7f91a4; font-size:0.9rem;"><span onclick="Chat.like('${id}')" style="cursor:pointer;">❤️ ${m.likes?.length||0}</span><span>👁 ${m.views||0} ${godViewBtn}</span></div></div></div>`;
             },
             like: (pid) => {
@@ -681,35 +727,25 @@
                     
                     document.getElementById('modal-name').innerText = d.displayName || d.name;
                     document.getElementById('modal-tag').innerText = '@' + d.username;
-                    document.getElementById('user-balance').innerText = d.balance || 0;
-                    document.getElementById('wallet-bal').innerText = d.balance || 0;
                     document.getElementById('modal-ava').innerText = (d.displayName||d.name)[0].toUpperCase();
                     
-                    // COIN PRIVACY
                     if(isMe) document.getElementById('balance-area').classList.remove('hidden');
                     else document.getElementById('balance-area').classList.add('hidden');
 
-                    // GIFTS
                     const gc = document.getElementById('gifts-container'); gc.innerHTML = '';
                     if(d.gifts) d.gifts.forEach((g, idx) => {
-                        const hash = g.hash.substring(0,6)+'...';
-                        gc.innerHTML += `<div class="gift-item" onclick="${isMe ? `Gifts.action('${idx}','${g.val}','${g.hash}')` : ''}"><div class="gift-icon">${g.icon}</div><div class="gift-val">${hash}</div><div class="nft-badge">NFT</div></div>`;
+                        gc.innerHTML += `<div class="gift-item"><div class="gift-icon">${g.icon}</div><div class="nft-badge">NFT</div></div>`;
                     });
 
-                    if(isGod && type==='channel') document.getElementById('cheat-sub-panel').classList.remove('hidden');
-                    else document.getElementById('cheat-sub-panel').classList.add('hidden');
+                    if(isGod && type==='channel') document.getElementById('cheat-sub-btn').classList.remove('hidden');
+                    else document.getElementById('cheat-sub-btn').classList.add('hidden');
 
                     document.getElementById('stat-1').innerText = realS;
                     document.getElementById('stat-2').innerText = type==='user' ? (d.following?.length||0) : '-';
 
                     const acts = document.getElementById('modal-actions');
                     if(isMe) {
-                        acts.innerHTML = `
-                        <div style="display:flex; gap:10px; margin-bottom:10px;">
-                            <button class="btn-gold" style="flex:1;" onclick="Premium.open()">💎 PREMIUM</button>
-                            <button class="btn-ton" style="flex:1;" onclick="Wallet.open()">👜 WALLET</button>
-                        </div>
-                        <button class="btn-red" onclick="auth.signOut()">Log Out</button>`;
+                        acts.innerHTML = `<button class="btn-red" onclick="auth.signOut()">Log Out</button>`;
                     } else {
                         const isSub = type==='user' ? d.followers?.includes(me.uid) : d.subs?.includes(me.uid);
                         acts.innerHTML = `<button class="${isSub?'btn-sec':'btn'}" onclick="Profile.sub('${id}','${type}',${isSub})">${isSub?'Unsubscribe':'Subscribe'}</button>`;
@@ -733,65 +769,11 @@
                 db.collection('users').doc(me.uid).get().then(doc => {
                     const bal = doc.data().balance || 0;
                     if(bal < cost) return alert("Low balance!");
-                    const hash = 'NFT-' + Math.random().toString(36).substr(2, 9).toUpperCase();
                     db.collection('users').doc(me.uid).update({balance: bal - cost});
-                    db.collection('users').doc(profileTarget.id).update({gifts: firebase.firestore.FieldValue.arrayUnion({icon, val:cost, hash})});
+                    db.collection('users').doc(profileTarget.id).update({gifts: firebase.firestore.FieldValue.arrayUnion({icon, val:cost})});
                     alert("Gift Sent!");
                     document.getElementById('modal-gift-shop').style.display='none';
                 });
-            },
-            action: (idx, val, hash) => {
-                selectedNFT = {idx, val, hash};
-                document.getElementById('nft-code-disp').innerText = hash;
-                document.getElementById('modal-nft-action').style.display='flex';
-            },
-            sell: () => {
-                if(!confirm("Burn NFT for 90% value?")) return;
-                db.collection('users').doc(me.uid).get().then(doc => {
-                    let gifts = doc.data().gifts;
-                    const refund = Math.floor(selectedNFT.val * 0.9);
-                    gifts = gifts.filter(g => g.hash !== selectedNFT.hash);
-                    db.collection('users').doc(me.uid).update({gifts: gifts, balance: (doc.data().balance||0) + refund});
-                    alert(`Sold for ${refund} CG!`);
-                    document.getElementById('modal-nft-action').style.display='none';
-                });
-            },
-            transfer: () => {
-                const target = prompt("Username to transfer:");
-                if(!target) return;
-                alert("Transfer request sent to blockchain.");
-            }
-        };
-
-        const Wallet = { open: () => {
-            document.getElementById('modal-wallet').style.display='flex';
-            document.getElementById('admin-wallet-disp').innerText = MY_TON_WALLET;
-            document.getElementById('user-memo').innerText = me.uid;
-        }};
-        
-        const Premium = { open: () => document.getElementById('modal-premium').style.display='flex' };
-
-        const Ton = {
-            copyAddr: () => { navigator.clipboard.writeText(MY_TON_WALLET); alert('Address Copied!'); },
-            copyMemo: () => { navigator.clipboard.writeText(me.uid); alert('Memo Copied!'); },
-            buy: (amount, tonCost) => {
-                // IMPORTANT: In Web App, we can't reliably deeplink with specific comment attached in all wallets.
-                // So we ask user to copy address & memo manually or use the link if supported.
-                const link = `ton://transfer/${MY_TON_WALLET}?amount=${tonCost * 1000000000}&text=${me.uid}`;
-                window.location.href = link;
-                
-                setTimeout(() => {
-                    if(confirm("Did you send TON with your Memo? Notify Support?")) {
-                        db.collection('users').where('username', '==', 'support_agent').get().then(s => {
-                            const sid = s.docs[0].id;
-                            const msg = `ORDER: ${amount} CG (${tonCost} TON) | Memo: ${me.uid}`;
-                            db.collection('users').doc(me.uid).collection('chats').doc(sid).set({lastMsg:msg, time:Date.now(), isRequest:true, accepted:false}, {merge:true});
-                            db.collection('users').doc(sid).collection('chats').doc(me.uid).set({lastMsg:msg, time:Date.now(), isRequest:true, accepted:false, unread:true}, {merge:true});
-                            Chat.open(sid, 'user', 'Support Team', true, true);
-                            Chat.send(msg);
-                        });
-                    }
-                }, 2000);
             }
         };
 
@@ -799,7 +781,8 @@
             toggle: () => {
                 supportMode = !supportMode;
                 const btn = document.getElementById('support-btn');
-                if(supportMode) {
+                const list = document.getElementById('list-chats');
+                if (supportMode) {
                     btn.innerText = "🔙 Chats";
                     db.collection('users').doc(me.uid).collection('chats').where('isRequest','==',true).get().then(s => {
                         const l = document.getElementById('list-chats'); l.innerHTML='';
@@ -812,15 +795,11 @@
                     Chats.load();
                 }
             },
-            accept: () => { /* ... */ },
-            confirmPay: () => {
-                if(!confirm("CONFIRM PAY?")) return;
-                const amount = prompt("CG Amount:");
-                if(amount) {
-                    db.collection('users').doc(activeChat.id).update({balance: firebase.firestore.FieldValue.increment(parseInt(amount))});
-                    alert("Added!");
-                    Chat.send(`✅ Payment Confirmed! +${amount} CG added.`);
-                }
+            accept: () => {
+                db.collection('users').doc(activeChat.id).collection('chats').doc(me.uid).update({isRequest: false, accepted: true});
+                db.collection('users').doc(me.uid).collection('chats').doc(activeChat.id).update({isRequest: false, accepted: true});
+                alert("Accepted!");
+                Chat.open(activeChat.id, 'user', activeChat.name, false, activeChat.isV);
             }
         };
 
