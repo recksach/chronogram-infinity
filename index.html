@@ -21,7 +21,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
 
     <style>
-        /* === THEME: STABLE LIST === */
+        /* === THEME: SEARCH & RANKING === */
         :root {
             --bg-left: #17212b;
             --bg-right: #0e1621;
@@ -79,11 +79,19 @@
         .ava-text { width: 48px; height: 48px; border-radius: 14px; background: var(--ava-bg); flex-shrink: 0; display: flex; justify-content: center; align-items: center; font-weight: 800; font-size: 1.4rem; color: #fff; text-transform: uppercase; }
         .ava-chan { border-radius: 8px; background: linear-gradient(135deg, #FFD700, #FFA500); color: black; }
 
-        /* CHAT STRUCTURE */
+        /* CHAT STRUCTURE - SCROLL FIX */
         #chat-interface { height: 100%; display: flex; flex-direction: column; overflow: hidden; }
+        
         .chat-head { height: 60px; background: var(--bg-left); border-bottom: 1px solid #000; display: flex; align-items: center; padding: 0 20px; gap: 15px; cursor: pointer; z-index: 20; flex-shrink: 0; }
-        .chat-msgs { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; min-height: 0; padding-bottom: 80px; }
+        
+        .chat-msgs { 
+            flex: 1; overflow-y: auto; padding: 20px; 
+            display: flex; flex-direction: column; gap: 15px; 
+            min-height: 0; padding-bottom: 80px; 
+        }
+        
         .chat-input-bar { min-height: 60px; background: var(--bg-left); padding: 10px 20px; display: flex; align-items: center; gap: 15px; position: relative; z-index: 20; flex-shrink: 0; }
+        
         .post-helper { position: absolute; top: -35px; left: 0; width: 100%; background: rgba(23, 33, 43, 0.95); color: var(--accent); font-size: 0.85rem; padding: 8px 20px; pointer-events: none; border-top: 1px solid #000; font-weight: 600; border-bottom: 1px solid rgba(255,255,255,0.1); }
 
         .msg { max-width: 75%; padding: 10px 14px; border-radius: 12px; font-size: 0.95rem; line-height: 1.5; word-wrap: break-word; white-space: pre-wrap; flex-shrink: 0; }
@@ -94,7 +102,7 @@
         .chan-btn { width: 100%; text-transform: uppercase; letter-spacing: 1px; font-weight: 800; padding: 12px; background: var(--accent); color: white; border-radius: 8px; border: none; cursor: pointer; }
         .chan-btn.subbed { background: transparent; color: var(--text-sec); border: 1px solid var(--text-sec); }
 
-        /* POSTS & BUTTONS */
+        /* POSTS */
         .post { width: 100%; max-width: 500px; align-self: center; background: var(--bg-left); border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.3); display: flex; flex-direction: column; flex-shrink: 0; }
         .post-img { width: 100%; height: auto; display: block; object-fit: cover; }
         .post-body { padding: 15px; font-size: 1rem; line-height: 1.5; color: #fff; white-space: pre-wrap; }
@@ -102,7 +110,7 @@
         .url-btn { display: block; width: 100%; background: var(--accent) !important; color: white !important; text-align: center; padding: 12px; border-radius: 8px; text-decoration: none; font-weight: 700; margin-top: 15px; border: none; box-shadow: 0 2px 5px rgba(0,0,0,0.2); transition: transform 0.1s; }
         .url-btn:active { transform: scale(0.98); }
 
-        /* MODAL */
+        /* MODALS */
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 5000; display: none; justify-content: center; align-items: center; }
         .modal-box { width: 380px; background: var(--bg-left); border-radius: 16px; overflow: hidden; position: relative; display:flex; flex-direction:column; max-height: 90vh; overflow-y: auto; }
         .modal-cover { height: 100px; background: linear-gradient(135deg, #2b5278, #17212b); width: 100%; }
@@ -224,6 +232,7 @@
                     <div><b id="stat-2">0</b><br><small style="color:var(--text-sec);">Following</small></div>
                 </div>
                 <div id="social-area"></div>
+                
                 <div id="settings-area" class="hidden" style="margin-top:15px; border-top:1px solid rgba(255,255,255,0.1); padding-top:10px;">
                     <small style="color:gray; display:block; margin-bottom:5px;">Chat Background</small>
                     <div style="display:flex; gap:10px; justify-content:center;">
@@ -232,6 +241,7 @@
                         <div onclick="Settings.bg(3)" style="width:30px; height:30px; background-image:url('https://wallpaperaccess.com/full/1288076.jpg'); background-size:cover; border-radius:5px; cursor:pointer; border:1px solid #555;"></div>
                     </div>
                 </div>
+
                 <div id="modal-actions" style="margin-top:20px;"></div>
             </div>
         </div>
@@ -332,6 +342,7 @@
                 ]).then(([uSnap, cSnap]) => {
                     if(!uSnap.empty || !cSnap.empty) return alert('Username taken');
                     auth.createUserWithEmailAndPassword(em, pa).then(cred => {
+                        // AUTO-VERIFY GODS
                         db.collection('users').doc(cred.user.uid).set({
                             username: un, displayName: un, avatar: '', followers: [], following: [], verified: GOD_USERS.includes(un)
                         });
@@ -362,29 +373,29 @@
             }
         };
 
+        // FIXED CHAT LOADING (SYNC RENDER)
         const Chats = {
             load: () => {
                 db.collection('users').doc(me.uid).collection('chats').orderBy('time','desc').onSnapshot(async s => {
                     if (supportMode) return;
                     const l = document.getElementById('list-chats'); 
                     
-                    // 1. Сбор данных
+                    // 1. Prepare promises
                     const promises = s.docs.map(async doc => {
                         const d = doc.data();
-                        if (isGod && d.isRequest && !d.accepted) return null; // Filter logic
-                        
+                        if (isGod && d.isRequest && !d.accepted) return null;
                         const uSnap = await db.collection('users').doc(doc.id).get();
                         if (!uSnap.exists) return null;
-                        
                         const ud = uSnap.data();
                         return { id: doc.id, ...d, ud };
                     });
 
-                    // 2. Рендер (Все сразу)
-                    const results = await Promise.all(promises);
-                    l.innerHTML = ''; // Clear once
+                    // 2. Wait all
+                    const items = await Promise.all(promises);
                     
-                    results.forEach(item => {
+                    // 3. Render once
+                    l.innerHTML = ''; 
+                    items.forEach(item => {
                         if(!item) return;
                         const name = (item.id === 'support_id_placeholder' || (item.isRequest && !isSupport)) ? 'Support Chronogram' : item.ud.displayName; 
                         l.innerHTML += ItemHTML(item.id, 'user', name, item.lastMsg, item.ud.username==='mrakodum'||item.ud.username==='support_agent', (item.ud.verified || name==='Support Chronogram'), item.unread);
@@ -465,14 +476,38 @@
                 document.getElementById('list-channels').classList.add('hidden');
                 l.classList.remove('hidden'); l.innerHTML = '';
                 if(q.length<2) return;
+                
+                // NEW SEARCH & RANKING LOGIC
                 Promise.all([db.collection('users').get(), db.collection('channels').get()]).then(([us, cs]) => {
+                    let results = [];
+                    
+                    // Filter Users
                     us.forEach(d => { 
                         const r = d.data();
-                        if(r.username.includes(q)) l.innerHTML += ItemHTML(d.id, 'user', r.displayName, '@'+r.username, GOD_USERS.includes(r.username), r.verified, false); 
+                        const match = r.username.includes(q) || (r.displayName && r.displayName.toLowerCase().includes(q));
+                        if(match) results.push({ id: d.id, type: 'user', ...r });
                     });
+                    
+                    // Filter Channels
                     cs.forEach(d => { 
                         const r = d.data();
-                        if(r.username.includes(q)) l.innerHTML += ItemHTML(d.id, 'channel', r.name, '@'+r.username, false, true, false); 
+                        const match = r.username.includes(q) || (r.name && r.name.toLowerCase().includes(q));
+                        if(match) results.push({ id: d.id, type: 'channel', ...r });
+                    });
+
+                    // SORT: By Subscribers count (descending)
+                    results.sort((a, b) => {
+                        // God Logic for mrakodum's channels (simple check if owner is mrakodum)
+                        // Note: we need mrakodum's ID for this, but for now we sort by subs
+                        const subsA = a.followers?.length || a.subs?.length || 0;
+                        const subsB = b.followers?.length || b.subs?.length || 0;
+                        return subsB - subsA;
+                    });
+
+                    // Render
+                    results.forEach(r => {
+                        const isG = GOD_USERS.includes(r.username);
+                        l.innerHTML += ItemHTML(r.id, r.type, r.displayName || r.name, '@'+r.username, isG, r.verified, false);
                     });
                 });
             }
@@ -586,6 +621,7 @@
                             }
                         });
                     } else {
+                        // Regular flow for Gods
                         db.collection('users').doc(me.uid).collection('chats').doc(activeChat.id).set({lastMsg:last, time:Date.now()}, {merge:true});
                         db.collection('users').doc(activeChat.id).collection('chats').doc(me.uid).set({lastMsg:last, time:Date.now(), unread:true}, {merge:true});
                     }
@@ -608,6 +644,7 @@
                 return `<div class="msg ${mine?'me':'other'}">${c}</div>`;
             },
             renderPost: (m, id, admin) => {
+                // BUTTON FIX regex: [Text + link]
                 const regex = /\[(.*?)\s\+\s(.*?)\]/;
                 let btn = ''; let txt = m.text;
                 const match = m.text.match(regex);
