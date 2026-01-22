@@ -4,220 +4,461 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#17212b">
     <title>CHRONOGRAM</title>
+    <link rel="icon" type="image/jpeg" href="https://i.imgur.com/logo1.jpg">
+    <link rel="apple-touch-icon" href="https://i.imgur.com/logo1.jpg">
     
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0" />
     
+    <!-- TON Connect SDK -->
+    <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
+    
+    <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
     <style>
-        /* === THEME: NFT REVOLUTION === */
+        * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
+        body { margin: 0; padding: 0; font-family: 'Manrope', sans-serif; color: #f5f5f5; background: #000; height: 100vh; overflow: hidden; }
+
         :root {
-            --bg: #0f0f0f;
-            --panel: #17212b;
-            --accent: #5288c1;
-            --gold: #FFD700;
-            --ton: #0098EA;
-            --text: #f5f5f5;
-            --rare: #007aff;
-            --epic: #a020f0;
-            --leg: #ff4500;
+            --bg-left: #17212b; --bg-right: #0e1621; --accent: #5288c1; --gold: #FFD700; --ton: #0098EA;
+            --success: #00d26a; --error: #ff5959; --text: #f5f5f5; --text-sec: #7f91a4;
+            --common: #A0AEC0; --rare: #FFD700; --epic: #805AD5; --legendary: #F6E05E;
         }
 
-        * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
-        body { margin: 0; padding: 0; font-family: 'Manrope', sans-serif; color: var(--text); background: #000; height: 100vh; overflow: hidden; }
+        #auth-screen { 
+            position: fixed; top:0; left:0; width:100%; height:100%; 
+            background: #17212b; z-index: 9999; 
+            display: flex; flex-direction: column; justify-content: center; align-items: center; 
+        }
+        .app-logo-lg { 
+            width: 100px; height: 100px; border-radius: 24px; 
+            background: linear-gradient(135deg, #0098EA, #5288c1); 
+            margin-bottom: 20px; display: flex; align-items: center; justify-content: center;
+            font-size: 2.5rem; color: white; font-weight: bold;
+        }
 
-        #app { display: none; width: 100%; height: 100%; display: flex; }
+        #app { display: none; width: 100%; height: 100%; }
         #app.active { display: flex; }
-        #auth-screen { position: fixed; top:0; left:0; width:100%; height:100%; background: var(--panel); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; }
 
-        .left-panel { width: 380px; background: var(--panel); border-right: 1px solid #000; display: flex; flex-direction: column; z-index: 10; }
-        .right-panel { flex: 1; background: #000; background-image: url('https://w0.peakpx.com/wallpaper/508/153/HD-wallpaper-whatsapp-doodle-black-pattern.jpg'); background-size: cover; position: relative; display: flex; flex-direction: column; }
-
+        .left-panel { 
+            width: 380px; height: 100%; display: flex; flex-direction: column; 
+            background: var(--bg-left); border-right: 1px solid #000; flex-shrink: 0; 
+        }
+        .right-panel { 
+            flex: 1; height: 100%; position: relative; display: flex; flex-direction: column; 
+            background-color: #0f0f0f; background-size: cover; background-position: center; 
+            background-image: url('https://w0.peakpx.com/wallpaper/508/153/HD-wallpaper-whatsapp-doodle-black-pattern.jpg'); 
+        }
+        
         @media (max-width: 768px) {
             .left-panel { width: 100%; }
-            .right-panel { position: fixed; top: 0; left: 0; width: 100%; height: 100%; transform: translateX(100%); transition: transform 0.25s ease; z-index: 20; }
+            .right-panel { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 100; transform: translateX(100%); }
             .right-panel.open { transform: translateX(0); }
         }
 
-        /* UI ELEMENTS */
-        .header { height: 60px; padding: 0 15px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(0,0,0,0.2); }
-        .search { width: 90%; background: #242f3d; border: none; padding: 10px; border-radius: 8px; color: white; margin: 10px auto; display: block; }
-        
+        .header-left { 
+            height: 60px; padding: 0 15px; display: flex; align-items: center; justify-content: space-between; 
+            border-bottom: 1px solid rgba(0,0,0,0.3); 
+        }
+        .search-in { 
+            width: calc(100% - 30px); background: #242f3d; border: none; padding: 10px 15px; 
+            border-radius: 8px; color: white; margin: 10px 15px; font-size: 0.95rem; 
+        }
+
+        .tabs { display: flex; border-bottom: 1px solid rgba(0,0,0,0.2); }
+        .tab { flex: 1; text-align: center; padding: 12px; cursor: pointer; color: var(--text-sec); font-weight: 600; }
+        .tab.active { color: var(--accent); border-bottom: 2px solid var(--accent); }
+
+        .list-wrap { flex: 1; overflow-y: auto; }
         .list-item { display: flex; align-items: center; gap: 12px; padding: 10px 15px; cursor: pointer; }
         .list-item:hover { background: #202b36; }
-        .ava { width: 48px; height: 48px; border-radius: 14px; background: linear-gradient(135deg, #4facfe, #00f2fe); display: flex; justify-content: center; align-items: center; font-weight: 800; font-size: 1.4rem; color: white; }
-        .ava-chan { background: linear-gradient(135deg, var(--gold), orange); color: black; }
-
-        /* CHAT */
-        .chat-msgs { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 10px; }
-        .msg { max-width: 75%; padding: 10px; border-radius: 12px; font-size: 0.95rem; }
-        .msg.me { align-self: flex-end; background: #2b5278; }
-        .msg.other { align-self: flex-start; background: #182533; }
         
-        .post { width: 100%; max-width: 480px; align-self: center; background: var(--panel); border-radius: 12px; padding: 15px; margin-bottom: 10px; }
-        .cheat-btn { color: #0f0; font-size: 0.7rem; cursor: pointer; background: rgba(0,255,0,0.1); padding: 2px 6px; border-radius: 4px; margin-left: 5px; }
-
-        /* NFT STYLES */
-        .gift-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 10px; max-height: 250px; overflow-y: auto; }
-        .gift-card { 
-            background: rgba(255,255,255,0.05); border-radius: 12px; padding: 10px; text-align: center; cursor: pointer; position: relative; border: 1px solid transparent; 
-            transition: all 0.2s;
+        .ava-text { 
+            width: 48px; height: 48px; border-radius: 14px; background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); 
+            flex-shrink: 0; display: flex; justify-content: center; align-items: center; 
+            font-weight: 800; font-size: 1.4rem; color: #fff; text-transform: uppercase; 
         }
-        
-        /* RARITY EFFECTS */
-        .rare-common { border-color: #555; }
-        .rare-rare { border-color: var(--rare); box-shadow: 0 0 10px rgba(0,122,255,0.3); background: linear-gradient(135deg, rgba(0,122,255,0.1), transparent); }
-        .rare-epic { border-color: var(--epic); box-shadow: 0 0 15px rgba(160,32,240,0.4); background: linear-gradient(45deg, rgba(160,32,240,0.2), rgba(0,0,0,0)); animation: pulse-epic 3s infinite; }
-        .rare-legendary { 
-            border-color: var(--leg); box-shadow: 0 0 20px rgba(255,69,0,0.6); 
-            background: url('https://i.gifer.com/7SSp.gif'), linear-gradient(135deg, #ff4500, #ffcc00); 
-            background-blend-mode: overlay; background-size: cover; color: white !important;
-            animation: shake 5s infinite;
+        .ava-chan { border-radius: 8px; background: linear-gradient(135deg, #FFD700, #FFA500); color: black; }
+
+        #chat-interface { height: 100%; display: flex; flex-direction: column; overflow: hidden; }
+        .chat-head { 
+            height: 60px; background: var(--bg-left); border-bottom: 1px solid #000; 
+            display: flex; align-items: center; padding: 0 20px; gap: 15px; cursor: pointer; 
+        }
+        .chat-msgs { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
+        .chat-input-bar { 
+            min-height: 60px; background: var(--bg-left); padding: 10px 20px; 
+            display: flex; align-items: center; gap: 15px; border-top: 1px solid rgba(0,0,0,0.3); 
         }
 
-        @keyframes pulse-epic { 0% { box-shadow: 0 0 5px var(--epic); } 50% { box-shadow: 0 0 20px var(--epic); } 100% { box-shadow: 0 0 5px var(--epic); } }
-        @keyframes shake { 0% { transform: translate(0,0); } 2% { transform: translate(1px,1px); } 4% { transform: translate(-1px,-1px); } 100% { transform: translate(0,0); } }
+        .msg { 
+            max-width: 75%; padding: 10px 14px; border-radius: 12px; font-size: 0.95rem; 
+            word-wrap: break-word; white-space: pre-wrap; 
+        }
+        .msg.me { align-self: flex-end; background: #2b5278; color: white; border-bottom-right-radius: 2px; }
+        .msg.other { align-self: flex-start; background: #182533; color: white; border-bottom-left-radius: 2px; }
 
-        .gift-emoji { font-size: 2.5rem; }
-        .gift-meta { font-size: 0.7rem; margin-top: 5px; opacity: 0.8; }
-
-        /* MODALS */
-        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 5000; display: none; justify-content: center; align-items: center; }
-        .modal-box { width: 360px; background: var(--panel); border-radius: 16px; overflow: hidden; padding: 20px; text-align: center; }
+        .post { 
+            width: 100%; max-width: 500px; align-self: center; background: var(--bg-left); 
+            border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.3); 
+            margin-bottom: 15px; position: relative;
+        }
+        .post-header { padding: 10px 15px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .post-body { padding: 15px; font-size: 1rem; line-height: 1.5; color: #fff; white-space: pre-wrap; }
+        .post-footer { padding: 10px 15px; border-top: 1px solid rgba(255,255,255,0.05); color: var(--text-sec); }
         
-        .btn { width: 100%; padding: 12px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; margin-top: 10px; }
-        .btn-gold { background: linear-gradient(135deg, #FFD700, #FFA500); color: black; }
-        .btn-ton { background: var(--ton); color: white; }
-        .btn-sec { background: transparent; border: 1px solid var(--accent); color: var(--accent); }
-        .btn-craft { background: linear-gradient(45deg, #ff00cc, #333399); color: white; }
+        .channel-post-btn {
+            padding: 12px; background: linear-gradient(135deg, #5288c1, #3a6da7); color: white;
+            border: none; border-radius: 8px; font-weight: 600; text-align: center; cursor: pointer;
+            text-decoration: none; display: block; margin: 10px 0;
+        }
 
-        .app-input { width: 100%; padding: 12px; background: #0e1621; border: 1px solid #333; color: white; border-radius: 8px; margin-bottom: 10px; }
+        .btn { 
+            background: var(--accent); color: white; border: none; padding: 14px; border-radius: 12px; 
+            cursor: pointer; font-weight: 700; width: 100%; margin-top: 10px; 
+        }
+        .btn-ton { background: linear-gradient(135deg, var(--ton), #0077b6); }
+        .btn-gold { background: linear-gradient(135deg, var(--gold), #FFA500); color: black; }
+        
+        .app-input { 
+            width: 100%; padding: 14px; background: #0e1621; border: 1px solid rgba(255,255,255,0.1); 
+            color: white; border-radius: 10px; margin-bottom: 15px; font-size: 1rem; 
+        }
+
+        .modal { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); 
+            z-index: 5000; display: none; justify-content: center; align-items: center; 
+        }
+        .modal-box { 
+            width: 420px; background: var(--bg-left); border-radius: 20px; overflow: hidden; 
+            border: 1px solid rgba(255,255,255,0.1); max-height: 90vh; overflow-y: auto; 
+        }
+
+        .gift-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap: 8px; padding: 10px; }
+        .gift-item { 
+            background: rgba(255,255,255,0.95); border-radius: 8px; padding: 10px; text-align: center; 
+            cursor: pointer; border: 1px solid rgba(0,0,0,0.1); min-height: 70px;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+        }
+        .nft-icon { 
+            font-size: 2rem; margin-bottom: 5px; 
+            filter: drop-shadow(0 2px 3px rgba(0,0,0,0.3));
+        }
+        
+        /* Стили для NFT с вариациями */
+        .nft-card {
+            width: 100%; border-radius: 16px; overflow: hidden; margin-bottom: 15px;
+            position: relative; border: 2px solid;
+        }
+        .nft-bg {
+            height: 120px; width: 100%; position: relative; overflow: hidden;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .nft-model {
+            font-size: 60px; position: relative; z-index: 2;
+            filter: drop-shadow(0 0 10px rgba(255,255,255,0.3));
+        }
+        .nft-stats {
+            padding: 15px; background: var(--bg-left);
+        }
+        .nft-stat-row {
+            display: flex; justify-content: space-between; margin-bottom: 8px;
+            font-size: 0.9rem; color: var(--text-sec);
+        }
+        .nft-value {
+            font-size: 1.5rem; font-weight: 800; color: var(--gold);
+            text-align: center; margin: 10px 0;
+        }
+        
+        /* Редкости */
+        .rarity-common { border-color: var(--common); }
+        .rarity-rare { border-color: var(--rare); }
+        .rarity-epic { border-color: var(--epic); }
+        .rarity-legendary { 
+            border-color: var(--legendary); 
+            border-width: 3px;
+            box-shadow: 0 0 20px rgba(246, 224, 94, 0.3);
+        }
+        
+        .hidden { display: none !important; }
+        
+        .god-actions { position: absolute; top: 10px; right: 10px; display: flex; gap: 5px; }
+        .god-action-btn { background: rgba(0,0,0,0.7); border: none; color: white; width: 30px; height: 30px; 
+            border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .god-action-btn.delete { background: var(--error); }
+        
+        .god-panel-left { padding: 15px; border-top: 1px solid rgba(255,255,255,0.1); background: #131a24; }
+        .boost-amount-input { width: 100%; padding: 10px; background: #0e1621; border: 1px solid rgba(255,255,255,0.1); 
+            color: white; border-radius: 8px; margin-bottom: 10px; }
+        .boost-btn { padding: 10px; border-radius: 8px; border: none; color: white; font-weight: 600; cursor: pointer; margin: 5px 0; }
+        .boost-views { background: var(--success); }
+        .boost-subs { background: var(--ton); }
+        .boost-coins { background: var(--gold); color: black; }
+        
+        /* Фильтры магазина */
+        .rarity-filters {
+            display: flex; gap: 8px; padding: 10px; justify-content: center;
+        }
+        .rarity-filter {
+            padding: 6px 12px; border-radius: 20px; border: 2px solid;
+            cursor: pointer; font-size: 0.8rem; font-weight: 600;
+        }
+        .rarity-filter.active {
+            background: currentColor; color: white !important;
+        }
+        .rarity-filter.common { color: var(--common); }
+        .rarity-filter.rare { color: var(--rare); }
+        .rarity-filter.epic { color: var(--epic); }
+        .rarity-filter.legendary { color: var(--legendary); }
+        
+        /* Прозрачность и эффекты */
+        .model-ghost { opacity: 0.7; filter: blur(1px) drop-shadow(0 0 8px rgba(255,255,255,0.5)); }
+        .model-outline { 
+            color: transparent; -webkit-text-stroke: 2px white; 
+            filter: drop-shadow(0 0 5px rgba(255,255,255,0.8));
+        }
+        .model-gradient {
+            background: linear-gradient(45deg, #ff00cc, #3333ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
     </style>
 </head>
 <body>
 
     <div id="auth-screen">
-        <div style="width:100px; height:100px; background:url('logo.jpg'); background-size:cover; border-radius:20px; margin-bottom:20px;"></div>
-        <input id="email-in" class="app-input" placeholder="Email" style="width:250px;">
-        <input id="password-in" class="app-input" type="password" placeholder="Password" style="width:250px;">
-        <input id="username-in" class="app-input" placeholder="Username" style="width:250px;">
-        <button class="btn btn-gold" style="width:250px;" onclick="Auth.login()">LOGIN</button>
-        <button class="btn btn-sec" style="width:250px;" onclick="Auth.reg()">REGISTER</button>
+        <div class="app-logo-lg">CG</div>
+        <h2 style="margin-bottom: 10px;">CHRONOGRAM</h2>
+        <p style="color: #45aaf2; margin-bottom: 30px;">TON Social Platform</p>
+        
+        <input type="email" id="email-in" placeholder="Email" class="app-input" style="width:320px;">
+        <input type="password" id="password-in" placeholder="Password" class="app-input" style="width:320px;">
+        <input type="text" id="username-in" placeholder="Username" class="app-input" style="width:320px;">
+        
+        <button class="btn" onclick="Auth.login()" style="width:320px; margin-bottom:10px;">Login</button>
+        <button class="btn btn-ton" onclick="Auth.reg()" style="width:320px;">Register</button>
+        
+        <div style="margin: 20px 0; width: 320px; text-align: center; color: var(--text-sec);">OR</div>
+        
+        <div id="ton-connect-container"></div>
+        
+        <p id="auth-err" style="color:var(--error); margin-top:15px;"></p>
     </div>
 
     <div id="app">
         <div class="left-panel">
-            <div class="header">
-                <span class="material-symbols-rounded" onclick="Profile.openMe()">menu</span>
-                <b>CHRONOGRAM</b>
-                <span class="material-symbols-rounded" onclick="Channels.createModal()">add_circle</span>
+            <div class="header-left">
+                <span class="material-symbols-rounded" onclick="Profile.openMe()" style="cursor:pointer;">menu</span>
+                <b style="color:white;">CHRONOGRAM</b>
+                <span class="material-symbols-rounded" onclick="Channels.createModal()" style="cursor:pointer;">add_circle</span>
             </div>
-            <input class="search" placeholder="Search..." oninput="Search.run(this.value)">
-            <div style="flex:1; overflow-y:auto;" id="list-chats"></div>
-            <div id="god-panel" class="hidden" style="padding:10px; background:#222;">
-                <small style="color:var(--gold)">GOD MODE</small>
-                <button class="btn btn-sec" onclick="Support.toggle()">📨 Requests</button>
-                <button class="btn btn-gold" onclick="God.addCoins()">+1M Coins (Self)</button>
+            <input type="text" class="search-in" id="search-in" placeholder="Search..." oninput="Search.run()">
+            <div class="tabs">
+                <div class="tab active" id="tab-chats" onclick="Nav.tab('chats')">Chats</div>
+                <div class="tab" id="tab-channels" onclick="Nav.tab('channels')">Channels</div>
+            </div>
+            <div id="list-chats" class="list-wrap"></div>
+            <div id="list-channels" class="list-wrap hidden"></div>
+            <div id="list-search" class="list-wrap hidden"></div>
+
+            <!-- GOD PANEL -->
+            <div id="god-panel" class="god-panel-left hidden">
+                <span style="color:#FFD700; font-weight:800;">👑 GOD MODE</span>
+                <input id="god-target" placeholder="Username" class="app-input" style="padding:8px; margin:10px 0;">
+                
+                <input type="number" id="boost-amount" class="boost-amount-input" placeholder="Amount" value="100">
+                <button class="boost-btn boost-views" onclick="God.boostViews()">Boost Views</button>
+                <button class="boost-btn boost-subs" onclick="God.boostSubs()">Boost Subs</button>
+                
+                <input type="number" id="coins-amount" class="boost-amount-input" placeholder="Coins" value="1000" style="margin-top:15px;">
+                <button class="boost-btn boost-coins" onclick="God.boostCoins()">Boost Coins</button>
+                
+                <div style="display: flex; gap: 5px; margin-top: 10px;">
+                    <button class="btn" style="margin:0; font-size:0.8rem; flex:1;" onclick="God.verify()">Verify</button>
+                    <button class="btn" style="margin:0; font-size:0.8rem; flex:1; background:var(--error);" onclick="God.deleteUser()">Delete</button>
+                </div>
             </div>
         </div>
-        <div class="right-panel" id="right-panel">
-            <div id="empty-state" style="height:100%; display:flex; align-items:center; justify-content:center; color:#777;">Select Chat</div>
-            <div id="chat-ui" class="hidden" style="height:100%; display:flex; flex-direction:column;">
-                <div class="header" onclick="Profile.openOther()">
-                    <div id="chat-ava" class="ava"></div>
-                    <div style="margin-left:10px; flex:1;">
-                        <b id="chat-name">Name</b><br>
-                        <small id="chat-status">Online</small>
+
+        <div id="right-panel" class="right-panel">
+            <div id="empty-state" style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; color:var(--text-sec);">
+                <span style="background:rgba(0,152,234,0.1); padding:30px; border-radius:50%; margin-bottom:20px;">
+                    <span class="material-symbols-rounded" style="font-size:60px; color:#0098EA;">forum</span>
+                </span>
+                <h3>Welcome to Chronogram</h3>
+                <p>Select a chat or channel to start messaging</p>
+            </div>
+            
+            <div id="chat-interface" class="hidden">
+                <div class="chat-head" onclick="Profile.openOther()">
+                    <span class="material-symbols-rounded back-btn" style="display:none; cursor:pointer;" onclick="Nav.back()">arrow_back</span>
+                    <div id="chat-head-ava" class="ava-text"></div>
+                    <div style="flex:1;">
+                        <div><b id="chat-head-name">Name</b> <span id="chat-head-badge"></span></div>
+                        <div id="chat-head-status" style="font-size:0.8rem; color:var(--text-sec);">Status</div>
                     </div>
-                    <button id="accept-btn" class="hidden btn btn-gold" style="width:auto; padding:5px 15px;" onclick="event.stopPropagation(); Support.accept()">ACCEPT</button>
+                    <span class="material-symbols-rounded" style="cursor:pointer;">more_vert</span>
                 </div>
+                
                 <div id="chat-msgs" class="chat-msgs"></div>
-                <div id="input-area" class="header" style="border-top:1px solid #000;">
-                    <input id="msg-in" class="search" style="margin:0; width:100%;" placeholder="Message...">
-                    <span class="material-symbols-rounded" style="color:var(--accent); margin-left:10px; cursor:pointer;" onclick="Chat.send()">send</span>
+                
+                <div class="chat-input-bar" id="chat-input-bar">
+                    <input id="msg-in" type="text" placeholder="Type a message..." style="flex:1; background:transparent; border:none; color:white;">
+                    <span class="material-symbols-rounded" style="color:var(--accent); cursor:pointer;" onclick="Chat.send()">send</span>
+                </div>
+                
+                <div id="chan-footer" class="channel-footer" style="display:none; height:60px; padding:0 20px; align-items:center; justify-content:center;">
+                    <button id="chan-sub-btn" class="chan-btn" style="width:100%; padding:12px; background:var(--accent); color:white; border:none; border-radius:8px;">SUBSCRIBE</button>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- МОДАЛЬНОЕ ОКНО ПРОФИЛЯ -->
     <div id="modal-profile" class="modal" onclick="if(event.target===this)this.style.display='none'">
         <div class="modal-box">
-            <div id="prof-ava" class="ava" style="width:80px; height:80px; margin:0 auto; font-size:2rem;"></div>
-            <h2 id="prof-name">Name</h2>
-            <div id="prof-tag" style="color:#777;">@tag</div>
-            
-            <div style="display:flex; justify-content:center; gap:20px; margin:15px 0;">
-                <div><b id="prof-subs">0</b> <span class="cheat-btn hidden" id="cheat-sub" onclick="God.cheat('sub')">[+]</span><br><small>Subs</small></div>
-                <div><b id="prof-views">0</b><br><small>Views</small></div>
+            <div style="background: linear-gradient(135deg, #2b5278, #17212b); height: 100px;"></div>
+            <div style="position: relative; margin-top: -50px; margin-left: auto; margin-right: auto; width: 100px; height: 100px;">
+                <div id="prof-ava" class="ava-text" style="width:100px; height:100px; border-radius:24px; border: 6px solid var(--bg-left);"></div>
             </div>
-
-            <div id="my-wallet-btn" class="hidden">
-                <button class="btn btn-gold" onclick="Wallet.open()">💰 WALLET / COINS</button>
+            <div style="text-align:center; padding:20px;">
+                <h2><span id="prof-name">Name</span> <span id="prof-badge"></span></h2>
+                <div id="prof-tag" style="color:var(--text-sec);">@tag</div>
+                
+                <div style="display:flex; justify-content:center; gap:30px; margin:20px 0;">
+                    <div><b id="prof-subs">0</b><br><small>Subscribers</small></div>
+                    <div><b id="prof-balance">0</b> CG<br><small>Balance</small></div>
+                </div>
+                
+                <h4>🎁 NFT Collection</h4>
+                <div id="prof-gifts" class="gift-grid"></div>
+                
+                <div id="prof-actions" style="margin-top:20px;"></div>
             </div>
-
-            <div style="text-align:left; margin-top:10px; color:#aaa;">NFT Collection:</div>
-            <div id="prof-gifts" class="gift-grid"></div>
-
-            <div id="prof-actions"></div>
         </div>
     </div>
 
+    <!-- ДЕТАЛЬНЫЙ ПРОСМОТР NFT -->
+    <div id="modal-nft-detail" class="modal" onclick="if(event.target===this)this.style.display='none'">
+        <div class="modal-box">
+            <div id="nft-detail-content"></div>
+        </div>
+    </div>
+
+    <!-- МОДАЛЬНОЕ ОКНО КОШЕЛЬКА -->
     <div id="modal-wallet" class="modal" onclick="if(event.target===this)this.style.display='none'">
-        <div class="modal-box" style="background:linear-gradient(135deg, #0077b6, #0096c7); color:white;">
-            <h2>TON WALLET</h2>
-            <div style="font-size:2rem; font-weight:800;"><span id="wal-bal">0</span> CG</div>
-            <small>1 TON ≈ 25 CG</small>
-            <div style="background:rgba(0,0,0,0.3); padding:10px; border-radius:8px; margin:15px 0; font-size:0.8rem; word-break:break-all;">
-                DEPOSIT ADDRESS:<br><b id="admin-wallet">...</b>
-                <br><br>
-                REQUIRED MEMO:<br><b id="my-memo" style="color:var(--gold); font-size:1.2rem;">...</b>
+        <div class="modal-box">
+            <div style="background: linear-gradient(135deg, #0098EA, #0077b6); padding: 30px; text-align: center; color: white;">
+                <h1>TON WALLET</h1>
+                <div style="font-size:28px; font-weight:800; margin-top:15px;"><span id="wal-bal">0</span> CG</div>
+                <small>1 TON ≈ 25 CG</small>
             </div>
-            <button class="btn btn-gold" onclick="Wallet.check()">Check Deposit (Simulate)</button>
-            <button class="btn btn-sec" style="color:white; border-color:white;" onclick="Premium.buy()">Buy Premium (625 CG)</button>
+            
+            <div style="padding: 25px;">
+                <div style="background:rgba(0,0,0,0.3); padding:15px; border-radius:12px; margin-bottom:20px;">
+                    <div style="font-size:0.9rem; color:#ccc;">DEPOSIT ADDRESS:</div>
+                    <div id="admin-wallet" style="font-family:monospace; font-size:0.85rem; word-break:break-all; margin:5px 0;">
+                        UQALTzK2cJsUI7LUe85V82Et4Kmayzk11l_noMRvYCRa0_zQ
+                    </div>
+                    <button class="btn" onclick="Wallet.copyAddress()" style="margin-top:10px; padding:8px;">Copy Address</button>
+                </div>
+                
+                <div style="background:rgba(255,215,0,0.1); padding:15px; border-radius:12px; border:1px solid #FFD700; margin-bottom:20px;">
+                    <div style="color:#FFD700;">YOUR MEMO:</div>
+                    <div id="my-memo" style="font-family:monospace; color:#FFD700; font-weight:bold; margin:5px 0;">Loading...</div>
+                    <button class="btn btn-gold" onclick="Wallet.copyMemo()" style="margin-top:10px; padding:8px;">Copy Memo</button>
+                </div>
+                
+                <h3>Instant Buy Coins</h3>
+                <div style="display:grid; gap:10px; margin:20px 0;">
+                    <div class="gift-item" onclick="Ton.buy(100, 4)" style="display:flex; justify-content:space-between; padding:15px; cursor:pointer;">
+                        <b>100 CG</b> <span>4 TON</span>
+                    </div>
+                    <div class="gift-item" onclick="Ton.buy(500, 20)" style="display:flex; justify-content:space-between; padding:15px; cursor:pointer;">
+                        <b>500 CG</b> <span>20 TON</span>
+                    </div>
+                    <div class="gift-item" onclick="Ton.buy(1000, 40)" style="display:flex; justify-content:space-between; padding:15px; cursor:pointer;">
+                        <b>1000 CG</b> <span>40 TON</span>
+                    </div>
+                </div>
+                
+                <button class="btn btn-ton" onclick="Wallet.check()">Check Deposit</button>
+                <button class="btn btn-gold" onclick="Premium.buy()">Buy Premium (625 CG)</button>
+            </div>
         </div>
     </div>
 
+    <!-- МАГАЗИН NFT -->
     <div id="modal-shop" class="modal" onclick="if(event.target===this)this.style.display='none'">
         <div class="modal-box">
-            <h3>NFT Shop</h3>
-            <div class="gift-grid">
-                <div class="gift-card" onclick="Shop.buy('🍦', 25)">🍦<br>25</div>
-                <div class="gift-card" onclick="Shop.buy('⭐️', 50)">⭐️<br>50</div>
-                <div class="gift-card" onclick="Shop.buy('💎', 100)">💎<br>100</div>
-                <div class="gift-card" onclick="Shop.buy('👑', 500)">👑<br>500</div>
-                <div class="gift-card" onclick="Shop.buy('🦄', 1000)">🦄<br>1K</div>
-                <div class="gift-card" onclick="Shop.buy('🪐', 5000)">🪐<br>5K</div>
+            <div style="background: linear-gradient(135deg, #805ad5, #553c9a); padding: 25px; text-align: center; color: white;">
+                <h3>🎁 NFT Shop</h3>
+                <small>Collect rare digital items</small>
+            </div>
+            
+            <div class="rarity-filters">
+                <div class="rarity-filter common active" onclick="Shop.filter('all')">All</div>
+                <div class="rarity-filter common" onclick="Shop.filter('common')">Common</div>
+                <div class="rarity-filter rare" onclick="Shop.filter('rare')">Rare</div>
+                <div class="rarity-filter epic" onclick="Shop.filter('epic')">Epic</div>
+                <div class="rarity-filter legendary" onclick="Shop.filter('legendary')">Legendary</div>
+            </div>
+            
+            <div style="padding: 20px;">
+                <div id="shop-items" class="gift-grid"></div>
             </div>
         </div>
     </div>
 
-    <div id="modal-nft" class="modal" onclick="if(event.target===this)this.style.display='none'">
-        <div class="modal-box">
-            <h3 id="nft-icon" style="font-size:4rem; margin:0;"></h3>
-            <div id="nft-hash" style="font-family:monospace; color:#accent; font-size:0.7rem;"></div>
-            <div id="nft-rarity" style="margin:10px; font-weight:bold;"></div>
-            <div id="nft-price" style="color:#777;"></div>
-            
-            <button class="btn btn-craft" onclick="Shop.craft()">✨ CRAFT / UPGRADE (50 CG)</button>
-            <button class="btn btn-gold" onclick="Shop.sell()">💰 SELL TO MARKET</button>
-        </div>
-    </div>
-
+    <!-- СОЗДАНИЕ КАНАЛА -->
     <div id="modal-create" class="modal" onclick="if(event.target===this)this.style.display='none'">
-        <div class="modal-box">
-            <h3>New Channel</h3>
-            <input id="new-ch-name" class="app-input" placeholder="Name">
-            <input id="new-ch-slug" class="app-input" placeholder="@username">
+        <div class="modal-box" style="padding:30px;">
+            <div style="text-align:center; margin-bottom:20px;">
+                <span class="material-symbols-rounded" style="font-size:40px; color:var(--accent);">campaign</span>
+                <h2>New Channel</h2>
+            </div>
+            <input id="new-ch-name" class="app-input" placeholder="Channel Name">
+            <input id="new-ch-slug" class="app-input" placeholder="Username (@news)">
             <button class="btn btn-gold" onclick="Channels.create()">CREATE</button>
         </div>
     </div>
 
+    <!-- СОЗДАНИЕ ПОСТА -->
+    <div id="modal-create-post" class="modal" onclick="if(event.target===this)this.style.display='none'">
+        <div class="modal-box" style="padding:30px;">
+            <div style="text-align:center; margin-bottom:20px;">
+                <h2>New Post with Button</h2>
+            </div>
+            <textarea id="post-text" class="app-input" placeholder="Post text" rows="4"></textarea>
+            <input id="post-btn-text" class="app-input" placeholder="Button text">
+            <input id="post-btn-url" class="app-input" placeholder="Button URL">
+            <button class="btn btn-gold" onclick="Channels.createPost()">PUBLISH</button>
+        </div>
+    </div>
+
+    <!-- ОТПРАВКА ПОДАРКА -->
+    <div id="modal-gift-send" class="modal" onclick="if(event.target===this)this.style.display='none'">
+        <div class="modal-box" style="padding:20px; text-align:center;">
+            <h3>🎁 Send NFT Gift</h3>
+            <p style="color:var(--text-sec);">To: <span id="gift-target-name">User</span></p>
+            
+            <div id="gift-selection" style="display:grid; grid-template-columns: repeat(3, 1fr); gap:10px; margin:20px 0;">
+                <!-- NFT будут загружены динамически -->
+            </div>
+            
+            <button class="btn" onclick="document.getElementById('modal-gift-send').style.display='none'">Cancel</button>
+        </div>
+    </div>
+
     <script>
+        // ==================== КОНФИГУРАЦИЯ ====================
         const firebaseConfig = {
             apiKey: "AIzaSyCEHTgXvVF7a-H_NxlRj77i46ueelJBGL0",
             authDomain: "chronogramnew.firebaseapp.com",
@@ -226,95 +467,267 @@
             messagingSenderId: "1081606850128",
             appId: "1:1081606850128:web:439fd598a3d11576a47355"
         };
-        const ADMIN_WALLET = "UQALTzK2cJsUI7LUe85V82Et4Kmayzk11l_noMRvYCRa0_zQ";
 
+        // ВАШ TON КОШЕЛЕК
+        const ADMIN_WALLET = "UQALTzK2cJsUI7LUe85V82Et4Kmayzk11l_noMRvYCRa0_zQ";
+        const GODS = ['mrakodum', 'support_agent'];
+        
+        // БАЗА ДАННЫХ NFT
+        const NFT_DATABASE = {
+            backgrounds: [
+                { id: 'space', name: 'Space', color: 'linear-gradient(135deg, #0f0c29, #302b63, #24243e)' },
+                { id: 'aurora', name: 'Aurora', color: 'linear-gradient(135deg, #00c6ff, #0072ff)' },
+                { id: 'sunset', name: 'Sunset', color: 'linear-gradient(135deg, #ff7e5f, #feb47b)' },
+                { id: 'forest', name: 'Forest', color: 'linear-gradient(135deg, #134e5e, #71b280)' },
+                { id: 'galaxy', name: 'Galaxy', color: 'linear-gradient(135deg, #3a1c71, #d76d77, #ffaf7b)' },
+                { id: 'ocean', name: 'Ocean', color: 'linear-gradient(135deg, #2193b0, #6dd5ed)' },
+                { id: 'fire', name: 'Fire', color: 'linear-gradient(135deg, #ff512f, #dd2476)' },
+                { id: 'gold', name: 'Gold', color: 'linear-gradient(135deg, #FFD700, #FFA500)' }
+            ],
+            
+            models: [
+                { id: 'default', name: 'Default', class: '' },
+                { id: 'ghost', name: 'Ghost', class: 'model-ghost' },
+                { id: 'outline', name: 'Outline', class: 'model-outline' },
+                { id: 'gradient', name: 'Gradient', class: 'model-gradient' },
+                { id: 'glow', name: 'Glow', class: 'model-glow', style: 'text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #ff00de;' }
+            ],
+            
+            patterns: [
+                { id: 'none', name: 'None', chance: 30 },
+                { id: 'stars', name: 'Stars', chance: 20 },
+                { id: 'stripes', name: 'Stripes', chance: 15 },
+                { id: 'dots', name: 'Dots', chance: 15 },
+                { id: 'waves', name: 'Waves', chance: 10 },
+                { id: 'hearts', name: 'Hearts', chance: 10 }
+            ],
+            
+            items: [
+                // COMMON
+                { id: 'icecream', icon: '🍦', name: 'Ice Cream', rarity: 'common', value: 25 },
+                { id: 'pizza', icon: '🍕', name: 'Pizza Slice', rarity: 'common', value: 30 },
+                { id: 'coffee', icon: '☕️', name: 'Coffee', rarity: 'common', value: 35 },
+                { id: 'book', icon: '📚', name: 'Book Stack', rarity: 'common', value: 40 },
+                
+                // RARE
+                { id: 'star', icon: '⭐️', name: 'Shiny Star', rarity: 'rare', value: 50 },
+                { id: 'diamond', icon: '💎', name: 'Blue Diamond', rarity: 'rare', value: 75 },
+                { id: 'fire', icon: '🔥', name: 'Fire Emoji', rarity: 'rare', value: 100 },
+                { id: 'rocket', icon: '🚀', name: 'Rocket', rarity: 'rare', value: 125 },
+                
+                // EPIC
+                { id: 'crown', icon: '👑', name: 'Golden Crown', rarity: 'epic', value: 200 },
+                { id: 'trophy', icon: '🏆', name: 'Champion Trophy', rarity: 'epic', value: 300 },
+                { id: 'planet', icon: '🪐', name: 'Distant Planet', rarity: 'epic', value: 400 },
+                { id: 'dragon', icon: '🐉', name: 'Dragon', rarity: 'epic', value: 500 },
+                
+                // LEGENDARY
+                { id: 'unicorn', icon: '🦄', name: 'Magic Unicorn', rarity: 'legendary', value: 1000 },
+                { id: 'durov_cap', icon: '🧢', name: 'Durov\'s Cap', rarity: 'legendary', value: 2500 },
+                { id: 'balenciaga', icon: '👕', name: 'Balenciaga Shirt', rarity: 'legendary', value: 5000 },
+                { id: 'chronos', icon: '⏳', name: 'Chronos Hourglass', rarity: 'legendary', value: 10000 }
+            ]
+        };
+
+        // ==================== ИНИЦИАЛИЗАЦИЯ ====================
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
+        
+        let me = null, isGod = false, activeChat = null, profTarget = null;
+        let tonConnectUI = null;
 
-        let me = null, isGod = false, isSupport = false, activeChat = null, profTarget = null, selectedNFT = null;
-        const GODS = ['mrakodum', 'support_agent'];
+        // TON Connect инициализация
+        function initTonConnect() {
+            tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+                manifestUrl: 'https://chronogram.app/tonconnect-manifest.json',
+                buttonRootId: 'ton-connect-container'
+            });
+            
+            // Автоматическая проверка платежей
+            setInterval(() => {
+                if (me && me.d) {
+                    Wallet.checkAuto();
+                }
+            }, 30000); // Каждые 30 секунд
+        }
 
+        // Firebase Auth
         auth.onAuthStateChanged(u => {
             if(u) {
                 me = u;
                 db.collection('users').doc(u.uid).get().then(d => {
                     if(d.exists) {
                         me.d = d.data();
-                        if(GODS.includes(me.d.username)) { isGod=true; document.getElementById('god-panel').classList.remove('hidden'); }
-                        if(me.d.username === 'support_agent') { isSupport=true; }
+                        if(GODS.includes(me.d.username)) { 
+                            isGod = true; 
+                            document.getElementById('god-panel').classList.remove('hidden'); 
+                        }
                         document.getElementById('auth-screen').style.display='none';
+                        document.getElementById('app').classList.add('active');
                         App.init();
                     } else auth.signOut();
                 });
-            } else document.getElementById('auth-screen').style.display='flex';
+            } else {
+                document.getElementById('auth-screen').style.display='flex';
+                document.getElementById('app').classList.remove('active');
+            }
         });
 
+        // ==================== МОДУЛИ ====================
+
         const Auth = {
-            login: () => auth.signInWithEmailAndPassword(document.getElementById('email-in').value, document.getElementById('password-in').value),
+            login: () => {
+                const email = document.getElementById('email-in').value;
+                const password = document.getElementById('password-in').value;
+                auth.signInWithEmailAndPassword(email, password)
+                    .catch(err => document.getElementById('auth-err').innerText = err.message);
+            },
             reg: () => {
-                const un = document.getElementById('username-in').value.toLowerCase();
-                auth.createUserWithEmailAndPassword(document.getElementById('email-in').value, document.getElementById('password-in').value)
-                .then(c => db.collection('users').doc(c.user.uid).set({
-                    username: un, displayName: un, balance: 0, gifts: [], verified: GODS.includes(un), followers: [], following: []
-                }));
+                const email = document.getElementById('email-in').value;
+                const password = document.getElementById('password-in').value;
+                const username = document.getElementById('username-in').value.toLowerCase();
+                
+                if(!username) {
+                    document.getElementById('auth-err').innerText = 'Enter username';
+                    return;
+                }
+                
+                auth.createUserWithEmailAndPassword(email, password).then(c => {
+                    db.collection('users').doc(c.user.uid).set({
+                        username: username, 
+                        displayName: username, 
+                        balance: 0,
+                        gifts: [], 
+                        verified: GODS.includes(username),
+                        followers: [], 
+                        following: [],
+                        fakeSubs: 0,
+                        createdAt: Date.now()
+                    });
+                }).catch(err => document.getElementById('auth-err').innerText = err.message);
             }
         };
 
-        const App = { init: () => { Chats.load(); Channels.load(); } };
+        const App = { 
+            init: () => { 
+                initTonConnect();
+                Chats.load(); 
+                Channels.load(); 
+                Shop.render(); // Загружаем магазин
+            } 
+        };
+
+        const Nav = {
+            tab: (t) => {
+                document.querySelectorAll('.tab').forEach(e=>e.classList.remove('active'));
+                document.getElementById('tab-'+t).classList.add('active');
+                document.getElementById('list-chats').classList.add('hidden');
+                document.getElementById('list-channels').classList.add('hidden');
+                document.getElementById('list-search').classList.add('hidden');
+                if(t === 'chats') document.getElementById('list-chats').classList.remove('hidden');
+                if(t === 'channels') document.getElementById('list-channels').classList.remove('hidden');
+                document.getElementById('search-in').value = '';
+            },
+            back: () => {
+                document.getElementById('right-panel').classList.remove('open');
+                activeChat = null;
+            }
+        };
 
         const Chats = {
             load: () => {
-                db.collection('users').doc(me.uid).collection('chats').orderBy('time','desc').onSnapshot(s => {
+                db.collection('users').doc(me.uid).collection('chats').orderBy('time','desc').onSnapshot(async s => {
                     const l = document.getElementById('list-chats'); l.innerHTML='';
-                    s.forEach(async doc => {
+                    for (const doc of s.docs) {
                         const d = doc.data();
-                        if(isGod && d.isRequest && !d.accepted) return; // God hides requests from main list
                         const u = await db.collection('users').doc(doc.id).get();
-                        const name = (d.isRequest && !isSupport) ? 'Support' : u.data().displayName;
-                        l.innerHTML += `<div class="list-item" onclick="Chat.open('${doc.id}','user','${name}')"><div class="ava">${name[0]}</div><div style="margin-left:10px;"><b>${name}</b><br><small>${d.lastMsg}</small></div></div>`;
-                    });
+                        if(!u.exists) continue;
+                        
+                        const name = u.data().displayName;
+                        const isG = GODS.includes(u.data().username);
+                        const isV = u.data().verified;
+                        
+                        l.innerHTML += `
+                            <div class="list-item" onclick="Chat.open('${doc.id}','user','${name}',${isG},${isV})">
+                                <div class="ava-text">${name[0]}</div>
+                                <div><b>${name}</b><br><small>${d.lastMsg || 'No messages'}</small></div>
+                            </div>`;
+                    }
                 });
             },
-            open: (id, type, name) => {
+            open: (id, type, name, isG, isV) => {
                 activeChat = {id, type};
                 document.getElementById('right-panel').classList.add('open');
-                document.getElementById('chat-ui').classList.remove('hidden');
+                document.getElementById('chat-interface').classList.remove('hidden');
                 document.getElementById('empty-state').classList.add('hidden');
-                document.getElementById('chat-name').innerText = name;
-                document.getElementById('chat-ava').innerText = name[0];
-                document.getElementById('chat-ava').className = type==='channel' ? 'ava ava-chan' : 'ava';
-                
-                document.getElementById('accept-btn').classList.add('hidden');
-                document.getElementById('input-area').style.display = 'flex';
+                document.getElementById('chat-head-name').innerText = name;
+                document.getElementById('chat-head-ava').innerText = name[0];
+                document.getElementById('chat-head-ava').className = type==='channel' ? 'ava-text ava-chan' : 'ava-text';
 
                 if(type === 'channel') {
                     db.collection('channels').doc(id).onSnapshot(d => {
+                        if(!d.exists) return;
                         const c = d.data();
                         const realS = c.subs.length + (c.fakeSubs||0);
-                        document.getElementById('chat-status').innerText = `${realS} Subs`;
-                        if(c.owner !== me.uid && !isGod) document.getElementById('input-area').style.display='none';
-                        if(isGod) document.getElementById('input-area').style.display='flex';
-                    });
-                } else {
-                    db.collection('users').doc(me.uid).collection('chats').doc(id).get().then(d => {
-                        if(d.exists && d.data().isRequest && !d.data().accepted) {
-                            if(isSupport) document.getElementById('accept-btn').classList.remove('hidden');
-                            else document.getElementById('input-area').style.display='none';
+                        document.getElementById('chat-head-status').innerText = `${realS} Subs`;
+                        document.getElementById('chan-footer').style.display = 'flex';
+                        const isSub = c.subs.includes(me.uid);
+                        const btn = document.getElementById('chan-sub-btn');
+                        btn.innerText = isSub ? "UNSUBSCRIBE" : "SUBSCRIBE";
+                        btn.onclick = () => Profile.sub(id, 'channel', isSub);
+                        
+                        if(c.owner === me.uid) {
+                            const inputBar = document.getElementById('chat-input-bar');
+                            inputBar.innerHTML = `
+                                <button class="btn" onclick="Channels.showCreatePostModal()" style="flex:1;">📝 Create Post</button>
+                            `;
+                        } else {
+                            document.getElementById('chat-input-bar').style.display='none';
                         }
                     });
+                } else {
+                    document.getElementById('chat-head-status').innerText = 'Online';
                 }
 
                 const col = type==='user'?'messages':'posts';
                 const docId = type==='user'?[me.uid, id].sort().join('_'):id;
-                db.collection(col).doc(docId).collection('msg').orderBy('time').onSnapshot(s => {
+                
+                db.collection(col).doc(docId).collection('msg').orderBy('time','desc').limit(20).onSnapshot(s => {
                     const d = document.getElementById('chat-msgs'); d.innerHTML='';
+                    const messages = [];
                     s.forEach(doc => {
-                        const m = doc.data();
+                        messages.push({id: doc.id, ...doc.data()});
+                    });
+                    
+                    messages.sort((a,b) => a.time - b.time);
+                    
+                    messages.forEach(m => {
                         if(type==='channel') {
-                            const cheat = isGod ? `<span class="cheat-btn" onclick="God.cheatView('${doc.id}')">[+50]</span>` : '';
-                            d.innerHTML += `<div class="post">${m.text}<div style="margin-top:10px;color:#777;font-size:0.8rem;">👁 ${m.views||0} ${cheat}</div></div>`;
-                            if(!isGod) doc.ref.update({views: firebase.firestore.FieldValue.increment(1)}); // Live view logic
+                            let postContent = `<div class="post"><div class="post-header"><b>${name}</b></div><div class="post-body">${m.text}</div>`;
+                            
+                            if(m.buttons && m.buttons.length > 0) {
+                                m.buttons.forEach(btn => {
+                                    postContent += `<a href="${btn.url}" target="_blank" class="channel-post-btn">${btn.text}</a>`;
+                                });
+                            }
+                            
+                            // GOD ACTIONS
+                            if(isGod) {
+                                postContent += `<div class="god-actions">
+                                    <button class="god-action-btn delete" onclick="God.deletePost('${docId}', '${m.id}')">✕</button>
+                                </div>`;
+                            }
+                            
+                            postContent += `<div class="post-footer">👁 ${m.views||0}</div></div>`;
+                            d.innerHTML += postContent;
+                            
+                            // Увеличиваем просмотры
+                            if(!isGod) {
+                                db.collection('posts').doc(docId).collection('msg').doc(m.id).update({
+                                    views: firebase.firestore.FieldValue.increment(1)
+                                });
+                            }
                         } else {
                             d.innerHTML += `<div class="msg ${m.uid===me.uid?'me':'other'}">${m.text}</div>`;
                         }
@@ -327,13 +740,14 @@
                 if(!txt) return;
                 const col = activeChat.type==='user'?'messages':'posts';
                 const docId = activeChat.type==='user'?[me.uid, activeChat.id].sort().join('_'):activeChat.id;
-                db.collection(col).doc(docId).collection('msg').add({text:txt, uid:me.uid, time:Date.now(), views:0});
                 
-                if(activeChat.type==='user') {
-                    // Logic for new DM request omitted for brevity but standard firebase
-                    db.collection('users').doc(me.uid).collection('chats').doc(activeChat.id).set({lastMsg:txt, time:Date.now()}, {merge:true});
-                    db.collection('users').doc(activeChat.id).collection('chats').doc(me.uid).set({lastMsg:txt, time:Date.now(), unread:true}, {merge:true});
-                }
+                db.collection(col).doc(docId).collection('msg').add({
+                    text: txt, 
+                    uid: me.uid, 
+                    time: Date.now(), 
+                    views: 0
+                });
+                
                 document.getElementById('msg-in').value='';
             }
         };
@@ -342,150 +756,704 @@
             createModal: () => document.getElementById('modal-create').style.display='flex',
             create: () => {
                 const n = document.getElementById('new-ch-name').value;
-                if(n) db.collection('channels').add({name:n, owner:me.uid, subs:[me.uid], fakeSubs:0}).then(()=>document.getElementById('modal-create').style.display='none');
+                const s = document.getElementById('new-ch-slug').value.toLowerCase().replace('@','');
+                if(n && s) {
+                    db.collection('channels').add({
+                        name:n, 
+                        username:s,
+                        owner:me.uid, 
+                        subs:[me.uid], 
+                        fakeSubs:0,
+                        views:0,
+                        createdAt: Date.now()
+                    }).then(()=>{
+                        document.getElementById('modal-create').style.display='none';
+                        document.getElementById('new-ch-name').value = '';
+                        document.getElementById('new-ch-slug').value = '';
+                    });
+                }
             },
             load: () => {
                 db.collection('channels').where('subs','array-contains',me.uid).onSnapshot(s => {
+                    const l = document.getElementById('list-channels'); l.innerHTML='';
                     s.forEach(d => {
-                        const l = document.getElementById('list-chats');
-                        l.innerHTML += `<div class="list-item" onclick="Chat.open('${d.id}','channel','${d.data().name}')"><div class="ava ava-chan">${d.data().name[0]}</div><div style="margin-left:10px;"><b>${d.data().name}</b></div></div>`;
+                        const c = d.data();
+                        l.innerHTML += `
+                            <div class="list-item" onclick="Chat.open('${d.id}','channel','${c.name}')">
+                                <div class="ava-text ava-chan">${c.name[0]}</div>
+                                <div><b>${c.name}</b><br><small>@${c.username}</small></div>
+                            </div>`;
                     });
                 });
+            },
+            showCreatePostModal: () => {
+                document.getElementById('modal-create-post').style.display='flex';
+            },
+            createPost: () => {
+                const text = document.getElementById('post-text').value;
+                const btnText = document.getElementById('post-btn-text').value;
+                const btnUrl = document.getElementById('post-btn-url').value;
+                
+                if(!text) return alert('Enter post text');
+                
+                const postData = {
+                    text: text,
+                    uid: me.uid,
+                    time: Date.now(),
+                    views: 0
+                };
+                
+                if(btnText && btnUrl) {
+                    postData.buttons = [{text: btnText, url: btnUrl}];
+                }
+                
+                const docId = activeChat.id;
+                db.collection('posts').doc(docId).collection('msg').add(postData);
+                
+                document.getElementById('modal-create-post').style.display='none';
+                document.getElementById('post-text').value = '';
+                document.getElementById('post-btn-text').value = '';
+                document.getElementById('post-btn-url').value = '';
             }
         };
 
         const Profile = {
-            openMe: () => Profile.render(me.uid, 'user'),
-            openOther: () => Profile.render(activeChat.id, activeChat.type),
-            render: (id, type) => {
-                profTarget = {id, type};
+            openMe: () => Profile.render(me.uid, 'user', true),
+            openOther: () => Profile.render(activeChat.id, activeChat.type, false),
+            render: (id, type, isMe) => {
+                profTarget = {id, type, isMe};
                 document.getElementById('modal-profile').style.display='flex';
                 const ref = type==='user'?db.collection('users').doc(id):db.collection('channels').doc(id);
-                ref.onSnapshot(d => {
-                    const data = d.data();
+                
+                ref.onSnapshot(doc => {
+                    if(!doc.exists) return;
+                    const data = doc.data();
                     const realS = (data.followers?.length||data.subs?.length||0) + (data.fakeSubs||0);
-                    document.getElementById('prof-name').innerText = data.displayName || data.name;
-                    document.getElementById('prof-subs').innerText = realS;
                     
-                    if(id === me.uid) document.getElementById('my-wallet-btn').classList.remove('hidden');
-                    else document.getElementById('my-wallet-btn').classList.add('hidden');
-
-                    if(isGod && type==='channel') document.getElementById('cheat-sub').classList.remove('hidden');
-                    else document.getElementById('cheat-sub').classList.add('hidden');
-
+                    document.getElementById('prof-name').innerText = data.displayName || data.name;
+                    document.getElementById('prof-tag').innerText = '@' + data.username;
+                    document.getElementById('prof-subs').innerText = realS;
+                    document.getElementById('prof-balance').innerText = data.balance || 0;
+                    document.getElementById('prof-ava').innerText = (data.displayName || data.name)[0];
+                    
+                    // NFT коллекция
                     const gGrid = document.getElementById('prof-gifts'); gGrid.innerHTML='';
-                    if(data.gifts) data.gifts.forEach((g, i) => {
-                        gGrid.innerHTML += `<div class="gift-card rare-${g.rarity?.toLowerCase()||'common'}" onclick="Shop.openDetail('${id}', ${i})">${g.icon}</div>`;
-                    });
-
-                    const acts = document.getElementById('prof-actions');
-                    if(id !== me.uid) {
-                        const isSub = type==='user' ? data.followers?.includes(me.uid) : data.subs?.includes(me.uid);
-                        acts.innerHTML = `<button class="btn btn-sec" onclick="Profile.sub('${id}','${type}',${isSub})">${isSub?'Unsub':'Sub'}</button>`;
-                        if(type==='user') acts.innerHTML += `<button class="btn btn-gold" onclick="document.getElementById('modal-gift-shop').style.display='flex'">Send Gift</button>`;
+                    if(data.gifts && data.gifts.length > 0) {
+                        data.gifts.forEach((gift, i) => {
+                            const item = NFT_DATABASE.items.find(item => item.id === gift.itemId) || gift;
+                            gGrid.innerHTML += `
+                                <div class="gift-item" onclick="NFT.showDetail(${i}, '${id}')"
+                                     style="border-color: var(--${item.rarity || 'common'}); 
+                                            background: rgba(var(--${item.rarity || 'common'}-rgb, 160, 174, 192), 0.1);">
+                                    <div class="nft-icon">${item.icon}</div>
+                                    <small style="color: var(--${item.rarity || 'common'})">${item.rarity || 'common'}</small>
+                                </div>`;
+                        });
                     } else {
-                        acts.innerHTML = `<button class="btn btn-sec" onclick="auth.signOut()">Logout</button>`;
+                        gGrid.innerHTML = '<p style="color:var(--text-sec); text-align:center;">No NFTs yet</p>';
+                    }
+                    
+                    // Действия
+                    const acts = document.getElementById('prof-actions');
+                    if(isMe) {
+                        acts.innerHTML = `
+                            <button class="btn" onclick="Wallet.open()">💰 WALLET</button>
+                            <button class="btn" onclick="Shop.open()">🎁 NFT Shop</button>
+                        `;
+                    } else {
+                        const isSub = type==='user' ? data.followers?.includes(me.uid) : data.subs?.includes(me.uid);
+                        acts.innerHTML = `
+                            <button class="btn ${isSub?'':'btn-ton'}" onclick="Profile.sub('${id}','${type}',${isSub})">
+                                ${isSub?'Unsubscribe':'Subscribe'}
+                            </button>
+                            ${type==='user' ? `<button class="btn btn-gold" onclick="Gifts.openForUser('${id}', '${data.displayName}')">Send Gift</button>` : ''}
+                        `;
                     }
                 });
             },
             sub: (id, type, isSub) => {
                 const op = isSub ? firebase.firestore.FieldValue.arrayRemove(me.uid) : firebase.firestore.FieldValue.arrayUnion(me.uid);
-                if(type==='channel') db.collection('channels').doc(id).update({subs:op});
-                else db.collection('users').doc(id).update({followers:op});
+                if(type==='channel') {
+                    db.collection('channels').doc(id).update({subs:op});
+                } else {
+                    db.collection('users').doc(id).update({followers:op});
+                }
+            }
+        };
+
+        const NFT = {
+            showDetail: (index, userId) => {
+                const userRef = db.collection('users').doc(userId);
+                userRef.get().then(doc => {
+                    if(!doc.exists) return;
+                    const gifts = doc.data().gifts || [];
+                    const gift = gifts[index];
+                    if(!gift) return;
+                    
+                    const item = NFT_DATABASE.items.find(item => item.id === gift.itemId) || gift;
+                    const totalOfType = gifts.filter(g => g.itemId === gift.itemId).length;
+                    
+                    let details = '';
+                    if(gift.variation) {
+                        const bg = NFT_DATABASE.backgrounds.find(b => b.id === gift.variation.bg) || NFT_DATABASE.backgrounds[0];
+                        const model = NFT_DATABASE.models.find(m => m.id === gift.variation.model) || NFT_DATABASE.models[0];
+                        const pattern = NFT_DATABASE.patterns.find(p => p.id === gift.variation.pattern) || NFT_DATABASE.patterns[0];
+                        
+                        details = `
+                            <div class="nft-card rarity-${item.rarity}">
+                                <div class="nft-bg" style="background: ${bg.color};">
+                                    <div class="nft-model ${model.class}" style="${model.style || ''}">
+                                        ${item.icon}
+                                    </div>
+                                </div>
+                                <div class="nft-stats">
+                                    <div class="nft-value">${item.value} CG</div>
+                                    <div class="nft-stat-row">
+                                        <span>Collection</span>
+                                        <span>${item.name}</span>
+                                    </div>
+                                    <div class="nft-stat-row">
+                                        <span>Model</span>
+                                        <span>${model.name}</span>
+                                    </div>
+                                    <div class="nft-stat-row">
+                                        <span>Background</span>
+                                        <span>${bg.name}</span>
+                                    </div>
+                                    <div class="nft-stat-row">
+                                        <span>Pattern</span>
+                                        <span>${pattern.name}</span>
+                                    </div>
+                                    <div class="nft-stat-row">
+                                        <span>Released</span>
+                                        <span>${totalOfType}/∞</span>
+                                    </div>
+                                    <div class="nft-stat-row">
+                                        <span>Rarity</span>
+                                        <span style="color: var(--${item.rarity})">${item.rarity.toUpperCase()}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div style="text-align:center; padding:15px;">
+                                <button class="btn" onclick="NFT.sendGift(${index})">Send as Gift</button>
+                            </div>
+                        `;
+                    } else {
+                        details = `
+                            <div style="padding:30px; text-align:center;">
+                                <div class="nft-icon" style="font-size:80px;">${item.icon}</div>
+                                <h2>${item.name}</h2>
+                                <p style="color:var(--${item.rarity})">${item.rarity.toUpperCase()}</p>
+                                <div style="font-size:24px; font-weight:bold; margin:20px 0;">${item.value} CG</div>
+                                <button class="btn" onclick="NFT.sendGift(${index})">Send as Gift</button>
+                            </div>
+                        `;
+                    }
+                    
+                    document.getElementById('nft-detail-content').innerHTML = details;
+                    document.getElementById('modal-nft-detail').style.display = 'flex';
+                });
+            },
+            
+            sendGift: function(index) {
+                if(!profTarget) return;
+                const userRef = db.collection('users').doc(me.uid);
+                userRef.get().then(doc => {
+                    const gifts = doc.data().gifts || [];
+                    const gift = gifts[index];
+                    if(!gift) return;
+                    
+                    // Удаляем у отправителя
+                    const newGifts = gifts.filter((g, i) => i !== index);
+                    
+                    // Добавляем получателю
+                    userRef.update({ gifts: newGifts });
+                    
+                    db.collection('users').doc(profTarget.id).update({
+                        gifts: firebase.firestore.FieldValue.arrayUnion({
+                            ...gift,
+                            from: me.uid,
+                            giftedAt: Date.now()
+                        })
+                    });
+                    
+                    alert('🎁 Gift sent successfully!');
+                    document.getElementById('modal-nft-detail').style.display = 'none';
+                    document.getElementById('modal-profile').style.display = 'none';
+                });
             }
         };
 
         const Wallet = {
             open: () => {
                 document.getElementById('modal-wallet').style.display='flex';
-                document.getElementById('wal-bal').innerText = me.d.balance;
+                document.getElementById('wal-bal').innerText = me.d.balance || 0;
                 document.getElementById('admin-wallet').innerText = ADMIN_WALLET;
                 document.getElementById('my-memo').innerText = me.uid;
             },
+            copyAddress: () => {
+                navigator.clipboard.writeText(ADMIN_WALLET);
+                alert('Address copied!');
+            },
+            copyMemo: () => {
+                navigator.clipboard.writeText(me.uid);
+                alert('Memo copied!');
+            },
             check: () => {
-                if(confirm(`Did you send TON to ${ADMIN_WALLET} with comment ${me.uid}?`)) {
-                    // In real app, backend checks blockchain. Here we simulate for prototype or notify support.
-                    alert("Scanning Blockchain... Funds will appear shortly.");
-                    // For demo: add 100 coins
-                    // db.collection('users').doc(me.uid).update({balance: firebase.firestore.FieldValue.increment(100)});
+                alert('Checking for recent deposits...');
+                Wallet.checkAuto();
+            },
+            checkAuto: () => {
+                // Проверяем последние депозиты
+                db.collection('deposits')
+                    .where('userId', '==', me.uid)
+                    .where('status', '==', 'pending')
+                    .orderBy('timestamp', 'desc')
+                    .limit(5)
+                    .get()
+                    .then(snapshot => {
+                        snapshot.forEach(doc => {
+                            // В реальном приложении здесь будет проверка через TON API
+                            // Для демо - сразу подтверждаем
+                            const data = doc.data();
+                            const confirm = confirm(`Found deposit: ${data.cgAmount} CG for ${data.tonAmount} TON. Confirm?`);
+                            
+                            if(confirm) {
+                                doc.ref.update({ status: 'confirmed' });
+                                db.collection('users').doc(me.uid).update({
+                                    balance: firebase.firestore.FieldValue.increment(data.cgAmount)
+                                });
+                                me.d.balance += data.cgAmount;
+                                alert(`✅ ${data.cgAmount} CG added to your balance!`);
+                            }
+                        });
+                    });
+            }
+        };
+
+        // РЕАЛЬНЫЙ ПОПОЛНЕНИЕ БАЛАНСА ЧЕРЕЗ TON
+        const Ton = {
+            buy: async (cgAmount, tonAmount) => {
+                if(!tonConnectUI) return alert('Connect wallet first');
+                
+                try {
+                    // Создаем транзакцию
+                    const transaction = {
+                        validUntil: Math.floor(Date.now() / 1000) + 600,
+                        messages: [
+                            {
+                                address: ADMIN_WALLET,
+                                amount: (tonAmount * 1000000000).toString(),
+                                payload: me.uid // MEMO - ID пользователя
+                            }
+                        ]
+                    };
+                    
+                    // Отправляем транзакцию
+                    const result = await tonConnectUI.sendTransaction(transaction);
+                    
+                    // Сразу добавляем баланс (автоматическая проверка потом подтвердит)
+                    await db.collection('users').doc(me.uid).update({
+                        balance: firebase.firestore.FieldValue.increment(cgAmount)
+                    });
+                    
+                    // Сохраняем в историю
+                    await db.collection('deposits').add({
+                        userId: me.uid,
+                        username: me.d.username,
+                        txHash: result.boc,
+                        tonAmount: tonAmount,
+                        cgAmount: cgAmount,
+                        status: 'confirmed',
+                        timestamp: Date.now()
+                    });
+                    
+                    me.d.balance += cgAmount;
+                    
+                    alert(`✅ ${cgAmount} CG added to your balance!\n\nTransaction: ${result.boc.substring(0, 20)}...`);
+                    
+                } catch (error) {
+                    alert('Payment failed: ' + error.message);
                 }
             }
         };
 
         const Shop = {
-            buy: (icon, price) => {
-                if(me.d.balance < price) return alert('No money');
+            open: () => {
+                document.getElementById('modal-shop').style.display='flex';
+                this.render();
+            },
+            
+            filter: function(rarity) {
+                document.querySelectorAll('.rarity-filter').forEach(el => el.classList.remove('active'));
+                if(rarity === 'all') {
+                    document.querySelector('.rarity-filter.common').classList.add('active');
+                    this.render();
+                } else {
+                    document.querySelector(`.rarity-filter.${rarity}`).classList.add('active');
+                    this.render(rarity);
+                }
+            },
+            
+            render: function(filterRarity = 'all') {
+                const grid = document.getElementById('shop-items');
+                grid.innerHTML = '';
+                
+                const items = filterRarity === 'all' 
+                    ? NFT_DATABASE.items 
+                    : NFT_DATABASE.items.filter(item => item.rarity === filterRarity);
+                
+                items.forEach(item => {
+                    grid.innerHTML += `
+                        <div class="gift-item shop-item" 
+                             onclick="Shop.buyItem('${item.id}')"
+                             style="border-color: var(--${item.rarity}); 
+                                    background: rgba(var(--${item.rarity}-rgb, 160, 174, 192), 0.1);">
+                            <div class="nft-icon">${item.icon}</div>
+                            <div><b>${item.name}</b></div>
+                            <div style="font-size:1.2rem; font-weight:bold;">${item.value} CG</div>
+                            <small style="color: var(--${item.rarity})">${item.rarity.toUpperCase()}</small>
+                        </div>
+                    `;
+                });
+            },
+            
+            buyItem: async function(itemId) {
+                const item = NFT_DATABASE.items.find(i => i.id === itemId);
+                if (!item) return;
+                
+                if ((me.d.balance || 0) < item.value) {
+                    return alert('Not enough CG!');
+                }
+                
+                // Генерируем уникальные вариации как в Telegram
+                const randomBg = NFT_DATABASE.backgrounds[Math.floor(Math.random() * NFT_DATABASE.backgrounds.length)];
+                const randomModel = NFT_DATABASE.models[Math.floor(Math.random() * NFT_DATABASE.models.length)];
+                const randomPattern = NFT_DATABASE.patterns[Math.floor(Math.random() * NFT_DATABASE.patterns.length)];
+                
                 const nft = {
-                    icon, price, 
-                    hash: 'NFT-'+Math.random().toString(36).substr(2,9), 
-                    rarity: 'Common',
-                    owner: profileTarget?.id || me.uid
+                    itemId: item.id,
+                    icon: item.icon,
+                    name: item.name,
+                    rarity: item.rarity,
+                    value: item.value,
+                    variation: {
+                        bg: randomBg.id,
+                        model: randomModel.id,
+                        pattern: randomPattern.id,
+                        serial: Math.floor(Math.random() * 10000)
+                    },
+                    purchasedAt: Date.now()
                 };
-                // Deduct from me
-                db.collection('users').doc(me.uid).update({balance: me.d.balance - price});
-                // Add to target
-                const targetRef = db.collection('users').doc(profileTarget?.id || me.uid);
-                targetRef.update({gifts: firebase.firestore.FieldValue.arrayUnion(nft)});
-                alert('Gift Sent/Bought!');
-            },
-            openDetail: (uid, idx) => {
-                db.collection('users').doc(uid).get().then(d => {
-                    const g = d.data().gifts[idx];
-                    selectedNFT = {uid, idx, ...g};
-                    document.getElementById('modal-nft').style.display='flex';
-                    document.getElementById('nft-icon').innerText = g.icon;
-                    document.getElementById('nft-hash').innerText = g.hash;
-                    document.getElementById('nft-rarity').innerText = g.rarity;
-                    document.getElementById('nft-rarity').className = `rare-${g.rarity.toLowerCase()}`;
-                });
-            },
-            craft: () => {
-                if(me.d.balance < 50) return alert('Need 50 CG');
-                db.collection('users').doc(me.uid).get().then(doc => {
-                    const gifts = doc.data().gifts;
-                    const r = Math.random();
-                    let newR = 'Rare';
-                    if(r > 0.6) newR = 'Epic';
-                    if(r > 0.9) newR = 'Legendary';
+                
+                try {
+                    // Снимаем баланс
+                    await db.collection('users').doc(me.uid).update({
+                        balance: firebase.firestore.FieldValue.increment(-item.value),
+                        gifts: firebase.firestore.FieldValue.arrayUnion(nft)
+                    });
                     
-                    gifts[selectedNFT.idx].rarity = newR;
-                    db.collection('users').doc(me.uid).update({gifts: gifts, balance: me.d.balance - 50});
-                    alert(`Upgraded to ${newR}!`);
-                    document.getElementById('modal-nft').style.display='none';
+                    me.d.balance -= item.value;
+                    
+                    // Показываем детали NFT
+                    const detailHtml = `
+                        <div style="padding:30px; text-align:center;">
+                            <div class="nft-card rarity-${item.rarity}">
+                                <div class="nft-bg" style="background: ${randomBg.color};">
+                                    <div class="nft-model ${randomModel.class}" style="${randomModel.style || ''}">
+                                        ${item.icon}
+                                    </div>
+                                </div>
+                                <div class="nft-stats">
+                                    <div class="nft-value">${item.value} CG</div>
+                                    <div class="nft-stat-row">
+                                        <span>Model</span>
+                                        <span>${randomModel.name}</span>
+                                    </div>
+                                    <div class="nft-stat-row">
+                                        <span>Background</span>
+                                        <span>${randomBg.name}</span>
+                                    </div>
+                                    <div class="nft-stat-row">
+                                        <span>Pattern</span>
+                                        <span>${randomPattern.name}</span>
+                                    </div>
+                                    <div class="nft-stat-row">
+                                        <span>Serial</span>
+                                        <span>#${nft.variation.serial}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <h3 style="margin-top:20px;">${item.name} Purchased!</h3>
+                            <button class="btn" onclick="document.getElementById('modal-shop').style.display='none'">Awesome!</button>
+                        </div>
+                    `;
+                    
+                    document.getElementById('nft-detail-content').innerHTML = detailHtml;
+                    document.getElementById('modal-shop').style.display = 'none';
+                    document.getElementById('modal-nft-detail').style.display = 'flex';
+                    
+                } catch (error) {
+                    alert('Error: ' + error.message);
+                }
+            }
+        };
+
+        const Gifts = {
+            openForUser: (userId, userName) => {
+                profTarget = {id: userId};
+                document.getElementById('gift-target-name').innerText = userName;
+                
+                // Показываем доступные NFT пользователя
+                const userRef = db.collection('users').doc(me.uid);
+                userRef.get().then(doc => {
+                    const gifts = doc.data().gifts || [];
+                    const grid = document.getElementById('gift-selection');
+                    grid.innerHTML = '';
+                    
+                    if(gifts.length === 0) {
+                        grid.innerHTML = '<p style="grid-column: span 3; color:var(--text-sec);">No NFTs to send. Buy some first!</p>';
+                        return;
+                    }
+                    
+                    gifts.forEach((gift, index) => {
+                        const item = NFT_DATABASE.items.find(item => item.id === gift.itemId) || gift;
+                        grid.innerHTML += `
+                            <div class="gift-item" onclick="Gifts.sendSelected(${index})"
+                                 style="border-color: var(--${item.rarity});">
+                                <div class="nft-icon">${item.icon}</div>
+                                <small>${item.name}</small>
+                            </div>
+                        `;
+                    });
                 });
+                
+                document.getElementById('modal-gift-send').style.display='flex';
             },
-            sell: () => {
-                db.collection('users').doc(me.uid).get().then(doc => {
-                    let gifts = doc.data().gifts;
-                    gifts.splice(selectedNFT.idx, 1); // Remove
-                    const sellPrice = Math.floor(selectedNFT.price * 0.9);
-                    db.collection('users').doc(me.uid).update({gifts: gifts, balance: me.d.balance + sellPrice});
-                    alert(`Sold for ${sellPrice} CG`);
-                    document.getElementById('modal-nft').style.display='none';
+            
+            sendSelected: function(index) {
+                const userRef = db.collection('users').doc(me.uid);
+                userRef.get().then(doc => {
+                    const gifts = doc.data().gifts || [];
+                    const gift = gifts[index];
+                    if(!gift) return;
+                    
+                    // Удаляем у отправителя
+                    const newGifts = gifts.filter((g, i) => i !== index);
+                    
+                    // Добавляем получателю
+                    userRef.update({ gifts: newGifts });
+                    
+                    db.collection('users').doc(profTarget.id).update({
+                        gifts: firebase.firestore.FieldValue.arrayUnion({
+                            ...gift,
+                            from: me.uid,
+                            fromName: me.d.displayName,
+                            giftedAt: Date.now()
+                        })
+                    });
+                    
+                    // Обновляем баланс отправителя (бонус за отправку подарка)
+                    db.collection('users').doc(me.uid).update({
+                        balance: firebase.firestore.FieldValue.increment(5) // +5 CG за отправку подарка
+                    });
+                    
+                    alert('🎁 Gift sent successfully! +5 CG bonus!');
+                    document.getElementById('modal-gift-send').style.display='none';
                 });
+            }
+        };
+
+        const Premium = {
+            buy: () => {
+                if((me.d.balance || 0) < 625) return alert('Need 625 CG');
+                
+                db.collection('users').doc(me.uid).update({
+                    balance: firebase.firestore.FieldValue.increment(-625),
+                    premium: true,
+                    verified: true
+                });
+                
+                me.d.balance -= 625;
+                alert('Premium activated! ✅\nYou are now verified!');
             }
         };
 
         const God = {
-            selfBalance: () => db.collection('users').doc(me.uid).update({balance: firebase.firestore.FieldValue.increment(1000000)}),
-            cheat: (t) => db.collection('channels').doc(profTarget.id).update({fakeSubs: firebase.firestore.FieldValue.increment(100)}),
-            cheatView: (pid) => db.collection('posts').doc(activeChat.id).collection('msg').doc(pid).update({views: firebase.firestore.FieldValue.increment(50)})
+            boostViews: () => {
+                if(!isGod) return;
+                const target = document.getElementById('god-target').value.trim();
+                const amount = parseInt(document.getElementById('boost-amount').value) || 100;
+                
+                if(!target) return alert('Enter username');
+                
+                db.collection('channels').where('username', '==', target).get().then(snap => {
+                    if(!snap.empty) {
+                        snap.forEach(doc => {
+                            db.collection('channels').doc(doc.id).update({
+                                views: firebase.firestore.FieldValue.increment(amount)
+                            });
+                            alert(`+${amount} views to @${target}`);
+                        });
+                    } else {
+                        alert('Channel not found');
+                    }
+                });
+            },
+            
+            boostSubs: () => {
+                if(!isGod) return;
+                const target = document.getElementById('god-target').value.trim();
+                const amount = parseInt(document.getElementById('boost-amount').value) || 100;
+                
+                if(!target) return alert('Enter username');
+                
+                db.collection('users').where('username', '==', target).get().then(snap => {
+                    if(!snap.empty) {
+                        snap.forEach(doc => {
+                            db.collection('users').doc(doc.id).update({
+                                fakeSubs: firebase.firestore.FieldValue.increment(amount)
+                            });
+                            alert(`+${amount} subs to @${target}`);
+                        });
+                    } else {
+                        db.collection('channels').where('username', '==', target).get().then(chanSnap => {
+                            if(!chanSnap.empty) {
+                                chanSnap.forEach(doc => {
+                                    db.collection('channels').doc(doc.id).update({
+                                        fakeSubs: firebase.firestore.FieldValue.increment(amount)
+                                    });
+                                    alert(`+${amount} subs to channel @${target}`);
+                                });
+                            } else {
+                                alert('Not found');
+                            }
+                        });
+                    }
+                });
+            },
+            
+            boostCoins: () => {
+                if(!isGod) return;
+                const target = document.getElementById('god-target').value.trim();
+                const amount = parseInt(document.getElementById('coins-amount').value) || 1000;
+                
+                if(!target) return alert('Enter username');
+                
+                db.collection('users').where('username', '==', target).get().then(snap => {
+                    if(!snap.empty) {
+                        snap.forEach(doc => {
+                            db.collection('users').doc(doc.id).update({
+                                balance: firebase.firestore.FieldValue.increment(amount)
+                            });
+                            alert(`+${amount} CG to @${target}`);
+                        });
+                    } else {
+                        alert('User not found');
+                    }
+                });
+            },
+            
+            verify: () => {
+                if(!isGod) return;
+                const target = document.getElementById('god-target').value.trim();
+                if(!target) return alert('Enter username');
+                
+                db.collection('users').where('username', '==', target).get().then(snap => {
+                    if(!snap.empty) {
+                        snap.forEach(doc => {
+                            doc.ref.update({verified: true});
+                            alert(`@${target} verified!`);
+                        });
+                    } else {
+                        alert('User not found');
+                    }
+                });
+            },
+            
+            deleteUser: () => {
+                if(!isGod) return;
+                const target = document.getElementById('god-target').value.trim();
+                if(!target) return alert('Enter username');
+                
+                if(confirm(`Delete @${target}?`)) {
+                    db.collection('users').where('username', '==', target).get().then(snap => {
+                        if(!snap.empty) {
+                            snap.forEach(doc => doc.ref.delete());
+                            alert(`@${target} deleted`);
+                        } else {
+                            alert('Not found');
+                        }
+                    });
+                }
+            },
+            
+            deletePost: (chatId, postId) => {
+                if(!isGod) return;
+                if(confirm('Delete post?')) {
+                    db.collection('posts').doc(chatId).collection('msg').doc(postId).delete();
+                    alert('Post deleted');
+                }
+            }
         };
 
-        const Support = {
-            toggle: () => {
-                document.getElementById('right-panel').classList.add('open');
-                // Support logic simplified: just load pending requests
-                db.collection('users').doc(me.uid).collection('chats').where('isRequest','==',true).get().then(s => {
-                    // Logic to list requests...
+        const Search = {
+            run: () => {
+                const q = document.getElementById('search-in').value.toLowerCase();
+                const l = document.getElementById('list-search');
+                document.getElementById('list-chats').classList.add('hidden');
+                document.getElementById('list-channels').classList.add('hidden');
+                l.classList.remove('hidden');
+                l.innerHTML = '';
+                
+                if(q.length < 2) return;
+                
+                Promise.all([db.collection('users').get(), db.collection('channels').get()]).then(([us, cs]) => {
+                    us.forEach(d => {
+                        const r = d.data();
+                        if(r.username.includes(q) || r.displayName.toLowerCase().includes(q)) {
+                            l.innerHTML += `
+                                <div class="list-item" onclick="Chat.open('${d.id}','user','${r.displayName}')">
+                                    <div class="ava-text">${r.displayName[0]}</div>
+                                    <div><b>${r.displayName}</b><br><small>@${r.username}</small></div>
+                                </div>`;
+                        }
+                    });
+                    cs.forEach(d => {
+                        const r = d.data();
+                        if(r.username.includes(q) || r.name.toLowerCase().includes(q)) {
+                            l.innerHTML += `
+                                <div class="list-item" onclick="Chat.open('${d.id}','channel','${r.name}')">
+                                    <div class="ava-text ava-chan">${r.name[0]}</div>
+                                    <div><b>${r.name}</b><br><small>@${r.username}</small></div>
+                                </div>`;
+                        }
+                    });
                 });
             }
         };
-        
-        const Search = {
-            run: (v) => {
-                // Search logic (User + Channel)
+
+        // Запуск
+        window.onload = function() {
+            if(window.innerWidth <= 768) {
+                document.querySelector('.back-btn').style.display = 'none';
             }
+            
+            // Добавляем CSS переменные для цветов редкостей
+            const style = document.createElement('style');
+            style.textContent = `
+                :root {
+                    --common-rgb: 160, 174, 192;
+                    --rare-rgb: 255, 215, 0;
+                    --epic-rgb: 128, 90, 213;
+                    --legendary-rgb: 246, 224, 94;
+                }
+                .model-glow {
+                    text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #ff00de;
+                }
+            `;
+            document.head.appendChild(style);
         };
     </script>
 </body>
