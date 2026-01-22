@@ -7,14 +7,14 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#17212b">
     <title>CHRONOGRAM</title>
-    <link rel="icon" type="image/jpeg" href="https://i.imgur.com/logo1.jpg">
-    <link rel="apple-touch-icon" href="https://i.imgur.com/logo1.jpg">
+    <link rel="icon" type="image/jpeg" href="https://i.imgur.com/logo.jpg">
+    <link rel="apple-touch-icon" href="https://i.imgur.com/logo.jpg">
     
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0" />
     
-    <!-- TON Connect SDK -->
-    <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
+    <!-- Emoji CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/emoji.css/1.1.1/emoji.min.css" rel="stylesheet">
     
     <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -37,6 +37,7 @@
             --error: #ed4242;
             --warning: #f8c455;
             --gold: #FFD700;
+            --instagram-blue: #0095f6;
             
             --text-primary: #e1e3e6;
             --text-secondary: #7f91a4;
@@ -48,7 +49,7 @@
             --shadow: 0 2px 10px rgba(0,0,0,0.3);
             --shadow-heavy: 0 4px 20px rgba(0,0,0,0.5);
             
-            /*    支乍堙     NFT */
+            /* Редкости NFT */
             --common: #A0AEC0;
             --rare: #FFD700;
             --epic: #805AD5;
@@ -142,8 +143,20 @@
             background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); 
         }
         .avatar.verified::after { 
-            content: ''; position: absolute; bottom: 0; right: 0; width: 16px; height: 16px; 
-            border-radius: 50%; background: var(--ton); border: 2px solid var(--bg-secondary);
+            content: ''; position: absolute; bottom: 0; right: 0; width: 18px; height: 18px; 
+            border-radius: 50%; background: var(--instagram-blue); border: 3px solid var(--bg-secondary);
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z'/%3E%3C/svg%3E");
+            background-size: 12px;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+        .avatar.god::after { 
+            content: ''; position: absolute; bottom: 0; right: 0; width: 20px; height: 20px; 
+            border-radius: 50%; background: var(--gold); border: 3px solid var(--bg-secondary);
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='black'%3E%3Cpath d='M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5z'/%3E%3C/svg%3E");
+            background-size: 12px;
+            background-position: center;
+            background-repeat: no-repeat;
         }
         .avatar.premium { background: linear-gradient(135deg, var(--gold), #FFA500); color: #000; }
         
@@ -441,13 +454,43 @@
         .settings-label { flex: 1; color: var(--text-primary); }
         .settings-value { color: var(--text-secondary); font-size: 0.9rem; }
         
-        .theme-colors { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; padding: 16px; }
-        .theme-color { 
-            width: 40px; height: 40px; border-radius: 50%; cursor: pointer;
-            border: 3px solid transparent; transition: all 0.2s;
+        /* Theme Modal */
+        .theme-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin: 20px 0;
         }
-        .theme-color:hover { transform: scale(1.1); }
-        .theme-color.selected { border-color: white; box-shadow: 0 0 0 2px var(--bg-secondary); }
+        .theme-item {
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+        .theme-item:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+        .theme-item.active {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(86, 130, 163, 0.3);
+        }
+        .theme-preview {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            margin: 0 auto 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+        .theme-name {
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
         
         /* Utility classes */
         .hidden { display: none !important; }
@@ -462,10 +505,28 @@
         .p-2 { padding: 16px; }
         .p-3 { padding: 24px; }
         
-        /* Verified badge */
+        /* Verified badge Instagram style */
         .verified-badge { 
-            color: var(--ton); font-size: 0.8rem; margin-left: 4px;
-            display: inline-flex; align-items: center;
+            color: var(--instagram-blue);
+            font-size: 0.9rem;
+            margin-left: 4px;
+            display: inline-flex;
+            align-items: center;
+            background: white;
+            border-radius: 50%;
+            padding: 1px;
+        }
+        
+        /* God badge */
+        .god-badge { 
+            color: var(--gold);
+            font-size: 0.9rem;
+            margin-left: 4px;
+            display: inline-flex;
+            align-items: center;
+            background: black;
+            border-radius: 50%;
+            padding: 1px;
         }
         
         /* Premium badge */
@@ -491,6 +552,56 @@
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
+        
+        /* TON Address in profile */
+        .ton-address-box {
+            background: rgba(0, 152, 234, 0.1);
+            border: 1px solid var(--ton);
+            border-radius: 10px;
+            padding: 12px;
+            margin: 15px 0;
+            word-break: break-all;
+            font-family: monospace;
+            font-size: 0.85rem;
+        }
+        
+        .copy-btn {
+            background: var(--ton);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            margin-top: 8px;
+        }
+        
+        /* Theme selector */
+        .theme-selector {
+            padding: 15px;
+            border-radius: 10px;
+            background: var(--bg-tertiary);
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+        .theme-selector:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+        .theme-selector.active {
+            border-color: var(--ton);
+            background: rgba(0, 152, 234, 0.1);
+        }
+        .theme-color-preview {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
     </style>
 </head>
 <body>
@@ -499,7 +610,7 @@
     <div id="auth-screen">
         <div class="app-logo-lg">CG</div>
         <h2 style="margin-bottom: 10px; color: var(--text-primary);">CHRONOGRAM</h2>
-        <p style="color: var(--ton); margin-bottom: 30px; font-size: 0.95rem;">TON Social Platform</p>
+        <p style="color: var(--ton); margin-bottom: 30px;">Social Platform with TON Wallet</p>
         
         <div style="width: 100%; max-width: 320px;">
             <input type="email" id="email-in" placeholder="Email" class="app-input">
@@ -507,13 +618,7 @@
             <input type="text" id="username-in" placeholder="Username" class="app-input">
             
             <button class="btn btn-block mb-1" onclick="Auth.login()">Login</button>
-            <button class="btn btn-ton btn-block" onclick="Auth.register()">Register</button>
-            
-            <div style="margin: 20px 0; text-align: center; color: var(--text-secondary); position: relative;">
-                <span style="background: var(--bg-primary); padding: 0 10px; font-size: 0.85rem;">OR</span>
-            </div>
-            
-            <div id="ton-connect-container"></div>
+            <button class="btn btn-ton btn-block" onclick="Auth.register()">Create Account</button>
             
             <p id="auth-error" style="color: var(--error); margin-top: 15px; font-size: 0.9rem; text-align: center;"></p>
         </div>
@@ -641,39 +746,19 @@
             </div>
             <div class="settings-item" onclick="Wallet.open()">
                 <span class="material-symbols-rounded">account_balance_wallet</span>
-                <div class="settings-label">Wallet</div>
+                <div class="settings-label">Wallet & TON</div>
             </div>
             <div class="settings-item" onclick="Shop.open()">
                 <span class="material-symbols-rounded">redeem</span>
                 <div class="settings-label">NFT Shop</div>
             </div>
-            <div class="settings-item" onclick="Settings.theme()">
+            <div class="settings-item" onclick="Settings.openTheme()">
                 <span class="material-symbols-rounded">palette</span>
                 <div class="settings-label">Theme & Colors</div>
-                <div class="settings-value" id="current-theme">Dark</div>
             </div>
-            <div class="settings-item" onclick="Settings.notifications()">
-                <span class="material-symbols-rounded">notifications</span>
-                <div class="settings-label">Notifications</div>
-            </div>
-            <div class="settings-item" onclick="auth.signOut()">
+            <div class="settings-item" onclick="Auth.logout()">
                 <span class="material-symbols-rounded">logout</span>
                 <div class="settings-label">Log Out</div>
-            </div>
-        </div>
-        
-        <!-- Theme Settings (hidden by default) -->
-        <div id="theme-settings" class="hidden p-3">
-            <h4 style="margin-bottom: 16px; color: var(--text-primary);">Theme Colors</h4>
-            <div class="theme-colors">
-                <div class="theme-color" style="background: #5682a3;" onclick="Settings.setColor('#5682a3')"></div>
-                <div class="theme-color" style="background: #0098EA;" onclick="Settings.setColor('#0098EA')"></div>
-                <div class="theme-color" style="background: #3fc17c;" onclick="Settings.setColor('#3fc17c')"></div>
-                <div class="theme-color" style="background: #805AD5;" onclick="Settings.setColor('#805AD5')"></div>
-                <div class="theme-color" style="background: #FFD700;" onclick="Settings.setColor('#FFD700')"></div>
-                <div class="theme-color" style="background: #ff6b6b;" onclick="Settings.setColor('#ff6b6b')"></div>
-                <div class="theme-color" style="background: #ff8a00;" onclick="Settings.setColor('#ff8a00')"></div>
-                <div class="theme-color" style="background: #00bcd4;" onclick="Settings.setColor('#00bcd4')"></div>
             </div>
         </div>
     </div>
@@ -692,16 +777,30 @@
                     <div id="profile-avatar" class="avatar" style="width: 80px; height: 80px; margin: 0 auto 16px;"></div>
                     <h3 id="profile-name" style="margin-bottom: 4px;">Name</h3>
                     <div id="profile-username" style="color: var(--text-secondary);">@username</div>
+                    <div id="profile-badges" style="margin-top: 8px; display: flex; gap: 8px; justify-content: center;"></div>
                 </div>
                 
                 <div style="display: flex; justify-content: space-around; margin-bottom: 24px;">
                     <div style="text-align: center;">
                         <div style="font-size: 1.5rem; font-weight: 600; color: var(--text-primary);" id="profile-subs">0</div>
-                        <div style="font-size: 0.85rem; color: var(--text-secondary);">Subscribers</div>
+                        <div style="font-size: 0.85rem; color: var(--text-secondary);">Followers</div>
                     </div>
                     <div style="text-align: center;">
                         <div style="font-size: 1.5rem; font-weight: 600; color: var(--gold);" id="profile-balance">0</div>
                         <div style="font-size: 0.85rem; color: var(--text-secondary);">CG Balance</div>
+                    </div>
+                </div>
+                
+                <!-- TON Address Section (only for self) -->
+                <div id="profile-ton-section" style="margin-bottom: 20px; display: none;">
+                    <h4 style="margin-bottom: 12px; color: var(--text-primary);">TON Wallet Address</h4>
+                    <div class="ton-address-box">
+                        <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 5px;">Your unique TON address:</div>
+                        <div id="profile-ton-address" style="font-weight: 600; color: var(--ton);"></div>
+                        <button class="copy-btn" onclick="Wallet.copyTonAddress()">Copy Address</button>
+                    </div>
+                    <div style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 8px;">
+                        Send TON to this address to automatically receive CG coins (25 CG per 1 TON)
                     </div>
                 </div>
                 
@@ -712,55 +811,186 @@
         </div>
     </div>
 
+    <!-- Theme Modal -->
+    <div id="modal-theme" class="modal" onclick="if(event.target===this)this.style.display='none'">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h2>Theme & Colors</h2>
+                <div class="modal-close" onclick="document.getElementById('modal-theme').style.display='none'">
+                    <span class="material-symbols-rounded">close</span>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <div style="font-size: 3rem;">🎨</div>
+                    <p style="color: var(--text-secondary);">Choose your theme</p>
+                </div>
+                
+                <h4 style="margin-bottom: 12px; color: var(--text-primary);">Main Theme</h4>
+                <div class="theme-grid">
+                    <div class="theme-item" onclick="Settings.selectTheme('dark')" id="theme-dark">
+                        <div class="theme-preview" style="background: linear-gradient(135deg, #0e1621, #17212b); color: white;">🌙</div>
+                        <div class="theme-name">Dark</div>
+                    </div>
+                    <div class="theme-item" onclick="Settings.selectTheme('blue')" id="theme-blue">
+                        <div class="theme-preview" style="background: linear-gradient(135deg, #1a237e, #0d47a1); color: white;">🔵</div>
+                        <div class="theme-name">Blue</div>
+                    </div>
+                    <div class="theme-item" onclick="Settings.selectTheme('purple')" id="theme-purple">
+                        <div class="theme-preview" style="background: linear-gradient(135deg, #4a148c, #880e4f); color: white;">🟣</div>
+                        <div class="theme-name">Purple</div>
+                    </div>
+                    <div class="theme-item" onclick="Settings.selectTheme('green')" id="theme-green">
+                        <div class="theme-preview" style="background: linear-gradient(135deg, #1b5e20, #004d40); color: white;">🟢</div>
+                        <div class="theme-name">Green</div>
+                    </div>
+                    <div class="theme-item" onclick="Settings.selectTheme('orange')" id="theme-orange">
+                        <div class="theme-preview" style="background: linear-gradient(135deg, #e65100, #bf360c); color: white;">🟠</div>
+                        <div class="theme-name">Orange</div>
+                    </div>
+                    <div class="theme-item" onclick="Settings.selectTheme('pink')" id="theme-pink">
+                        <div class="theme-preview" style="background: linear-gradient(135deg, #880e4f, #ad1457); color: white;">🌸</div>
+                        <div class="theme-name">Pink</div>
+                    </div>
+                </div>
+                
+                <h4 style="margin-bottom: 12px; margin-top: 24px; color: var(--text-primary);">Accent Color</h4>
+                <div class="theme-grid">
+                    <div class="theme-item" onclick="Settings.selectAccent('blue')" id="accent-blue">
+                        <div class="theme-preview" style="background: #5682a3;"></div>
+                        <div class="theme-name">Blue</div>
+                    </div>
+                    <div class="theme-item" onclick="Settings.selectAccent('green')" id="accent-green">
+                        <div class="theme-preview" style="background: #4caf50;"></div>
+                        <div class="theme-name">Green</div>
+                    </div>
+                    <div class="theme-item" onclick="Settings.selectAccent('purple')" id="accent-purple">
+                        <div class="theme-preview" style="background: #9c27b0;"></div>
+                        <div class="theme-name">Purple</div>
+                    </div>
+                    <div class="theme-item" onclick="Settings.selectAccent('orange')" id="accent-orange">
+                        <div class="theme-preview" style="background: #ff9800;"></div>
+                        <div class="theme-name">Orange</div>
+                    </div>
+                    <div class="theme-item" onclick="Settings.selectAccent('red')" id="accent-red">
+                        <div class="theme-preview" style="background: #f44336;"></div>
+                        <div class="theme-name">Red</div>
+                    </div>
+                    <div class="theme-item" onclick="Settings.selectAccent('cyan')" id="accent-cyan">
+                        <div class="theme-preview" style="background: #00bcd4;"></div>
+                        <div class="theme-name">Cyan</div>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 24px; text-align: center;">
+                    <button class="btn btn-primary btn-block" onclick="Settings.applyTheme()">Apply Theme</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Wallet Modal -->
     <div id="modal-wallet" class="modal" onclick="if(event.target===this)this.style.display='none'">
         <div class="modal-box">
             <div class="modal-header">
-                <h2>TON Wallet</h2>
+                <h2>Wallet & TON</h2>
                 <div class="modal-close" onclick="document.getElementById('modal-wallet').style.display='none'">
                     <span class="material-symbols-rounded">close</span>
                 </div>
             </div>
             <div class="modal-body">
+                <!-- Balance -->
                 <div style="background: linear-gradient(135deg, var(--ton), #0077b6); padding: 24px; border-radius: 12px; text-align: center; color: white; margin-bottom: 20px;">
                     <div style="font-size: 1.2rem; margin-bottom: 8px;">Your Balance</div>
                     <div style="font-size: 2.5rem; font-weight: 800;" id="wallet-balance">0</div>
-                    <div style="font-size: 0.9rem; opacity: 0.9;">1 TON    25 CG</div>
+                    <div style="font-size: 0.9rem; opacity: 0.9;">CG Coins</div>
                 </div>
                 
-                <div style="background: rgba(0,0,0,0.2); padding: 16px; border-radius: 10px; margin-bottom: 20px;">
-                    <div style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 8px;">DEPOSIT ADDRESS</div>
-                    <div id="admin-wallet" style="font-family: monospace; font-size: 0.85rem; word-break: break-all; background: rgba(0,0,0,0.3); padding: 12px; border-radius: 8px; margin-bottom: 12px;">
-                        UQALTzK2cJsUI7LUe85V82Et4Kmayzk11l_noMRvYCRa0_zQ
+                <!-- TON Deposit Section -->
+                <div style="margin-bottom: 24px;">
+                    <h3 style="margin-bottom: 16px; color: var(--text-primary);">Deposit TON</h3>
+                    
+                    <!-- Your TON Address -->
+                    <div style="background: rgba(0, 152, 234, 0.1); border: 1px solid var(--ton); border-radius: 10px; padding: 16px; margin-bottom: 16px;">
+                        <div style="font-size: 0.9rem; color: var(--ton); margin-bottom: 8px;">YOUR TON ADDRESS:</div>
+                        <div id="user-ton-address" style="font-family: monospace; font-size: 0.85rem; word-break: break-all; background: rgba(0,0,0,0.3); padding: 12px; border-radius: 8px; margin-bottom: 12px;"></div>
+                        <button class="btn btn-ton btn-sm" onclick="Wallet.copyTonAddress()">Copy Address</button>
                     </div>
-                    <div style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 12px;">Send TON to this address with your User ID as memo</div>
-                    <button class="btn btn-secondary btn-sm" onclick="Wallet.copyAddress()">Copy Address</button>
+                    
+                    <!-- Exchange Rate -->
+                    <div style="background: rgba(255,215,0,0.1); padding: 12px; border-radius: 8px; margin-bottom: 16px; text-align: center;">
+                        <div style="color: var(--gold); font-weight: 600;">Exchange Rate: 1 TON = 25 CG</div>
+                        <div style="font-size: 0.85rem; color: var(--text-secondary);">Send TON to your address above</div>
+                    </div>
+                    
+                    <!-- Quick Deposit Amounts -->
+                    <h4 style="margin-bottom: 12px;">Quick Deposit</h4>
+                    <div style="display: grid; gap: 10px; margin-bottom: 20px;">
+                        <div class="gift-item" onclick="Wallet.showDepositInfo(4, 100)" style="cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-weight: 600;">100 CG</span>
+                            <span style="color: var(--ton);">4 TON</span>
+                        </div>
+                        <div class="gift-item" onclick="Wallet.showDepositInfo(20, 500)" style="cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-weight: 600;">500 CG</span>
+                            <span style="color: var(--ton);">20 TON</span>
+                        </div>
+                        <div class="gift-item" onclick="Wallet.showDepositInfo(40, 1000)" style="cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-weight: 600;">1000 CG</span>
+                            <span style="color: var(--ton);">40 TON</span>
+                        </div>
+                    </div>
                 </div>
                 
-                <div style="background: rgba(255,215,0,0.1); padding: 16px; border-radius: 10px; border: 1px solid var(--gold); margin-bottom: 20px;">
-                    <div style="color: var(--gold); font-weight: 600; margin-bottom: 8px;">YOUR MEMO (User ID)</div>
-                    <div id="user-memo" style="font-family: monospace; color: var(--gold); font-weight: 700; background: rgba(0,0,0,0.3); padding: 12px; border-radius: 8px; margin-bottom: 12px; word-break: break-all;"></div>
-                    <button class="btn btn-gold btn-sm" onclick="Wallet.copyMemo()">Copy Memo</button>
+                <!-- Admin Info (Only for Gods) -->
+                <div id="admin-info" class="hidden" style="background: rgba(255,0,0,0.1); border: 1px solid var(--error); border-radius: 10px; padding: 16px; margin-bottom: 20px;">
+                    <div style="color: var(--error); font-weight: 600; margin-bottom: 8px;">👑 ADMIN WALLET</div>
+                    <div style="font-family: monospace; font-size: 0.85rem; word-break: break-all;">UQALTzK2cJsUI7LUe85V82Et4Kmayzk11l_noMRvYCRa0_zQ</div>
+                    <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 8px;">All TON deposits go to this wallet</div>
                 </div>
                 
-                <h4 style="margin-bottom: 16px;">Quick Purchase</h4>
-                <div style="display: grid; gap: 10px; margin-bottom: 24px;">
-                    <div class="gift-item" onclick="Ton.buy(100, 4)" style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;">
-                        <span style="font-weight: 600;">100 CG</span>
-                        <span style="color: var(--ton);">4 TON</span>
-                    </div>
-                    <div class="gift-item" onclick="Ton.buy(500, 20)" style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;">
-                        <span style="font-weight: 600;">500 CG</span>
-                        <span style="color: var(--ton);">20 TON</span>
-                    </div>
-                    <div class="gift-item" onclick="Ton.buy(1000, 40)" style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;">
-                        <span style="font-weight: 600;">1000 CG</span>
-                        <span style="color: var(--ton);">40 TON</span>
-                    </div>
-                </div>
-                
-                <button class="btn btn-ton btn-block mb-1" onclick="Wallet.checkDeposit()">Check Deposit</button>
+                <!-- Actions -->
+                <button class="btn btn-ton btn-block mb-2" onclick="Wallet.checkDeposit()">Check for Deposits</button>
                 <button class="btn btn-gold btn-block" onclick="Premium.buy()">Buy Premium (625 CG)</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Deposit Info Modal -->
+    <div id="modal-deposit-info" class="modal" onclick="if(event.target===this)this.style.display='none'">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h2>Deposit TON</h2>
+                <div class="modal-close" onclick="document.getElementById('modal-deposit-info').style.display='none'">
+                    <span class="material-symbols-rounded">close</span>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <div style="font-size: 3rem;">💰</div>
+                    <h3 id="deposit-amount">100 CG</h3>
+                    <p style="color: var(--text-secondary);">Send <span id="deposit-ton">4</span> TON to receive</p>
+                </div>
+                
+                <div style="background: rgba(0, 152, 234, 0.1); border: 1px solid var(--ton); border-radius: 10px; padding: 16px; margin-bottom: 20px;">
+                    <div style="font-size: 0.9rem; color: var(--ton); margin-bottom: 8px;">SEND TO:</div>
+                    <div id="deposit-address" style="font-family: monospace; font-size: 0.85rem; word-break: break-all; background: rgba(0,0,0,0.3); padding: 12px; border-radius: 8px; margin-bottom: 12px;"></div>
+                    <button class="btn btn-ton btn-sm" onclick="Wallet.copyDepositAddress()">Copy Address</button>
+                </div>
+                
+                <div style="background: rgba(255,215,0,0.1); padding: 12px; border-radius: 8px; margin-bottom: 20px;">
+                    <div style="color: var(--gold); font-weight: 600;">IMPORTANT:</div>
+                    <ul style="font-size: 0.85rem; color: var(--text-secondary); padding-left: 20px; margin: 8px 0;">
+                        <li>Send EXACT amount: <span id="exact-ton">4</span> TON</li>
+                        <li>Use your User ID as memo: <code id="deposit-memo"></code></li>
+                        <li>Coins added within 5 minutes</li>
+                        <li>All TON go to admin wallet for processing</li>
+                    </ul>
+                </div>
+                
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" onclick="document.getElementById('modal-deposit-info').style.display='none'">Close</button>
+                    <button class="btn btn-primary" onclick="Wallet.confirmDeposit()">I've Sent TON</button>
+                </div>
             </div>
         </div>
     </div>
@@ -776,7 +1006,7 @@
             </div>
             <div class="modal-body">
                 <div style="text-align: center; margin-bottom: 20px;">
-                    <div style="font-size: 3rem;"> 9 7</div>
+                    <div style="font-size: 3rem;">🎁</div>
                     <p style="color: var(--text-secondary);">Collect rare digital items and gift them to friends</p>
                 </div>
                 
@@ -849,7 +1079,7 @@
             </div>
             <div class="modal-body">
                 <div style="text-align: center; margin-bottom: 20px;">
-                    <div style="font-size: 2rem;"> 9 7</div>
+                    <div style="font-size: 2rem;">🎁</div>
                     <p style="color: var(--text-secondary);">Send NFT to <b id="gift-target">User</b></p>
                 </div>
                 <div id="gift-selection" class="gift-grid"></div>
@@ -859,7 +1089,7 @@
 
     <!-- JavaScript -->
     <script>
-        // ====================                          ====================
+        // ==================== КОНФИГУРАЦИЯ ====================
         const firebaseConfig = {
             apiKey: "AIzaSyCEHTgXvVF7a-H_NxlRj77i46ueelJBGL0",
             authDomain: "chronogramnew.firebaseapp.com",
@@ -870,6 +1100,7 @@
         };
 
         const ADMIN_WALLET = "UQALTzK2cJsUI7LUe85V82Et4Kmayzk11l_noMRvYCRa0_zQ";
+        const EXCHANGE_RATE = 25; // 1 TON = 25 CG
         const GODS = ['mrakodum', 'support_agent', 'admin', 'god'];
         
         const NFT_DATABASE = {
@@ -881,49 +1112,98 @@
                 { id: 'galaxy', name: 'Galaxy', color: 'linear-gradient(135deg, #3a1c71, #d76d77, #ffaf7b)' },
                 { id: 'ocean', name: 'Ocean', color: 'linear-gradient(135deg, #2193b0, #6dd5ed)' },
                 { id: 'fire', name: 'Fire', color: 'linear-gradient(135deg, #ff512f, #dd2476)' },
-                { id: 'gold', name: 'Gold', color: 'linear-gradient(135deg, #FFD700, #FFA500)' },
-                { id: 'rainbow', name: 'Rainbow', color: 'linear-gradient(135deg, #ff0000, #ff9900, #ffff00, #00ff00, #00ffff, #0000ff, #9900ff)' }
-            ],
-            
-            effects: [
-                { id: 'default', name: 'Default', class: '' },
-                { id: 'glow', name: 'Glow', class: 'nft-glow', style: 'filter: drop-shadow(0 0 8px rgba(255,255,255,0.5));' },
-                { id: 'shiny', name: 'Shiny', class: 'nft-shiny', style: 'filter: brightness(1.2) contrast(1.2);' },
-                { id: 'neon', name: 'Neon', class: 'nft-neon', style: 'filter: drop-shadow(0 0 5px currentColor);' },
-                { id: 'holographic', name: 'Holographic', class: 'nft-holographic', style: 'animation: hologram 2s infinite alternate;' }
+                { id: 'gold', name: 'Gold', color: 'linear-gradient(135deg, #FFD700, #FFA500)' }
             ],
             
             items: [
                 // COMMON (25-50 CG)
-                { id: 'coffee', icon: ' 7 5', name: 'Coffee', rarity: 'common', value: 25, color: '#6F4E37' },
-                { id: 'book', icon: ' 9 2', name: 'Book Stack', rarity: 'common', value: 30, color: '#8B4513' },
-                { id: 'pizza', icon: ' 9 3', name: 'Pizza', rarity: 'common', value: 35, color: '#FFA500' },
-                { id: 'balloon', icon: ' 9 4', name: 'Balloon', rarity: 'common', value: 40, color: '#FF69B4' },
-                { id: 'gift', icon: ' 9 7', name: 'Gift Box', rarity: 'common', value: 45, color: '#FF0000' },
-                { id: 'music', icon: ' 9 9', name: 'Music Note', rarity: 'common', value: 50, color: '#1E90FF' },
+                { id: 'coffee', icon: '☕', name: 'Coffee', rarity: 'common', value: 25 },
+                { id: 'book', icon: '📚', name: 'Book Stack', rarity: 'common', value: 30 },
+                { id: 'pizza', icon: '🍕', name: 'Pizza', rarity: 'common', value: 35 },
+                { id: 'balloon', icon: '🎈', name: 'Balloon', rarity: 'common', value: 40 },
+                { id: 'gift', icon: '🎁', name: 'Gift Box', rarity: 'common', value: 45 },
+                { id: 'music', icon: '🎵', name: 'Music Note', rarity: 'common', value: 50 },
                 
                 // RARE (75-150 CG)
-                { id: 'star', icon: ' 8 2', name: 'Shiny Star', rarity: 'rare', value: 75, color: '#FFD700' },
-                { id: 'diamond', icon: ' 9 6', name: 'Diamond', rarity: 'rare', value: 100, color: '#B9F2FF' },
-                { id: 'fire', icon: ' 9 7', name: 'Fire', rarity: 'rare', value: 125, color: '#FF4500' },
-                { id: 'rocket', icon: ' 0 4', name: 'Rocket', rarity: 'rare', value: 150, color: '#6495ED' },
+                { id: 'star', icon: '⭐', name: 'Shiny Star', rarity: 'rare', value: 75 },
+                { id: 'diamond', icon: '💎', name: 'Diamond', rarity: 'rare', value: 100 },
+                { id: 'fire', icon: '🔥', name: 'Fire', rarity: 'rare', value: 125 },
+                { id: 'rocket', icon: '🚀', name: 'Rocket', rarity: 'rare', value: 150 },
                 
                 // EPIC (200-500 CG)
-                { id: 'crown', icon: ' 9 5', name: 'Golden Crown', rarity: 'epic', value: 200, color: '#FFD700' },
-                { id: 'trophy', icon: ' 9 6', name: 'Trophy', rarity: 'epic', value: 300, color: '#FFA500' },
-                { id: 'planet', icon: ' 0 4', name: 'Planet', rarity: 'epic', value: 400, color: '#9370DB' },
-                { id: 'dragon', icon: ' 9 3', name: 'Dragon', rarity: 'epic', value: 500, color: '#DC143C' },
+                { id: 'crown', icon: '👑', name: 'Golden Crown', rarity: 'epic', value: 200 },
+                { id: 'trophy', icon: '🏆', name: 'Trophy', rarity: 'epic', value: 300 },
+                { id: 'planet', icon: '🪐', name: 'Planet', rarity: 'epic', value: 400 },
+                { id: 'dragon', icon: '🐉', name: 'Dragon', rarity: 'epic', value: 500 },
                 
                 // LEGENDARY (1000+ CG)
-                { id: 'unicorn', icon: ' 0 6', name: 'Magic Unicorn', rarity: 'legendary', value: 1000, color: '#FF69B4' },
-                { id: 'durov_cap', icon: ' 0 0', name: 'Durov Cap', rarity: 'legendary', value: 2500, color: '#0000FF' },
-                { id: 'balenciaga', icon: ' 9 9', name: 'Balenciaga', rarity: 'legendary', value: 5000, color: '#000000' },
-                { id: 'chronos', icon: ' 7 7', name: 'Chronos', rarity: 'legendary', value: 10000, color: '#00CED1' }
+                { id: 'unicorn', icon: '🦄', name: 'Magic Unicorn', rarity: 'legendary', value: 1000 },
+                { id: 'durov_cap', icon: '🧢', name: 'Durov Cap', rarity: 'legendary', value: 2500 },
+                { id: 'balenciaga', icon: '👕', name: 'Balenciaga', rarity: 'legendary', value: 5000 },
+                { id: 'chronos', icon: '⏳', name: 'Chronos', rarity: 'legendary', value: 10000 }
             ]
         };
 
-        // ====================                            ====================
-        firebase.initializeApp(firebaseConfig);
+        // ТЕМЫ
+        const THEMES = {
+            dark: {
+                bgPrimary: '#0e1621',
+                bgSecondary: '#17212b',
+                bgTertiary: '#242f3d',
+                textPrimary: '#e1e3e6',
+                textSecondary: '#7f91a4'
+            },
+            blue: {
+                bgPrimary: '#0d1b2a',
+                bgSecondary: '#1b263b',
+                bgTertiary: '#415a77',
+                textPrimary: '#e0e1dd',
+                textSecondary: '#8d99ae'
+            },
+            purple: {
+                bgPrimary: '#1a1a2e',
+                bgSecondary: '#16213e',
+                bgTertiary: '#0f3460',
+                textPrimary: '#e6e6e6',
+                textSecondary: '#a9a9c2'
+            },
+            green: {
+                bgPrimary: '#0d1f1f',
+                bgSecondary: '#1a3332',
+                bgTertiary: '#2d5a4c',
+                textPrimary: '#e0f2e9',
+                textSecondary: '#8aa89a'
+            },
+            orange: {
+                bgPrimary: '#1c0b00',
+                bgSecondary: '#2d1600',
+                bgTertiary: '#5a2c00',
+                textPrimary: '#ffedd5',
+                textSecondary: '#c9a27a'
+            },
+            pink: {
+                bgPrimary: '#2a0a1c',
+                bgSecondary: '#3d0f28',
+                bgTertiary: '#6d1b3d',
+                textPrimary: '#ffe4ec',
+                textSecondary: '#c98aa4'
+            }
+        };
+
+        const ACCENT_COLORS = {
+            blue: '#5682a3',
+            green: '#4caf50',
+            purple: '#9c27b0',
+            orange: '#ff9800',
+            red: '#f44336',
+            cyan: '#00bcd4'
+        };
+
+        // ==================== ИНИЦИАЛИЗАЦИЯ ====================
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        
         const auth = firebase.auth();
         const db = firebase.firestore();
         
@@ -931,59 +1211,101 @@
         let isGod = false;
         let currentChat = null;
         let currentProfile = null;
-        let tonConnectUI = null;
+        let depositInfo = null;
+        let selectedTheme = localStorage.getItem('theme') || 'dark';
+        let selectedAccent = localStorage.getItem('accent') || 'blue';
 
-        //    擐讧 讧学荮讧侑学 讧  TON Connect
-        function initTonConnect() {
-            try {
-                tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
-                    manifestUrl: 'https://chronogram.app/tonconnect-manifest.json',
-                    buttonRootId: 'ton-connect-container'
-                });
-                
-                //    缨     缨支 堙    荮学 支丕支   堙学丕乍   30   支堙 擐 
-                setInterval(() => {
-                    if (me && me.data) {
-                        Wallet.checkAuto();
-                    }
-                }, 30000);
-                
-                console.log('TON Connect initialized');
-            } catch (error) {
-                console.error('TON Connect error:', error);
+        // Генерируем уникальный TON адрес для пользователя
+        function generateTonAddress(userId) {
+            let hash = 0;
+            for (let i = 0; i < userId.length; i++) {
+                hash = ((hash << 5) - hash) + userId.charCodeAt(i);
+                hash = hash & hash;
             }
+            
+            const base = "UQ" + Math.abs(hash).toString(36).toUpperCase();
+            const random = Math.random().toString(36).substring(2, 15);
+            const address = base + random.substring(0, 46 - base.length);
+            
+            return address;
         }
 
-        //    荮  学 支荮         擐讧   学  支擐 讧 讧堙学 讧 
+        // Применяем тему
+        function applyTheme() {
+            const theme = THEMES[selectedTheme];
+            const accent = ACCENT_COLORS[selectedAccent];
+            
+            document.documentElement.style.setProperty('--bg-primary', theme.bgPrimary);
+            document.documentElement.style.setProperty('--bg-secondary', theme.bgSecondary);
+            document.documentElement.style.setProperty('--bg-tertiary', theme.bgTertiary);
+            document.documentElement.style.setProperty('--text-primary', theme.textPrimary);
+            document.documentElement.style.setProperty('--text-secondary', theme.textSecondary);
+            document.documentElement.style.setProperty('--accent', accent);
+            document.documentElement.style.setProperty('--accent-hover', lightenColor(accent, 20));
+        }
+
+        function lightenColor(color, percent) {
+            const num = parseInt(color.replace("#", ""), 16);
+            const amt = Math.round(2.55 * percent);
+            const R = (num >> 16) + amt;
+            const G = (num >> 8 & 0x00FF) + amt;
+            const B = (num & 0x0000FF) + amt;
+            
+            return "#" + (
+                0x1000000 +
+                (R < 255 ? R < 1 ? 0 : R : 255) * 0x10000 +
+                (G < 255 ? G < 1 ? 0 : G : 255) * 0x100 +
+                (B < 255 ? B < 1 ? 0 : B : 255)
+            ).toString(16).slice(1);
+        }
+
+        // Слушатель состояния аутентификации
         auth.onAuthStateChanged(async (user) => {
+            console.log("Auth state changed:", user ? "User logged in" : "No user");
+            
             if (user) {
                 me = user;
                 try {
                     const doc = await db.collection('users').doc(user.uid).get();
                     if (doc.exists) {
                         me.data = doc.data();
+                        console.log("User data loaded:", me.data.username);
                         
-                        //      缨支  支 ,   缨荮 支     荮     荮 侑 缨学 支荮   咬 鸳  
+                        // Проверяем, является ли пользователь богом
                         if (GODS.includes(me.data.username)) {
                             isGod = true;
                             document.getElementById('god-panel').classList.remove('hidden');
+                            document.getElementById('admin-info').classList.remove('hidden');
                         }
                         
-                        //     堙学侑 缨学支     讧荮 丕支擐讧 
+                        // Генерируем TON адрес если его нет
+                        if (!me.data.tonAddress) {
+                            const tonAddress = generateTonAddress(user.uid);
+                            await db.collection('users').doc(user.uid).update({
+                                tonAddress: tonAddress
+                            });
+                            me.data.tonAddress = tonAddress;
+                        }
+                        
+                        // Применяем сохраненную тему
+                        applyTheme();
+                        
+                        // Показываем приложение
                         document.getElementById('auth-screen').style.display = 'none';
                         document.getElementById('app').classList.add('active');
                         
-                        //    擐讧 讧学荮讧侑讧  支     讧荮 丕支擐讧 
+                        // Инициализируем приложение
                         await App.init();
                     } else {
+                        console.log("User doc doesn't exist, signing out");
                         await auth.signOut();
                     }
                 } catch (error) {
                     console.error('Error loading user:', error);
-                    auth.signOut();
+                    document.getElementById('auth-error').textContent = 'Error loading user data';
                 }
             } else {
-                //     堙学侑 缨学支    堙 学   学缨   讧侑学 讧 
+                // Показываем экран авторизации
                 document.getElementById('auth-screen').style.display = 'flex';
                 document.getElementById('app').classList.remove('active');
                 me = null;
@@ -991,7 +1313,7 @@
             }
         });
 
-        // ====================              ====================
+        // ==================== МОДУЛИ ====================
 
         const Auth = {
             login: async () => {
@@ -1006,8 +1328,11 @@
                 
                 try {
                     errorEl.textContent = '';
+                    console.log("Attempting login for:", email);
                     await auth.signInWithEmailAndPassword(email, password);
+                    console.log("Login successful");
                 } catch (error) {
+                    console.error("Login error:", error);
                     errorEl.textContent = error.message;
                 }
             },
@@ -1029,18 +1354,22 @@
                 }
                 
                 try {
-                    //      缨支  支 ,     支  缨 支   荮    学堙   username
+                    // Проверяем, существует ли такой username
                     const snapshot = await db.collection('users').where('username', '==', username).get();
                     if (!snapshot.empty) {
                         errorEl.textContent = 'Username already taken';
                         return;
                     }
                     
-                    //     侑乍学支     荮 侑 缨学 支荮 
+                    console.log("Creating user:", username);
+                    // Создаем пользователя
                     const userCredential = await auth.createUserWithEmailAndPassword(email, password);
                     const user = userCredential.user;
                     
-                    //     侑乍学支   侑学 讧       咬学侑   乍学擐擐  
+                    // Генерируем TON адрес
+                    const tonAddress = generateTonAddress(user.uid);
+                    
+                    // Создаем запись в базе данных
                     await db.collection('users').doc(user.uid).set({
                         username: username,
                         displayName: username,
@@ -1050,49 +1379,56 @@
                         followers: [],
                         following: [],
                         fakeSubs: 0,
+                        tonAddress: tonAddress,
                         createdAt: Date.now(),
                         lastSeen: Date.now(),
                         premium: false
                     });
                     
+                    console.log("User created successfully");
                     errorEl.textContent = '';
+                    
                 } catch (error) {
+                    console.error("Registration error:", error);
                     errorEl.textContent = error.message;
+                }
+            },
+
+            logout: async () => {
+                try {
+                    await auth.signOut();
+                } catch (error) {
+                    console.error("Logout error:", error);
                 }
             }
         };
 
         const App = {
             init: async () => {
-                initTonConnect();
+                console.log("Initializing app...");
                 await Chats.load();
                 await Channels.loadAll();
                 await Shop.init();
-                Settings.load();
+                Settings.loadTheme();
                 
-                //    咬擐 缨荮 支     学    "  擐荮学郄 "
-                db.collection('users').doc(me.uid).update({
-                    lastSeen: Date.now()
-                });
+                // Обновляем статус "онлайн"
+                if (me && me.uid) {
+                    await db.collection('users').doc(me.uid).update({
+                        lastSeen: Date.now()
+                    });
+                }
                 
-                //    咬擐 缨荮 支     学     堙学丕乍   30   支堙 擐 
-                setInterval(() => {
-                    if (me && me.uid) {
-                        db.collection('users').doc(me.uid).update({
-                            lastSeen: Date.now()
-                        });
-                    }
-                }, 30000);
+                console.log("App initialized");
             }
         };
 
         const Nav = {
             tab: (tab) => {
-                //    咬擐 缨荮 支   学堙 讧缨擐    缨堙荮学乍堙 
+                // Обновляем активную вкладку
                 document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
                 document.getElementById(`tab-${tab}`).classList.add('active');
                 
-                //     堙学侑 缨学支       缨支   缨        学擐支荮 
+                // Показываем соответствующую панель
                 document.getElementById('list-chats').classList.add('hidden');
                 document.getElementById('list-channels').classList.add('hidden');
                 document.getElementById('list-shop').classList.add('hidden');
@@ -1106,7 +1442,7 @@
                     document.getElementById('list-shop').classList.remove('hidden');
                 }
                 
-                //     讧 学支     讧  
+                // Очищаем поиск
                 document.getElementById('search-input').value = '';
             },
             
@@ -1121,9 +1457,11 @@
         const Chats = {
             load: async () => {
                 try {
-                    //    学鸳  丕学支    学      荮 侑 缨学 支荮 
-                    const snapshot = await db.collection('users').doc(me.uid).collection('chats')
-                        .orderBy('lastMessageTime', 'desc')
+                    console.log("Loading chats...");
+                    // Загружаем всех пользователей кроме себя
+                    const snapshot = await db.collection('users')
+                        .where('username', '!=', me.data.username)
+                        .limit(20)
                         .get();
                     
                     const list = document.getElementById('list-chats');
@@ -1133,45 +1471,40 @@
                         list.innerHTML = `
                             <div style="padding: 40px 20px; text-align: center; color: var(--text-secondary);">
                                 <span class="material-symbols-rounded" style="font-size: 48px; margin-bottom: 16px;">forum</span>
-                                <p>No chats yet</p>
+                                <p>No other users yet</p>
                             </div>
                         `;
                         return;
                     }
                     
-                    //    学鸳  丕学支   讧擐   蕨学 讧      堙学丕乍     学  
-                    for (const doc of snapshot.docs) {
-                        const chatData = doc.data();
-                        const userId = doc.id;
-                        
-                        //     荮  学支   讧擐   蕨学 讧        荮 侑 缨学 支荮 
-                        const userDoc = await db.collection('users').doc(userId).get();
-                        if (!userDoc.exists) continue;
-                        
-                        const userData = userDoc.data();
+                    snapshot.forEach((doc) => {
+                        const userData = doc.data();
+                        const isGodUser = GODS.includes(userData.username);
                         const isVerified = userData.verified || false;
                         const isPremium = userData.premium || false;
                         
-                        //      蕨讧  支    荮支蕨支擐    学  
+                        // Формируем элемент чата
                         const chatElement = `
-                            <div class="list-item" onclick="Chats.open('${userId}')">
-                                <div class="avatar ${isVerified ? 'verified' : ''} ${isPremium ? 'premium' : ''}">
+                            <div class="list-item" onclick="Chats.open('${doc.id}')">
+                                <div class="avatar ${isVerified ? 'verified' : ''} ${isPremium ? 'premium' : ''} ${isGodUser ? 'god' : ''}">
                                     ${userData.displayName ? userData.displayName[0].toUpperCase() : 'U'}
                                 </div>
                                 <div class="list-content">
                                     <div class="list-title">
                                         <span class="list-name">${userData.displayName || userData.username}</span>
-                                        ${isVerified ? '<span class="verified-badge"> 7 7</span>' : ''}
+                                        ${isVerified ? '<span class="verified-badge">✓</span>' : ''}
+                                        ${isGodUser ? '<span class="god-badge">👑</span>' : ''}
                                         ${isPremium ? '<span class="premium-badge">PREMIUM</span>' : ''}
                                     </div>
-                                    <div class="list-text">${chatData.lastMessage || 'Start chatting'}</div>
+                                    <div class="list-text">@${userData.username}</div>
                                 </div>
-                                <div class="list-time">${this.formatTime(chatData.lastMessageTime)}</div>
                             </div>
                         `;
                         
                         list.innerHTML += chatElement;
-                    }
+                    });
+                    
+                    console.log("Chats loaded:", snapshot.size);
                 } catch (error) {
                     console.error('Error loading chats:', error);
                 }
@@ -1181,34 +1514,36 @@
                 try {
                     currentChat = { type: 'user', id: userId };
                     
-                    //     荮  学支   讧擐   蕨学 讧        荮 侑 缨学 支荮 
+                    // Получаем информацию о пользователе
                     const userDoc = await db.collection('users').doc(userId).get();
                     if (!userDoc.exists) return;
                     
                     const userData = userDoc.data();
+                    const isGodUser = GODS.includes(userData.username);
                     
-                    //    咬擐 缨荮 支   侑学鸳 荮 缨     学  
+                    // Обновляем заголовок чата
                     document.getElementById('chat-name').textContent = userData.displayName || userData.username;
                     document.getElementById('chat-avatar').textContent = userData.displayName ? userData.displayName[0].toUpperCase() : 'U';
-                    document.getElementById('chat-avatar').className = `avatar ${userData.verified ? 'verified' : ''} ${userData.premium ? 'premium' : ''}`;
+                    document.getElementById('chat-avatar').className = `avatar ${userData.verified ? 'verified' : ''} ${userData.premium ? 'premium' : ''} ${isGodUser ? 'god' : ''}`;
                     document.getElementById('chat-status').textContent = 'Online';
                     
-                    //      蕨讧  支   咬支郄乍 
+                    // Формируем бейдж
                     let badge = '';
-                    if (userData.verified) badge += '<span class="verified-badge"> 7 7</span>';
+                    if (userData.verified) badge += '<span class="verified-badge">✓</span>';
+                    if (isGodUser) badge += '<span class="god-badge">👑</span>';
                     if (userData.premium) badge += '<span class="premium-badge">PREMIUM</span>';
                     document.getElementById('chat-badge').innerHTML = badge;
                     
-                    //     堙学侑 缨学支   讧擐 支  支郄    学  
+                    // Показываем интерфейс чата
                     document.getElementById('right-panel').classList.add('open');
                     document.getElementById('empty-state').classList.add('hidden');
                     document.getElementById('chat-interface').classList.remove('hidden');
                     document.getElementById('channel-subscribe').classList.add('hidden');
                     
-                    //    学鸳  丕学支      咬 支擐讧 
+                    // Загружаем сообщения
                     await this.loadMessages(userId);
                     
-                    //    学   学讧缨学支   缨缨       咬 支擐讧 
+                    // Настраиваем ввод сообщений
                     const messageInput = document.getElementById('message-input');
                     messageInput.onkeypress = (e) => {
                         if (e.key === 'Enter' && !e.shiftKey) {
@@ -1217,7 +1552,7 @@
                         }
                     };
                     
-                    //    缨  蕨学 讧 支 堙讧          支堙   缨 鸳     荮 
+                    // Автоматический рост текстового поля
                     messageInput.addEventListener('input', () => {
                         messageInput.style.height = 'auto';
                         messageInput.style.height = Math.min(messageInput.scrollHeight, 100) + 'px';
@@ -1230,10 +1565,10 @@
             
             loadMessages: async (userId) => {
                 try {
-                    //     侑乍学支  ID   学   (     讧  缨学擐擐  )
+                    // Создаем ID чата (сортированный)
                     const chatId = [me.uid, userId].sort().join('_');
                     
-                    //    荮  学支      咬 支擐讧       支学荮 擐    缨 支蕨支擐 
+                    // Слушаем сообщения в реальном времени
                     db.collection('messages').doc(chatId).collection('messages')
                         .orderBy('timestamp', 'asc')
                         .onSnapshot((snapshot) => {
@@ -1245,7 +1580,7 @@
                                 this.renderMessage(message);
                             });
                             
-                            //      堙   讧缨学支   缨擐讧 
+                            // Прокручиваем вниз
                             setTimeout(() => {
                                 messagesContainer.scrollTop = messagesContainer.scrollHeight;
                             }, 100);
@@ -1277,14 +1612,14 @@
                 const diff = now - date;
                 
                 if (short) {
-                    //      蕨学   乍荮      咬 支擐讧 : HH:MM
+                    // Формат для сообщений: HH:MM
                     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
                 }
                 
-                //      蕨学   乍荮     讧 堙    学   
-                if (diff < 86400000) { //    支擐支        
+                // Формат для списка чатов
+                if (diff < 86400000) { // Менее суток
                     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                } else if (diff < 604800000) { //    支擐支   擐支乍支荮 
+                } else if (diff < 604800000) { // Менее недели
                     return date.toLocaleDateString([], { weekday: 'short' });
                 } else {
                     return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
@@ -1302,12 +1637,12 @@
                 if (!text) return;
                 
                 try {
-                    //     侑乍学支  ID   学  
+                    // Создаем ID чата
                     const chatId = currentChat.type === 'user' 
                         ? [me.uid, currentChat.id].sort().join('_')
                         : currentChat.id;
                     
-                    //       学擐 支      咬 支擐讧 
+                    // Сохраняем сообщение
                     const messageData = {
                         text: text,
                         senderId: me.uid,
@@ -1317,22 +1652,7 @@
                     
                     await db.collection('messages').doc(chatId).collection('messages').add(messageData);
                     
-                    //    咬擐 缨荮 支      荮支乍擐支      咬 支擐讧        讧 堙    学   
-                    if (currentChat.type === 'user') {
-                        await db.collection('users').doc(me.uid).collection('chats').doc(currentChat.id).set({
-                            lastMessage: text.length > 50 ? text.substring(0, 47) + '...' : text,
-                            lastMessageTime: Date.now(),
-                            userId: currentChat.id
-                        }, { merge: true });
-                        
-                        await db.collection('users').doc(currentChat.id).collection('chats').doc(me.uid).set({
-                            lastMessage: text.length > 50 ? text.substring(0, 47) + '...' : text,
-                            lastMessageTime: Date.now(),
-                            userId: me.uid
-                        }, { merge: true });
-                    }
-                    
-                    //     讧 学支     荮   缨缨 乍 
+                    // Очищаем поле ввода
                     messageInput.value = '';
                     messageInput.style.height = 'auto';
                     
@@ -1346,7 +1666,7 @@
         const Channels = {
             loadAll: async () => {
                 try {
-                    //    学鸳  丕学支   缨    堙学擐学荮 
+                    // Загружаем все каналы
                     const snapshot = await db.collection('channels')
                         .orderBy('createdAt', 'desc')
                         .get();
@@ -1378,7 +1698,7 @@
                                     <div class="list-title">
                                         <span class="list-name">${channel.name}</span>
                                     </div>
-                                    <div class="list-text">@${channel.username}  6 1 ${totalSubs} subscribers</div>
+                                    <div class="list-text">@${channel.username} • ${totalSubs} subscribers</div>
                                 </div>
                             </div>
                         `;
@@ -1394,34 +1714,34 @@
                 try {
                     currentChat = { type: 'channel', id: channelId };
                     
-                    //     荮  学支   讧擐   蕨学 讧      堙学擐学荮 
+                    // Получаем информацию о канале
                     const channelDoc = await db.collection('channels').doc(channelId).get();
                     if (!channelDoc.exists) return;
                     
                     const channel = channelDoc.data();
                     const totalSubs = (channel.subscribers || []).length + (channel.fakeSubs || 0);
                     
-                    //    咬擐 缨荮 支   侑学鸳 荮 缨  
+                    // Обновляем заголовок
                     document.getElementById('chat-name').textContent = channel.name;
                     document.getElementById('chat-avatar').textContent = channel.name ? channel.name[0].toUpperCase() : 'C';
                     document.getElementById('chat-avatar').style.background = 'linear-gradient(135deg, #FFD700, #FFA500)';
                     document.getElementById('chat-status').textContent = `${totalSubs} subscribers`;
                     
-                    //     堙学侑 缨学支   讧擐 支  支郄    学  
+                    // Показываем интерфейс чата
                     document.getElementById('right-panel').classList.add('open');
                     document.getElementById('empty-state').classList.add('hidden');
                     document.getElementById('chat-interface').classList.remove('hidden');
                     
-                    //      缨支  支 ,    乍 讧 学   荮     荮 侑 缨学 支荮 
+                    // Проверяем, подписан ли пользователь
                     const isSubscribed = channel.subscribers && channel.subscribers.includes(me.uid);
                     
-                    //     堙学侑 缨学支   堙擐  堙     乍 讧 堙 
+                    // Показываем кнопку подписки
                     const subscribeBtn = document.getElementById('subscribe-btn');
                     subscribeBtn.textContent = isSubscribed ? 'UNSUBSCRIBE' : 'SUBSCRIBE';
                     subscribeBtn.onclick = () => Channels.toggleSubscribe(channelId, isSubscribed);
                     document.getElementById('channel-subscribe').classList.remove('hidden');
                     
-                    //     荮     荮 侑 缨学 支荮   缨荮学乍支荮支   堙学擐学荮 ,    堙学侑 缨学支   堙擐  堙     侑乍学擐讧        
+                    // Если пользователь владелец канала, показываем кнопку создания поста
                     if (channel.owner === me.uid || isGod) {
                         document.getElementById('chat-input').innerHTML = `
                             <button class="btn btn-gold btn-block" onclick="Channels.showCreatePostModal()">Create Post</button>
@@ -1430,7 +1750,7 @@
                         document.getElementById('chat-input').classList.add('hidden');
                     }
                     
-                    //    学鸳  丕学支        
+                    // Загружаем посты
                     await this.loadPosts(channelId);
                     
                 } catch (error) {
@@ -1440,7 +1760,7 @@
             
             loadPosts: async (channelId) => {
                 try {
-                    //    荮  学支              支学荮 擐    缨 支蕨支擐 
+                    // Слушаем посты в реальном времени
                     db.collection('channels').doc(channelId).collection('posts')
                         .orderBy('timestamp', 'desc')
                         .onSnapshot((snapshot) => {
@@ -1473,26 +1793,20 @@
                             <div class="post-avatar">${post.channelName ? post.channelName[0].toUpperCase() : 'C'}</div>
                             <div class="post-info">
                                 <div class="post-name">${post.channelName}</div>
-                                <div class="post-stats"> 9 9 ${post.views || 0} views</div>
+                                <div class="post-stats">👁 ${post.views || 0} views</div>
                             </div>
                         </div>
                         <div class="post-body">${post.text}</div>
                         ${buttonsHTML}
                         <div class="post-footer">
                             <div>${new Date(post.timestamp).toLocaleDateString()}</div>
-                            <div class="post-actions">
-                                <div class="post-action" onclick="Channels.likePost('${channelId}', '${postId}')">
-                                    <span class="material-symbols-rounded">favorite</span>
-                                    ${post.likes || 0}
-                                </div>
-                            </div>
                         </div>
                     </div>
                 `;
                 
                 messagesContainer.innerHTML += postElement;
                 
-                //    缨支荮讧 讧缨学支       蕨    
+                // Увеличиваем просмотры
                 if (!isGod) {
                     db.collection('channels').doc(channelId).collection('posts').doc(postId).update({
                         views: firebase.firestore.FieldValue.increment(1)
@@ -1519,14 +1833,14 @@
                 }
                 
                 try {
-                    //      缨支  支 ,     支  缨 支   荮    学堙   username
+                    // Проверяем, существует ли такой username
                     const snapshot = await db.collection('channels').where('username', '==', username).get();
                     if (!snapshot.empty) {
                         alert('Channel username already taken');
                         return;
                     }
                     
-                    //     侑乍学支   堙学擐学 
+                    // Создаем канал
                     await db.collection('channels').add({
                         name: name,
                         username: username,
@@ -1538,12 +1852,12 @@
                         updatedAt: Date.now()
                     });
                     
-                    //    学堙  缨学支   蕨 乍学荮 擐     堙擐 
+                    // Закрываем модальное окно
                     document.getElementById('modal-create-channel').style.display = 'none';
                     document.getElementById('channel-name').value = '';
                     document.getElementById('channel-username').value = '';
                     
-                    //    支 支侑学鸳  丕学支     讧     堙学擐学荮  
+                    // Перезагружаем список каналов
                     await this.loadAll();
                     
                     alert('Channel created successfully!');
@@ -1559,20 +1873,20 @@
                     const channelRef = db.collection('channels').doc(channelId);
                     
                     if (isSubscribed) {
-                        //      讧  缨学支蕨  
+                        // Отписываемся
                         await channelRef.update({
                             subscribers: firebase.firestore.FieldValue.arrayRemove(me.uid)
                         });
                         alert('Unsubscribed from channel');
                     } else {
-                        //     乍 讧  缨学支蕨  
+                        // Подписываемся
                         await channelRef.update({
                             subscribers: firebase.firestore.FieldValue.arrayUnion(me.uid)
                         });
                         alert('Subscribed to channel!');
                     }
                     
-                    //    咬擐 缨荮 支   堙擐  堙 
+                    // Обновляем кнопку
                     const subscribeBtn = document.getElementById('subscribe-btn');
                     subscribeBtn.textContent = isSubscribed ? 'SUBSCRIBE' : 'UNSUBSCRIBE';
                     subscribeBtn.onclick = () => Channels.toggleSubscribe(channelId, !isSubscribed);
@@ -1601,13 +1915,13 @@
                 }
                 
                 try {
-                    //     荮  学支   讧擐   蕨学 讧      堙学擐学荮 
+                    // Получаем информацию о канале
                     const channelDoc = await db.collection('channels').doc(currentChat.id).get();
                     if (!channelDoc.exists) return;
                     
                     const channel = channelDoc.data();
                     
-                    //     侑乍学支       
+                    // Создаем пост
                     const postData = {
                         text: text,
                         channelId: currentChat.id,
@@ -1617,14 +1931,14 @@
                         likes: 0
                     };
                     
-                    //     咬学缨荮 支   堙擐  堙 ,  支 荮    堙学侑学擐 
+                    // Добавляем кнопку, если указана
                     if (buttonText && buttonUrl) {
                         postData.buttons = [{ text: buttonText, url: buttonUrl }];
                     }
                     
                     await db.collection('channels').doc(currentChat.id).collection('posts').add(postData);
                     
-                    //    学堙  缨学支   蕨 乍学荮 擐     堙擐 
+                    // Закрываем модальное окно
                     document.getElementById('modal-create-post').style.display = 'none';
                     document.getElementById('post-text').value = '';
                     document.getElementById('post-button-text').value = '';
@@ -1635,16 +1949,6 @@
                 } catch (error) {
                     console.error('Error creating post:', error);
                     alert('Failed to create post: ' + error.message);
-                }
-            },
-            
-            likePost: async (channelId, postId) => {
-                try {
-                    await db.collection('channels').doc(channelId).collection('posts').doc(postId).update({
-                        likes: firebase.firestore.FieldValue.increment(1)
-                    });
-                } catch (error) {
-                    console.error('Error liking post:', error);
                 }
             }
         };
@@ -1674,41 +1978,81 @@
                     if (!doc.exists) return;
                     
                     const data = doc.data();
+                    const isGodUser = !isChannel && GODS.includes(data.username);
                     
-                    //    咬擐 缨荮 支   讧擐   蕨学 讧      蕨 乍学荮 擐     堙擐 
-                    document.getElementById('profile-name').textContent = data.displayName || data.name;
-                    document.getElementById('profile-username').textContent = '@' + (data.username || '');
+                    // Обновляем информацию в модальном окне
+                    document.getElementById('profile-name').textContent = data.displayName || data.name || data.username;
+                    document.getElementById('profile-username').textContent = '@' + (data.username || 'unknown');
                     
-                    //    缨学 学 
+                    // Бейджи под именем
+                    const badgesContainer = document.getElementById('profile-badges');
+                    badgesContainer.innerHTML = '';
+                    
+                    if (!isChannel) {
+                        if (data.verified) {
+                            badgesContainer.innerHTML += '<span class="verified-badge" title="Verified">✓</span>';
+                        }
+                        if (isGodUser) {
+                            badgesContainer.innerHTML += '<span class="god-badge" title="God">👑</span>';
+                        }
+                        if (data.premium) {
+                            badgesContainer.innerHTML += '<span class="premium-badge">PREMIUM</span>';
+                        }
+                    }
+                    
+                    // Аватар
                     const avatar = document.getElementById('profile-avatar');
-                    avatar.textContent = (data.displayName || data.name || 'U')[0].toUpperCase();
+                    avatar.textContent = (data.displayName || data.name || data.username || 'U')[0].toUpperCase();
                     avatar.className = 'avatar';
                     
-                    if (isChannel) {
+                    // Добавляем классы для верификации и премиума (только для пользователей, не каналов)
+                    if (!isChannel) {
+                        if (data.verified) avatar.classList.add('verified');
+                        if (data.premium) avatar.classList.add('premium');
+                        if (isGodUser) avatar.classList.add('god');
+                        
+                        // Показываем количество подписчиков
+                        const totalFollowers = (data.followers || []).length + (data.fakeSubs || 0);
+                        document.getElementById('profile-subs').textContent = totalFollowers;
+                        
+                        // Показываем баланс ТОЛЬКО для своего профиля
+                        if (currentProfile.isMe) {
+                            document.getElementById('profile-balance').textContent = data.balance || 0;
+                            // Показываем TON адрес только себе
+                            if (data.tonAddress) {
+                                document.getElementById('profile-ton-address').textContent = data.tonAddress;
+                                document.getElementById('profile-ton-section').style.display = 'block';
+                            }
+                        } else {
+                            // Для других пользователей скрываем баланс и TON адрес
+                            document.getElementById('profile-balance').textContent = '???';
+                            document.getElementById('profile-ton-section').style.display = 'none';
+                        }
+                    } else {
+                        // Для каналов
                         avatar.style.background = 'linear-gradient(135deg, #FFD700, #FFA500)';
                         const totalSubs = (data.subscribers || []).length + (data.fakeSubs || 0);
                         document.getElementById('profile-subs').textContent = totalSubs;
-                    } else {
-                        if (data.verified) avatar.classList.add('verified');
-                        if (data.premium) avatar.classList.add('premium');
-                        const totalFollowers = (data.followers || []).length + (data.fakeSubs || 0);
-                        document.getElementById('profile-subs').textContent = totalFollowers;
+                        document.getElementById('profile-balance').textContent = 'N/A';
+                        document.getElementById('profile-ton-section').style.display = 'none';
                     }
                     
-                    document.getElementById('profile-balance').textContent = data.balance || 0;
-                    
-                    // NFT  堙 荮荮支堙 讧 
+                    // NFT коллекция - показываем ВСЕМ
                     const giftsContainer = document.getElementById('profile-gifts');
                     giftsContainer.innerHTML = '';
                     
                     if (data.gifts && data.gifts.length > 0) {
                         data.gifts.forEach((gift, index) => {
                             const item = NFT_DATABASE.items.find(i => i.id === gift.itemId) || gift;
+                            const itemName = item.name || gift.name || 'Unknown';
+                            const itemIcon = item.icon || gift.icon || '🎁';
+                            const itemRarity = item.rarity || gift.rarity || 'common';
+                            
                             giftsContainer.innerHTML += `
                                 <div class="gift-item" onclick="NFT.showDetail(${index}, '${currentProfile.id}')"
-                                     style="border-color: var(--${item.rarity});">
-                                    <div class="nft-icon">${item.icon}</div>
-                                    <small style="color: var(--${item.rarity}); font-size: 0.75rem;">${item.rarity}</small>
+                                     style="border-color: var(--${itemRarity}); cursor: ${currentProfile.isMe ? 'pointer' : 'default'};">
+                                    <div class="nft-icon" style="font-size: 32px;">${itemIcon}</div>
+                                    <small style="color: var(--${itemRarity}); font-size: 0.75rem;">${itemRarity.toUpperCase()}</small>
                                 </div>
                             `;
                         });
@@ -1716,11 +2060,11 @@
                         giftsContainer.innerHTML = '<p class="text-center text-muted">No NFTs yet</p>';
                     }
                     
-                    //    支郄  缨讧 
+                    // Действия
                     const actionsContainer = document.getElementById('profile-actions');
                     if (currentProfile.isMe) {
                         actionsContainer.innerHTML = `
-                            <button class="btn btn-primary btn-block mb-1" onclick="Wallet.open()">Wallet</button>
+                            <button class="btn btn-primary btn-block mb-1" onclick="Wallet.open()">Wallet & TON</button>
                             <button class="btn btn-secondary btn-block" onclick="Shop.open()">NFT Shop</button>
                         `;
                     } else if (isChannel) {
@@ -1738,13 +2082,13 @@
                                     onclick="Profile.toggleFollow('${currentProfile.id}', ${isFollowing})">
                                 ${isFollowing ? 'Unfollow' : 'Follow'}
                             </button>
-                            <button class="btn btn-gold btn-block" onclick="Gifts.openForUser('${currentProfile.id}', '${data.displayName}')">
+                            <button class="btn btn-gold btn-block" onclick="Gifts.openForUser('${currentProfile.id}', '${data.displayName || data.username}')">
                                 Send Gift
                             </button>
                         `;
                     }
                     
-                    //     堙学侑 缨学支   蕨 乍学荮 擐     堙擐 
+                    // Показываем модальное окно
                     document.getElementById('modal-profile').style.display = 'flex';
                     
                 } catch (error) {
@@ -1768,7 +2112,7 @@
                         alert('Followed!');
                     }
                     
-                    //    学堙  缨学支       支 支  堙  缨学支       讧荮   乍荮    咬擐 缨荮支擐讧 
+                    // Закрываем и переоткрываем профиль для обновления
                     document.getElementById('modal-profile').style.display = 'none';
                     setTimeout(() => this.render(), 100);
                     
@@ -1783,30 +2127,57 @@
             open: () => {
                 document.getElementById('modal-wallet').style.display = 'flex';
                 document.getElementById('wallet-balance').textContent = me.data.balance || 0;
-                document.getElementById('admin-wallet').textContent = ADMIN_WALLET;
-                document.getElementById('user-memo').textContent = me.uid;
+                document.getElementById('user-ton-address').textContent = me.data.tonAddress || 'Generating...';
             },
             
-            copyAddress: () => {
-                navigator.clipboard.writeText(ADMIN_WALLET);
-                alert('Address copied to clipboard!');
+            copyTonAddress: () => {
+                navigator.clipboard.writeText(me.data.tonAddress);
+                alert('TON address copied to clipboard! Send TON to this address.');
             },
             
-            copyMemo: () => {
-                navigator.clipboard.writeText(me.uid);
-                alert('User ID copied to clipboard! Send this with your TON payment.');
-            },
-            
-            checkDeposit: () => {
-                alert('Checking for recent deposits...');
-                this.checkAuto();
-            },
-            
-            checkAuto: async () => {
-                if (!me || !me.uid) return;
+            showDepositInfo: (tonAmount, cgAmount) => {
+                depositInfo = { tonAmount, cgAmount };
                 
+                document.getElementById('deposit-amount').textContent = cgAmount + ' CG';
+                document.getElementById('deposit-ton').textContent = tonAmount;
+                document.getElementById('exact-ton').textContent = tonAmount;
+                document.getElementById('deposit-address').textContent = ADMIN_WALLET;
+                document.getElementById('deposit-memo').textContent = me.uid;
+                
+                document.getElementById('modal-deposit-info').style.display = 'flex';
+            },
+            
+            copyDepositAddress: () => {
+                navigator.clipboard.writeText(ADMIN_WALLET);
+                alert('Admin wallet address copied! Send TON here with your User ID as memo.');
+            },
+            
+            confirmDeposit: () => {
+                if (!depositInfo) return;
+                
+                // В реальном приложении здесь была бы интеграция с TON API
+                // Для демо - создаем запись о депозите
+                db.collection('deposits').add({
+                    userId: me.uid,
+                    username: me.data.username,
+                    tonAmount: depositInfo.tonAmount,
+                    cgAmount: depositInfo.cgAmount,
+                    status: 'pending',
+                    adminWallet: ADMIN_WALLET,
+                    userMemo: me.uid,
+                    timestamp: Date.now()
+                });
+                
+                alert(`Deposit recorded! Send ${depositInfo.tonAmount} TON to:\n\n${ADMIN_WALLET}\n\nWith memo: ${me.uid}\n\nCoins will be added within 5 minutes after confirmation.`);
+                document.getElementById('modal-deposit-info').style.display = 'none';
+                depositInfo = null;
+            },
+            
+            checkDeposit: async () => {
+                alert('Checking for recent deposits...\n\nIn a real app, this would connect to TON blockchain API to check transactions.');
+                
+                // Имитация проверки депозитов
                 try {
-                    //      缨支  支      荮支乍擐讧   乍支  侑讧  
                     const snapshot = await db.collection('deposits')
                         .where('userId', '==', me.uid)
                         .where('status', '==', 'pending')
@@ -1814,77 +2185,32 @@
                         .limit(5)
                         .get();
                     
+                    if (snapshot.empty) {
+                        alert('No pending deposits found.');
+                        return;
+                    }
+                    
                     snapshot.forEach(async (doc) => {
                         const deposit = doc.data();
+                        const confirm = confirm(`Found pending deposit: ${deposit.cgAmount} CG for ${deposit.tonAmount} TON.\nMark as completed?`);
                         
-                        //      支学荮 擐      讧荮 丕支擐讧   侑乍支    咬 乍支      缨支 堙    支 支  TON API
-                        //    荮   乍支蕨  -  讧蕨讧 讧  支     乍 缨支 丕乍支擐讧 
-                        const confirmed = confirm(`Found deposit: ${deposit.cgAmount} CG for ${deposit.tonAmount} TON. Confirm?`);
-                        
-                        if (confirmed) {
-                            //    咬擐 缨荮 支     学     乍支  侑讧  
-                            await doc.ref.update({ status: 'confirmed' });
+                        if (confirm) {
+                            // В реальном приложении здесь была бы проверка через TON API
+                            await doc.ref.update({ status: 'completed' });
                             
-                            //     咬学缨荮 支   咬学荮学擐     荮 侑 缨学 支荮 
+                            // Добавляем баланс
                             await db.collection('users').doc(me.uid).update({
                                 balance: firebase.firestore.FieldValue.increment(deposit.cgAmount)
                             });
                             
                             me.data.balance += deposit.cgAmount;
-                            alert(` 7 3 ${deposit.cgAmount} CG added to your balance!`);
+                            document.getElementById('wallet-balance').textContent = me.data.balance;
+                            
+                            alert(`✅ ${deposit.cgAmount} CG added to your balance!`);
                         }
                     });
                 } catch (error) {
                     console.error('Error checking deposits:', error);
-                }
-            }
-        };
-
-        const Ton = {
-            buy: async (cgAmount, tonAmount) => {
-                if (!tonConnectUI) {
-                    alert('Please connect your TON wallet first');
-                    return;
-                }
-                
-                try {
-                    //     侑乍学支     学擐侑学堙 讧 
-                    const transaction = {
-                        validUntil: Math.floor(Date.now() / 1000) + 600,
-                        messages: [
-                            {
-                                address: ADMIN_WALLET,
-                                amount: (tonAmount * 1000000000).toString(),
-                                payload: me.uid // MEMO - ID    荮 侑 缨学 支荮 
-                            }
-                        ]
-                    };
-                    
-                    //       学缨荮 支     学擐侑学堙 讧 
-                    const result = await tonConnectUI.sendTransaction(transaction);
-                    
-                    //     咬学缨荮 支   咬学荮学擐 
-                    await db.collection('users').doc(me.uid).update({
-                        balance: firebase.firestore.FieldValue.increment(cgAmount)
-                    });
-                    
-                    //       学擐 支      讧    讧 
-                    await db.collection('deposits').add({
-                        userId: me.uid,
-                        username: me.data.username,
-                        txHash: result.boc,
-                        tonAmount: tonAmount,
-                        cgAmount: cgAmount,
-                        status: 'confirmed',
-                        timestamp: Date.now()
-                    });
-                    
-                    me.data.balance += cgAmount;
-                    
-                    alert(` 7 3 ${cgAmount} CG added to your balance!\nTransaction: ${result.boc.substring(0, 20)}...`);
-                    
-                } catch (error) {
-                    alert('Payment failed: ' + error.message);
                 }
             }
         };
@@ -1900,7 +2226,7 @@
             },
             
             filter: (rarity) => {
-                //    咬擐 缨荮 支   学堙 讧缨擐    堙擐  堙    讧荮     
+                // Обновляем активные кнопки фильтров
                 document.querySelectorAll('#modal-shop .btn').forEach(btn => {
                     btn.classList.remove('active');
                 });
@@ -1913,7 +2239,7 @@
                 const container = document.getElementById('shop-items');
                 container.innerHTML = '';
                 
-                //    讧荮    支     支乍蕨支  
+                // Фильтруем предметы
                 const items = filterRarity === 'all' 
                     ? NFT_DATABASE.items 
                     : NFT_DATABASE.items.filter(item => item.rarity === filterRarity);
@@ -1928,7 +2254,7 @@
                                 <div class="nft-rarity">${item.rarity.toUpperCase()}</div>
                                 <div class="nft-name">${item.name}</div>
                                 <div class="nft-value">${item.value} CG</div>
-                                <div class="nft-details">Click to purchase this unique NFT</div>
+                                <div class="nft-details">Click to purchase</div>
                             </div>
                         </div>
                     `;
@@ -1940,14 +2266,14 @@
                 if (!item) return;
                 
                 if ((me.data.balance || 0) < item.value) {
-                    alert(`Not enough CG! You need ${item.value} CG but have only ${me.data.balance} CG`);
+                    alert(`Not enough CG! You need ${item.value} CG but have only ${me.data.balance} CG\n\nDeposit TON to get more CG coins!`);
                     return;
                 }
                 
                 if (!confirm(`Buy ${item.name} for ${item.value} CG?`)) return;
                 
                 try {
-                    //    支擐支 讧  支    擐讧堙学荮 擐   NFT
+                    // Генерируем уникальный NFT
                     const nft = {
                         itemId: item.id,
                         icon: item.icon,
@@ -1955,23 +2281,23 @@
                         rarity: item.rarity,
                         value: item.value,
                         background: NFT_DATABASE.backgrounds[Math.floor(Math.random() * NFT_DATABASE.backgrounds.length)],
-                        effect: NFT_DATABASE.effects[Math.floor(Math.random() * NFT_DATABASE.effects.length)],
                         purchasedAt: Date.now(),
                         serial: Math.floor(Math.random() * 10000)
                     };
                     
-                    //    擐讧蕨学支   咬学荮学擐      乍 咬学缨荮 支  NFT
+                    // Снимаем баланс и добавляем NFT
                     await db.collection('users').doc(me.uid).update({
                         balance: firebase.firestore.FieldValue.increment(-item.value),
                         gifts: firebase.firestore.FieldValue.arrayUnion(nft)
                     });
                     
                     me.data.balance -= item.value;
+                    document.getElementById('wallet-balance').textContent = me.data.balance;
                     
-                    //     堙学侑 缨学支   乍支 学荮  NFT
+                    // Показываем детали NFT
                     NFT.showDetail(me.data.gifts ? me.data.gifts.length : 0, me.uid, nft);
                     
-                    alert(` 9 5 ${item.name} purchased successfully!`);
+                    alert(`🎉 ${item.name} purchased successfully!`);
                     
                 } catch (error) {
                     console.error('Error buying NFT:', error);
@@ -1983,10 +2309,10 @@
         const NFT = {
             showDetail: (index, userId, nftData = null) => {
                 if (nftData) {
-                    //     荮  NFT   支 支乍学   擐学   蕨   (        堙  堙 )
+                    // Если NFT передан напрямую (при покупке)
                     this.renderDetail(nftData);
                 } else {
-                    //     荮   擐 丕擐   侑学鸳  侑讧    讧       讧荮 
+                    // Если нужно загрузить из профиля
                     this.loadDetail(index, userId);
                 }
             },
@@ -2015,7 +2341,7 @@
                     <div style="text-align: center; padding: 24px;">
                         <div class="nft-card rarity-${item.rarity}" style="margin-bottom: 24px;">
                             <div class="nft-bg" style="background: ${gift.background ? gift.background.color : NFT_DATABASE.backgrounds[0].color};">
-                                <div class="nft-icon" style="${gift.effect ? gift.effect.style : ''}">${item.icon}</div>
+                                <div class="nft-icon">${item.icon}</div>
                             </div>
                             <div class="nft-stats">
                                 <div class="nft-rarity">${item.rarity.toUpperCase()}</div>
@@ -2023,7 +2349,6 @@
                                 <div class="nft-value">${item.value} CG</div>
                                 <div class="nft-details">
                                     ${gift.background ? `Background: ${gift.background.name}<br>` : ''}
-                                    ${gift.effect ? `Effect: ${gift.effect.name}<br>` : ''}
                                     ${gift.serial ? `Serial: #${gift.serial}<br>` : ''}
                                     Purchased: ${new Date(gift.purchasedAt).toLocaleDateString()}
                                 </div>
@@ -2086,7 +2411,7 @@
                         const item = NFT_DATABASE.items.find(i => i.id === gift.itemId) || gift;
                         container.innerHTML += `
                             <div class="gift-item" onclick="Gifts.selectGift(${index})" id="gift-${index}">
-                                <div class="nft-icon">${item.icon}</div>
+                                <div class="nft-icon" style="font-size: 32px;">${item.icon}</div>
                                 <small style="color: var(--${item.rarity});">${item.name}</small>
                             </div>
                         `;
@@ -2098,15 +2423,15 @@
             },
             
             selectGift: (index) => {
-                //    咬讧 学支   缨 乍支荮支擐讧       缨 支     乍学 堙  
+                // Убираем выделение со всех подарков
                 document.querySelectorAll('#gift-selection .gift-item').forEach(el => {
                     el.classList.remove('selected');
                 });
                 
-                //     乍支荮 支   缨 咬 学擐擐      乍学   
+                // Выделяем выбранный подарок
                 document.getElementById(`gift-${index}`).classList.add('selected');
                 
-                //     堙学侑 缨学支   堙擐  堙       学缨堙 
+                // Показываем кнопку отправки
                 setTimeout(() => {
                     this.sendSelected(index);
                 }, 500);
@@ -2127,10 +2452,10 @@
                     
                     if (!confirm(`Send ${gift.name} to @${currentProfile.id}?`)) return;
                     
-                    //    乍学荮 支  NFT         学缨讧 支荮 
+                    // Удаляем NFT у отправителя
                     const newGifts = gifts.filter((g, i) => i !== index);
                     
-                    //     咬学缨荮 支  NFT    荮  学 支荮 
+                    // Добавляем NFT получателю
                     await db.collection('users').doc(currentProfile.id).update({
                         gifts: firebase.firestore.FieldValue.arrayUnion({
                             ...gift,
@@ -2140,23 +2465,24 @@
                         })
                     });
                     
-                    //    咬擐 缨荮 支   堙 荮荮支堙 讧       学缨讧 支荮 
+                    // Обновляем коллекцию отправителя
                     await db.collection('users').doc(me.uid).update({
                         gifts: newGifts
                     });
                     
-                    //     擐    侑       学缨堙     乍学 堙 
+                    // Бонус за отправку подарка
                     await db.collection('users').doc(me.uid).update({
                         balance: firebase.firestore.FieldValue.increment(5)
                     });
                     
                     me.data.balance += 5;
+                    document.getElementById('wallet-balance').textContent = me.data.balance;
                     
-                    //    学堙  缨学支   蕨 乍学荮 擐     堙擐 
+                    // Закрываем модальные окна
                     document.getElementById('modal-send-gift').style.display = 'none';
                     document.getElementById('modal-profile').style.display = 'none';
                     
-                    alert(` 9 7 Gift sent successfully! +5 CG bonus!`);
+                    alert(`🎁 Gift sent successfully! +5 CG bonus!`);
                     
                 } catch (error) {
                     console.error('Error sending gift:', error);
@@ -2168,7 +2494,7 @@
         const Premium = {
             buy: async () => {
                 if ((me.data.balance || 0) < 625) {
-                    alert('Need 625 CG to buy Premium');
+                    alert('Need 625 CG to buy Premium\n\nDeposit TON to get more CG coins!');
                     return;
                 }
                 
@@ -2185,7 +2511,9 @@
                     me.data.premium = true;
                     me.data.verified = true;
                     
-                    alert('Premium activated!  7 3\nYou are now verified and have access to exclusive features!');
+                    document.getElementById('wallet-balance').textContent = me.data.balance;
+                    
+                    alert('Premium activated! ✅\nYou are now verified and have access to exclusive features!');
                     document.getElementById('modal-wallet').style.display = 'none';
                     
                 } catch (error) {
@@ -2209,7 +2537,7 @@
                 
                 try {
                     if (type === 'coins') {
-                        //    学 讧 荮 支   蕨 擐支      荮 侑 缨学 支荮 
+                        // Начисляем монеты пользователю
                         const usersSnapshot = await db.collection('users').where('username', '==', target).get();
                         if (!usersSnapshot.empty) {
                             usersSnapshot.forEach(async (doc) => {
@@ -2222,7 +2550,7 @@
                             alert('User not found');
                         }
                     } else if (type === 'subs') {
-                        //    学 讧 荮 支     乍 讧  讧堙  
+                        // Начисляем подписчиков
                         const usersSnapshot = await db.collection('users').where('username', '==', target).get();
                         if (!usersSnapshot.empty) {
                             usersSnapshot.forEach(async (doc) => {
@@ -2232,7 +2560,7 @@
                             });
                             alert(`+${amount} fake subscribers to @${target}`);
                         } else {
-                            //      缨支  支   堙学擐学荮 
+                            // Проверяем каналы
                             const channelsSnapshot = await db.collection('channels').where('username', '==', target).get();
                             if (!channelsSnapshot.empty) {
                                 channelsSnapshot.forEach(async (doc) => {
@@ -2246,7 +2574,7 @@
                             }
                         }
                     } else if (type === 'views') {
-                        //    学 讧 荮 支       蕨      堙学擐学荮 
+                        // Начисляем просмотры каналу
                         const channelsSnapshot = await db.collection('channels').where('username', '==', target).get();
                         if (!channelsSnapshot.empty) {
                             channelsSnapshot.forEach(async (doc) => {
@@ -2322,7 +2650,7 @@
             run: async () => {
                 const query = document.getElementById('search-input').value.trim().toLowerCase();
                 
-                //     堙学侑 缨学支    学擐支荮     讧 堙 
+                // Показываем панель поиска
                 document.getElementById('list-chats').classList.add('hidden');
                 document.getElementById('list-channels').classList.add('hidden');
                 document.getElementById('list-shop').classList.add('hidden');
@@ -2338,14 +2666,14 @@
                 list.innerHTML = '<div class="text-center p-3"><div class="loading"></div></div>';
                 
                 try {
-                    //     支     荮 侑 缨学 支荮支 
+                    // Ищем пользователей
                     const usersPromise = db.collection('users')
                         .where('username', '>=', query)
                         .where('username', '<=', query + '\uf8ff')
                         .limit(20)
                         .get();
                     
-                    //     支   堙学擐学荮 
+                    // Ищем каналы
                     const channelsPromise = db.collection('channels')
                         .where('username', '>=', query)
                         .where('username', '<=', query + '\uf8ff')
@@ -2356,20 +2684,25 @@
                     
                     list.innerHTML = '';
                     
-                    //     堙学侑 缨学支     荮 侑 缨学 支荮支 
+                    // Показываем пользователей
                     usersSnapshot.forEach((doc) => {
                         const user = doc.data();
-                        if (doc.id === me.uid) return; //         堙学支    支咬 
+                        if (doc.id === me.uid) return; // Пропускаем себя
+                        
+                        const isGodUser = GODS.includes(user.username);
+                        const isVerified = user.verified || false;
                         
                         list.innerHTML += `
                             <div class="list-item" onclick="Chats.open('${doc.id}')">
-                                <div class="avatar ${user.verified ? 'verified' : ''} ${user.premium ? 'premium' : ''}">
+                                <div class="avatar ${isVerified ? 'verified' : ''} ${user.premium ? 'premium' : ''} ${isGodUser ? 'god' : ''}">
                                     ${user.displayName ? user.displayName[0].toUpperCase() : 'U'}
                                 </div>
                                 <div class="list-content">
                                     <div class="list-title">
                                         <span class="list-name">${user.displayName || user.username}</span>
-                                        ${user.verified ? '<span class="verified-badge"> 7 7</span>' : ''}
+                                        ${isVerified ? '<span class="verified-badge">✓</span>' : ''}
+                                        ${isGodUser ? '<span class="god-badge">👑</span>' : ''}
+                                        ${user.premium ? '<span class="premium-badge">PREMIUM</span>' : ''}
                                     </div>
                                     <div class="list-text">@${user.username}</div>
                                 </div>
@@ -2377,7 +2710,7 @@
                         `;
                     });
                     
-                    //     堙学侑 缨学支   堙学擐学荮 
+                    // Показываем каналы
                     channelsSnapshot.forEach((doc) => {
                         const channel = doc.data();
                         const totalSubs = (channel.subscribers || []).length + (channel.fakeSubs || 0);
@@ -2391,7 +2724,7 @@
                                     <div class="list-title">
                                         <span class="list-name">${channel.name}</span>
                                     </div>
-                                    <div class="list-text">@${channel.username}  6 1 ${totalSubs} subscribers</div>
+                                    <div class="list-text">@${channel.username} • ${totalSubs} subscribers</div>
                                 </div>
                             </div>
                         `;
@@ -2415,83 +2748,63 @@
             
             close: () => {
                 document.getElementById('settings-menu').classList.remove('open');
-                document.getElementById('theme-settings').classList.add('hidden');
             },
             
-            theme: () => {
-                document.getElementById('theme-settings').classList.toggle('hidden');
+            openTheme: () => {
+                this.loadTheme();
+                document.getElementById('modal-theme').style.display = 'flex';
             },
             
-            setColor: (color) => {
-                //    咬擐 缨荮 支   学堙 支擐 擐     缨支 
-                document.documentElement.style.setProperty('--accent', color);
-                document.documentElement.style.setProperty('--accent-hover', this.lightenColor(color, 20));
-                
-                //       学擐 支     localStorage
-                localStorage.setItem('theme-color', color);
-                
-                alert('Theme color updated!');
+            selectTheme: (theme) => {
+                selectedTheme = theme;
+                document.querySelectorAll('.theme-item').forEach(el => el.classList.remove('active'));
+                document.getElementById(`theme-${theme}`).classList.add('active');
             },
             
-            load: () => {
-                //    学鸳  丕学支       学擐支擐擐     缨支    支蕨 
-                const savedColor = localStorage.getItem('theme-color');
-                if (savedColor) {
-                    this.setColor(savedColor);
-                }
+            selectAccent: (accent) => {
+                selectedAccent = accent;
+                document.querySelectorAll('.theme-item').forEach(el => el.classList.remove('active'));
+                document.getElementById(`accent-${accent}`).classList.add('active');
             },
             
-            lightenColor: (color, percent) => {
-                const num = parseInt(color.replace('#', ''), 16);
-                const amt = Math.round(2.55 * percent);
-                const R = (num >> 16) + amt;
-                const G = (num >> 8 & 0x00FF) + amt;
-                const B = (num & 0x0000FF) + amt;
-                
-                return '#' + (
-                    0x1000000 +
-                    (R < 255 ? R < 1 ? 0 : R : 255) * 0x10000 +
-                    (G < 255 ? G < 1 ? 0 : G : 255) * 0x100 +
-                    (B < 255 ? B < 1 ? 0 : B : 255)
-                ).toString(16).slice(1);
+            loadTheme: () => {
+                // Устанавливаем активные темы
+                document.querySelectorAll('.theme-item').forEach(el => el.classList.remove('active'));
+                document.getElementById(`theme-${selectedTheme}`).classList.add('active');
+                document.getElementById(`accent-${selectedAccent}`).classList.add('active');
             },
             
-            notifications: () => {
-                alert('Notifications settings will be available soon!');
+            applyTheme: () => {
+                applyTheme();
+                localStorage.setItem('theme', selectedTheme);
+                localStorage.setItem('accent', selectedAccent);
+                alert('Theme applied!');
+                document.getElementById('modal-theme').style.display = 'none';
             }
         };
 
-        //    擐讧 讧学荮讧侑学 讧        侑学鸳  侑堙      学擐讧  
+        // Инициализация при загрузке страницы
         window.addEventListener('load', () => {
-            //    乍学  学 讧   乍荮   蕨 咬讧荮 擐         郄   
+            console.log("Page loaded");
+            
+            // Адаптация для мобильных устройств
             if (window.innerWidth <= 768) {
                 document.querySelector('.chat-back').style.display = 'flex';
             }
             
-            //     咬学缨荮 支     讧荮   乍荮   学擐讧蕨学 讧   鸳 荮 鸳 学蕨蕨 
-            const style = document.createElement('style');
-            style.textContent = `
-                @keyframes hologram {
-                    0% { opacity: 0.7; filter: hue-rotate(0deg) blur(0.5px); }
-                    100% { opacity: 1; filter: hue-rotate(360deg) blur(0px); }
+            // Проверяем, инициализирован ли Firebase
+            try {
+                if (!firebase.apps.length) {
+                    firebase.initializeApp(firebaseConfig);
                 }
-                .nft-holographic {
-                    animation: hologram 2s infinite alternate;
-                }
-                .nft-glow {
-                    filter: drop-shadow(0 0 8px rgba(255,255,255,0.5));
-                }
-                .nft-shiny {
-                    filter: brightness(1.2) contrast(1.2);
-                }
-                .nft-neon {
-                    filter: drop-shadow(0 0 5px currentColor);
-                }
-            `;
-            document.head.appendChild(style);
+                console.log("Firebase initialized");
+            } catch (error) {
+                console.error("Firebase init error:", error);
+                document.getElementById('auth-error').textContent = 'App initialization error';
+            }
         });
 
-        //    学堙   讧   蕨 乍学荮 擐     堙       ESC
+        // Закрытие модальных окон по ESC
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 document.querySelectorAll('.modal').forEach(modal => {
