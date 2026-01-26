@@ -1,0 +1,11 @@
+document.addEventListener('DOMContentLoaded', function() {
+    console.log("✅ DOM загружен, начинаю инициализацию...");
+    
+    const loadingScreen = document.getElementById('loadingScreen');
+    const mainContainer = document.getElementById('mainContainer');
+    
+    if (!loadingScreen) console.error("❌ Не найден loadingScreen!");
+    if (!mainContainer) console.error("❌ Не найден mainContainer!");
+    
+    // ... остальной код ...
+});
