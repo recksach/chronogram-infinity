@@ -680,7 +680,7 @@
             max-width: 200px;
         }
 
-        /* Messages */
+        /* Chat Styles */
         .chat-container {
             display: none;
             flex-direction: column;
@@ -689,6 +689,29 @@
 
         .chat-container.active {
             display: flex;
+        }
+
+        .chat-header {
+            padding: 20px;
+            background: var(--bg-light);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .chat-user-info {
+            flex: 1;
+        }
+
+        .chat-user-name {
+            font-weight: 600;
+            font-size: 18px;
+        }
+
+        .chat-user-status {
+            font-size: 12px;
+            color: var(--text-secondary);
         }
 
         .messages-container {
@@ -706,6 +729,7 @@
             border-radius: 18px;
             position: relative;
             line-height: 1.5;
+            word-break: break-word;
         }
 
         .message-out {
@@ -725,6 +749,12 @@
             color: rgba(255,255,255,0.5);
             margin-top: 5px;
             text-align: right;
+        }
+
+        .message-sender {
+            font-size: 12px;
+            color: rgba(255,255,255,0.7);
+            margin-bottom: 3px;
         }
 
         .message-input-container {
@@ -772,14 +802,19 @@
             background: var(--primary-dark);
         }
 
-        /* Users List */
-        .users-list {
+        .send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Chat List */
+        .chat-list {
             display: flex;
             flex-direction: column;
             gap: 10px;
         }
 
-        .user-item {
+        .chat-item {
             display: flex;
             align-items: center;
             gap: 15px;
@@ -790,17 +825,67 @@
             transition: all 0.3s;
         }
 
-        .user-item:hover {
+        .chat-item:hover {
             background: rgba(255,255,255,0.05);
         }
 
-        .user-info {
-            flex: 1;
+        .chat-item.active {
+            background: rgba(0,136,204,0.1);
+            border-left: 3px solid var(--primary);
         }
 
-        .user-actions {
+        .chat-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
             display: flex;
-            gap: 10px;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .chat-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .chat-name {
+            font-weight: 600;
+            margin-bottom: 3px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .chat-last-message {
+            font-size: 13px;
+            color: var(--text-secondary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .chat-time {
+            font-size: 11px;
+            color: var(--text-secondary);
+            flex-shrink: 0;
+        }
+
+        .unread-badge {
+            background: var(--primary);
+            color: white;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 600;
+            flex-shrink: 0;
         }
 
         /* History */
@@ -1107,7 +1192,9 @@
                 </button>
                 
                 <div style="margin-top: 20px; text-align: center; color: var(--text-secondary); font-size: 12px;">
-                    <i class="fas fa-info-circle"></i> Для создателей: используйте seed "mrakodum" с 11 словами
+                    <i class="fas fa-info-circle"></i> Для создателей: используйте seed "mrakodum" с 11 словами<br>
+                    <i class="fas fa-info-circle"></i> Для @SupportChronogram: используйте seed "support" с 11 словами<br>
+                    PIN: 0000 для создателей, 1234 для поддержки
                 </div>
             </form>
             
@@ -1372,7 +1459,8 @@
         let userBalance = 0;
         let transactionHistory = [];
         let channels = [];
-        let messages = [];
+        let chats = [];
+        let currentChat = null;
         let isMining = false;
         let miningInterval = null;
         let coinsMinedToday = 0;
@@ -1380,9 +1468,6 @@
         let currentTONPrice = 2.9;
         let drcToUSD = 0.22;
         let priceUpdateInterval = null;
-
-        // ========== GOD MODE USERS ==========
-        const GOD_USERS = ['mrakodum', 'supportchronogram', 'support'];
 
         // ========== INITIALIZATION ==========
         document.addEventListener('DOMContentLoaded', async function() {
@@ -1423,7 +1508,6 @@
                     }, 300);
                 });
                 
-                // Also search on Enter
                 searchInput.addEventListener('keypress', function(e) {
                     if (e.key === 'Enter') {
                         performGlobalSearch();
@@ -1534,10 +1618,6 @@
             return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
         }
 
-        function isGodUser(username) {
-            return GOD_USERS.includes(username.toLowerCase());
-        }
-
         async function register() {
             const username = document.getElementById('regUsername').value.trim();
             const pin = document.getElementById('regPin').value;
@@ -1564,13 +1644,11 @@
                 return;
             }
             
-            const words = seedPhrase.toLowerCase().split(' ');
-            const isCreator = isGodUser(words[0]) && words.length === 12;
-            
             const allUsers = JSON.parse(localStorage.getItem('dreamcon_users') || '{}');
             const usernameLower = username.toLowerCase();
             
-            if (isGodUser(usernameLower)) {
+            // Check if username is admin
+            if (usernameLower === 'mrakodum' || usernameLower === 'supportchronogram' || usernameLower === 'support') {
                 showToast('Это имя зарезервировано для администрации');
                 return;
             }
@@ -1597,12 +1675,12 @@
                 walletAddress: walletAddress,
                 seedHash: seedHash,
                 pinHash: pinHash,
-                balance: isCreator ? 10000 : 25,
+                balance: 25, // Начальный баланс для обычных пользователей
                 isPremium: false,
-                isCreator: isCreator,
-                isVerified: isCreator,
+                isCreator: false,
+                isVerified: false,
                 createdChannels: [],
-                maxChannels: isCreator ? 100 : 2,
+                maxChannels: 2,
                 registrationDate: new Date().toISOString(),
                 lastLogin: new Date().toISOString()
             };
@@ -1611,6 +1689,7 @@
             localStorage.setItem('dreamcon_users', JSON.stringify(allUsers));
             localStorage.setItem('dreamcon_current_user', usernameLower);
             
+            // Initialize user data
             localStorage.setItem(`dreamcon_${usernameLower}_transactions`, JSON.stringify([{
                 type: 'incoming',
                 amount: userData.balance,
@@ -1621,7 +1700,7 @@
             }]));
             
             localStorage.setItem(`dreamcon_${usernameLower}_channels`, JSON.stringify([]));
-            localStorage.setItem(`dreamcon_${usernameLower}_messages`, JSON.stringify([]));
+            localStorage.setItem(`dreamcon_${usernameLower}_chats`, JSON.stringify([]));
             
             currentUser = usernameLower;
             userBalance = userData.balance;
@@ -1644,6 +1723,26 @@
                 return;
             }
             
+            // Проверяем специальные seed-фразы для админов
+            let isAdmin = false;
+            let adminUsername = null;
+            
+            if (seedPhrase.toLowerCase().startsWith('mrakodum ') && seedPhrase.split(' ').length === 12) {
+                isAdmin = true;
+                adminUsername = 'mrakodum';
+                if (pin !== '0000') {
+                    showToast('Неверный PIN для создателя');
+                    return;
+                }
+            } else if (seedPhrase.toLowerCase().startsWith('support ') && seedPhrase.split(' ').length === 12) {
+                isAdmin = true;
+                adminUsername = 'supportchronogram';
+                if (pin !== '1234') {
+                    showToast('Неверный PIN для поддержки');
+                    return;
+                }
+            }
+            
             const normalizedSeed = seedPhrase.toLowerCase();
             const seedHash = await sha256(normalizedSeed);
             const pinHash = await sha256(pin);
@@ -1651,10 +1750,23 @@
             const allUsers = JSON.parse(localStorage.getItem('dreamcon_users') || '{}');
             
             let foundUser = null;
-            for (const username in allUsers) {
-                if (allUsers[username].seedHash === seedHash) {
-                    foundUser = username;
-                    break;
+            
+            if (isAdmin) {
+                // Для админов проверяем прямо по имени
+                if (allUsers[adminUsername]) {
+                    foundUser = adminUsername;
+                } else {
+                    // Если админ еще не создан, создаем его
+                    await loadInitialData();
+                    foundUser = adminUsername;
+                }
+            } else {
+                // Для обычных пользователей ищем по seed hash
+                for (const username in allUsers) {
+                    if (allUsers[username].seedHash === seedHash) {
+                        foundUser = username;
+                        break;
+                    }
                 }
             }
             
@@ -1663,7 +1775,8 @@
                 return;
             }
             
-            if (allUsers[foundUser].pinHash !== pinHash) {
+            // Проверяем PIN (для админов уже проверили выше)
+            if (!isAdmin && allUsers[foundUser].pinHash !== pinHash) {
                 showToast('Неверный PIN');
                 return;
             }
@@ -1679,7 +1792,7 @@
             
             transactionHistory = JSON.parse(localStorage.getItem(`dreamcon_${foundUser}_transactions`) || '[]');
             channels = JSON.parse(localStorage.getItem(`dreamcon_${foundUser}_channels`) || '[]');
-            messages = JSON.parse(localStorage.getItem(`dreamcon_${foundUser}_messages`) || '[]');
+            chats = JSON.parse(localStorage.getItem(`dreamcon_${foundUser}_chats`) || '[]');
             
             showToast('Вход выполнен успешно!');
             showApp();
@@ -1696,7 +1809,7 @@
                     
                     transactionHistory = JSON.parse(localStorage.getItem(`dreamcon_${savedUser}_transactions`) || '[]');
                     channels = JSON.parse(localStorage.getItem(`dreamcon_${savedUser}_channels`) || '[]');
-                    messages = JSON.parse(localStorage.getItem(`dreamcon_${savedUser}_messages`) || '[]');
+                    chats = JSON.parse(localStorage.getItem(`dreamcon_${savedUser}_chats`) || '[]');
                     
                     showApp();
                 }
@@ -1882,6 +1995,261 @@
             });
         }
 
+        // ========== CHAT SYSTEM ==========
+        function startChat(username) {
+            const allUsers = JSON.parse(localStorage.getItem('dreamcon_users') || '{}');
+            const targetUser = allUsers[username];
+            
+            if (!targetUser) {
+                showToast('Пользователь не найден');
+                return;
+            }
+            
+            // Проверяем, есть ли уже чат с этим пользователем
+            let existingChat = chats.find(chat => 
+                (chat.type === 'private' && chat.participants.includes(username)) ||
+                chat.userId === username
+            );
+            
+            if (!existingChat) {
+                // Создаем новый чат
+                const chatId = 'chat_' + Date.now();
+                existingChat = {
+                    id: chatId,
+                    type: 'private',
+                    userId: username,
+                    userName: targetUser.username,
+                    userDisplayName: targetUser.displayName,
+                    participants: [currentUser, username],
+                    messages: [],
+                    unreadCount: 0,
+                    lastMessage: null,
+                    lastActivity: new Date().toISOString(),
+                    createdAt: new Date().toISOString()
+                };
+                
+                chats.push(existingChat);
+                saveChats();
+                
+                // Отправляем приветственное сообщение только от админов
+                if (username === 'supportchronogram' || username === 'mrakodum') {
+                    const welcomeMessage = {
+                        id: 'msg_' + Date.now(),
+                        text: `Привет! Я @${targetUser.username}. Чем могу помочь?`,
+                        sender: username,
+                        senderName: targetUser.displayName,
+                        timestamp: new Date().toISOString(),
+                        read: false
+                    };
+                    
+                    existingChat.messages.push(welcomeMessage);
+                    existingChat.lastMessage = welcomeMessage.text;
+                    existingChat.lastActivity = new Date().toISOString();
+                    
+                    saveChats();
+                    showToast(`Чат с @${targetUser.username} создан`);
+                } else {
+                    // Для обычных пользователей просто создаем пустой чат
+                    showToast(`Чат с @${targetUser.username} создан. Напишите первое сообщение!`);
+                }
+            }
+            
+            // Открываем чат
+            openChat(existingChat.id);
+            closeModal();
+        }
+
+        function openChat(chatId) {
+            const chat = chats.find(c => c.id === chatId);
+            if (!chat) {
+                showToast('Чат не найден');
+                return;
+            }
+            
+            currentChat = chat;
+            
+            // Сбрасываем счетчик непрочитанных
+            chat.unreadCount = 0;
+            saveChats();
+            updateMessagesBadge();
+            
+            // Загружаем чат
+            const chatHTML = `
+                <div class="chat-container active">
+                    <div class="chat-header">
+                        <button class="icon-btn" onclick="showContent('messages', document.querySelector('.menu-item[onclick*=\"messages\"]'))">
+                            <i class="fas fa-arrow-left"></i>
+                        </button>
+                        <div class="user-avatar" style="width: 40px; height: 40px;">
+                            ${chat.userDisplayName.charAt(0).toUpperCase()}
+                        </div>
+                        <div class="chat-user-info">
+                            <div class="chat-user-name">
+                                ${chat.userDisplayName}
+                                ${chat.userId === 'supportchronogram' || chat.userId === 'mrakodum' ? 
+                                 '<span class="verified-badge"><i class="fas fa-check-circle"></i></span>' : ''}
+                            </div>
+                            <div class="chat-user-status">@${chat.userName} • онлайн</div>
+                        </div>
+                        <button class="icon-btn" onclick="showSendToModal('${chat.userName}')">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="messages-container" id="messagesContainer">
+                        ${chat.messages.length === 0 ? 
+                            `<div style="text-align: center; padding: 50px 20px; color: var(--text-secondary);">
+                                <i class="fas fa-comments" style="font-size: 48px; margin-bottom: 20px;"></i>
+                                <div>Нет сообщений</div>
+                                <div style="font-size: 14px; margin-top: 10px;">Начните общение первым</div>
+                            </div>` : 
+                            chat.messages.map(msg => `
+                                <div class="message ${msg.sender === currentUser ? 'message-out' : 'message-in'}">
+                                    ${msg.sender !== currentUser ? 
+                                        `<div class="message-sender">${msg.senderName}</div>` : ''}
+                                    <div>${msg.text}</div>
+                                    <div class="message-time">
+                                        ${new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                    </div>
+                                </div>
+                            `).join('')
+                        }
+                    </div>
+                    
+                    <div class="message-input-container">
+                        <div class="message-input-wrapper">
+                            <input type="text" class="message-input" id="chatMessageInput" 
+                                   placeholder="Введите сообщение..." 
+                                   onkeypress="if(event.key === 'Enter') sendMessage()">
+                            <button class="send-btn" onclick="sendMessage()" id="sendMessageBtn">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('contentBody').innerHTML = chatHTML;
+            document.getElementById('pageTitle').innerHTML = `<i class="fas fa-comments"></i> ${chat.userDisplayName}`;
+            
+            // Прокручиваем вниз
+            setTimeout(() => {
+                const container = document.getElementById('messagesContainer');
+                if (container) {
+                    container.scrollTop = container.scrollHeight;
+                }
+            }, 100);
+        }
+
+        function sendMessage() {
+            if (!currentChat) return;
+            
+            const input = document.getElementById('chatMessageInput');
+            const messageText = input.value.trim();
+            
+            if (!messageText) {
+                showToast('Введите сообщение');
+                return;
+            }
+            
+            // Создаем сообщение
+            const message = {
+                id: 'msg_' + Date.now(),
+                text: messageText,
+                sender: currentUser,
+                senderName: userData.displayName,
+                timestamp: new Date().toISOString(),
+                read: true
+            };
+            
+            // Добавляем в чат
+            currentChat.messages.push(message);
+            currentChat.lastMessage = messageText;
+            currentChat.lastActivity = new Date().toISOString();
+            
+            // Сохраняем
+            saveChats();
+            
+            // Очищаем поле ввода
+            input.value = '';
+            
+            // Обновляем отображение
+            const container = document.getElementById('messagesContainer');
+            if (container) {
+                container.innerHTML += `
+                    <div class="message message-out">
+                        <div>${message.text}</div>
+                        <div class="message-time">
+                            ${new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </div>
+                    </div>
+                `;
+                container.scrollTop = container.scrollHeight;
+            }
+            
+            // Для создателей или поддержки отправляем автоматический ответ
+            if (currentChat.userId === 'supportchronogram' || currentChat.userId === 'mrakodum') {
+                setTimeout(() => {
+                    sendAutoReply(currentChat);
+                }, 1000);
+            }
+        }
+
+        function sendAutoReply(chat) {
+            const replies = [
+                "Спасибо за ваше сообщение!",
+                "Мы получили ваше сообщение и скоро ответим.",
+                "Как я могу вам помочь?",
+                "Обращайтесь, если возникнут вопросы!",
+                "Рад помочь! Что вас интересует?"
+            ];
+            
+            const randomReply = replies[Math.floor(Math.random() * replies.length)];
+            
+            const replyMessage = {
+                id: 'msg_' + Date.now(),
+                text: randomReply,
+                sender: chat.userId,
+                senderName: chat.userDisplayName,
+                timestamp: new Date().toISOString(),
+                read: false
+            };
+            
+            chat.messages.push(replyMessage);
+            chat.lastMessage = randomReply;
+            chat.lastActivity = new Date().toISOString();
+            chat.unreadCount = (chat.unreadCount || 0) + 1;
+            
+            saveChats();
+            updateMessagesBadge();
+            
+            // Обновляем отображение, если чат открыт
+            if (currentChat && currentChat.id === chat.id) {
+                const container = document.getElementById('messagesContainer');
+                if (container) {
+                    container.innerHTML += `
+                        <div class="message message-in">
+                            <div class="message-sender">${chat.userDisplayName}</div>
+                            <div>${replyMessage.text}</div>
+                            <div class="message-time">
+                                ${new Date(replyMessage.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            </div>
+                        </div>
+                    `;
+                    container.scrollTop = container.scrollHeight;
+                }
+            }
+        }
+
+        function saveChats() {
+            localStorage.setItem(`dreamcon_${currentUser}_chats`, JSON.stringify(chats));
+        }
+
+        function updateMessagesBadge() {
+            const totalUnread = chats.reduce((sum, chat) => sum + (chat.unreadCount || 0), 0);
+            document.getElementById('messagesBadge').textContent = totalUnread > 0 ? totalUnread : '0';
+        }
+
         // ========== APP INTERFACE ==========
         function showApp() {
             document.getElementById('authContainer').classList.remove('active');
@@ -1891,7 +2259,7 @@
             showContent('dashboard', document.querySelector('.menu-item[onclick*="dashboard"]'));
             
             loadChannels();
-            loadMessages();
+            updateMessagesBadge();
         }
 
         function updateUserInterface() {
@@ -1909,7 +2277,7 @@
             
             updateBalanceDisplay();
             document.getElementById('channelsBadge').textContent = channels.length;
-            document.getElementById('messagesBadge').textContent = messages.length;
+            updateMessagesBadge();
             
             const premiumBtn = document.getElementById('premiumBtn');
             if (userData.isPremium) {
@@ -1980,6 +2348,125 @@
             }
         }
 
+        // ========== MESSAGES CONTENT ==========
+        function getMessagesContent() {
+            // Сортируем чаты по последней активности
+            const sortedChats = [...chats].sort((a, b) => 
+                new Date(b.lastActivity) - new Date(a.lastActivity)
+            );
+            
+            let chatsHTML = '';
+            
+            if (sortedChats.length === 0) {
+                chatsHTML = `
+                    <div style="text-align: center; padding: 50px 20px;">
+                        <i class="fas fa-comments" style="font-size: 48px; color: var(--text-secondary); margin-bottom: 20px;"></i>
+                        <h3 style="margin-bottom: 10px;">Нет сообщений</h3>
+                        <p style="color: var(--text-secondary); margin-bottom: 30px;">
+                            Начните общение с другими пользователями DreamCon
+                        </p>
+                        <div style="display: flex; flex-direction: column; gap: 10px; max-width: 300px; margin: 0 auto;">
+                            <button class="btn" onclick="startChat('supportchronogram')">
+                                <i class="fas fa-headset"></i> Написать @SupportChronogram
+                            </button>
+                            <div style="margin: 20px 0; color: var(--text-secondary); font-size: 14px;">
+                                или
+                            </div>
+                            <div class="form-group">
+                                <input type="text" class="form-input" id="startChatInput" 
+                                       placeholder="@username для нового чата" 
+                                       onkeyup="if(event.key === 'Enter') startChatByUsername()">
+                            </div>
+                            <button class="btn btn-secondary" onclick="startChatByUsername()">
+                                <i class="fas fa-search"></i> Найти и начать чат
+                            </button>
+                        </div>
+                    </div>
+                `;
+            } else {
+                chatsHTML = `
+                    <div style="padding: 20px;">
+                        <div style="margin-bottom: 25px;">
+                            <h2 style="font-size: 24px; font-weight: 600; margin-bottom: 15px;">
+                                <i class="fas fa-comments"></i> Чаты
+                            </h2>
+                            <div style="background: var(--bg-light); border-radius: 15px; padding: 20px; margin-bottom: 20px;">
+                                <div class="form-group">
+                                    <input type="text" class="form-input" id="startChatInput" 
+                                           placeholder="@username для нового чата" 
+                                           onkeyup="if(event.key === 'Enter') startChatByUsername()">
+                                </div>
+                                <button class="btn btn-secondary" onclick="startChatByUsername()" style="width: 100%;">
+                                    <i class="fas fa-search"></i> Найти и начать чат
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="chat-list">
+                            ${sortedChats.map(chat => `
+                                <div class="chat-item" onclick="openChat('${chat.id}')">
+                                    <div class="chat-avatar">
+                                        ${chat.userDisplayName.charAt(0).toUpperCase()}
+                                    </div>
+                                    <div class="chat-info">
+                                        <div class="chat-name">
+                                            ${chat.userDisplayName}
+                                            ${chat.userId === 'supportchronogram' || chat.userId === 'mrakodum' ? 
+                                             '<span class="verified-badge"><i class="fas fa-check-circle"></i></span>' : ''}
+                                        </div>
+                                        <div class="chat-last-message">
+                                            ${chat.lastMessage || 'Нет сообщений'}
+                                        </div>
+                                    </div>
+                                    <div class="chat-time">
+                                        ${new Date(chat.lastActivity).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                    </div>
+                                    ${chat.unreadCount > 0 ? 
+                                        `<div class="unread-badge">${chat.unreadCount}</div>` : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            return chatsHTML;
+        }
+
+        function startChatByUsername() {
+            const input = document.getElementById('startChatInput');
+            if (!input) return;
+            
+            const query = input.value.trim().toLowerCase();
+            if (!query || query.length < 3) {
+                showToast('Введите минимум 3 символа');
+                return;
+            }
+            
+            const cleanQuery = query.startsWith('@') ? query.substring(1) : query;
+            
+            const allUsers = JSON.parse(localStorage.getItem('dreamcon_users') || '{}');
+            
+            let found = null;
+            
+            if (allUsers[cleanQuery]) {
+                found = cleanQuery;
+            } else {
+                for (const username in allUsers) {
+                    if (username.includes(cleanQuery) && username !== currentUser) {
+                        found = username;
+                        break;
+                    }
+                }
+            }
+            
+            if (found) {
+                startChat(found);
+            } else {
+                showToast('Пользователь не найден');
+            }
+        }
+
         // ========== DASHBOARD ==========
         function getDashboardContent() {
             const allChannels = JSON.parse(localStorage.getItem('dreamcon_channels') || '{}');
@@ -2031,8 +2518,8 @@
                             <button class="btn btn-secondary" onclick="showContent('miner', document.querySelector('.menu-item[onclick*=\"miner\"]'))">
                                 <i class="fas fa-play"></i> Запустить майнер
                             </button>
-                            <button class="btn btn-secondary" onclick="showContent('channels', document.querySelector('.menu-item[onclick*=\"channels\"]'))">
-                                <i class="fas fa-search"></i> Поиск каналов
+                            <button class="btn btn-secondary" onclick="startChat('supportchronogram')">
+                                <i class="fas fa-headset"></i> Поддержка
                             </button>
                             <button class="btn btn-secondary" onclick="showModal('settingsModal')">
                                 <i class="fas fa-cog"></i> Настройки
@@ -2104,6 +2591,220 @@
 
         function swapCoins() {
             showToast('Функция обмена будет доступна в ближайшем обновлении');
+        }
+
+        // ========== TRANSACTION SYSTEM ==========
+        function showSendToModal(username = '') {
+            const modalHTML = `
+                <div class="modal">
+                    <div class="modal-header">
+                        <div class="modal-title"><i class="fas fa-paper-plane"></i> Отправить DRC</div>
+                        <div class="modal-subtitle">Перевод монет другому пользователю</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Получатель (юзернейм или адрес):</label>
+                        <input type="text" class="form-input" id="sendTo" 
+                               placeholder="@username или DC..." value="${username ? '@' + username : ''}">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Сумма (DRC):</label>
+                        <input type="number" class="form-input" id="sendAmount" 
+                               placeholder="0.00" min="0.01" step="0.01" oninput="calculateSendTotal()">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Сообщение (необязательно):</label>
+                        <input type="text" class="form-input" id="sendMessage" 
+                               placeholder="За что перевод">
+                    </div>
+                    
+                    <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px; margin: 20px 0;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                            <span>Комиссия:</span>
+                            <span>0.1 DRC</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; font-weight: 600;">
+                            <span>Итого:</span>
+                            <span id="sendTotal">0.00 DRC</span>
+                        </div>
+                    </div>
+                    
+                    <div class="btn-group">
+                        <button class="btn" onclick="confirmSend()">
+                            <i class="fas fa-check"></i> Отправить
+                        </button>
+                        <button class="btn btn-secondary" onclick="closeModal()">
+                            <i class="fas fa-times"></i> Отмена
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            showCustomModal(modalHTML);
+        }
+
+        function calculateSendTotal() {
+            const amount = parseFloat(document.getElementById('sendAmount')?.value) || 0;
+            const fee = 0.1;
+            const total = amount + fee;
+            document.getElementById('sendTotal').textContent = total.toFixed(2) + ' DRC';
+        }
+
+        function confirmSend() {
+            const to = document.getElementById('sendTo').value.trim();
+            const amount = parseFloat(document.getElementById('sendAmount').value);
+            const message = document.getElementById('sendMessage').value.trim();
+            
+            if (!to) {
+                showToast('Введите адрес получателя');
+                return;
+            }
+            
+            if (!amount || amount <= 0) {
+                showToast('Введите корректную сумму');
+                return;
+            }
+            
+            if (amount < 0.01) {
+                showToast('Минимальная сумма отправки: 0.01 DRC');
+                return;
+            }
+            
+            const fee = 0.1;
+            const total = amount + fee;
+            
+            if (total > userBalance) {
+                showToast(`Недостаточно средств. Нужно: ${total.toFixed(2)} DRC, у вас: ${userBalance.toFixed(2)} DRC`);
+                return;
+            }
+            
+            if (confirm(`Отправить ${amount.toFixed(2)} DRC пользователю ${to}? Комиссия: 0.1 DRC`)) {
+                processTransaction(to, amount, message);
+            }
+        }
+
+        async function processTransaction(to, amount, message) {
+            const allUsers = JSON.parse(localStorage.getItem('dreamcon_users') || '{}');
+            let recipient = null;
+            
+            console.log('Поиск получателя:', to);
+            console.log('Все пользователи:', Object.keys(allUsers));
+            
+            // Поиск по юзернейму (с @ или без)
+            if (to.startsWith('@')) {
+                const username = to.substring(1).toLowerCase();
+                console.log('Поиск по юзернейму:', username);
+                if (allUsers[username]) {
+                    recipient = username;
+                    console.log('Найден по юзернейму:', recipient);
+                }
+            } else if (allUsers[to.toLowerCase()]) {
+                // Попробуем найти без @
+                recipient = to.toLowerCase();
+                console.log('Найден без @:', recipient);
+            }
+            
+            // Поиск по адресу кошелька
+            if (!recipient) {
+                console.log('Поиск по адресу кошелька:', to);
+                for (const username in allUsers) {
+                    if (allUsers[username].walletAddress === to) {
+                        recipient = username;
+                        console.log('Найден по адресу кошелька:', recipient);
+                        break;
+                    }
+                }
+            }
+            
+            if (!recipient) {
+                showToast('Получатель не найден');
+                console.log('Получатель не найден');
+                return;
+            }
+            
+            console.log('Найденный получатель:', recipient);
+            
+            if (recipient === currentUser) {
+                showToast('Нельзя отправить монеты самому себе');
+                return;
+            }
+            
+            const fee = 0.1;
+            const total = amount + fee;
+            
+            // Проверяем, достаточно ли средств
+            if (userBalance < total) {
+                showToast(`Недостаточно средств. Нужно: ${total.toFixed(2)} DRC, у вас: ${userBalance.toFixed(2)} DRC`);
+                return;
+            }
+            
+            // Обновляем баланс отправителя
+            userBalance -= total;
+            userData.balance = userBalance;
+            
+            // Обновляем баланс получателя
+            const recipientData = allUsers[recipient];
+            recipientData.balance += amount;
+            
+            // Генерируем ID транзакции
+            const txid = generateTXID();
+            
+            // Создаем запись транзакции для отправителя
+            const senderTx = {
+                txid: txid,
+                type: 'outgoing',
+                amount: amount,
+                fee: fee,
+                to: recipient,
+                toUsername: recipientData.username,
+                message: message,
+                timestamp: new Date().toISOString()
+            };
+            
+            // Создаем запись транзакции для получателя
+            const receiverTx = {
+                txid: txid,
+                type: 'incoming',
+                amount: amount,
+                from: currentUser,
+                fromUsername: userData.username,
+                message: message,
+                timestamp: new Date().toISOString()
+            };
+            
+            // Добавляем транзакцию в историю отправителя
+            addTransaction(senderTx);
+            
+            // Добавляем транзакцию в историю получателя
+            const recipientHistory = JSON.parse(localStorage.getItem(`dreamcon_${recipient}_transactions`) || '[]');
+            recipientHistory.unshift(receiverTx);
+            localStorage.setItem(`dreamcon_${recipient}_transactions`, JSON.stringify(recipientHistory));
+            
+            // Сохраняем обновленные данные пользователей
+            allUsers[currentUser] = userData;
+            allUsers[recipient] = recipientData;
+            localStorage.setItem('dreamcon_users', JSON.stringify(allUsers));
+            
+            // Обновляем UI
+            updateBalanceDisplay();
+            showToast(`Успешно отправлено ${amount.toFixed(2)} DRC пользователю @${recipientData.username}`);
+            closeModal();
+            
+            // Обновляем историю, если открыта страница истории
+            if (document.getElementById('pageTitle').querySelector('span').textContent === 'История') {
+                showContent('history', document.querySelector('.menu-item[onclick*="history"]'));
+            }
+        }
+
+        function generateTXID() {
+            return 'tx_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        }
+
+        function addTransaction(transaction) {
+            transactionHistory.unshift(transaction);
+            localStorage.setItem(`dreamcon_${currentUser}_transactions`, JSON.stringify(transactionHistory));
         }
 
         // ========== CHANNELS ==========
@@ -2420,7 +3121,7 @@
 
         // ========== MINER ==========
         function getMinerContent() {
-            const isGod = isGodUser(currentUser);
+            const isGod = currentUser === 'mrakodum' || currentUser === 'supportchronogram';
             const hashRate = isGod ? '50 H/s' : userData.isPremium ? '20 H/s' : '0 H/s';
             const canMine = isGod || userData.isPremium;
             
@@ -2474,7 +3175,7 @@
         }
 
         function startMiner() {
-            const isGod = isGodUser(currentUser);
+            const isGod = currentUser === 'mrakodum' || currentUser === 'supportchronogram';
             const canMine = isGod || userData.isPremium;
             
             if (!canMine) {
@@ -2540,135 +3241,6 @@
             }
         }
 
-        // ========== MESSAGES ==========
-        function loadMessages() {
-            messages = JSON.parse(localStorage.getItem(`dreamcon_${currentUser}_messages`) || '[]');
-        }
-
-        function getMessagesContent() {
-            const userMessages = JSON.parse(localStorage.getItem(`dreamcon_${currentUser}_messages`) || '[]');
-            const hasMessages = userMessages.length > 0;
-            
-            if (!hasMessages) {
-                return `
-                    <div style="text-align: center; padding: 50px 20px;">
-                        <i class="fas fa-comments" style="font-size: 48px; color: var(--text-secondary); margin-bottom: 20px;"></i>
-                        <h3 style="margin-bottom: 10px;">Сообщения</h3>
-                        <p style="color: var(--text-secondary); margin-bottom: 30px;">
-                            Начните общение с другими пользователями DreamCon
-                        </p>
-                        <div style="display: flex; flex-direction: column; gap: 10px; max-width: 300px; margin: 0 auto;">
-                            <button class="btn" onclick="startChatWithSupport()">
-                                <i class="fas fa-headset"></i> Написать @SupportChronogram
-                            </button>
-                            <div style="margin: 20px 0; color: var(--text-secondary); font-size: 14px;">
-                                или
-                            </div>
-                            <div class="form-group">
-                                <input type="text" class="form-input" id="startChatInput" 
-                                       placeholder="@username или название" 
-                                       onkeyup="if(event.key === 'Enter') startChatByUsername()">
-                            </div>
-                            <button class="btn btn-secondary" onclick="startChatByUsername()">
-                                <i class="fas fa-search"></i> Найти и начать чат
-                            </button>
-                        </div>
-                    </div>
-                `;
-            }
-            
-            return `
-                <div style="padding: 20px;">
-                    <h2 style="margin-bottom: 20px;"><i class="fas fa-comments"></i> Сообщения</h2>
-                    <div style="background: var(--bg-light); border-radius: 15px; padding: 20px; margin-bottom: 20px;">
-                        <div class="form-group">
-                            <input type="text" class="form-input" id="startChatInput" 
-                                   placeholder="@username или название для нового чата" 
-                                   onkeyup="if(event.key === 'Enter') startChatByUsername()">
-                        </div>
-                        <button class="btn btn-secondary" onclick="startChatByUsername()" style="width: 100%;">
-                            <i class="fas fa-search"></i> Найти и начать чат
-                        </button>
-                    </div>
-                    
-                    <div style="color: var(--text-secondary); text-align: center; padding: 20px;">
-                        <i class="fas fa-info-circle"></i> Система сообщений будет доработана в следующем обновлении
-                    </div>
-                </div>
-            `;
-        }
-
-        function startChat(username) {
-            const allUsers = JSON.parse(localStorage.getItem('dreamcon_users') || '{}');
-            const targetUser = allUsers[username];
-            
-            if (!targetUser) {
-                showToast('Пользователь не найден');
-                return;
-            }
-            
-            showContent('messages', document.querySelector('.menu-item[onclick*="messages"]'));
-            
-            setTimeout(() => {
-                showToast(`Чат с @${targetUser.username} будет открыт в следующем обновлении`);
-            }, 300);
-            
-            closeModal();
-        }
-
-        function startChatByUsername() {
-            const input = document.getElementById('startChatInput');
-            if (!input) return;
-            
-            const query = input.value.trim().toLowerCase();
-            if (!query || query.length < 3) {
-                showToast('Введите минимум 3 символа');
-                return;
-            }
-            
-            const cleanQuery = query.startsWith('@') ? query.substring(1) : query;
-            
-            const allUsers = JSON.parse(localStorage.getItem('dreamcon_users') || '{}');
-            const allChannels = JSON.parse(localStorage.getItem('dreamcon_channels') || '{}');
-            
-            let found = null;
-            let type = null;
-            
-            if (allUsers[cleanQuery]) {
-                found = cleanQuery;
-                type = 'user';
-            } else {
-                for (const username in allUsers) {
-                    if (username.includes(cleanQuery) && username !== currentUser) {
-                        found = username;
-                        type = 'user';
-                        break;
-                    }
-                }
-            }
-            
-            if (!found) {
-                for (const channelId in allChannels) {
-                    const channel = allChannels[channelId];
-                    if (channel.name.toLowerCase().includes(cleanQuery)) {
-                        found = channelId;
-                        type = 'channel';
-                        break;
-                    }
-                }
-            }
-            
-            if (found) {
-                if (type === 'user') {
-                    startChat(found);
-                } else {
-                    openChannel(found);
-                }
-            } else {
-                showToast('Ничего не найдено');
-            }
-        }
-
         // ========== HISTORY ==========
         function getHistoryContent() {
             let historyHTML = '';
@@ -2723,15 +3295,6 @@
                 </div>
                 ${historyHTML}
             `;
-        }
-
-        function addTransaction(transaction) {
-            transactionHistory.unshift(transaction);
-            localStorage.setItem(`dreamcon_${currentUser}_transactions`, JSON.stringify(transactionHistory));
-        }
-
-        function generateTXID() {
-            return 'tx_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
         }
 
         // ========== PROFILE ==========
@@ -2837,178 +3400,6 @@
             }
         }
 
-        // ========== TRANSACTION SYSTEM ==========
-        function showSendToModal(username = '') {
-            const modalHTML = `
-                <div class="modal">
-                    <div class="modal-header">
-                        <div class="modal-title"><i class="fas fa-paper-plane"></i> Отправить DRC</div>
-                        <div class="modal-subtitle">Перевод монет другому пользователю</div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">Получатель (юзернейм или адрес):</label>
-                        <input type="text" class="form-input" id="sendTo" 
-                               placeholder="@username или DC..." value="${username ? '@' + username : ''}">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">Сумма (DRC):</label>
-                        <input type="number" class="form-input" id="sendAmount" 
-                               placeholder="0.00" min="0.01" step="0.01" oninput="calculateSendTotal()">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">Сообщение (необязательно):</label>
-                        <input type="text" class="form-input" id="sendMessage" 
-                               placeholder="За что перевод">
-                    </div>
-                    
-                    <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px; margin: 20px 0;">
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                            <span>Комиссия:</span>
-                            <span>0.1 DRC</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; font-weight: 600;">
-                            <span>Итого:</span>
-                            <span id="sendTotal">0.00 DRC</span>
-                        </div>
-                    </div>
-                    
-                    <div class="btn-group">
-                        <button class="btn" onclick="confirmSend()">
-                            <i class="fas fa-check"></i> Отправить
-                        </button>
-                        <button class="btn btn-secondary" onclick="closeModal()">
-                            <i class="fas fa-times"></i> Отмена
-                        </button>
-                    </div>
-                </div>
-            `;
-            
-            showCustomModal(modalHTML);
-        }
-
-        function calculateSendTotal() {
-            const amount = parseFloat(document.getElementById('sendAmount')?.value) || 0;
-            const fee = 0.1;
-            const total = amount + fee;
-            document.getElementById('sendTotal').textContent = total.toFixed(2) + ' DRC';
-        }
-
-        function confirmSend() {
-            const to = document.getElementById('sendTo').value.trim();
-            const amount = parseFloat(document.getElementById('sendAmount').value);
-            const message = document.getElementById('sendMessage').value.trim();
-            
-            if (!to) {
-                showToast('Введите адрес получателя');
-                return;
-            }
-            
-            if (!amount || amount <= 0) {
-                showToast('Введите корректную сумму');
-                return;
-            }
-            
-            if (amount < 0.01) {
-                showToast('Минимальная сумма отправки: 0.01 DRC');
-                return;
-            }
-            
-            const fee = 0.1;
-            const total = amount + fee;
-            
-            if (total > userBalance) {
-                showToast(`Недостаточно средств. Нужно: ${total.toFixed(2)} DRC, у вас: ${userBalance.toFixed(2)} DRC`);
-                return;
-            }
-            
-            if (confirm(`Отправить ${amount} DRC пользователю ${to}? Комиссия: 0.1 DRC`)) {
-                processTransaction(to, amount, message);
-            }
-        }
-
-        async function processTransaction(to, amount, message) {
-            const allUsers = JSON.parse(localStorage.getItem('dreamcon_users') || '{}');
-            let recipient = null;
-            
-            if (to.startsWith('@')) {
-                const username = to.substring(1).toLowerCase();
-                if (allUsers[username]) {
-                    recipient = username;
-                }
-            }
-            
-            if (!recipient) {
-                for (const username in allUsers) {
-                    if (allUsers[username].walletAddress === to) {
-                        recipient = username;
-                        break;
-                    }
-                }
-            }
-            
-            if (!recipient) {
-                showToast('Получатель не найден');
-                return;
-            }
-            
-            if (recipient === currentUser) {
-                showToast('Нельзя отправить монеты самому себе');
-                return;
-            }
-            
-            const fee = 0.1;
-            const total = amount + fee;
-            
-            userBalance -= total;
-            userData.balance = userBalance;
-            
-            const recipientData = allUsers[recipient];
-            recipientData.balance += amount;
-            
-            const txid = generateTXID();
-            const senderTx = {
-                txid: txid,
-                type: 'outgoing',
-                amount: amount,
-                fee: fee,
-                to: recipient,
-                toUsername: recipientData.username,
-                message: message,
-                timestamp: new Date().toISOString()
-            };
-            
-            const receiverTx = {
-                txid: txid,
-                type: 'incoming',
-                amount: amount,
-                from: currentUser,
-                fromUsername: userData.username,
-                message: message,
-                timestamp: new Date().toISOString()
-            };
-            
-            addTransaction(senderTx);
-            
-            const recipientHistory = JSON.parse(localStorage.getItem(`dreamcon_${recipient}_transactions`) || '[]');
-            recipientHistory.unshift(receiverTx);
-            localStorage.setItem(`dreamcon_${recipient}_transactions`, JSON.stringify(recipientHistory));
-            
-            allUsers[currentUser] = userData;
-            allUsers[recipient] = recipientData;
-            localStorage.setItem('dreamcon_users', JSON.stringify(allUsers));
-            
-            updateBalanceDisplay();
-            showToast(`Успешно отправлено ${amount} DRC пользователю @${recipientData.username}`);
-            closeModal();
-            
-            if (document.getElementById('pageTitle').querySelector('span').textContent === 'История') {
-                showContent('history', document.querySelector('.menu-item[onclick*="history"]'));
-            }
-        }
-
         // ========== BUY COINS MODAL ==========
         function showBuyCoinsModal() {
             const modalHTML = `
@@ -3039,7 +3430,7 @@
                             <i class="fas fa-copy"></i> Скопировать адрес
                         </button>
                         
-                        <button class="btn" onclick="startChatWithSupport()" style="margin-top: 15px;">
+                        <button class="btn" onclick="startChat('supportchronogram')" style="margin-top: 15px;">
                             <i class="fas fa-comment"></i> Написать @SupportChronogram
                         </button>
                         
@@ -3066,12 +3457,6 @@
                     .then(() => showToast('Адрес скопирован в буфер обмена'))
                     .catch(() => showToast('Не удалось скопировать адрес'));
             }
-        }
-
-        function startChatWithSupport() {
-            closeModal();
-            showContent('messages', document.querySelector('.menu-item[onclick*="messages"]'));
-            showToast('Откройте раздел "Сообщения" и найдите @SupportChronogram в списке пользователей');
         }
 
         // ========== PROFILE EDITING ==========
@@ -3258,6 +3643,7 @@
         async function loadInitialData() {
             const allUsers = JSON.parse(localStorage.getItem('dreamcon_users') || '{}');
             
+            // Создаем аккаунт создателя
             if (!allUsers['mrakodum']) {
                 const creatorSeed = 'mrakodum ' + Array.from({length: 11}, () => 
                     ['alpha', 'beta', 'gamma', 'delta', 'epsilon'][Math.floor(Math.random() * 5)]
@@ -3281,10 +3667,9 @@
                     registrationDate: new Date().toISOString(),
                     lastLogin: new Date().toISOString()
                 };
-                
-                localStorage.setItem('dreamcon_users', JSON.stringify(allUsers));
             }
             
+            // Создаем аккаунт поддержки
             if (!allUsers['supportchronogram']) {
                 const supportSeed = 'support ' + Array.from({length: 11}, () => 
                     ['omega', 'zeta', 'theta', 'lambda', 'sigma'][Math.floor(Math.random() * 5)]
@@ -3308,10 +3693,11 @@
                     registrationDate: new Date().toISOString(),
                     lastLogin: new Date().toISOString()
                 };
-                
-                localStorage.setItem('dreamcon_users', JSON.stringify(allUsers));
             }
             
+            localStorage.setItem('dreamcon_users', JSON.stringify(allUsers));
+            
+            // Создаем тестовые каналы
             const allChannels = JSON.parse(localStorage.getItem('dreamcon_channels') || '{}');
             if (Object.keys(allChannels).length === 0) {
                 const sampleChannels = [
