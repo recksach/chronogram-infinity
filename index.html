@@ -416,6 +416,22 @@
             background: rgba(255,255,255,0.08);
         }
 
+        .password-container {
+            position: relative;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 16px;
+        }
+
         /* Seed Grid */
         .seed-grid {
             display: grid;
@@ -1148,6 +1164,47 @@
                 opacity: 1;
             }
         }
+        
+        .auth-tip {
+            background: rgba(255,165,2,0.1);
+            border: 1px solid rgba(255,165,2,0.3);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+            font-size: 14px;
+            color: var(--text);
+        }
+        
+        .auth-tip i {
+            color: #ffa502;
+            margin-right: 10px;
+        }
+        
+        .email-verified {
+            color: #00c853;
+            font-size: 12px;
+            margin-top: 5px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .auth-method-badge {
+            font-size: 10px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            margin-left: 8px;
+        }
+        
+        .auth-method-seed {
+            background: rgba(0,136,204,0.2);
+            color: var(--primary);
+        }
+        
+        .auth-method-email {
+            background: rgba(0,200,83,0.2);
+            color: #00c853;
+        }
     </style>
 </head>
 <body>
@@ -1170,10 +1227,13 @@
                 <button class="auth-tab" onclick="showAuthTab('register')">
                     <i class="fas fa-user-plus"></i> Регистрация
                 </button>
+                <button class="auth-tab" onclick="showAuthTab('email-login')">
+                    <i class="fas fa-envelope"></i> По Email
+                </button>
             </div>
             
-            <!-- Login Form -->
-            <form id="loginForm" onsubmit="login(); return false;">
+            <!-- Seed Login Form -->
+            <form id="loginForm" onsubmit="loginWithSeed(); return false;">
                 <div class="form-group">
                     <label class="form-label">Seed-фраза (12 слов через пробел):</label>
                     <input type="text" class="form-input" id="loginSeed" 
@@ -1191,20 +1251,26 @@
                     <i class="fas fa-lock"></i> Войти
                 </button>
                 
-                <div style="margin-top: 20px; text-align: center; color: var(--text-secondary); font-size: 12px;">
+                <div class="auth-tip">
                     <i class="fas fa-info-circle"></i> Для создателей: используйте seed "mrakodum" с 11 словами<br>
-                    <i class="fas fa-info-circle"></i> Для @SupportChronogram: используйте seed "support" с 11 словами<br>
+                    Для @SupportChronogram: используйте seed "support" с 11 словами<br>
                     PIN: 0000 для создателей, 1234 для поддержки
                 </div>
             </form>
             
-            <!-- Register Form -->
-            <form id="registerForm" style="display: none;" onsubmit="register(); return false;">
+            <!-- Seed Register Form -->
+            <form id="registerForm" style="display: none;" onsubmit="registerWithSeed(); return false;">
                 <div class="form-group">
                     <label class="form-label">Имя пользователя:</label>
                     <input type="text" class="form-input" id="regUsername" 
                            placeholder="Введите имя" maxlength="20" required 
                            oninput="checkRegisterButton()">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Email (необязательно):</label>
+                    <input type="email" class="form-input" id="regEmail" 
+                           placeholder="your@email.com" oninput="checkRegisterButton()">
                 </div>
                 
                 <div class="form-group">
@@ -1218,9 +1284,8 @@
                     <!-- Seed words will be generated here -->
                 </div>
                 
-                <div style="background: rgba(255,165,2,0.1); border: 1px solid rgba(255,165,2,0.3); 
-                            border-radius: 10px; padding: 15px; margin: 20px 0;">
-                    <i class="fas fa-exclamation-triangle" style="color: #ffa502;"></i>
+                <div class="auth-tip">
+                    <i class="fas fa-exclamation-triangle"></i>
                     <strong> Сохраните эти слова!</strong> Это единственный способ восстановить аккаунт.
                 </div>
                 
@@ -1237,6 +1302,156 @@
                     </button>
                     <button type="submit" class="btn" id="registerBtn" disabled style="flex: 1;">
                         <i class="fas fa-user-plus"></i> Зарегистрироваться
+                    </button>
+                </div>
+            </form>
+            
+            <!-- Email Login Form -->
+            <form id="emailLoginForm" style="display: none;" onsubmit="loginWithEmail(); return false;">
+                <div class="form-group">
+                    <label class="form-label">Email:</label>
+                    <input type="email" class="form-input" id="emailLoginEmail" 
+                           placeholder="your@email.com" autocomplete="email" required>
+                </div>
+                
+                <div class="form-group password-container">
+                    <label class="form-label">Пароль:</label>
+                    <input type="password" class="form-input" id="emailLoginPassword" 
+                           placeholder="••••••••" required>
+                    <button type="button" class="password-toggle" onclick="togglePassword('emailLoginPassword')">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+                
+                <button type="submit" class="btn">
+                    <i class="fas fa-lock"></i> Войти
+                </button>
+                
+                <div style="margin-top: 15px; text-align: center;">
+                    <button type="button" class="btn btn-secondary" onclick="showAuthTab('email-register')" style="font-size: 14px; padding: 10px;">
+                        Нет аккаунта? Зарегистрироваться
+                    </button>
+                </div>
+                
+                <div style="margin-top: 15px; text-align: center;">
+                    <button type="button" class="btn btn-secondary" onclick="showAuthTab('forgot-password')" style="font-size: 14px; padding: 10px;">
+                        Забыли пароль?
+                    </button>
+                </div>
+            </form>
+            
+            <!-- Email Register Form -->
+            <form id="emailRegisterForm" style="display: none;" onsubmit="registerWithEmail(); return false;">
+                <div class="form-group">
+                    <label class="form-label">Имя пользователя:</label>
+                    <input type="text" class="form-input" id="emailRegUsername" 
+                           placeholder="Введите имя" maxlength="20" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Email:</label>
+                    <input type="email" class="form-input" id="emailRegEmail" 
+                           placeholder="your@email.com" required>
+                    <div class="email-verified" id="emailVerifiedStatus" style="display: none;">
+                        <i class="fas fa-check-circle"></i> Email подтвержден
+                    </div>
+                </div>
+                
+                <div class="form-group password-container">
+                    <label class="form-label">Пароль:</label>
+                    <input type="password" class="form-input" id="emailRegPassword" 
+                           placeholder="Минимум 6 символов" minlength="6" required>
+                    <button type="button" class="password-toggle" onclick="togglePassword('emailRegPassword')">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+                
+                <div class="form-group password-container">
+                    <label class="form-label">Повторите пароль:</label>
+                    <input type="password" class="form-input" id="emailRegPasswordConfirm" 
+                           placeholder="Повторите пароль" minlength="6" required>
+                    <button type="button" class="password-toggle" onclick="togglePassword('emailRegPasswordConfirm')">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+                
+                <div class="wallet-address" id="emailGeneratedWallet">
+                    Кошелек будет создан автоматически
+                </div>
+                
+                <button type="submit" class="btn">
+                    <i class="fas fa-user-plus"></i> Зарегистрироваться
+                </button>
+                
+                <div class="auth-tip">
+                    <i class="fas fa-info-circle"></i>
+                    При регистрации по email создается кошелек, привязанный к вашему адресу.
+                    Вы можете переводить DRC другим пользователям и получать переводы.
+                </div>
+                
+                <div style="margin-top: 15px; text-align: center;">
+                    <button type="button" class="btn btn-secondary" onclick="showAuthTab('email-login')" style="font-size: 14px; padding: 10px;">
+                        Уже есть аккаунт? Войти
+                    </button>
+                </div>
+            </form>
+            
+            <!-- Forgot Password Form -->
+            <form id="forgotPasswordForm" style="display: none;" onsubmit="forgotPassword(); return false;">
+                <div class="form-group">
+                    <label class="form-label">Email для восстановления:</label>
+                    <input type="email" class="form-input" id="forgotEmail" 
+                           placeholder="your@email.com" required>
+                </div>
+                
+                <button type="submit" class="btn">
+                    <i class="fas fa-key"></i> Восстановить пароль
+                </button>
+                
+                <div style="margin-top: 20px; text-align: center; color: var(--text-secondary); font-size: 14px;">
+                    На ваш email будет отправлена инструкция по восстановлению пароля
+                </div>
+                
+                <div style="margin-top: 15px; text-align: center;">
+                    <button type="button" class="btn btn-secondary" onclick="showAuthTab('email-login')" style="font-size: 14px; padding: 10px;">
+                        <i class="fas fa-arrow-left"></i> Назад ко входу
+                    </button>
+                </div>
+            </form>
+            
+            <!-- Reset Password Form -->
+            <form id="resetPasswordForm" style="display: none;" onsubmit="resetPassword(); return false;">
+                <div class="form-group">
+                    <label class="form-label">Код восстановления:</label>
+                    <input type="text" class="form-input" id="resetCode" 
+                           placeholder="Введите код из email" required>
+                </div>
+                
+                <div class="form-group password-container">
+                    <label class="form-label">Новый пароль:</label>
+                    <input type="password" class="form-input" id="resetNewPassword" 
+                           placeholder="Минимум 6 символов" minlength="6" required>
+                    <button type="button" class="password-toggle" onclick="togglePassword('resetNewPassword')">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+                
+                <div class="form-group password-container">
+                    <label class="form-label">Повторите новый пароль:</label>
+                    <input type="password" class="form-input" id="resetNewPasswordConfirm" 
+                           placeholder="Повторите пароль" minlength="6" required>
+                    <button type="button" class="password-toggle" onclick="togglePassword('resetNewPasswordConfirm')">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+                
+                <button type="submit" class="btn">
+                    <i class="fas fa-redo"></i> Сбросить пароль
+                </button>
+                
+                <div style="margin-top: 15px; text-align: center;">
+                    <button type="button" class="btn btn-secondary" onclick="showAuthTab('email-login')" style="font-size: 14px; padding: 10px;">
+                        <i class="fas fa-arrow-left"></i> Назад ко входу
                     </button>
                 </div>
             </form>
@@ -1272,6 +1487,9 @@
                         Пользователь
                         <span class="verified-badge" id="sidebarVerified" style="display: none;">
                             <i class="fas fa-check-circle"></i>
+                        </span>
+                        <span class="auth-method-badge auth-method-seed" id="authMethodBadge" style="display: none;">
+                            <i class="fas fa-key"></i> SEED
                         </span>
                     </div>
                     <div class="username" id="sidebarUsername">@username</div>
@@ -1375,8 +1593,8 @@
                     <i class="fas fa-user-edit"></i> Изменить профиль
                 </button>
                 
-                <button class="btn btn-secondary" onclick="changePin()">
-                    <i class="fas fa-shield-alt"></i> Сменить PIN
+                <button class="btn btn-secondary" onclick="changeAuthMethod()" id="changeAuthBtn">
+                    <i class="fas fa-shield-alt"></i> Сменить пароль/PIN
                 </button>
                 
                 <button class="btn btn-secondary" onclick="backupAccount()">
@@ -1389,6 +1607,10 @@
                 
                 <button class="btn btn-secondary" onclick="showBuyCoinsModal()">
                     <i class="fas fa-coins"></i> Купить DRC
+                </button>
+                
+                <button class="btn btn-secondary" onclick="showEmailSettings()">
+                    <i class="fas fa-envelope"></i> Настройки Email
                 </button>
                 
                 <button class="btn btn-secondary" onclick="closeModal()">
@@ -1449,6 +1671,30 @@
         </div>
     </div>
 
+    <!-- Email Settings Modal -->
+    <div class="modal-overlay" id="emailSettingsModal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-logo">
+                    <img src="logo2.png" alt="DreamCon Logo" onerror="showLogoFallback(this)">
+                    <div class="logo-fallback" style="display: none;">DC</div>
+                </div>
+                <div class="modal-title"><i class="fas fa-envelope"></i> Настройки Email</div>
+                <div class="modal-subtitle">Управление email аккаунтом</div>
+            </div>
+            
+            <div id="emailSettingsContent">
+                <!-- Content loaded dynamically -->
+            </div>
+            
+            <div class="btn-group">
+                <button class="btn btn-secondary" onclick="closeModal()">
+                    <i class="fas fa-times"></i> Закрыть
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Toast -->
     <div class="toast" id="toast"></div>
 
@@ -1468,6 +1714,28 @@
         let currentTONPrice = 2.9;
         let drcToUSD = 0.22;
         let priceUpdateInterval = null;
+
+        // ========== EMAIL DATABASE FUNCTIONS ==========
+        function initializeEmailDatabase() {
+            if (!localStorage.getItem('dreamcon_email_database')) {
+                const database = {
+                    usersByEmail: {}, // email -> username
+                    emailVerification: {}, // email -> {code, expires, verified}
+                    passwordResets: {}, // email -> {token, expires}
+                    emailPreferences: {} // email -> preferences
+                };
+                localStorage.setItem('dreamcon_email_database', JSON.stringify(database));
+            }
+        }
+
+        function getEmailDatabase() {
+            const db = localStorage.getItem('dreamcon_email_database');
+            return db ? JSON.parse(db) : { usersByEmail: {}, emailVerification: {}, passwordResets: {}, emailPreferences: {} };
+        }
+
+        function saveEmailDatabase(db) {
+            localStorage.setItem('dreamcon_email_database', JSON.stringify(db));
+        }
 
         // ========== DATABASE FUNCTIONS ==========
         function initializeDatabase() {
@@ -1515,8 +1783,38 @@
 
         function saveUser(user) {
             const db = getDatabase();
-            db.users[user.usernameLower] = user;
+            const usernameLower = user.username.toLowerCase();
+            
+            // Сохраняем пользователя
+            db.users[usernameLower] = user;
+            
+            // Если есть email, сохраняем связь email -> username
+            if (user.email) {
+                const emailDb = getEmailDatabase();
+                emailDb.usersByEmail[user.email.toLowerCase()] = usernameLower;
+                
+                // Если это email аккаунт, создаем настройки по умолчанию
+                if (user.authMethod === 'email' && !emailDb.emailPreferences[user.email]) {
+                    emailDb.emailPreferences[user.email] = {
+                        notifications: true,
+                        marketing: false,
+                        securityAlerts: true
+                    };
+                }
+                
+                saveEmailDatabase(emailDb);
+            }
+            
             saveDatabase(db);
+        }
+
+        function getUserByEmail(email) {
+            const emailDb = getEmailDatabase();
+            const username = emailDb.usersByEmail[email.toLowerCase()];
+            if (!username) return null;
+            
+            const db = getDatabase();
+            return db.users[username];
         }
 
         function getAllUsers() {
@@ -1546,7 +1844,6 @@
             const key = `dreamcon_${username}_transactions`;
             const transactions = JSON.parse(localStorage.getItem(key) || '[]');
             
-            // Сортируем по дате (новые сначала)
             return transactions.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
         }
 
@@ -1560,7 +1857,6 @@
             const transactions = getUserTransactions(username);
             transactions.unshift(transaction);
             
-            // Ограничиваем историю 100 последними транзакциями
             if (transactions.length > 100) {
                 transactions.splice(100);
             }
@@ -1574,7 +1870,6 @@
             const key = `dreamcon_${username}_chats`;
             const chats = JSON.parse(localStorage.getItem(key) || '[]');
             
-            // Сортируем по последней активности
             return chats.sort((a, b) => new Date(b.lastActivity) - new Date(a.lastActivity));
         }
 
@@ -1583,73 +1878,106 @@
             localStorage.setItem(key, JSON.stringify(chats));
         }
 
-        // ========== INITIALIZATION ==========
-        document.addEventListener('DOMContentLoaded', async function() {
-            initializeDatabase();
-            await createAdminAccounts();
-            await createSampleChannels();
-            
-            initializeSeedGrid();
-            checkSavedSession();
-            startPriceUpdates();
-            
-            // Add input validation
-            document.getElementById('regUsername')?.addEventListener('input', function() {
-                this.value = this.value.replace(/[^a-zA-Z0-9_]/g, '');
-                checkRegisterButton();
-            });
-            
-            document.getElementById('regPin')?.addEventListener('input', function() {
-                this.value = this.value.replace(/\D/g, '');
-                if (this.value.length > 4) {
-                    this.value = this.value.slice(0, 4);
-                }
-                checkRegisterButton();
-            });
-            
-            document.getElementById('loginPin')?.addEventListener('input', function() {
-                this.value = this.value.replace(/\D/g, '');
-                if (this.value.length > 4) {
-                    this.value = this.value.slice(0, 4);
-                }
-            });
-            
-            // Search with debounce
-            const searchInput = document.getElementById('globalSearch');
-            if (searchInput) {
-                let searchTimeout;
-                searchInput.addEventListener('input', function() {
-                    clearTimeout(searchTimeout);
-                    searchTimeout = setTimeout(() => {
-                        performGlobalSearch();
-                    }, 300);
-                });
-                
-                searchInput.addEventListener('keypress', function(e) {
-                    if (e.key === 'Enter') {
-                        performGlobalSearch();
-                    }
-                });
-            }
-        });
+        // ========== PASSWORD FUNCTIONS ==========
+        async function hashPassword(password) {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(password + 'dreamcon_salt_2024_' + Date.now());
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
 
-        // ========== AUTHENTICATION ==========
+        function generateWalletFromEmail(email) {
+            let hash = 0;
+            for (let i = 0; i < email.length; i++) {
+                hash = ((hash << 5) - hash) + email.charCodeAt(i);
+                hash = hash & hash;
+            }
+            
+            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz123456789';
+            let address = 'DC_EMAIL_';
+            
+            // Добавляем первые 4 символа email для идентификации
+            const emailPrefix = email.split('@')[0].substring(0, 4).toUpperCase();
+            address += emailPrefix + '_';
+            
+            for (let i = 0; i < 24; i++) {
+                const seedNum = Math.abs(hash + i * 31);
+                const index = seedNum % chars.length;
+                address += chars[index];
+            }
+            
+            return address;
+        }
+
+        // ========== AUTHENTICATION FUNCTIONS ==========
         function showAuthTab(tab) {
             document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
-            if (tab === 'login') {
-                document.querySelector('.auth-tab:first-child').classList.add('active');
-                document.getElementById('loginForm').style.display = 'block';
-                document.getElementById('registerForm').style.display = 'none';
-            } else {
-                document.querySelector('.auth-tab:last-child').classList.add('active');
-                document.getElementById('loginForm').style.display = 'none';
-                document.getElementById('registerForm').style.display = 'block';
-                generateSeed();
+            
+            const forms = ['loginForm', 'registerForm', 'emailLoginForm', 'emailRegisterForm', 'forgotPasswordForm', 'resetPasswordForm'];
+            forms.forEach(form => {
+                if (document.getElementById(form)) {
+                    document.getElementById(form).style.display = 'none';
+                }
+            });
+            
+            switch(tab) {
+                case 'login':
+                    document.querySelector('.auth-tab:nth-child(1)').classList.add('active');
+                    document.getElementById('loginForm').style.display = 'block';
+                    break;
+                case 'register':
+                    document.querySelector('.auth-tab:nth-child(2)').classList.add('active');
+                    document.getElementById('registerForm').style.display = 'block';
+                    initializeSeedGrid();
+                    break;
+                case 'email-login':
+                    document.querySelector('.auth-tab:nth-child(3)').classList.add('active');
+                    document.getElementById('emailLoginForm').style.display = 'block';
+                    break;
+                case 'email-register':
+                    document.querySelector('.auth-tab:nth-child(3)').classList.add('active');
+                    document.getElementById('emailRegisterForm').style.display = 'block';
+                    // Генерируем предварительный адрес кошелька
+                    const email = document.getElementById('emailRegEmail');
+                    if (email) {
+                        email.addEventListener('input', function() {
+                            if (this.value.includes('@')) {
+                                const wallet = generateWalletFromEmail(this.value);
+                                document.getElementById('emailGeneratedWallet').textContent = wallet;
+                                document.getElementById('emailGeneratedWallet').style.background = 'rgba(0,136,204,0.1)';
+                                document.getElementById('emailGeneratedWallet').style.border = '1px solid rgba(0,136,204,0.3)';
+                            }
+                        });
+                    }
+                    break;
+                case 'forgot-password':
+                    document.getElementById('forgotPasswordForm').style.display = 'block';
+                    break;
+                case 'reset-password':
+                    document.getElementById('resetPasswordForm').style.display = 'block';
+                    break;
             }
         }
 
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            const toggle = input.nextElementSibling;
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                toggle.innerHTML = '<i class="fas fa-eye-slash"></i>';
+            } else {
+                input.type = 'password';
+                toggle.innerHTML = '<i class="fas fa-eye"></i>';
+            }
+        }
+
+        // ========== SEED AUTHENTICATION ==========
         function initializeSeedGrid() {
             const grid = document.getElementById('seedGrid');
+            if (!grid) return;
+            
             grid.innerHTML = '';
             
             for (let i = 0; i < 12; i++) {
@@ -1659,17 +1987,6 @@
                 input.placeholder = `Слово ${i + 1}`;
                 input.readOnly = true;
                 grid.appendChild(input);
-            }
-        }
-
-        function checkRegisterButton() {
-            const username = document.getElementById('regUsername')?.value.trim();
-            const pin = document.getElementById('regPin')?.value;
-            const hasSeed = !!window.generatedSeed;
-            
-            const registerBtn = document.getElementById('registerBtn');
-            if (registerBtn) {
-                registerBtn.disabled = !(username && username.length >= 3 && pin && pin.length === 4 && hasSeed);
             }
         }
 
@@ -1691,40 +2008,26 @@
             
             const inputs = document.querySelectorAll('#seedGrid .seed-input');
             seedWords.forEach((word, index) => {
-                inputs[index].value = word;
-                inputs[index].style.background = 'rgba(0,136,204,0.1)';
-                inputs[index].style.borderColor = 'rgba(0,136,204,0.3)';
+                if (inputs[index]) {
+                    inputs[index].value = word;
+                    inputs[index].style.background = 'rgba(0,136,204,0.1)';
+                    inputs[index].style.borderColor = 'rgba(0,136,204,0.3)';
+                }
             });
             
             const seedPhrase = seedWords.join(' ');
             const walletAddress = generateWalletAddress(seedPhrase);
-            document.getElementById('generatedWallet').textContent = walletAddress;
-            document.getElementById('generatedWallet').style.background = 'rgba(0,136,204,0.1)';
-            document.getElementById('generatedWallet').style.border = '1px solid rgba(0,136,204,0.3)';
+            const walletElement = document.getElementById('generatedWallet');
+            if (walletElement) {
+                walletElement.textContent = walletAddress;
+                walletElement.style.background = 'rgba(0,136,204,0.1)';
+                walletElement.style.border = '1px solid rgba(0,136,204,0.3)';
+            }
             
             window.generatedSeed = seedPhrase;
             window.generatedWallet = walletAddress;
             
             checkRegisterButton();
-        }
-
-        function generateWalletAddress(seedPhrase) {
-            let hash = 0;
-            for (let i = 0; i < seedPhrase.length; i++) {
-                hash = ((hash << 5) - hash) + seedPhrase.charCodeAt(i);
-                hash = hash & hash;
-            }
-            
-            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz123456789';
-            let address = 'DC';
-            
-            for (let i = 0; i < 32; i++) {
-                const seedNum = Math.abs(hash + i * 31);
-                const index = seedNum % chars.length;
-                address += chars[index];
-            }
-            
-            return address;
         }
 
         async function sha256(message) {
@@ -1735,8 +2038,39 @@
             return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
         }
 
-        async function register() {
+        function generateWalletAddress(seedPhrase) {
+            let hash = 0;
+            for (let i = 0; i < seedPhrase.length; i++) {
+                hash = ((hash << 5) - hash) + seedPhrase.charCodeAt(i);
+                hash = hash & hash;
+            }
+            
+            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz123456789';
+            let address = 'DC_SEED_';
+            
+            for (let i = 0; i < 32; i++) {
+                const seedNum = Math.abs(hash + i * 31);
+                const index = seedNum % chars.length;
+                address += chars[index];
+            }
+            
+            return address;
+        }
+
+        function checkRegisterButton() {
+            const username = document.getElementById('regUsername')?.value.trim();
+            const pin = document.getElementById('regPin')?.value;
+            const hasSeed = !!window.generatedSeed;
+            
+            const registerBtn = document.getElementById('registerBtn');
+            if (registerBtn) {
+                registerBtn.disabled = !(username && username.length >= 3 && pin && pin.length === 4 && hasSeed);
+            }
+        }
+
+        async function registerWithSeed() {
             const username = document.getElementById('regUsername').value.trim();
+            const email = document.getElementById('regEmail').value.trim().toLowerCase();
             const pin = document.getElementById('regPin').value;
             const seedPhrase = window.generatedSeed;
             const walletAddress = window.generatedWallet;
@@ -1751,6 +2085,13 @@
                 return;
             }
             
+            if (email && email.includes('@')) {
+                if (getUserByEmail(email)) {
+                    showToast('Этот email уже зарегистрирован');
+                    return;
+                }
+            }
+            
             if (!pin || pin.length !== 4 || !/^\d+$/.test(pin)) {
                 showToast('PIN должен состоять из 4 цифр');
                 return;
@@ -1763,12 +2104,6 @@
             
             const allUsers = getAllUsers();
             const usernameLower = username.toLowerCase();
-            
-            // Check if username is admin
-            if (usernameLower === 'mrakodum' || usernameLower === 'supportchronogram' || usernameLower === 'support') {
-                showToast('Это имя зарезервировано для администрации');
-                return;
-            }
             
             if (allUsers[usernameLower]) {
                 showToast('Это имя пользователя уже занято');
@@ -1788,10 +2123,12 @@
             userData = {
                 username: username,
                 usernameLower: usernameLower,
+                email: email || null,
                 displayName: username,
                 walletAddress: walletAddress,
                 seedHash: seedHash,
                 pinHash: pinHash,
+                authMethod: 'seed',
                 balance: 25,
                 isPremium: false,
                 isCreator: false,
@@ -1810,7 +2147,6 @@
             saveUser(userData);
             updateGlobalStats('users');
             
-            // Initialize user data
             addUserTransaction(usernameLower, {
                 type: 'incoming',
                 amount: userData.balance,
@@ -1820,13 +2156,14 @@
                 txid: 'welcome_' + Date.now()
             });
             
-            // Initialize empty chats
             saveUserChats(usernameLower, []);
             
-            // Set current user
             currentUser = usernameLower;
             userBalance = userData.balance;
             transactionHistory = getUserTransactions(currentUser);
+            channels = Object.values(getAllChannels()).filter(channel => 
+                channel.members.includes(currentUser) || channel.creator === currentUser
+            );
             chats = getUserChats(currentUser);
             
             localStorage.setItem('dreamcon_current_user', currentUser);
@@ -1835,7 +2172,7 @@
             showApp();
         }
 
-        async function login() {
+        async function loginWithSeed() {
             const seedPhrase = document.getElementById('loginSeed').value.trim();
             const pin = document.getElementById('loginPin').value;
             
@@ -1849,7 +2186,6 @@
                 return;
             }
             
-            // Проверяем специальные seed-фразы для админов
             let isAdmin = false;
             let adminUsername = null;
             
@@ -1880,9 +2216,8 @@
             if (isAdmin) {
                 foundUser = adminUsername;
             } else {
-                // Поиск по seed hash
                 for (const username in allUsers) {
-                    if (allUsers[username].seedHash === seedHash) {
+                    if (allUsers[username].seedHash === seedHash && allUsers[username].authMethod === 'seed') {
                         foundUser = username;
                         break;
                     }
@@ -1894,7 +2229,6 @@
                 return;
             }
             
-            // Проверяем PIN (для админов уже проверили выше)
             if (!isAdmin && allUsers[foundUser].pinHash !== pinHash) {
                 showToast('Неверный PIN');
                 return;
@@ -1918,6 +2252,336 @@
             showApp();
         }
 
+        // ========== EMAIL AUTHENTICATION ==========
+        async function registerWithEmail() {
+            const username = document.getElementById('emailRegUsername').value.trim();
+            const email = document.getElementById('emailRegEmail').value.trim().toLowerCase();
+            const password = document.getElementById('emailRegPassword').value;
+            const passwordConfirm = document.getElementById('emailRegPasswordConfirm').value;
+            
+            if (!username || username.length < 3) {
+                showToast('Имя пользователя должно быть не менее 3 символов');
+                return;
+            }
+            
+            if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+                showToast('Имя пользователя может содержать только буквы, цифры и подчеркивания');
+                return;
+            }
+            
+            if (!email || !email.includes('@')) {
+                showToast('Введите корректный email');
+                return;
+            }
+            
+            if (password.length < 6) {
+                showToast('Пароль должен быть не менее 6 символов');
+                return;
+            }
+            
+            if (password !== passwordConfirm) {
+                showToast('Пароли не совпадают');
+                return;
+            }
+            
+            const allUsers = getAllUsers();
+            const usernameLower = username.toLowerCase();
+            
+            if (allUsers[usernameLower]) {
+                showToast('Это имя пользователя уже занято');
+                return;
+            }
+            
+            if (getUserByEmail(email)) {
+                showToast('Этот email уже зарегистрирован');
+                return;
+            }
+            
+            const passwordHash = await hashPassword(password);
+            const walletAddress = generateWalletFromEmail(email);
+            
+            // Генерируем код подтверждения email
+            const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+            const emailDb = getEmailDatabase();
+            emailDb.emailVerification[email] = {
+                code: verificationCode,
+                expires: Date.now() + 3600000, // 1 час
+                verified: false
+            };
+            saveEmailDatabase(emailDb);
+            
+            userData = {
+                username: username,
+                usernameLower: usernameLower,
+                email: email,
+                displayName: username,
+                walletAddress: walletAddress,
+                passwordHash: passwordHash,
+                authMethod: 'email',
+                balance: 25,
+                isPremium: false,
+                isCreator: false,
+                isVerified: false,
+                createdChannels: [],
+                maxChannels: 2,
+                registrationDate: new Date().toISOString(),
+                lastLogin: new Date().toISOString(),
+                miningStats: {
+                    totalMined: 0,
+                    lastMiningSession: null,
+                    miningSessions: 0
+                }
+            };
+            
+            saveUser(userData);
+            updateGlobalStats('users');
+            
+            // Показываем кошелек
+            const walletElement = document.getElementById('emailGeneratedWallet');
+            if (walletElement) {
+                walletElement.textContent = walletAddress;
+                walletElement.style.background = 'rgba(0,136,204,0.1)';
+                walletElement.style.border = '1px solid rgba(0,136,204,0.3)';
+            }
+            
+            addUserTransaction(usernameLower, {
+                type: 'incoming',
+                amount: userData.balance,
+                from: 'Система',
+                message: 'Начальный баланс',
+                timestamp: new Date().toISOString(),
+                txid: 'welcome_' + Date.now()
+            });
+            
+            saveUserChats(usernameLower, []);
+            
+            currentUser = usernameLower;
+            userBalance = userData.balance;
+            transactionHistory = getUserTransactions(currentUser);
+            channels = Object.values(getAllChannels()).filter(channel => 
+                channel.members.includes(currentUser) || channel.creator === currentUser
+            );
+            chats = getUserChats(currentUser);
+            
+            localStorage.setItem('dreamcon_current_user', currentUser);
+            
+            showToast(`Регистрация успешна! Код подтверждения: ${verificationCode}`);
+            setTimeout(() => {
+                showToast('Добро пожаловать в DreamCon! Ваш кошелек создан.');
+            }, 2000);
+            
+            showApp();
+        }
+
+        async function loginWithEmail() {
+            const email = document.getElementById('emailLoginEmail').value.trim().toLowerCase();
+            const password = document.getElementById('emailLoginPassword').value;
+            
+            if (!email || !email.includes('@')) {
+                showToast('Введите корректный email');
+                return;
+            }
+            
+            if (!password) {
+                showToast('Введите пароль');
+                return;
+            }
+            
+            const user = getUserByEmail(email);
+            
+            if (!user) {
+                showToast('Пользователь не найден');
+                return;
+            }
+            
+            if (user.authMethod !== 'email') {
+                showToast('Этот аккаунт использует seed-авторизацию. Используйте форму входа через seed.');
+                showAuthTab('login');
+                return;
+            }
+            
+            const passwordHash = await hashPassword(password);
+            if (user.passwordHash !== passwordHash) {
+                showToast('Неверный пароль');
+                return;
+            }
+            
+            userData = user;
+            currentUser = user.usernameLower;
+            userBalance = userData.balance;
+            
+            userData.lastLogin = new Date().toISOString();
+            saveUser(userData);
+            localStorage.setItem('dreamcon_current_user', currentUser);
+            
+            transactionHistory = getUserTransactions(currentUser);
+            channels = Object.values(getAllChannels()).filter(channel => 
+                channel.members.includes(currentUser) || channel.creator === currentUser
+            );
+            chats = getUserChats(currentUser);
+            
+            showToast('Вход выполнен успешно!');
+            showApp();
+        }
+
+        async function forgotPassword() {
+            const email = document.getElementById('forgotEmail').value.trim().toLowerCase();
+            
+            if (!email || !email.includes('@')) {
+                showToast('Введите корректный email');
+                return;
+            }
+            
+            const user = getUserByEmail(email);
+            if (!user) {
+                showToast('Пользователь с таким email не найден');
+                return;
+            }
+            
+            if (user.authMethod !== 'email') {
+                showToast('Этот аккаунт использует seed-авторизацию. Восстановление через seed-фразу.');
+                showAuthTab('login');
+                return;
+            }
+            
+            // Генерируем код восстановления
+            const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
+            const emailDb = getEmailDatabase();
+            emailDb.passwordResets[email] = {
+                code: resetCode,
+                expires: Date.now() + 3600000, // 1 час
+                username: user.usernameLower
+            };
+            saveEmailDatabase(emailDb);
+            
+            showToast(`Код восстановления отправлен на ${email}: ${resetCode}`);
+            
+            // Переключаем на форму сброса пароля
+            setTimeout(() => {
+                showAuthTab('reset-password');
+                document.getElementById('resetCode').value = resetCode;
+            }, 1000);
+        }
+
+        async function resetPassword() {
+            const resetCode = document.getElementById('resetCode').value;
+            const newPassword = document.getElementById('resetNewPassword').value;
+            const confirmPassword = document.getElementById('resetNewPasswordConfirm').value;
+            
+            if (!resetCode || resetCode.length !== 6) {
+                showToast('Введите корректный 6-значный код');
+                return;
+            }
+            
+            if (newPassword.length < 6) {
+                showToast('Новый пароль должен быть не менее 6 символов');
+                return;
+            }
+            
+            if (newPassword !== confirmPassword) {
+                showToast('Пароли не совпадают');
+                return;
+            }
+            
+            // Находим email по коду восстановления
+            const emailDb = getEmailDatabase();
+            let userEmail = null;
+            let userData = null;
+            
+            for (const email in emailDb.passwordResets) {
+                const resetData = emailDb.passwordResets[email];
+                if (resetData.code === resetCode && resetData.expires > Date.now()) {
+                    userEmail = email;
+                    userData = getUserByEmail(email);
+                    break;
+                }
+            }
+            
+            if (!userEmail || !userData) {
+                showToast('Неверный или просроченный код восстановления');
+                return;
+            }
+            
+            // Обновляем пароль
+            const newPasswordHash = await hashPassword(newPassword);
+            userData.passwordHash = newPasswordHash;
+            saveUser(userData);
+            
+            // Удаляем код восстановления
+            delete emailDb.passwordResets[userEmail];
+            saveEmailDatabase(emailDb);
+            
+            showToast('Пароль успешно изменен! Теперь вы можете войти с новым паролем.');
+            showAuthTab('email-login');
+        }
+
+        // ========== INITIALIZATION ==========
+        document.addEventListener('DOMContentLoaded', async function() {
+            initializeDatabase();
+            initializeEmailDatabase();
+            await createAdminAccounts();
+            await createSampleChannels();
+            
+            initializeSeedGrid();
+            checkSavedSession();
+            startPriceUpdates();
+            
+            // Валидация форм
+            document.getElementById('regUsername')?.addEventListener('input', function() {
+                this.value = this.value.replace(/[^a-zA-Z0-9_]/g, '');
+                checkRegisterButton();
+            });
+            
+            document.getElementById('regPin')?.addEventListener('input', function() {
+                this.value = this.value.replace(/\D/g, '');
+                if (this.value.length > 4) {
+                    this.value = this.value.slice(0, 4);
+                }
+                checkRegisterButton();
+            });
+            
+            document.getElementById('loginPin')?.addEventListener('input', function() {
+                this.value = this.value.replace(/\D/g, '');
+                if (this.value.length > 4) {
+                    this.value = this.value.slice(0, 4);
+                }
+            });
+            
+            // Поиск
+            const searchInput = document.getElementById('globalSearch');
+            if (searchInput) {
+                let searchTimeout;
+                searchInput.addEventListener('input', function() {
+                    clearTimeout(searchTimeout);
+                    searchTimeout = setTimeout(() => {
+                        performGlobalSearch();
+                    }, 300);
+                });
+                
+                searchInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        performGlobalSearch();
+                    }
+                });
+            }
+            
+            // Генерация кошелька при вводе email
+            const emailRegInput = document.getElementById('emailRegEmail');
+            if (emailRegInput) {
+                emailRegInput.addEventListener('input', function() {
+                    if (this.value.includes('@')) {
+                        const wallet = generateWalletFromEmail(this.value);
+                        const walletElement = document.getElementById('emailGeneratedWallet');
+                        if (walletElement) {
+                            walletElement.textContent = wallet;
+                            walletElement.style.background = 'rgba(0,136,204,0.1)';
+                            walletElement.style.border = '1px solid rgba(0,136,204,0.3)';
+                        }
+                    }
+                });
+            }
+        });
+
         function checkSavedSession() {
             const savedUser = localStorage.getItem('dreamcon_current_user');
             if (savedUser) {
@@ -1938,400 +2602,97 @@
             }
         }
 
-        // ========== SEARCH FUNCTIONALITY ==========
-        function performGlobalSearch() {
-            const query = document.getElementById('globalSearch').value.toLowerCase().trim();
-            if (!query || query.length < 3) {
-                const existingModal = document.getElementById('searchResultsModal');
-                if (existingModal) {
-                    document.body.removeChild(existingModal);
-                }
-                return;
-            }
-            
+        // ========== ADMIN ACCOUNTS ==========
+        async function createAdminAccounts() {
             const allUsers = getAllUsers();
-            const allChannels = getAllChannels();
             
-            let results = [];
-            
-            Object.values(allChannels).forEach(channel => {
-                if (channel.name.toLowerCase().includes(query) || 
-                    (channel.description && channel.description.toLowerCase().includes(query)) ||
-                    channel.creator.toLowerCase().includes(query)) {
-                    
-                    const isSubscribed = channel.subscribers?.includes(currentUser);
-                    const isCreator = channel.creator === currentUser;
-                    const subscribersCount = channel.subscribers?.length || 0;
-                    const viewCount = channel.viewCount || 0;
-                    
-                    results.push({
-                        type: 'channel',
-                        id: channel.id,
-                        name: channel.name,
-                        description: channel.description || '',
-                        creator: channel.creator,
-                        subscribers: subscribersCount,
-                        views: viewCount,
-                        isSubscribed: isSubscribed,
-                        isCreator: isCreator,
-                        isPremium: channel.isPremium || false,
-                        score: (subscribersCount * 10) + viewCount + (channel.isPremium ? 50 : 0),
-                        timestamp: channel.lastActivity || channel.created
-                    });
-                }
-            });
-            
-            Object.values(allUsers).forEach(user => {
-                if (user.usernameLower !== currentUser) {
-                    const usernameMatch = user.username.toLowerCase().includes(query);
-                    const displayNameMatch = user.displayName.toLowerCase().includes(query);
-                    
-                    if (usernameMatch || displayNameMatch) {
-                        results.push({
-                            type: 'user',
-                            id: user.usernameLower,
-                            username: user.username,
-                            displayName: user.displayName,
-                            isVerified: user.isVerified || false,
-                            isPremium: user.isPremium || false,
-                            isCreator: user.isCreator || false,
-                            balance: user.balance || 0,
-                            score: (usernameMatch && query.length >= 5) ? 100 : 50
-                        });
+            if (!allUsers['mrakodum']) {
+                const creatorSeed = 'mrakodum ' + Array.from({length: 11}, () => 
+                    ['alpha', 'beta', 'gamma', 'delta', 'epsilon'][Math.floor(Math.random() * 5)]
+                ).join(' ');
+                
+                const creatorWallet = generateWalletAddress(creatorSeed);
+                
+                const creatorUser = {
+                    username: 'MRAKODUM',
+                    usernameLower: 'mrakodum',
+                    email: 'admin@dreamcon.ru',
+                    displayName: 'MRAKODUM',
+                    walletAddress: creatorWallet,
+                    seedHash: await sha256(creatorSeed.toLowerCase()),
+                    pinHash: await sha256('0000'),
+                    authMethod: 'seed',
+                    balance: 100000,
+                    isPremium: true,
+                    isCreator: true,
+                    isVerified: true,
+                    createdChannels: [],
+                    maxChannels: 100,
+                    registrationDate: new Date().toISOString(),
+                    lastLogin: new Date().toISOString(),
+                    miningStats: {
+                        totalMined: 0,
+                        lastMiningSession: null,
+                        miningSessions: 0
                     }
-                }
-            });
-            
-            results.sort((a, b) => {
-                if (a.type !== b.type) {
-                    return a.type === 'channel' ? -1 : 1;
-                }
-                return b.score - a.score;
-            });
-            
-            showSearchResultsModal(results, query);
-        }
-
-        function showSearchResultsModal(results, query) {
-            const existingModal = document.getElementById('searchResultsModal');
-            if (existingModal) {
-                document.body.removeChild(existingModal);
-            }
-            
-            if (results.length === 0) {
-                showToast('Ничего не найдено');
-                return;
-            }
-            
-            let resultsHTML = '';
-            
-            results.forEach((item, index) => {
-                if (item.type === 'channel') {
-                    resultsHTML += `
-                        <div class="search-result-item" onclick="openChannel('${item.id}')">
-                            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
-                                <div style="width: 40px; height: 40px; border-radius: 10px; background: var(--primary); 
-                                            display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 18px;">
-                                    ${item.name.charAt(0).toUpperCase()}
-                                </div>
-                                <div style="flex: 1;">
-                                    <div style="font-weight: 600; margin-bottom: 3px;">
-                                        <span style="color: var(--primary);">#</span> ${item.name}
-                                        ${item.isPremium ? '<span class="premium-badge" style="margin-left: 8px; font-size: 10px;"><i class="fas fa-gem"></i> Premium</span>' : ''}
-                                        ${item.isCreator ? '<span class="creator-badge" style="margin-left: 8px; font-size: 10px;"><i class="fas fa-crown"></i> Мой</span>' : ''}
-                                    </div>
-                                    <div style="font-size: 12px; color: var(--text-secondary);">
-                                        ${item.subscribers} подписчиков • ${item.views} просмотров
-                                    </div>
-                                </div>
-                                ${item.isSubscribed ? 
-                                  '<div style="font-size: 12px; color: var(--primary);"><i class="fas fa-check"></i> Подписан</div>' : 
-                                  '<button class="icon-btn" style="width: 30px; height: 30px; font-size: 12px;" onclick="event.stopPropagation(); subscribeToChannel(\'' + item.id + '\')"><i class="fas fa-plus"></i></button>'}
-                            </div>
-                            <div style="font-size: 13px; color: var(--text-secondary); margin-left: 52px; margin-bottom: 5px;">
-                                ${item.description}
-                            </div>
-                            <div style="font-size: 11px; color: var(--text-secondary); margin-left: 52px;">
-                                Создатель: @${item.creator}
-                            </div>
-                        </div>
-                    `;
-                } else if (item.type === 'user') {
-                    resultsHTML += `
-                        <div class="search-result-item" onclick="startChat('${item.id}')">
-                            <div style="display: flex; align-items: center; gap: 12px;">
-                                <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); 
-                                            display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 18px;">
-                                    ${item.displayName.charAt(0).toUpperCase()}
-                                </div>
-                                <div style="flex: 1;">
-                                    <div style="font-weight: 600; margin-bottom: 3px;">
-                                        ${item.displayName}
-                                        ${item.isVerified ? '<span class="verified-badge"><i class="fas fa-check-circle"></i></span>' : ''}
-                                        ${item.isCreator ? '<span class="creator-badge"><i class="fas fa-crown"></i></span>' : ''}
-                                        ${item.isPremium ? '<span class="premium-badge"><i class="fas fa-gem"></i></span>' : ''}
-                                    </div>
-                                    <div style="font-size: 12px; color: var(--text-secondary);">
-                                        @${item.username} • ${item.balance.toFixed(2)} DRC
-                                    </div>
-                                </div>
-                                <button class="icon-btn" style="width: 30px; height: 30px; font-size: 12px;" 
-                                        onclick="event.stopPropagation(); showSendToModal('${item.username}');">
-                                    <i class="fas fa-paper-plane"></i>
-                                </button>
-                            </div>
-                        </div>
-                    `;
-                }
-            });
-            
-            const modalHTML = `
-                <div class="modal" style="max-width: 500px; width: 90vw;">
-                    <div class="modal-header">
-                        <div class="modal-title"><i class="fas fa-search"></i> Результаты поиска</div>
-                        <div class="modal-subtitle">Найдено ${results.length} результатов по запросу: "${query}"</div>
-                    </div>
-                    <div style="max-height: 400px; overflow-y: auto; margin: 20px 0;">
-                        <div style="display: flex; flex-direction: column; gap: 15px;">
-                            ${resultsHTML}
-                        </div>
-                    </div>
-                    <div class="btn-group">
-                        <button class="btn btn-secondary" onclick="closeModal()">
-                            <i class="fas fa-times"></i> Закрыть
-                        </button>
-                    </div>
-                </div>
-            `;
-            
-            const modalOverlay = document.createElement('div');
-            modalOverlay.className = 'modal-overlay active';
-            modalOverlay.id = 'searchResultsModal';
-            modalOverlay.innerHTML = modalHTML;
-            document.body.appendChild(modalOverlay);
-            
-            modalOverlay.addEventListener('click', function(e) {
-                if (e.target === this) {
-                    closeModal();
-                }
-            });
-        }
-
-        // ========== CHAT SYSTEM ==========
-        function startChat(username) {
-            const targetUser = getUser(username);
-            
-            if (!targetUser) {
-                showToast('Пользователь не найден');
-                return;
-            }
-            
-            // Проверяем, есть ли уже чат с этим пользователем
-            let existingChat = chats.find(chat => 
-                (chat.type === 'private' && chat.participants.includes(username)) ||
-                chat.userId === username
-            );
-            
-            if (!existingChat) {
-                // Создаем новый чат
-                const chatId = 'chat_' + Date.now();
-                existingChat = {
-                    id: chatId,
-                    type: 'private',
-                    userId: username,
-                    userName: targetUser.username,
-                    userDisplayName: targetUser.displayName,
-                    participants: [currentUser, username],
-                    messages: [],
-                    unreadCount: 0,
-                    lastMessage: null,
-                    lastActivity: new Date().toISOString(),
-                    createdAt: new Date().toISOString()
                 };
                 
-                chats.push(existingChat);
-                saveUserChats(currentUser, chats);
+                saveUser(creatorUser);
+                addUserTransaction('mrakodum', {
+                    type: 'incoming',
+                    amount: creatorUser.balance,
+                    from: 'Система',
+                    message: 'Начальный баланс создателя',
+                    timestamp: new Date().toISOString(),
+                    txid: 'genesis_' + Date.now()
+                });
                 
-                showToast(`Чат с @${targetUser.username} создан. Напишите первое сообщение!`);
+                saveUserChats('mrakodum', []);
             }
             
-            // Открываем чат
-            openChat(existingChat.id);
-            closeModal();
-        }
-
-        function openChat(chatId) {
-            const chat = chats.find(c => c.id === chatId);
-            if (!chat) {
-                showToast('Чат не найден');
-                return;
-            }
-            
-            currentChat = chat;
-            
-            // Сбрасываем счетчик непрочитанных
-            chat.unreadCount = 0;
-            saveUserChats(currentUser, chats);
-            updateMessagesBadge();
-            
-            // Загружаем чат
-            const chatHTML = `
-                <div class="chat-container active">
-                    <div class="chat-header">
-                        <button class="icon-btn" onclick="showContent('messages', document.querySelector('.menu-item[onclick*=\"messages\"]'))">
-                            <i class="fas fa-arrow-left"></i>
-                        </button>
-                        <div class="user-avatar" style="width: 40px; height: 40px;">
-                            ${chat.userDisplayName.charAt(0).toUpperCase()}
-                        </div>
-                        <div class="chat-user-info">
-                            <div class="chat-user-name">
-                                ${chat.userDisplayName}
-                                ${chat.userId === 'supportchronogram' || chat.userId === 'mrakodum' ? 
-                                 '<span class="verified-badge"><i class="fas fa-check-circle"></i></span>' : ''}
-                            </div>
-                            <div class="chat-user-status">@${chat.userName} • онлайн</div>
-                        </div>
-                        <button class="icon-btn" onclick="showSendToModal('${chat.userName}')">
-                            <i class="fas fa-paper-plane"></i>
-                        </button>
-                    </div>
-                    
-                    <div class="messages-container" id="messagesContainer">
-                        ${chat.messages.length === 0 ? 
-                            `<div style="text-align: center; padding: 50px 20px; color: var(--text-secondary);">
-                                <i class="fas fa-comments" style="font-size: 48px; margin-bottom: 20px;"></i>
-                                <div>Нет сообщений</div>
-                                <div style="font-size: 14px; margin-top: 10px;">Начните общение первым</div>
-                            </div>` : 
-                            chat.messages.map(msg => `
-                                <div class="message ${msg.sender === currentUser ? 'message-out' : 'message-in'}">
-                                    ${msg.sender !== currentUser ? 
-                                        `<div class="message-sender">${msg.senderName}</div>` : ''}
-                                    <div>${msg.text}</div>
-                                    <div class="message-time">
-                                        ${new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                    </div>
-                                </div>
-                            `).join('')
-                        }
-                    </div>
-                    
-                    <div class="message-input-container">
-                        <div class="message-input-wrapper">
-                            <input type="text" class="message-input" id="chatMessageInput" 
-                                   placeholder="Введите сообщение..." 
-                                   onkeypress="if(event.key === 'Enter') sendMessage()">
-                            <button class="send-btn" onclick="sendMessage()" id="sendMessageBtn">
-                                <i class="fas fa-paper-plane"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            `;
-            
-            document.getElementById('contentBody').innerHTML = chatHTML;
-            document.getElementById('pageTitle').innerHTML = `<i class="fas fa-comments"></i> ${chat.userDisplayName}`;
-            
-            // Прокручиваем вниз
-            setTimeout(() => {
-                const container = document.getElementById('messagesContainer');
-                if (container) {
-                    container.scrollTop = container.scrollHeight;
-                }
-            }, 100);
-        }
-
-        function sendMessage() {
-            if (!currentChat) return;
-            
-            const input = document.getElementById('chatMessageInput');
-            const messageText = input.value.trim();
-            
-            if (!messageText) {
-                showToast('Введите сообщение');
-                return;
-            }
-            
-            // Создаем сообщение
-            const message = {
-                id: 'msg_' + Date.now(),
-                text: messageText,
-                sender: currentUser,
-                senderName: userData.displayName,
-                timestamp: new Date().toISOString(),
-                read: true
-            };
-            
-            // Добавляем в чат
-            currentChat.messages.push(message);
-            currentChat.lastMessage = messageText;
-            currentChat.lastActivity = new Date().toISOString();
-            
-            // Сохраняем чат текущего пользователя
-            saveUserChats(currentUser, chats);
-            
-            // Создаем аналогичное сообщение у собеседника (если это не админ)
-            if (currentChat.userId !== 'supportchronogram' && currentChat.userId !== 'mrakodum') {
-                const recipientChats = getUserChats(currentChat.userId);
-                let recipientChat = recipientChats.find(c => c.userId === currentUser);
+            if (!allUsers['supportchronogram']) {
+                const supportSeed = 'support ' + Array.from({length: 11}, () => 
+                    ['omega', 'zeta', 'theta', 'lambda', 'sigma'][Math.floor(Math.random() * 5)]
+                ).join(' ');
                 
-                if (!recipientChat) {
-                    // Создаем новый чат для получателя
-                    recipientChat = {
-                        id: currentChat.id,
-                        type: 'private',
-                        userId: currentUser,
-                        userName: userData.username,
-                        userDisplayName: userData.displayName,
-                        participants: [currentChat.userId, currentUser],
-                        messages: [],
-                        unreadCount: 1,
-                        lastMessage: messageText,
-                        lastActivity: new Date().toISOString(),
-                        createdAt: currentChat.createdAt
-                    };
-                    recipientChats.push(recipientChat);
-                } else {
-                    // Добавляем сообщение в существующий чат
-                    recipientChat.messages.push({
-                        id: message.id,
-                        text: messageText,
-                        sender: currentUser,
-                        senderName: userData.displayName,
-                        timestamp: message.timestamp,
-                        read: false
-                    });
-                    recipientChat.lastMessage = messageText;
-                    recipientChat.lastActivity = new Date().toISOString();
-                    recipientChat.unreadCount = (recipientChat.unreadCount || 0) + 1;
-                }
+                const supportWallet = generateWalletAddress(supportSeed);
                 
-                // Сохраняем чат получателя
-                saveUserChats(currentChat.userId, recipientChats);
+                const supportUser = {
+                    username: 'SupportChronogram',
+                    usernameLower: 'supportchronogram',
+                    email: 'support@dreamcon.ru',
+                    displayName: 'Support Chronogram',
+                    walletAddress: supportWallet,
+                    seedHash: await sha256(supportSeed.toLowerCase()),
+                    pinHash: await sha256('1234'),
+                    authMethod: 'seed',
+                    balance: 50000,
+                    isPremium: true,
+                    isCreator: true,
+                    isVerified: true,
+                    createdChannels: [],
+                    maxChannels: 100,
+                    registrationDate: new Date().toISOString(),
+                    lastLogin: new Date().toISOString(),
+                    miningStats: {
+                        totalMined: 0,
+                        lastMiningSession: null,
+                        miningSessions: 0
+                    }
+                };
+                
+                saveUser(supportUser);
+                addUserTransaction('supportchronogram', {
+                    type: 'incoming',
+                    amount: supportUser.balance,
+                    from: 'Система',
+                    message: 'Начальный баланс поддержки',
+                    timestamp: new Date().toISOString(),
+                    txid: 'support_' + Date.now()
+                });
+                
+                saveUserChats('supportchronogram', []);
             }
-            
-            // Очищаем поле ввода
-            input.value = '';
-            
-            // Обновляем отображение
-            const container = document.getElementById('messagesContainer');
-            if (container) {
-                container.innerHTML += `
-                    <div class="message message-out">
-                        <div>${message.text}</div>
-                        <div class="message-time">
-                            ${new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                        </div>
-                    </div>
-                `;
-                container.scrollTop = container.scrollHeight;
-            }
-        }
-
-        function updateMessagesBadge() {
-            const totalUnread = chats.reduce((sum, chat) => sum + (chat.unreadCount || 0), 0);
-            document.getElementById('messagesBadge').textContent = totalUnread > 0 ? totalUnread : '0';
         }
 
         // ========== APP INTERFACE ==========
@@ -2348,15 +2709,31 @@
         function updateUserInterface() {
             if (!userData) return;
             
+            // Обновляем имя пользователя
             document.getElementById('sidebarName').innerHTML = `
                 ${userData.displayName}
                 ${userData.isVerified ? '<span class="verified-badge"><i class="fas fa-check-circle"></i></span>' : ''}
                 ${userData.isCreator ? '<span class="creator-badge"><i class="fas fa-crown"></i></span>' : ''}
                 ${userData.isPremium ? '<span class="premium-badge"><i class="fas fa-gem"></i> Premium</span>' : ''}
+                <span class="auth-method-badge ${userData.authMethod === 'seed' ? 'auth-method-seed' : 'auth-method-email'}" id="authMethodBadge">
+                    <i class="fas ${userData.authMethod === 'seed' ? 'fa-key' : 'fa-envelope'}"></i> ${userData.authMethod === 'seed' ? 'SEED' : 'EMAIL'}
+                </span>
             `;
             
             document.getElementById('sidebarUsername').textContent = `@${userData.username}`;
             document.getElementById('avatarText').textContent = userData.displayName.charAt(0).toUpperCase();
+            
+            // Обновляем кнопку смены пароля/PIN
+            const changeAuthBtn = document.getElementById('changeAuthBtn');
+            if (changeAuthBtn) {
+                if (userData.authMethod === 'seed') {
+                    changeAuthBtn.innerHTML = '<i class="fas fa-shield-alt"></i> Сменить PIN';
+                    changeAuthBtn.onclick = changePin;
+                } else {
+                    changeAuthBtn.innerHTML = '<i class="fas fa-shield-alt"></i> Сменить пароль';
+                    changeAuthBtn.onclick = changePassword;
+                }
+            }
             
             updateBalanceDisplay();
             updateChannelsBadge();
@@ -2385,7 +2762,13 @@
             document.getElementById('channelsBadge').textContent = userChannels.length;
         }
 
-        // ========== MENU NAVIGATION ==========
+        function updateMessagesBadge() {
+            if (!chats) return;
+            const totalUnread = chats.reduce((sum, chat) => sum + (chat.unreadCount || 0), 0);
+            document.getElementById('messagesBadge').textContent = totalUnread > 0 ? totalUnread : '0';
+        }
+
+        // ========== NAVIGATION ==========
         function showContent(content, element) {
             document.querySelectorAll('.menu-item').forEach(item => {
                 item.classList.remove('active');
@@ -2449,7 +2832,34 @@
             const usdValue = (userBalance * drcToUSD).toFixed(2);
             const tonValue = (userBalance * (1.9 / 25)).toFixed(4);
             
+            let authMethodInfo = '';
+            if (userData.authMethod === 'email') {
+                authMethodInfo = `
+                    <div style="background: rgba(0,200,83,0.1); border: 1px solid rgba(0,200,83,0.3); 
+                                border-radius: 10px; padding: 15px; margin-bottom: 20px;">
+                        <i class="fas fa-envelope" style="color: #00c853;"></i>
+                        <strong> Email аккаунт</strong><br>
+                        <span style="font-size: 14px; color: var(--text-secondary);">
+                            Вы вошли через email. Ваш кошелек: ${userData.walletAddress}
+                        </span>
+                    </div>
+                `;
+            } else {
+                authMethodInfo = `
+                    <div style="background: rgba(0,136,204,0.1); border: 1px solid rgba(0,136,204,0.3); 
+                                border-radius: 10px; padding: 15px; margin-bottom: 20px;">
+                        <i class="fas fa-key" style="color: var(--primary);"></i>
+                        <strong> Seed аккаунт</strong><br>
+                        <span style="font-size: 14px; color: var(--text-secondary);">
+                            Вы вошли через seed-фразу. Ваш кошелек: ${userData.walletAddress}
+                        </span>
+                    </div>
+                `;
+            }
+            
             return `
+                ${authMethodInfo}
+                
                 <div class="dashboard-grid">
                     <div class="stat-card">
                         <div class="stat-title">Баланс DRC</div>
@@ -2516,8 +2926,15 @@
                             <div style="font-size: 32px; font-weight: 700; margin-bottom: 10px;">
                                 ${userBalance.toFixed(2)} DRC
                             </div>
-                            <div style="color: var(--text-secondary); margin-bottom: 20px;">
-                                ≈ $${usdValue} USD • ${userData.walletAddress}
+                            <div style="color: var(--text-secondary); margin-bottom: 10px;">
+                                ≈ $${usdValue} USD
+                            </div>
+                            <div style="font-size: 14px; color: var(--text-secondary); word-break: break-all;">
+                                ${userData.walletAddress}
+                            </div>
+                            <div style="margin-top: 10px; font-size: 12px; color: var(--text-secondary);">
+                                <i class="fas ${userData.authMethod === 'seed' ? 'fa-key' : 'fa-envelope'}"></i>
+                                ${userData.authMethod === 'seed' ? 'Seed кошелек' : 'Email кошелек'}
                             </div>
                         </div>
                     </div>
@@ -2575,9 +2992,9 @@
                     </div>
                     
                     <div class="form-group">
-                        <label class="form-label">Получатель (юзернейм или адрес):</label>
+                        <label class="form-label">Получатель (юзернейм, email или адрес):</label>
                         <input type="text" class="form-input" id="sendTo" 
-                               placeholder="@username или DC..." value="${username ? '@' + username : ''}">
+                               placeholder="@username, email или DC..." value="${username ? '@' + username : ''}">
                     </div>
                     
                     <div class="form-group">
@@ -2621,7 +3038,10 @@
             const amount = parseFloat(document.getElementById('sendAmount')?.value) || 0;
             const fee = 0.1;
             const total = amount + fee;
-            document.getElementById('sendTotal').textContent = total.toFixed(2) + ' DRC';
+            const totalElement = document.getElementById('sendTotal');
+            if (totalElement) {
+                totalElement.textContent = total.toFixed(2) + ' DRC';
+            }
         }
 
         function confirmSend() {
@@ -2667,12 +3087,16 @@
                 if (allUsers[username]) {
                     recipient = username;
                 }
-            } else if (allUsers[to.toLowerCase()]) {
-                recipient = to.toLowerCase();
+            } 
+            // Поиск по email
+            else if (to.includes('@')) {
+                const user = getUserByEmail(to.toLowerCase());
+                if (user) {
+                    recipient = user.usernameLower;
+                }
             }
-            
             // Поиск по адресу кошелька
-            if (!recipient) {
+            else {
                 for (const username in allUsers) {
                     if (allUsers[username].walletAddress === to) {
                         recipient = username;
@@ -2748,7 +3172,7 @@
             closeModal();
             
             // Обновляем историю, если открыта страница истории
-            if (document.getElementById('pageTitle').querySelector('span').textContent === 'История') {
+            if (document.getElementById('pageTitle')?.querySelector('span')?.textContent === 'История') {
                 showContent('history', document.querySelector('.menu-item[onclick*="history"]'));
             }
         }
@@ -3007,8 +3431,9 @@
             
             saveChannel(channel);
             
-            if (document.getElementById(`subscribeBtn${channelId}`)) {
-                document.getElementById(`subscribeBtn${channelId}`).innerHTML = isSubscribed ? 
+            const subscribeBtn = document.getElementById(`subscribeBtn${channelId}`);
+            if (subscribeBtn) {
+                subscribeBtn.innerHTML = isSubscribed ? 
                     '<i class="fas fa-plus"></i> Подписаться' : 
                     '<i class="fas fa-check"></i> Подписан';
             }
@@ -3175,8 +3600,11 @@
         function updateMinerDisplay() {
             if (miningStartTime && isMining) {
                 const miningTime = Math.floor((Date.now() - miningStartTime) / 1000);
-                document.getElementById('miningTime').textContent = miningTime + 's';
-                document.getElementById('coinsMined').textContent = coinsMinedToday.toFixed(2);
+                const miningTimeElement = document.getElementById('miningTime');
+                const coinsMinedElement = document.getElementById('coinsMined');
+                
+                if (miningTimeElement) miningTimeElement.textContent = miningTime + 's';
+                if (coinsMinedElement) coinsMinedElement.textContent = coinsMinedToday.toFixed(2);
             }
         }
 
@@ -3236,7 +3664,7 @@
             `;
         }
 
-        // ========== MESSAGES CONTENT ==========
+        // ========== MESSAGES ==========
         function getMessagesContent() {
             const sortedChats = [...chats].sort((a, b) => 
                 new Date(b.lastActivity) - new Date(a.lastActivity)
@@ -3261,7 +3689,7 @@
                             </div>
                             <div class="form-group">
                                 <input type="text" class="form-input" id="startChatInput" 
-                                       placeholder="@username для нового чата" 
+                                       placeholder="@username, email для нового чата" 
                                        onkeyup="if(event.key === 'Enter') startChatByUsername()">
                             </div>
                             <button class="btn btn-secondary" onclick="startChatByUsername()">
@@ -3280,7 +3708,7 @@
                             <div style="background: var(--bg-light); border-radius: 15px; padding: 20px; margin-bottom: 20px;">
                                 <div class="form-group">
                                     <input type="text" class="form-input" id="startChatInput" 
-                                           placeholder="@username для нового чата" 
+                                           placeholder="@username, email для нового чата" 
                                            onkeyup="if(event.key === 'Enter') startChatByUsername()">
                                 </div>
                                 <button class="btn btn-secondary" onclick="startChatByUsername()" style="width: 100%;">
@@ -3336,9 +3764,19 @@
             
             let found = null;
             
+            // Поиск по юзернейму
             if (allUsers[cleanQuery]) {
                 found = cleanQuery;
-            } else {
+            } 
+            // Поиск по email
+            else if (cleanQuery.includes('@')) {
+                const user = getUserByEmail(cleanQuery);
+                if (user) {
+                    found = user.usernameLower;
+                }
+            }
+            // Поиск по части имени
+            else {
                 for (const username in allUsers) {
                     if (username.includes(cleanQuery) && username !== currentUser) {
                         found = username;
@@ -3354,12 +3792,243 @@
             }
         }
 
+        function startChat(username) {
+            const targetUser = getUser(username);
+            
+            if (!targetUser) {
+                showToast('Пользователь не найден');
+                return;
+            }
+            
+            // Проверяем, есть ли уже чат с этим пользователем
+            let existingChat = chats.find(chat => 
+                (chat.type === 'private' && chat.participants.includes(username)) ||
+                chat.userId === username
+            );
+            
+            if (!existingChat) {
+                // Создаем новый чат
+                const chatId = 'chat_' + Date.now();
+                existingChat = {
+                    id: chatId,
+                    type: 'private',
+                    userId: username,
+                    userName: targetUser.username,
+                    userDisplayName: targetUser.displayName,
+                    participants: [currentUser, username],
+                    messages: [],
+                    unreadCount: 0,
+                    lastMessage: null,
+                    lastActivity: new Date().toISOString(),
+                    createdAt: new Date().toISOString()
+                };
+                
+                chats.push(existingChat);
+                saveUserChats(currentUser, chats);
+                
+                showToast(`Чат с @${targetUser.username} создан. Напишите первое сообщение!`);
+            }
+            
+            // Открываем чат
+            openChat(existingChat.id);
+            closeModal();
+        }
+
+        function openChat(chatId) {
+            const chat = chats.find(c => c.id === chatId);
+            if (!chat) {
+                showToast('Чат не найден');
+                return;
+            }
+            
+            currentChat = chat;
+            
+            // Сбрасываем счетчик непрочитанных
+            chat.unreadCount = 0;
+            saveUserChats(currentUser, chats);
+            updateMessagesBadge();
+            
+            // Загружаем чат
+            const chatHTML = `
+                <div class="chat-container active">
+                    <div class="chat-header">
+                        <button class="icon-btn" onclick="showContent('messages', document.querySelector('.menu-item[onclick*=\"messages\"]'))">
+                            <i class="fas fa-arrow-left"></i>
+                        </button>
+                        <div class="user-avatar" style="width: 40px; height: 40px;">
+                            ${chat.userDisplayName.charAt(0).toUpperCase()}
+                        </div>
+                        <div class="chat-user-info">
+                            <div class="chat-user-name">
+                                ${chat.userDisplayName}
+                                ${chat.userId === 'supportchronogram' || chat.userId === 'mrakodum' ? 
+                                 '<span class="verified-badge"><i class="fas fa-check-circle"></i></span>' : ''}
+                            </div>
+                            <div class="chat-user-status">@${chat.userName} • онлайн</div>
+                        </div>
+                        <button class="icon-btn" onclick="showSendToModal('${chat.userName}')">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="messages-container" id="messagesContainer">
+                        ${chat.messages.length === 0 ? 
+                            `<div style="text-align: center; padding: 50px 20px; color: var(--text-secondary);">
+                                <i class="fas fa-comments" style="font-size: 48px; margin-bottom: 20px;"></i>
+                                <div>Нет сообщений</div>
+                                <div style="font-size: 14px; margin-top: 10px;">Начните общение первым</div>
+                            </div>` : 
+                            chat.messages.map(msg => `
+                                <div class="message ${msg.sender === currentUser ? 'message-out' : 'message-in'}">
+                                    ${msg.sender !== currentUser ? 
+                                        `<div class="message-sender">${msg.senderName}</div>` : ''}
+                                    <div>${msg.text}</div>
+                                    <div class="message-time">
+                                        ${new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                    </div>
+                                </div>
+                            `).join('')
+                        }
+                    </div>
+                    
+                    <div class="message-input-container">
+                        <div class="message-input-wrapper">
+                            <input type="text" class="message-input" id="chatMessageInput" 
+                                   placeholder="Введите сообщение..." 
+                                   onkeypress="if(event.key === 'Enter') sendMessage()">
+                            <button class="send-btn" onclick="sendMessage()" id="sendMessageBtn">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('contentBody').innerHTML = chatHTML;
+            document.getElementById('pageTitle').innerHTML = `<i class="fas fa-comments"></i> ${chat.userDisplayName}`;
+            
+            // Прокручиваем вниз
+            setTimeout(() => {
+                const container = document.getElementById('messagesContainer');
+                if (container) {
+                    container.scrollTop = container.scrollHeight;
+                }
+            }, 100);
+        }
+
+        function sendMessage() {
+            if (!currentChat) return;
+            
+            const input = document.getElementById('chatMessageInput');
+            const messageText = input.value.trim();
+            
+            if (!messageText) {
+                showToast('Введите сообщение');
+                return;
+            }
+            
+            // Создаем сообщение
+            const message = {
+                id: 'msg_' + Date.now(),
+                text: messageText,
+                sender: currentUser,
+                senderName: userData.displayName,
+                timestamp: new Date().toISOString(),
+                read: true
+            };
+            
+            // Добавляем в чат
+            currentChat.messages.push(message);
+            currentChat.lastMessage = messageText;
+            currentChat.lastActivity = new Date().toISOString();
+            
+            // Сохраняем чат текущего пользователя
+            saveUserChats(currentUser, chats);
+            
+            // Создаем аналогичное сообщение у собеседника (если это не админ)
+            if (currentChat.userId !== 'supportchronogram' && currentChat.userId !== 'mrakodum') {
+                const recipientChats = getUserChats(currentChat.userId);
+                let recipientChat = recipientChats.find(c => c.userId === currentUser);
+                
+                if (!recipientChat) {
+                    // Создаем новый чат для получателя
+                    recipientChat = {
+                        id: currentChat.id,
+                        type: 'private',
+                        userId: currentUser,
+                        userName: userData.username,
+                        userDisplayName: userData.displayName,
+                        participants: [currentChat.userId, currentUser],
+                        messages: [],
+                        unreadCount: 1,
+                        lastMessage: messageText,
+                        lastActivity: new Date().toISOString(),
+                        createdAt: currentChat.createdAt
+                    };
+                    recipientChats.push(recipientChat);
+                } else {
+                    // Добавляем сообщение в существующий чат
+                    recipientChat.messages.push({
+                        id: message.id,
+                        text: messageText,
+                        sender: currentUser,
+                        senderName: userData.displayName,
+                        timestamp: message.timestamp,
+                        read: false
+                    });
+                    recipientChat.lastMessage = messageText;
+                    recipientChat.lastActivity = new Date().toISOString();
+                    recipientChat.unreadCount = (recipientChat.unreadCount || 0) + 1;
+                }
+                
+                // Сохраняем чат получателя
+                saveUserChats(currentChat.userId, recipientChats);
+            }
+            
+            // Очищаем поле ввода
+            input.value = '';
+            
+            // Обновляем отображение
+            const container = document.getElementById('messagesContainer');
+            if (container) {
+                container.innerHTML += `
+                    <div class="message message-out">
+                        <div>${message.text}</div>
+                        <div class="message-time">
+                            ${new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </div>
+                    </div>
+                `;
+                container.scrollTop = container.scrollHeight;
+            }
+        }
+
         // ========== PROFILE ==========
         function getProfileContent() {
             const allChannels = getAllChannels();
             const userChannels = Object.values(allChannels).filter(channel => channel.creator === currentUser);
             const totalSubscribers = userChannels.reduce((sum, channel) => sum + (channel.subscribers?.length || 0), 0);
             const totalViews = userChannels.reduce((sum, channel) => sum + (channel.viewCount || 0), 0);
+            
+            let emailInfo = '';
+            if (userData.email) {
+                const emailDb = getEmailDatabase();
+                const verification = emailDb.emailVerification[userData.email];
+                const isVerified = verification && verification.verified;
+                
+                emailInfo = `
+                    <div style="margin-bottom: 15px;">
+                        <div style="color: var(--text-secondary); font-size: 14px;">Email</div>
+                        <div style="font-weight: 600; display: flex; align-items: center; gap: 10px;">
+                            ${userData.email}
+                            ${isVerified ? 
+                                '<span style="color: #00c853; font-size: 12px;"><i class="fas fa-check-circle"></i> Подтвержден</span>' : 
+                                '<span style="color: #ff9800; font-size: 12px;"><i class="fas fa-clock"></i> Не подтвержден</span>'
+                            }
+                        </div>
+                    </div>
+                `;
+            }
             
             return `
                 <div class="profile-container">
@@ -3372,12 +4041,16 @@
                             ${userData.displayName}
                             ${userData.isVerified ? '<span class="verified-badge"><i class="fas fa-check-circle"></i></span>' : ''}
                             ${userData.isCreator ? '<span class="creator-badge"><i class="fas fa-crown"></i></span>' : ''}
+                            <span class="auth-method-badge ${userData.authMethod === 'seed' ? 'auth-method-seed' : 'auth-method-email'}">
+                                <i class="fas ${userData.authMethod === 'seed' ? 'fa-key' : 'fa-envelope'}"></i> ${userData.authMethod === 'seed' ? 'SEED' : 'EMAIL'}
+                            </span>
                         </div>
                         <div class="profile-username">@${userData.username}</div>
                     </div>
                     
                     <div style="background: var(--bg-light); border-radius: 15px; padding: 20px; margin-bottom: 20px;">
                         <h3 style="margin-bottom: 15px;"><i class="fas fa-info-circle"></i> Информация</h3>
+                        ${emailInfo}
                         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
                             <div>
                                 <div style="color: var(--text-secondary); font-size: 14px;">Дата регистрации</div>
@@ -3385,12 +4058,18 @@
                             </div>
                             <div>
                                 <div style="color: var(--text-secondary); font-size: 14px;">Кошелек</div>
-                                <div style="font-weight: 600; font-size: 13px;">${userData.walletAddress}</div>
+                                <div style="font-weight: 600; font-size: 13px; word-break: break-all;">${userData.walletAddress}</div>
                             </div>
                             <div>
                                 <div style="color: var(--text-secondary); font-size: 14px;">Статус</div>
                                 <div style="font-weight: 600;">
                                     ${userData.isCreator ? 'Создатель' : userData.isPremium ? 'Premium' : 'Стандартный'}
+                                </div>
+                            </div>
+                            <div>
+                                <div style="color: var(--text-secondary); font-size: 14px;">Способ входа</div>
+                                <div style="font-weight: 600;">
+                                    ${userData.authMethod === 'seed' ? 'Seed-фраза' : 'Email и пароль'}
                                 </div>
                             </div>
                         </div>
@@ -3419,6 +4098,318 @@
                     </div>
                 </div>
             `;
+        }
+
+        // ========== SETTINGS FUNCTIONS ==========
+        function changePassword() {
+            if (userData.authMethod !== 'email') {
+                showToast('Эта функция доступна только для email аккаунтов');
+                return;
+            }
+            
+            const currentPassword = prompt('Введите текущий пароль:');
+            if (!currentPassword) return;
+            
+            hashPassword(currentPassword).then(currentHash => {
+                if (currentHash !== userData.passwordHash) {
+                    showToast('Неверный текущий пароль');
+                    return;
+                }
+                
+                const newPassword = prompt('Введите новый пароль (минимум 6 символов):');
+                if (!newPassword || newPassword.length < 6) {
+                    showToast('Новый пароль должен быть не менее 6 символов');
+                    return;
+                }
+                
+                const confirmPassword = prompt('Повторите новый пароль:');
+                if (newPassword !== confirmPassword) {
+                    showToast('Пароли не совпадают');
+                    return;
+                }
+                
+                hashPassword(newPassword).then(newHash => {
+                    userData.passwordHash = newHash;
+                    saveUser(userData);
+                    showToast('Пароль успешно изменен');
+                    closeModal();
+                });
+            });
+        }
+
+        async function changePin() {
+            if (userData.authMethod !== 'seed') {
+                showToast('Эта функция доступна только для seed аккаунтов');
+                return;
+            }
+            
+            const currentPin = prompt('Введите текущий PIN (4 цифры):');
+            if (!currentPin || currentPin.length !== 4 || !/^\d+$/.test(currentPin)) {
+                showToast('Неверный формат PIN');
+                return;
+            }
+            
+            const currentHash = await sha256(currentPin);
+            if (currentHash !== userData.pinHash) {
+                showToast('Неверный текущий PIN');
+                return;
+            }
+            
+            const newPin = prompt('Введите новый PIN (4 цифры):');
+            if (!newPin || newPin.length !== 4 || !/^\d+$/.test(newPin)) {
+                showToast('Неверный формат нового PIN');
+                return;
+            }
+            
+            const confirmPin = prompt('Повторите новый PIN:');
+            if (newPin !== confirmPin) {
+                showToast('PIN-коды не совпадают');
+                return;
+            }
+            
+            const newHash = await sha256(newPin);
+            userData.pinHash = newHash;
+            saveUser(userData);
+            showToast('PIN успешно изменен');
+            closeModal();
+        }
+
+        function changeAuthMethod() {
+            // Эта функция уже переопределена в updateUserInterface
+            // для seed аккаунтов вызывает changePin, для email - changePassword
+        }
+
+        function showEmailSettings() {
+            const emailDb = getEmailDatabase();
+            const verification = userData.email ? emailDb.emailVerification[userData.email] : null;
+            const preferences = userData.email ? emailDb.emailPreferences[userData.email] : null;
+            
+            let content = '';
+            
+            if (userData.authMethod === 'email' && userData.email) {
+                const isVerified = verification && verification.verified;
+                
+                content = `
+                    <div style="margin-bottom: 25px;">
+                        <h3 style="margin-bottom: 15px;"><i class="fas fa-envelope"></i> Настройки Email</h3>
+                        
+                        <div style="background: rgba(255,255,255,0.05); border-radius: 10px; padding: 15px; margin-bottom: 20px;">
+                            <div style="font-weight: 600; margin-bottom: 10px;">Текущий email:</div>
+                            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+                                <div style="flex: 1;">${userData.email}</div>
+                                ${isVerified ? 
+                                    '<span style="color: #00c853; font-size: 12px;"><i class="fas fa-check-circle"></i> Подтвержден</span>' : 
+                                    '<span style="color: #ff9800; font-size: 12px;"><i class="fas fa-clock"></i> Не подтвержден</span>'
+                                }
+                            </div>
+                            
+                            ${!isVerified ? `
+                                <button class="btn btn-secondary" onclick="verifyEmail()" style="width: 100%; margin-top: 10px;">
+                                    <i class="fas fa-check-circle"></i> Подтвердить email
+                                </button>
+                            ` : ''}
+                        </div>
+                        
+                        ${preferences ? `
+                            <div style="background: rgba(255,255,255,0.05); border-radius: 10px; padding: 15px; margin-bottom: 20px;">
+                                <div style="font-weight: 600; margin-bottom: 15px;">Настройки уведомлений</div>
+                                
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                    <span>Уведомления о транзакциях</span>
+                                    <input type="checkbox" ${preferences.notifications ? 'checked' : ''} 
+                                           onchange="updateEmailPreference('notifications', this.checked)">
+                                </div>
+                                
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                    <span>Маркетинговые рассылки</span>
+                                    <input type="checkbox" ${preferences.marketing ? 'checked' : ''} 
+                                           onchange="updateEmailPreference('marketing', this.checked)">
+                                </div>
+                                
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                    <span>Уведомления безопасности</span>
+                                    <input type="checkbox" ${preferences.securityAlerts ? 'checked' : ''} 
+                                           onchange="updateEmailPreference('securityAlerts', this.checked)">
+                                </div>
+                            </div>
+                        ` : ''}
+                        
+                        <button class="btn btn-secondary" onclick="changeEmail()" style="width: 100%; margin-bottom: 15px;">
+                            <i class="fas fa-edit"></i> Изменить email
+                        </button>
+                        
+                        <button class="btn" onclick="changePassword()" style="width: 100%;">
+                            <i class="fas fa-shield-alt"></i> Сменить пароль
+                        </button>
+                    </div>
+                `;
+            } else {
+                content = `
+                    <div style="text-align: center; padding: 30px 20px;">
+                        <i class="fas fa-envelope" style="font-size: 48px; color: var(--text-secondary); margin-bottom: 20px;"></i>
+                        <h3 style="margin-bottom: 10px;">Настройки Email недоступны</h3>
+                        <p style="color: var(--text-secondary); margin-bottom: 30px;">
+                            Эта функция доступна только для пользователей,<br>
+                            зарегистрированных через email
+                        </p>
+                        <button class="btn btn-secondary" onclick="closeModal()">
+                            <i class="fas fa-times"></i> Закрыть
+                        </button>
+                    </div>
+                `;
+            }
+            
+            document.getElementById('emailSettingsContent').innerHTML = content;
+            showModal('emailSettingsModal');
+        }
+
+        function verifyEmail() {
+            if (!userData.email) {
+                showToast('У вас нет привязанного email');
+                return;
+            }
+            
+            const code = prompt('Введите код подтверждения, отправленный на ваш email:');
+            if (!code || code.length !== 6) {
+                showToast('Введите корректный 6-значный код');
+                return;
+            }
+            
+            const emailDb = getEmailDatabase();
+            const verification = emailDb.emailVerification[userData.email];
+            
+            if (!verification) {
+                showToast('Код подтверждения не найден. Запросите новый код.');
+                return;
+            }
+            
+            if (verification.expires < Date.now()) {
+                showToast('Срок действия кода истек. Запросите новый код.');
+                return;
+            }
+            
+            if (verification.code !== code) {
+                showToast('Неверный код подтверждения');
+                return;
+            }
+            
+            verification.verified = true;
+            saveEmailDatabase(emailDb);
+            
+            showToast('Email успешно подтвержден!');
+            closeModal();
+        }
+
+        function updateEmailPreference(key, value) {
+            if (!userData.email) return;
+            
+            const emailDb = getEmailDatabase();
+            if (!emailDb.emailPreferences[userData.email]) {
+                emailDb.emailPreferences[userData.email] = {};
+            }
+            
+            emailDb.emailPreferences[userData.email][key] = value;
+            saveEmailDatabase(emailDb);
+            
+            showToast('Настройки сохранены');
+        }
+
+        function changeEmail() {
+            const newEmail = prompt('Введите новый email:');
+            if (!newEmail || !newEmail.includes('@')) {
+                showToast('Введите корректный email');
+                return;
+            }
+            
+            if (getUserByEmail(newEmail.toLowerCase())) {
+                showToast('Этот email уже зарегистрирован');
+                return;
+            }
+            
+            if (confirm(`Изменить email с ${userData.email} на ${newEmail}?`)) {
+                // Обновляем email в базе данных
+                const oldEmail = userData.email;
+                userData.email = newEmail.toLowerCase();
+                
+                // Обновляем кошелек на основе нового email
+                userData.walletAddress = generateWalletFromEmail(newEmail);
+                
+                saveUser(userData);
+                
+                // Генерируем новый код подтверждения
+                const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+                const emailDb = getEmailDatabase();
+                
+                // Удаляем старый email из базы
+                delete emailDb.usersByEmail[oldEmail];
+                if (emailDb.emailVerification[oldEmail]) {
+                    delete emailDb.emailVerification[oldEmail];
+                }
+                if (emailDb.emailPreferences[oldEmail]) {
+                    delete emailDb.emailPreferences[oldEmail];
+                }
+                
+                // Добавляем новый email
+                emailDb.usersByEmail[newEmail.toLowerCase()] = userData.usernameLower;
+                emailDb.emailVerification[newEmail.toLowerCase()] = {
+                    code: verificationCode,
+                    expires: Date.now() + 3600000,
+                    verified: false
+                };
+                
+                saveEmailDatabase(emailDb);
+                
+                showToast(`Email изменен. Новый код подтверждения: ${verificationCode}`);
+                closeModal();
+            }
+        }
+
+        function backupAccount() {
+            let backupInfo = `=== DreamCon Backup ===\n\n`;
+            backupInfo += `Имя: ${userData.displayName}\n`;
+            backupInfo += `Юзернейм: @${userData.username}\n`;
+            
+            if (userData.email) {
+                backupInfo += `Email: ${userData.email}\n`;
+            }
+            
+            backupInfo += `Адрес кошелька: ${userData.walletAddress}\n`;
+            backupInfo += `Баланс: ${userData.balance} DRC\n`;
+            backupInfo += `Статус: ${userData.isPremium ? 'Premium' : 'Стандарт'}\n`;
+            backupInfo += `Метод аутентификации: ${userData.authMethod === 'seed' ? 'Seed-фраза' : 'Email'}\n`;
+            backupInfo += `Дата регистрации: ${new Date(userData.registrationDate).toLocaleDateString()}\n\n`;
+            
+            if (userData.authMethod === 'seed') {
+                backupInfo += `ВАЖНО: Для восстановления используйте вашу seed-фразу.\n`;
+                backupInfo += `Сохраните seed-фразу в безопасном месте!\n`;
+            } else {
+                backupInfo += `ВАЖНО: Для входа используйте email и пароль.\n`;
+                backupInfo += `Пароль хранится в зашифрованном виде и не может быть восстановлен.\n`;
+            }
+            
+            navigator.clipboard.writeText(backupInfo)
+                .then(() => showToast('Информация скопирована в буфер обмена'))
+                .catch(() => {
+                    const textArea = document.createElement('textarea');
+                    textArea.value = backupInfo;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textArea);
+                    showToast('Информация скопирована');
+                });
+        }
+
+        function editProfile() {
+            const newName = prompt('Введите новое имя:', userData.displayName);
+            if (newName && newName.trim() && newName !== userData.displayName) {
+                userData.displayName = newName.trim();
+                saveUser(userData);
+                
+                updateUserInterface();
+                showToast('Имя профиля изменено');
+                closeModal();
+            }
         }
 
         // ========== PREMIUM SYSTEM ==========
@@ -3514,177 +4505,7 @@
             }
         }
 
-        // ========== PROFILE EDITING ==========
-        function editProfile() {
-            const newName = prompt('Введите новое имя:', userData.displayName);
-            if (newName && newName.trim() && newName !== userData.displayName) {
-                userData.displayName = newName.trim();
-                saveUser(userData);
-                
-                updateUserInterface();
-                showToast('Имя профиля изменено');
-                closeModal();
-            }
-        }
-
-        function changePin() {
-            const currentPin = prompt('Введите текущий PIN (4 цифры):');
-            if (!currentPin || currentPin.length !== 4 || !/^\d+$/.test(currentPin)) {
-                showToast('Неверный формат PIN');
-                return;
-            }
-            
-            if (!verifyPin(currentPin)) {
-                showToast('Неверный текущий PIN');
-                return;
-            }
-            
-            const newPin = prompt('Введите новый PIN (4 цифры):');
-            if (!newPin || newPin.length !== 4 || !/^\d+$/.test(newPin)) {
-                showToast('Неверный формат нового PIN');
-                return;
-            }
-            
-            const confirmPin = prompt('Повторите новый PIN:');
-            if (newPin !== confirmPin) {
-                showToast('PIN-коды не совпадают');
-                return;
-            }
-            
-            updatePin(newPin);
-            showToast('PIN успешно изменен');
-            closeModal();
-        }
-
-        async function updatePin(newPin) {
-            const pinHash = await sha256(newPin);
-            userData.pinHash = pinHash;
-            saveUser(userData);
-        }
-
-        async function verifyPin(pin) {
-            const pinHash = await sha256(pin);
-            return userData.pinHash === pinHash;
-        }
-
-        function backupAccount() {
-            const allUsers = getAllUsers();
-            const user = allUsers[currentUser];
-            
-            let backupInfo = `=== DreamCon Backup ===\n\n`;
-            backupInfo += `Имя: ${user.displayName}\n`;
-            backupInfo += `Юзернейм: @${user.username}\n`;
-            backupInfo += `Адрес кошелька: ${user.walletAddress}\n`;
-            backupInfo += `Баланс: ${user.balance} DRC\n`;
-            backupInfo += `Статус: ${user.isPremium ? 'Premium' : 'Стандарт'}\n`;
-            backupInfo += `Дата регистрации: ${new Date(user.registrationDate).toLocaleDateString()}\n\n`;
-            backupInfo += `ВАЖНО: Seed-фраза не отображается в целях безопасности.\n`;
-            backupInfo += `Для восстановления используйте вашу seed-фразу.`;
-            
-            navigator.clipboard.writeText(backupInfo)
-                .then(() => showToast('Информация скопирована в буфер обмена'))
-                .catch(() => {
-                    const textArea = document.createElement('textarea');
-                    textArea.value = backupInfo;
-                    document.body.appendChild(textArea);
-                    textArea.select();
-                    document.execCommand('copy');
-                    document.body.removeChild(textArea);
-                    showToast('Информация скопирована');
-                });
-        }
-
-        // ========== INITIAL DATA CREATION ==========
-        async function createAdminAccounts() {
-            const allUsers = getAllUsers();
-            
-            // Создаем аккаунт создателя
-            if (!allUsers['mrakodum']) {
-                const creatorSeed = 'mrakodum ' + Array.from({length: 11}, () => 
-                    ['alpha', 'beta', 'gamma', 'delta', 'epsilon'][Math.floor(Math.random() * 5)]
-                ).join(' ');
-                
-                const creatorWallet = generateWalletAddress(creatorSeed);
-                
-                const creatorUser = {
-                    username: 'MRAKODUM',
-                    usernameLower: 'mrakodum',
-                    displayName: 'MRAKODUM',
-                    walletAddress: creatorWallet,
-                    seedHash: await sha256(creatorSeed.toLowerCase()),
-                    pinHash: await sha256('0000'),
-                    balance: 100000,
-                    isPremium: true,
-                    isCreator: true,
-                    isVerified: true,
-                    createdChannels: [],
-                    maxChannels: 100,
-                    registrationDate: new Date().toISOString(),
-                    lastLogin: new Date().toISOString(),
-                    miningStats: {
-                        totalMined: 0,
-                        lastMiningSession: null,
-                        miningSessions: 0
-                    }
-                };
-                
-                saveUser(creatorUser);
-                addUserTransaction('mrakodum', {
-                    type: 'incoming',
-                    amount: creatorUser.balance,
-                    from: 'Система',
-                    message: 'Начальный баланс создателя',
-                    timestamp: new Date().toISOString(),
-                    txid: 'genesis_' + Date.now()
-                });
-                
-                saveUserChats('mrakodum', []);
-            }
-            
-            // Создаем аккаунт поддержки
-            if (!allUsers['supportchronogram']) {
-                const supportSeed = 'support ' + Array.from({length: 11}, () => 
-                    ['omega', 'zeta', 'theta', 'lambda', 'sigma'][Math.floor(Math.random() * 5)]
-                ).join(' ');
-                
-                const supportWallet = generateWalletAddress(supportSeed);
-                
-                const supportUser = {
-                    username: 'SupportChronogram',
-                    usernameLower: 'supportchronogram',
-                    displayName: 'Support Chronogram',
-                    walletAddress: supportWallet,
-                    seedHash: await sha256(supportSeed.toLowerCase()),
-                    pinHash: await sha256('1234'),
-                    balance: 50000,
-                    isPremium: true,
-                    isCreator: true,
-                    isVerified: true,
-                    createdChannels: [],
-                    maxChannels: 100,
-                    registrationDate: new Date().toISOString(),
-                    lastLogin: new Date().toISOString(),
-                    miningStats: {
-                        totalMined: 0,
-                        lastMiningSession: null,
-                        miningSessions: 0
-                    }
-                };
-                
-                saveUser(supportUser);
-                addUserTransaction('supportchronogram', {
-                    type: 'incoming',
-                    amount: supportUser.balance,
-                    from: 'Система',
-                    message: 'Начальный баланс поддержки',
-                    timestamp: new Date().toISOString(),
-                    txid: 'support_' + Date.now()
-                });
-                
-                saveUserChats('supportchronogram', []);
-            }
-        }
-
+        // ========== SAMPLE CHANNELS ==========
         async function createSampleChannels() {
             const allChannels = getAllChannels();
             
@@ -3770,7 +4591,194 @@
             }
         }
 
-        // ========== UTILITIES ==========
+        // ========== SEARCH ==========
+        function performGlobalSearch() {
+            const query = document.getElementById('globalSearch').value.toLowerCase().trim();
+            if (!query || query.length < 3) {
+                const existingModal = document.getElementById('searchResultsModal');
+                if (existingModal) {
+                    document.body.removeChild(existingModal);
+                }
+                return;
+            }
+            
+            const allUsers = getAllUsers();
+            const allChannels = getAllChannels();
+            
+            let results = [];
+            
+            Object.values(allChannels).forEach(channel => {
+                if (channel.name.toLowerCase().includes(query) || 
+                    (channel.description && channel.description.toLowerCase().includes(query)) ||
+                    channel.creator.toLowerCase().includes(query)) {
+                    
+                    const isSubscribed = channel.subscribers?.includes(currentUser);
+                    const isCreator = channel.creator === currentUser;
+                    const subscribersCount = channel.subscribers?.length || 0;
+                    const viewCount = channel.viewCount || 0;
+                    
+                    results.push({
+                        type: 'channel',
+                        id: channel.id,
+                        name: channel.name,
+                        description: channel.description || '',
+                        creator: channel.creator,
+                        subscribers: subscribersCount,
+                        views: viewCount,
+                        isSubscribed: isSubscribed,
+                        isCreator: isCreator,
+                        isPremium: channel.isPremium || false,
+                        score: (subscribersCount * 10) + viewCount + (channel.isPremium ? 50 : 0),
+                        timestamp: channel.lastActivity || channel.created
+                    });
+                }
+            });
+            
+            Object.values(allUsers).forEach(user => {
+                if (user.usernameLower !== currentUser) {
+                    const usernameMatch = user.username.toLowerCase().includes(query);
+                    const displayNameMatch = user.displayName.toLowerCase().includes(query);
+                    const emailMatch = user.email && user.email.toLowerCase().includes(query);
+                    
+                    if (usernameMatch || displayNameMatch || emailMatch) {
+                        results.push({
+                            type: 'user',
+                            id: user.usernameLower,
+                            username: user.username,
+                            displayName: user.displayName,
+                            email: user.email,
+                            isVerified: user.isVerified || false,
+                            isPremium: user.isPremium || false,
+                            isCreator: user.isCreator || false,
+                            balance: user.balance || 0,
+                            authMethod: user.authMethod,
+                            score: (usernameMatch && query.length >= 5) ? 100 : 
+                                   emailMatch ? 80 : 50
+                        });
+                    }
+                }
+            });
+            
+            results.sort((a, b) => {
+                if (a.type !== b.type) {
+                    return a.type === 'channel' ? -1 : 1;
+                }
+                return b.score - a.score;
+            });
+            
+            showSearchResultsModal(results, query);
+        }
+
+        function showSearchResultsModal(results, query) {
+            const existingModal = document.getElementById('searchResultsModal');
+            if (existingModal) {
+                document.body.removeChild(existingModal);
+            }
+            
+            if (results.length === 0) {
+                showToast('Ничего не найдено');
+                return;
+            }
+            
+            let resultsHTML = '';
+            
+            results.forEach((item, index) => {
+                if (item.type === 'channel') {
+                    resultsHTML += `
+                        <div class="search-result-item" onclick="openChannel('${item.id}')">
+                            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                                <div style="width: 40px; height: 40px; border-radius: 10px; background: var(--primary); 
+                                            display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 18px;">
+                                    ${item.name.charAt(0).toUpperCase()}
+                                </div>
+                                <div style="flex: 1;">
+                                    <div style="font-weight: 600; margin-bottom: 3px;">
+                                        <span style="color: var(--primary);">#</span> ${item.name}
+                                        ${item.isPremium ? '<span class="premium-badge" style="margin-left: 8px; font-size: 10px;"><i class="fas fa-gem"></i> Premium</span>' : ''}
+                                        ${item.isCreator ? '<span class="creator-badge" style="margin-left: 8px; font-size: 10px;"><i class="fas fa-crown"></i> Мой</span>' : ''}
+                                    </div>
+                                    <div style="font-size: 12px; color: var(--text-secondary);">
+                                        ${item.subscribers} подписчиков • ${item.views} просмотров
+                                    </div>
+                                </div>
+                                ${item.isSubscribed ? 
+                                  '<div style="font-size: 12px; color: var(--primary);"><i class="fas fa-check"></i> Подписан</div>' : 
+                                  '<button class="icon-btn" style="width: 30px; height: 30px; font-size: 12px;" onclick="event.stopPropagation(); subscribeToChannel(\'' + item.id + '\')"><i class="fas fa-plus"></i></button>'}
+                            </div>
+                            <div style="font-size: 13px; color: var(--text-secondary); margin-left: 52px; margin-bottom: 5px;">
+                                ${item.description}
+                            </div>
+                            <div style="font-size: 11px; color: var(--text-secondary); margin-left: 52px;">
+                                Создатель: @${item.creator}
+                            </div>
+                        </div>
+                    `;
+                } else if (item.type === 'user') {
+                    resultsHTML += `
+                        <div class="search-result-item" onclick="startChat('${item.id}')">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); 
+                                            display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 18px;">
+                                    ${item.displayName.charAt(0).toUpperCase()}
+                                </div>
+                                <div style="flex: 1;">
+                                    <div style="font-weight: 600; margin-bottom: 3px;">
+                                        ${item.displayName}
+                                        ${item.isVerified ? '<span class="verified-badge"><i class="fas fa-check-circle"></i></span>' : ''}
+                                        ${item.isCreator ? '<span class="creator-badge"><i class="fas fa-crown"></i></span>' : ''}
+                                        ${item.isPremium ? '<span class="premium-badge"><i class="fas fa-gem"></i></span>' : ''}
+                                        <span class="auth-method-badge ${item.authMethod === 'seed' ? 'auth-method-seed' : 'auth-method-email'}" style="font-size: 8px; padding: 1px 6px;">
+                                            <i class="fas ${item.authMethod === 'seed' ? 'fa-key' : 'fa-envelope'}"></i>
+                                        </span>
+                                    </div>
+                                    <div style="font-size: 12px; color: var(--text-secondary);">
+                                        @${item.username} • ${item.balance.toFixed(2)} DRC
+                                        ${item.email ? `<br>${item.email}` : ''}
+                                    </div>
+                                </div>
+                                <button class="icon-btn" style="width: 30px; height: 30px; font-size: 12px;" 
+                                        onclick="event.stopPropagation(); showSendToModal('${item.username}');">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+            
+            const modalHTML = `
+                <div class="modal" style="max-width: 500px; width: 90vw;">
+                    <div class="modal-header">
+                        <div class="modal-title"><i class="fas fa-search"></i> Результаты поиска</div>
+                        <div class="modal-subtitle">Найдено ${results.length} результатов по запросу: "${query}"</div>
+                    </div>
+                    <div style="max-height: 400px; overflow-y: auto; margin: 20px 0;">
+                        <div style="display: flex; flex-direction: column; gap: 15px;">
+                            ${resultsHTML}
+                        </div>
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn btn-secondary" onclick="closeModal()">
+                            <i class="fas fa-times"></i> Закрыть
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            const modalOverlay = document.createElement('div');
+            modalOverlay.className = 'modal-overlay active';
+            modalOverlay.id = 'searchResultsModal';
+            modalOverlay.innerHTML = modalHTML;
+            document.body.appendChild(modalOverlay);
+            
+            modalOverlay.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeModal();
+                }
+            });
+        }
+
+        // ========== UTILITY FUNCTIONS ==========
         function showCustomModal(modalHTML) {
             const modalOverlay = document.createElement('div');
             modalOverlay.className = 'modal-overlay active';
@@ -3790,14 +4798,17 @@
                 showSendToModal();
                 return;
             }
-            document.getElementById(modalId).classList.add('active');
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.add('active');
+            }
         }
 
         function closeModal() {
             document.querySelectorAll('.modal-overlay').forEach(modal => {
                 modal.classList.remove('active');
                 setTimeout(() => {
-                    if (modal.parentNode) {
+                    if (modal.parentNode && modal.id !== 'authContainer') {
                         modal.parentNode.removeChild(modal);
                     }
                 }, 300);
@@ -3848,8 +4859,12 @@
             } catch (error) {
                 currentTONPrice = 2.9;
                 drcToUSD = 0.22;
-                document.getElementById('priceDisplay').textContent = '1 DRC = $0.220';
-                document.getElementById('tonPriceDisplay').textContent = '≈ 0.0759 TON';
+                const priceElement = document.getElementById('priceDisplay');
+                const tonElement = document.getElementById('tonPriceDisplay');
+                if (priceElement && tonElement) {
+                    priceElement.textContent = '1 DRC = $0.220';
+                    tonElement.textContent = '≈ 0.0759 TON';
+                }
             }
         }
 
@@ -3864,7 +4879,6 @@
             }
         }
 
-        // ========== LOGO HANDLING ==========
         function showLogoFallback(imgElement) {
             imgElement.style.display = 'none';
             const fallback = imgElement.nextElementSibling;
