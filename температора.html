@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EQUATIONS | Engineering Reality</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --gold: #c5a059;
+            --gold-soft: rgba(197, 160, 89, 0.5);
+            --bg-deep: #050505;
+            --panel-bg: rgba(22, 22, 22, 0.95);
+        }
+
+        body {
+            margin: 0;
+            background-color: var(--bg-deep);
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        /* SVG ФИЛЬТРЫ ДЛЯ РЕАЛИСТИЧНОГО СВЕЧЕНИЯ */
+        .svg-filters { position: absolute; width: 0; height: 0; }
+
+        /* ЛАМПА ИЗ РЕФЕРЕНСА */
+        .lamp-unit {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 50;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .shade-body {
+            width: 190px;
+            height: 95px;
+            background: radial-gradient(circle at 50% 100%, #2a2a2a, #0a0a0a 80%);
+            border-radius: 100px 100px 15px 15px;
+            border-bottom: 2px solid var(--gold);
+            position: relative;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.9);
+        }
+
+        .bulb-glow {
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 20px;
+            background: #fff;
+            filter: blur(15px);
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+
+        body[data-on="true"] .bulb-glow { opacity: 0.8; }
+
+        /* МЯГКОЕ РАССЕИВАНИЕ СВЕТА (КОНУС) */
+        .light-cone {
+            position: absolute;
+            top: 85px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 1000px;
+            height: 1200px;
+            background: radial-gradient(circle at top, rgba(197, 160, 89, 0.28) 0%, rgba(197, 160, 89, 0.04) 35%, transparent 70%);
+            clip-path: polygon(38% 0%, 62% 0%, 100% 100%, 0% 100%);
+            opacity: 0;
+            transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: none;
+        }
+
+        body[data-on="true"] .light-cone { opacity: 1; }
+
+        /* ВЕРЕВОЧКА И ПЕРЕКЛЮЧАТЕЛЬ */
+        .trigger-cord {
+            position: absolute;
+            top: 0;
+            right: 18%;
+            z-index: 100;
+            cursor: pointer;
+        }
+
+        .rope-line {
+            width: 1px;
+            height: 230px;
+            background: linear-gradient(#000, #333, #111);
+            margin: 0 auto;
+            transform-origin: top;
+        }
+
+        .gold-pill {
+            width: 18px;
+            height: 45px;
+            background: linear-gradient(145deg, #c5a059, #8e6d31);
+            border-radius: 6px;
+            border: 0.5px solid rgba(255,255,255,0.15);
+            box-shadow: 0 0 15px rgba(0,0,0,0.5), inset 0 1px 2px rgba(255,255,255,0.2);
+        }
+
+        /* КОРПУС КАЛЬКУЛЯТОРА */
+        .main-calculator {
+            position: relative;
+            width: 370px;
+            background: var(--panel-bg);
+            border-radius: 42px;
+            padding: 45px 35px;
+            border: 1px solid rgba(197, 160, 89, 0.2);
+            z-index: 10;
+            opacity: 0.05;
+            filter: blur(10px);
+            transform: translateY(40px);
+            transition: all 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        body[data-on="true"] .main-calculator {
+            opacity: 1;
+            filter: blur(0);
+            transform: translateY(0);
+            box-shadow: 0 50px 120px rgba(0,0,0,0.9);
+        }
+
+        .header-brand { text-align: left; }
+        .header-brand h2 { font-size: 18px; letter-spacing: 4px; color: var(--gold); margin: 0; font-weight: 300; }
+        .header-brand span { font-size: 10px; color: #444; text-transform: uppercase; display: block; margin-top: 5px; }
+
+        /* ДИСПЛЕЙ ТЕМПЕРАТУРЫ */
+        .temp-section { margin: 40px 0; text-align: left; }
+        .label-sm { font-size: 12px; color: #666; margin-bottom: 15px; font-weight: 300; }
+        .val-large { 
+            font-size: 5.8rem; 
+            font-weight: 200; 
+            color: var(--gold); 
+            line-height: 1;
+            position: relative;
+        }
+        .val-large span { font-size: 1.8rem; position: absolute; top: 10px; margin-left: 10px; opacity: 0.6; }
+
+        /* СЛАЙДЕР КАК НА КАРТИНКЕ */
+        .slider-box { margin: 50px 0; padding: 0 5px; }
+        input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; }
+        input[type=range]::-webkit-slider-runnable-track {
+            height: 1.5px; background: rgba(197, 160, 89, 0.25);
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none; 
+            height: 32px; width: 32px; 
+            background: #fff; border-radius: 50%;
+            border: 4px solid var(--gold);
+            margin-top: -15px; cursor: pointer;
+            box-shadow: 0 0 25px rgba(197, 160, 89, 0.7);
+        }
+
+        /* ИНФОРМАЦИОННЫЕ ЯЧЕЙКИ */
+        .data-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .data-cell { 
+            background: #0d0d0d; 
+            padding: 22px 18px; 
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.03);
+            text-align: left;
+            box-shadow: inset 2px 2px 10px rgba(0,0,0,0.8);
+        }
+        .data-cell label { font-size: 10px; color: #3d3d3d; text-transform: uppercase; }
+        .data-cell .digit { font-size: 26px; font-weight: 200; color: #ccc; margin-top: 10px; display: block; }
+
+        /* КНОПКА ПИТАНИЯ В УГЛУ */
+        .power-btn {
+            position: absolute; top: 40px; right: 35px;
+            width: 32px; height: 32px;
+            border-radius: 50%; border: 1px solid #333;
+            display: flex; align-items: center; justify-content: center;
+            color: #444; font-size: 14px;
+        }
+
+        body[data-on="true"] .power-btn { border-color: var(--gold); color: var(--gold); text-shadow: 0 0 5px var(--gold); }
+
+        /* ПОДСКАЗКА С СТРЕЛКОЙ */
+        .hint-container {
+            position: absolute; top: 180px; right: calc(18% + 35px);
+            text-align: center;
+        }
+        .hint-text { color: var(--gold); font-size: 11px; letter-spacing: 2px; opacity: 0.6; }
+        .arrow-down { color: var(--gold); font-size: 20px; margin-top: 5px; animation: slideDown 2s infinite; }
+
+        @keyframes slideDown { 0%, 100% { transform: translateY(0); opacity: 0.2; } 50% { transform: translateY(15px); opacity: 1; } }
+
+    </style>
+</head>
+<body data-on="false">
+
+    <svg class="svg-filters">
+        <filter id="noise">
+            <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" stitchTiles="stitch"/>
+            <feColorMatrix type="saturate" values="0"/>
+            <feComponentTransfer>
+                <feFuncR type="linear" slope="0.05"/>
+                <feFuncG type="linear" slope="0.05"/>
+                <feFuncB type="linear" slope="0.05"/>
+            </feComponentTransfer>
+            <feComposite operator="in" in2="SourceGraphic"/>
+        </filter>
+    </svg>
+
+    <div class="lamp-unit">
+        <div class="shade-body"></div>
+        <div class="bulb-glow"></div>
+    </div>
+
+    <div class="light-cone"></div>
+
+    <div class="trigger-cord" id="cordTrigger">
+        <div class="rope-line" id="ropeLine"></div>
+        <div class="gold-pill"></div>
+    </div>
+
+    <div class="hint-container" id="hint">
+        <div class="hint-text">hint pull-on "true"</div>
+        <div class="arrow-down">↓</div>
+    </div>
+
+    <div class="main-calculator">
+        <div class="power-btn">⏻</div>
+        <div class="header-brand">
+            <h2>EQUATIONS</h2>
+            <span>Thermal Engineering / tagline #555</span>
+        </div>
+
+        <div class="temp-section">
+            <div class="label-sm">temp-display</div>
+            <div class="val-large" id="tLarge">4.0<span>°C</span></div>
+        </div>
+
+        <div class="slider-box">
+            <input type="range" id="tSlider" min="1" max="100" value="4" step="0.1">
+        </div>
+
+        <div class="data-grid">
+            <div class="data-cell">
+                <label>Label</label>
+                <span class="digit" id="labelVal">5.0 KC</span>
+            </div>
+            <div class="data-cell">
+                <label>Boel</label>
+                <span class="digit" id="boelVal">0.0 KC</span>
+            </div>
+        </div>
+    </div>
+
+<script>
+    let isSystemOn = false;
+    const rope = document.getElementById('ropeLine');
+    const cord = document.getElementById('cordTrigger');
+    const slider = document.getElementById('tSlider');
+
+    // ФИЗИКА ВЕРЕВОЧКИ
+    cord.addEventListener('mousedown', () => gsap.to(rope, { height: 260, duration: 0.1 }));
+    cord.addEventListener('mouseup', () => {
+        gsap.to(rope, { height: 230, duration: 0.6, ease: "elastic.out(1.2, 0.4)" });
+        toggleSystem();
+    });
+
+    function toggleSystem() {
+        isSystemOn = !isSystemOn;
+        document.body.setAttribute("data-on", isSystemOn);
+        gsap.to("#hint", { opacity: isSystemOn ? 0 : 0.6, duration: 0.5 });
+        
+        if(isSystemOn) {
+            update();
+            gsap.to("body", { backgroundColor: "#0b0c0e", duration: 1.5 });
+        } else {
+            reset();
+            gsap.to("body", { backgroundColor: "#050505", duration: 1.5 });
+        }
+    }
+
+    function update() {
+        if(!isSystemOn) return;
+        const val = parseFloat(slider.value).toFixed(1);
+        document.getElementById('tLarge').innerHTML = `${val}<span>°C</span>`;
+        
+        // Логика цифр (для примера)
+        document.getElementById('labelVal').textContent = (val * 1.2).toFixed(1) + " KC";
+        document.getElementById('boelVal').textContent = (val / 5).toFixed(1) + " KC";
+        
+        // Цвет температуры в зависимости от "жара"
+        let heat = Math.min(255, val * 2.5);
+        document.getElementById('tLarge').style.color = `rgb(197, ${160 - heat/4}, ${89 - heat/2})`;
+    }
+
+    function reset() {
+        document.getElementById('tLarge').innerHTML = `--<span>°C</span>`;
+        document.getElementById('labelVal').textContent = "0.0 KC";
+        document.getElementById('boelVal').textContent = "0.0 KC";
+    }
+
+    slider.addEventListener('input', update);
+</script>
+</body>
+</html>
