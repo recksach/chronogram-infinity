@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UKR DIRECT SOLUTIONS | Official Executive Page</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --gold: #d4af37;
+            --black: #050505;
+            --glass: rgba(255, 255, 255, 0.02);
+            --border: rgba(212, 175, 55, 0.25);
+        }
+
+        * { box-sizing: border-box; transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1); }
+
+        body {
+            margin: 0;
+            background: var(--black);
+            color: #fff;
+            font-family: 'Montserrat', sans-serif;
+            overflow-x: hidden;
+        }
+
+        #canvas-particles {
+            position: fixed;
+            top: 0; left: 0;
+            z-index: -1;
+            background: radial-gradient(circle at center, #111, #000);
+        }
+
+        .wrapper {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 60px 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 80px;
+        }
+
+        .logo-text {
+            font-size: 14px;
+            letter-spacing: 12px;
+            color: var(--gold);
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        h1 {
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            font-weight: 900;
+            margin: 0;
+            background: linear-gradient(to bottom, #fff 40%, var(--gold) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-transform: uppercase;
+        }
+
+        /* Grid System for 9 Banks */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 25px;
+        }
+
+        .card {
+            background: var(--glass);
+            backdrop-filter: blur(25px);
+            border: 1px solid var(--border);
+            border-radius: 40px;
+            padding: 50px 30px;
+            text-align: center;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .card:hover {
+            transform: translateY(-15px);
+            border-color: var(--gold);
+            background: rgba(255, 255, 255, 0.05);
+            box-shadow: 0 40px 80px rgba(0,0,0,0.8), 0 0 30px rgba(212,175,55,0.15);
+        }
+
+        .bank-name { font-size: 1.8rem; font-weight: 700; margin-bottom: 10px; color: #fff; }
+        .reward {
+            font-size: 3rem;
+            font-weight: 900;
+            color: var(--gold);
+            margin: 15px 0;
+            text-shadow: 0 0 30px rgba(212, 175, 55, 0.4);
+        }
+
+        .sub-text { font-size: 12px; opacity: 0.6; height: 35px; margin-bottom: 20px; }
+
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 22px;
+            background: linear-gradient(135deg, var(--gold) 0%, #8a6d3b 100%);
+            color: #000;
+            text-decoration: none;
+            border-radius: 20px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            font-size: 14px;
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 40px var(--gold);
+        }
+
+        /* Rules Panel */
+        .strategy {
+            margin-top: 100px;
+            padding: 60px;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid var(--border);
+            border-radius: 50px;
+        }
+
+        .step {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+            font-size: 1.2rem;
+            color: #ddd;
+        }
+
+        .step b { color: var(--gold); margin-right: 20px; font-size: 1.5rem; }
+
+        /* Final Block */
+        .footer-cta {
+            margin-top: 120px;
+            text-align: center;
+            padding: 100px 40px;
+            border-radius: 60px;
+            background: radial-gradient(circle at center, #1a1a1a, #000);
+            border: 1px solid var(--gold);
+        }
+
+        .total-profit {
+            font-size: 7rem;
+            font-weight: 900;
+            margin: 30px 0;
+            text-shadow: 0 0 60px var(--gold);
+        }
+
+        /* Music Controls */
+        .music-player {
+            position: fixed;
+            top: 40px; right: 40px;
+            z-index: 1000;
+            cursor: pointer;
+            width: 55px; height: 55px;
+            background: var(--gold);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 0 25px var(--gold);
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 0 25px var(--gold); }
+            50% { transform: scale(1.1); box-shadow: 0 0 45px var(--gold); }
+            100% { transform: scale(1); box-shadow: 0 0 25px var(--gold); }
+        }
+
+        .playing { animation: pulse 1.5s infinite; }
+
+    </style>
+</head>
+<body>
+
+    <canvas id="canvas-particles"></canvas>
+
+    <div class="music-player" id="playBtn" onclick="handleMusic()">
+        <span id="icon" style="font-size: 24px;">🎵</span>
+    </div>
+    
+    <audio id="main-track" loop>
+        <source src="https://raw.githubusercontent.com/ваше-посилання/WhenIWin.mp3" type="audio/mpeg">
+    </audio>
+
+    <div class="wrapper">
+        <header>
+            <span class="logo-text">UKR DIRECT SOLUTIONS</span>
+            <h1>Financial Expansion</h1>
+            <p style="color: var(--gold); letter-spacing: 6px; font-weight: 300;">PREMIUM PARTNER PROTOCOL</p>
+        </header>
+
+        <div class="grid">
+            <div class="card">
+                <span class="bank-name">Raiffeisen</span>
+                <span class="reward">300 ₴</span>
+                <p class="sub-text">Найшвидша активація через додаток</p>
+                <a href="https://mrf-static.apps.raiffeisen.ua/v1/member-get-member?adj_t=1s492itc_1szn7s6p&ref_id=13251364&adj_deep_link=app%3A%2F%2Fmember-get-member?label=ref_id13251364" class="btn" target="_blank">Activate</a>
+            </div>
+
+            <div class="card">
+                <span class="bank-name">Alliance</span>
+                <span class="reward">300 ₴</span>
+                <p class="sub-text" style="color:#ff4d4d; font-weight:bold;">ОБОВ'ЯЗКОВО: Карта "СТАРТОВА"</p>
+                <a href="https://alb.ua/r/uWeTLAA" class="btn" target="_blank">Activate</a>
+            </div>
+
+            <div class="card">
+                <span class="bank-name">monobank</span>
+                <span class="reward">100 ₴</span>
+                <p class="sub-text">Активація за 2 хвилини</p>
+                <a href="https://monobank.ua/r/RJ3TRH" class="btn" target="_blank">Activate</a>
+            </div>
+
+            <div class="card">
+                <span class="bank-name">Pumb</span>
+                <span class="reward">100 ₴</span>
+                <p class="sub-text">Поповнення мобільного на 100 ₴ для бонусу</p>
+                <a href="https://pumb.onelink.me/Jrxy/jqwmf3t1" class="btn" target="_blank">Activate</a>
+            </div>
+
+            <div class="card">
+                <span class="bank-name">A-Bank</span>
+                <span class="reward">100 ₴</span>
+                <p class="sub-text">Миттєвий кешбек на рахунок</p>
+                <a href="https://link.a-bank.com.ua/TZpXxKs1" class="btn" target="_blank">Activate</a>
+            </div>
+
+            <div class="card">
+                <span class="bank-name">izibank</span>
+                <span class="reward">100 ₴</span>
+                <p class="sub-text">Поповніть свій телефон на 5 ₴</p>
+                <a href="https://izibank.com.ua/r/pB6P" class="btn" target="_blank">Activate</a>
+            </div>
+
+            <div class="card">
+                <span class="bank-name">Globus</span>
+                <span class="reward">100 ₴</span>
+                <p class="sub-text">Поповніть свій телефон на 5 ₴</p>
+                <a href="https://glpls.onelink.me/h7dY/8dsnpnod" class="btn" target="_blank">Activate</a>
+            </div>
+
+            <div class="card">
+                <span class="bank-name">Vostok</span>
+                <span class="reward">100 ₴</span>
+                <p class="sub-text">Поповніть свій телефон на 5 ₴</p>
+                <a href="https://bv.onelink.me/clX0/HTTjSbSiB0" class="btn" target="_blank">Activate</a>
+            </div>
+
+            <div class="card">
+                <span class="bank-name">Власний Рахунок</span>
+                <span class="reward">100 ₴</span>
+                <p class="sub-text">Нарахування балами на покупки</p>
+                <a href="https://go-bvr.onelink.me/yvZl/7y1jxobl" class="btn" target="_blank">Activate</a>
+            </div>
+        </div>
+
+        <div class="strategy">
+            <h2 style="color:var(--gold); text-align:center; margin-bottom:50px;">КЛЮЧОВІ ПРАВИЛА</h2>
+            <div class="step"><b>01</b> Для отримання карти БЕЗ лімітів вказуйте дохід 0 грн та статус "безробітний".</div>
+            <div class="step"><b>02</b> Не закривайте карти протягом 7 днів після отримання виплат.</div>
+            <div class="step"><b>03</b> Для нарахування бонусу поповніть свій телефон на 5-10 грн всередині додатка банку.</div>
+        </div>
+
+        <div class="footer-cta">
+            <p style="letter-spacing: 8px; color: var(--gold); margin:0;">СУМАРНИЙ КАПІТАЛ</p>
+            <div class="total-profit">1500+ ₴</div>
+            <p style="opacity: 0.6; margin-bottom: 50px;">Бонуси банків (1300 ₴) + VIP-бонус від нас (200 ₴) за 6+ реєстрацій</p>
+            <a href="https://t.me/HRsergeevich" class="btn" style="background:#fff; color:#000; font-size:1.4rem; max-width:600px; margin:0 auto;">ОТРИМАТИ ВИПЛАТУ ВІД КОМПАНІЇ</a>
+        </div>
+    </div>
+
+    <script>
+        // Анімація золотого пилу
+        const canvas = document.getElementById('canvas-particles');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function init() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            for(let i=0; i<100; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    r: Math.random() * 2,
+                    s: Math.random() * 0.6
+                });
+            }
+        }
+
+        function draw() {
+            ctx.clearRect(0,0,canvas.width, canvas.height);
+            ctx.fillStyle = "rgba(212, 175, 55, 0.4)";
+            particles.forEach(p => {
+                p.y -= p.s;
+                if(p.y < 0) p.y = canvas.height;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+                ctx.fill();
+            });
+            requestAnimationFrame(draw);
+        }
+
+        init(); draw();
+
+        // Обробка музики
+        const track = document.getElementById('main-track');
+        const btn = document.getElementById('playBtn');
+        const icon = document.getElementById('icon');
+
+        function handleMusic() {
+            if(track.paused) {
+                track.play();
+                icon.innerText = "⏸";
+                btn.classList.add('playing');
+            } else {
+                track.pause();
+                icon.innerText = "🎵";
+                btn.classList.remove('playing');
+            }
+        }
+    </script>
+</body>
+</html>
