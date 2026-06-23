@@ -1077,15 +1077,15 @@ h2.view-title {
 
 // 1. FIREBASE — Зайдите на console.firebase.google.com
 //    Создайте проект → Firestore Database → Project Settings → Your apps
-const firebaseConfig = {
-  apiKey: "AIzaSyCu-Wx23P4OpxUbSBywpdiETZHbOe08z9c",
-  authDomain: "refer-c9d1b.firebaseapp.com",
-  databaseURL: "https://refer-c9d1b-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "refer-c9d1b",
-  storageBucket: "refer-c9d1b.firebasestorage.app",
+const FIREBASE_CONFIG = {
+  apiKey:            "AIzaSyCu-Wx23P4OpxUbSBywpdiETZHbOe08z9c",
+  authDomain:        "refer-c9d1b.firebaseapp.com",
+  databaseURL:       "https://refer-c9d1b-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId:         "refer-c9d1b",
+  storageBucket:     "refer-c9d1b.firebasestorage.app",
   messagingSenderId: "552445924289",
-  appId: "1:552445924289:web:5d143815ec7c5ad6659540",
-  measurementId: "G-EJQQ1KBTX9"
+  appId:             "1:552445924289:web:5d143815ec7c5ad6659540",
+  measurementId:     "G-EJQQ1KBTX9"
 };
 
 // 2. TON CONNECT — Зайдите на https://dev.tonconnect.org/
@@ -1180,76 +1180,87 @@ function bootSequence() {
 async function handleAuth() {
   const uRaw = document.getElementById('auth-user').value.trim();
   const pass  = document.getElementById('auth-pass').value.trim();
+  const btn   = document.querySelector('#view-auth .btn');
 
   if (uRaw.length < 2 || pass.length < 3) {
-    showToast("ОШИБКА: Логин ≥ 2 символа, пароль ≥ 3 символа", true);
+    showToast("ОШИБКА: Логин и пароль слишком короткие", true);
     return;
   }
 
-  const isGod = (uRaw.toLowerCase() === SUPERADMIN_USER && pass === SUPERADMIN_PASS);
-  const username = (uRaw.startsWith('@') ? uRaw : '@' + uRaw).toLowerCase();
+  btn.innerText = '⏳ ПОДКЛЮЧЕНИЕ...';
+  btn.disabled  = true;
 
-  state.user.isGod     = isGod;
-  state.user.username  = isGod ? "@tapgram" : username;
+  try {
+    const isGod = (uRaw.toLowerCase() === SUPERADMIN_USER && pass === SUPERADMIN_PASS);
+    const username = (uRaw.startsWith('@') ? uRaw : '@' + uRaw).toLowerCase();
 
-  const ref = db.collection("users").doc(state.user.username);
-  const doc = await ref.get();
+    state.user.isGod    = isGod;
+    state.user.username = isGod ? "@tapgram" : username;
 
-  if (!doc.exists) {
-    await ref.set({
-      username: state.user.username,
-      balance:  isGod ? 9999999 : 0,
-      wallet:   null,
-      crown:    false,
-      isGod:    isGod,
-      supercharge: false,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
-    state.user.balance = isGod ? 9999999 : 0;
-  } else {
-    const d = doc.data();
-    state.user.balance    = d.balance    || 0;
-    state.user.wallet     = d.wallet     || null;
-    state.user.crown      = d.crown      || false;
-    state.user.supercharge = d.supercharge || false;
-    if (state.user.supercharge) state.user.maxEnergy = 1500;
-  }
+    const ref = db.collection("users").doc(state.user.username);
+    const doc = await ref.get();
 
-  // Обновляем HUD
-  document.getElementById('hud-username').innerText = state.user.username;
-  if (state.user.crown) document.getElementById('hud-badge').style.display = 'inline';
-  updateBalance();
-  updateEnergy();
+    if (!doc.exists) {
+      await ref.set({
+        username: state.user.username,
+        balance:  isGod ? 9999999 : 0,
+        wallet:   null,
+        crown:    false,
+        isGod:    isGod,
+        supercharge: false,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      state.user.balance = isGod ? 9999999 : 0;
+    } else {
+      const d = doc.data();
+      state.user.balance     = d.balance     || 0;
+      state.user.wallet      = d.wallet      || null;
+      state.user.crown       = d.crown       || false;
+      state.user.supercharge = d.supercharge || false;
+      if (state.user.supercharge) state.user.maxEnergy = 1500;
+    }
 
-  // Показываем интерфейс
-  document.getElementById('view-auth').classList.remove('active');
-  document.getElementById('hud-header').style.display = 'block';
-  document.getElementById('nav-bar').style.display    = 'block';
-  if (isGod) {
-    document.getElementById('btn-admin').style.display = 'flex';
-    showToast("☢ РЕЖИМ БОГА АКТИВИРОВАН");
-  }
-
-  switchView('main');
-
-  // Слушатели
-  listenGlobalChat();
-  listenChannels();
-  listenAppConfig();
-  if (isGod) listenAdminUsers();
-
-  // Слушаем свой баланс в реальном времени
-  db.collection("users").doc(state.user.username).onSnapshot(snap => {
-    if (!snap.exists) return;
-    const d = snap.data();
-    state.user.balance = d.balance || 0;
-    state.user.crown   = d.crown   || false;
+    // Обновляем HUD
+    document.getElementById('hud-username').innerText = state.user.username;
     if (state.user.crown) document.getElementById('hud-badge').style.display = 'inline';
     updateBalance();
-  });
+    updateEnergy();
 
-  // TON Connect
-  initTonConnect();
+    // Показываем интерфейс
+    document.getElementById('view-auth').classList.remove('active');
+    document.getElementById('hud-header').style.display = 'block';
+    document.getElementById('nav-bar').style.display    = 'block';
+    if (isGod) {
+      document.getElementById('btn-admin').style.display = 'flex';
+      showToast("☢ РЕЖИМ БОГА АКТИВИРОВАН");
+    } else {
+      showToast("✅ ДОБРО ПОЖАЛОВАТЬ, " + state.user.username.toUpperCase());
+    }
+
+    switchView('main');
+
+    listenGlobalChat();
+    listenChannels();
+    listenAppConfig();
+    if (isGod) listenAdminUsers();
+
+    db.collection("users").doc(state.user.username).onSnapshot(snap => {
+      if (!snap.exists) return;
+      const d = snap.data();
+      state.user.balance = d.balance || 0;
+      state.user.crown   = d.crown   || false;
+      if (state.user.crown) document.getElementById('hud-badge').style.display = 'inline';
+      updateBalance();
+    });
+
+    initTonConnect();
+
+  } catch(err) {
+    console.error("AUTH ERROR:", err);
+    showToast("ОШИБКА ПОДКЛЮЧЕНИЯ: " + err.message, true);
+    btn.innerText = '▶ СИНХРОНИЗАЦИЯ';
+    btn.disabled  = false;
+  }
 }
 
 /* ============================================================
