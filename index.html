@@ -1,3109 +1,1730 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ТЕРМАЛЬНАЯ НУТРИЦИОЛОГИЯ | Лаборатория питания</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <style>
-        :root {
-            --gold: #c5a059;
-            --gold-dark: #8e6d31;
-            --bg-deep: #050505;
-            --panel: #121212;
-            --dynamic-rgb: 197, 160, 89;
-            --glow: rgba(197, 160, 89, 0.3);
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>$TAPGRAM NET</title>
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
 
-        body {
-            margin: 0; 
-            background-color: var(--bg-deep); 
-            color: #fff;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif; 
-            min-height: 100vh;
-            overflow-x: hidden; 
-            user-select: none;
-            position: relative;
-            touch-action: pan-y;
-        }
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
-        /* --- МОБИЛЬНАЯ АКТИВАЦИЯ --- */
-        .mobile-activation {
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 1001;
-            width: 90%;
-            max-width: 300px;
-        }
+<!-- TON Connect UI -->
+<script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
 
-        .power-button {
-            width: 100%;
-            background: linear-gradient(135deg, var(--gold-dark), var(--gold));
-            border: none;
-            color: #000;
-            padding: 16px 24px;
-            border-radius: 25px;
-            font-size: 14px;
-            font-weight: bold;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            cursor: pointer;
-            box-shadow: 0 10px 30px rgba(197, 160, 89, 0.3);
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
+<style>
+/* ============================================================
+   ГЛОБАЛЬНЫЕ СТИЛИ
+   ============================================================ */
+*, *::before, *::after {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
 
-        .power-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 15px 40px rgba(197, 160, 89, 0.4);
-        }
+:root {
+  --g: #00ff88;
+  --g2: #00cc66;
+  --gd: #00ff8822;
+  --bg: #030d05;
+  --bg2: #061208;
+  --bg3: #0a1e0f;
+  --red: #ff3355;
+  --gold: #ffd700;
+  --gray: rgba(0,255,136,0.3);
+  --font-main: 'Share Tech Mono', monospace;
+  --font-hud: 'Orbitron', sans-serif;
+}
 
-        .power-button:active {
-            transform: translateY(0);
-        }
+html, body {
+  margin: 0; padding: 0;
+  height: 100%; width: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--g);
+  font-family: var(--font-main);
+}
 
-        .power-icon {
-            font-size: 20px;
-            animation: pulse 2s infinite;
-        }
+/* CRT Эффект */
+body::before {
+  content: "";
+  position: fixed; inset: 0;
+  background: repeating-linear-gradient(0deg, rgba(0,0,0,0.08) 0px, rgba(0,0,0,0.08) 1px, transparent 1px, transparent 3px);
+  pointer-events: none;
+  z-index: 99998;
+}
+body::after {
+  content: "";
+  position: fixed; inset: 0;
+  background: radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.7) 100%);
+  pointer-events: none;
+  z-index: 99997;
+}
 
-        @keyframes pulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.7; transform: scale(1.1); }
-        }
+/* Анимированные частицы фона */
+#particles {
+  position: fixed; inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+.particle {
+  position: absolute;
+  width: 2px; height: 2px;
+  background: var(--g);
+  border-radius: 50%;
+  animation: float-particle linear infinite;
+  opacity: 0;
+}
+@keyframes float-particle {
+  0%   { transform: translateY(100vh) translateX(0); opacity: 0; }
+  10%  { opacity: 0.6; }
+  90%  { opacity: 0.3; }
+  100% { transform: translateY(-10vh) translateX(30px); opacity: 0; }
+}
 
-        /* --- ВЕРХНИЙ МОДУЛЬ --- */
-        .viewport-top { 
-            position: fixed; 
-            top: 0; 
-            left: 50%; 
-            transform: translateX(-50%); 
-            z-index: 1000;
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            pointer-events: none;
-        }
+/* ============================================================
+   ЭКРАН ЗАГРУЗКИ
+   ============================================================ */
+#boot-screen {
+  position: fixed; inset: 0;
+  background: var(--bg);
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  transition: opacity 0.6s ease;
+}
+#boot-screen.hide {
+  opacity: 0;
+  pointer-events: none;
+}
+.boot-logo {
+  font-family: var(--font-hud);
+  font-size: 28px;
+  font-weight: 900;
+  color: var(--g);
+  text-shadow: 0 0 20px var(--g), 0 0 40px var(--g);
+  animation: pulse-glow 2s ease-in-out infinite;
+  letter-spacing: 3px;
+}
+.boot-sub {
+  font-size: 11px;
+  color: var(--gray);
+  letter-spacing: 4px;
+  text-transform: uppercase;
+}
+.boot-bar-wrap {
+  width: 200px;
+  height: 4px;
+  background: rgba(0,255,136,0.1);
+  border: 1px solid var(--gray);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.boot-bar-fill {
+  height: 100%;
+  width: 0%;
+  background: var(--g);
+  box-shadow: 0 0 8px var(--g);
+  transition: width 0.1s linear;
+}
+.boot-log {
+  font-size: 10px;
+  color: rgba(0,255,136,0.5);
+  min-height: 14px;
+  letter-spacing: 1px;
+}
 
-        .lamp-container {
-            position: relative;
-            width: 200px;
-            height: 120px;
-        }
+/* ============================================================
+   ГЛАВНЫЙ КОНТЕЙНЕР
+   ============================================================ */
+#app {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  z-index: 10;
+  overflow: hidden;
+}
 
-        .lamp-shade {
-            width: 200px; 
-            height: 80px; 
-            background: linear-gradient(180deg, #1a1a1a 0%, #050505 100%);
-            border-radius: 100px 100px 12px 12px;
-            border-bottom: 4px solid rgb(var(--dynamic-rgb));
-            box-shadow: 0 10px 30px rgba(0,0,0,0.9);
-            position: relative;
-            transition: border-color 0.4s;
-        }
+/* Шапка HUD */
+#hud-header {
+  display: none;
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--gray);
+  background: rgba(3,13,5,0.95);
+  flex-shrink: 0;
+  position: relative;
+}
+.hud-row1 {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+.hud-logo {
+  font-family: var(--font-hud);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--g);
+  text-shadow: 0 0 8px var(--g);
+  letter-spacing: 2px;
+}
+.hud-user {
+  font-size: 11px;
+  color: var(--g2);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.hud-badge {
+  font-size: 14px;
+  animation: spin-badge 3s linear infinite;
+}
+@keyframes spin-badge {
+  0%  { text-shadow: 0 0 6px gold; }
+  50% { text-shadow: 0 0 16px gold; }
+  100%{ text-shadow: 0 0 6px gold; }
+}
+.hud-row2 {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+.hud-balance {
+  font-family: var(--font-hud);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--g);
+  text-shadow: 0 0 10px var(--g);
+}
+.hud-balance span {
+  font-size: 10px;
+  color: var(--gray);
+  font-family: var(--font-main);
+}
+.energy-bar {
+  flex: 1;
+  max-width: 120px;
+}
+.energy-label {
+  font-size: 9px;
+  color: var(--gray);
+  margin-bottom: 2px;
+}
+.energy-track {
+  height: 5px;
+  background: rgba(0,255,136,0.1);
+  border: 1px solid var(--gray);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.energy-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--g2), var(--g));
+  box-shadow: 0 0 6px var(--g);
+  transition: width 0.3s ease;
+}
+.wallet-chip {
+  font-size: 9px;
+  padding: 3px 7px;
+  border: 1px solid;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.wallet-chip.disconnected { border-color: #ff9900; color: #ff9900; }
+.wallet-chip.connected    { border-color: var(--g); color: var(--g); box-shadow: 0 0 6px var(--g); }
 
-        /* --- СВЕТ --- */
-        .light-cone {
-            position: absolute; 
-            top: 75px; 
-            left: 50%; 
-            transform: translateX(-50%);
-            width: 100vw; 
-            height: 600px;
-            background: radial-gradient(ellipse at top, 
-                rgba(var(--dynamic-rgb), 0.4) 0%, 
-                rgba(var(--dynamic-rgb), 0.2) 20%,
-                rgba(var(--dynamic-rgb), 0.1) 40%,
-                transparent 70%);
-            clip-path: polygon(20% 0%, 80% 0%, 100% 100%, 0% 100%);
-            opacity: 0; 
-            pointer-events: none; 
-            transition: opacity 0.8s;
-            filter: blur(15px);
-            z-index: 1;
-        }
+/* ============================================================
+   VIEWS
+   ============================================================ */
+.view {
+  display: none;
+  flex: 1;
+  flex-direction: column;
+  overflow-y: auto;
+  padding: 8px;
+  padding-bottom: 70px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--g2) var(--bg2);
+}
+.view.active { display: flex; }
+.view::-webkit-scrollbar { width: 4px; }
+.view::-webkit-scrollbar-thumb { background: var(--g2); border-radius: 4px; }
 
-        /* --- ОСНОВНОЙ ИНТЕРФЕЙС --- */
-        .app-container {
-            position: relative;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 150px 15px 100px;
-            z-index: 50;
-        }
+h2.view-title {
+  font-family: var(--font-hud);
+  font-size: 13px;
+  font-weight: 700;
+  text-align: center;
+  letter-spacing: 3px;
+  color: var(--g);
+  text-shadow: 0 0 10px var(--g);
+  text-transform: uppercase;
+  margin: 0 0 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px dashed var(--gray);
+}
 
-        .app-shell {
-            position: relative; 
-            width: 100%;
-            max-width: 500px;
-            background: var(--panel);
-            padding: 40px 25px; 
-            border-radius: 40px; 
-            border: 1px solid rgba(var(--dynamic-rgb), 0.15);
-            opacity: 0.02; 
-            filter: blur(25px); 
-            transform: translateY(50px) scale(0.95);
-            transition: all 1.3s cubic-bezier(0.16, 1, 0.3, 1); 
-            z-index: 100;
-            box-shadow: 0 20px 80px rgba(0,0,0,0.5);
-            margin: 0 auto;
-        }
+/* ============================================================
+   AUTH VIEW
+   ============================================================ */
+#view-auth {
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+.auth-logo {
+  font-family: var(--font-hud);
+  font-size: 24px;
+  font-weight: 900;
+  color: var(--g);
+  text-shadow: 0 0 20px var(--g);
+  text-align: center;
+  letter-spacing: 3px;
+  animation: pulse-glow 2s ease-in-out infinite;
+  margin-bottom: 6px;
+}
+.auth-sub {
+  font-size: 10px;
+  color: var(--gray);
+  letter-spacing: 4px;
+  text-align: center;
+  margin-bottom: 16px;
+  text-transform: uppercase;
+}
+@keyframes pulse-glow {
+  0%, 100% { text-shadow: 0 0 10px var(--g), 0 0 20px var(--g); }
+  50%       { text-shadow: 0 0 20px var(--g), 0 0 40px var(--g), 0 0 60px var(--g2); }
+}
 
-        body[data-on="true"] .app-shell { 
-            opacity: 1; 
-            filter: blur(0); 
-            transform: translateY(0) scale(1); 
-            box-shadow: 0 80px 200px rgba(0,0,0,1);
-        }
+/* ============================================================
+   ИНПУТЫ И КНОПКИ
+   ============================================================ */
+.inp {
+  background: var(--bg2);
+  border: 1px solid var(--gray);
+  color: var(--g);
+  padding: 11px 14px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: var(--font-main);
+  outline: none;
+  width: 100%;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.inp:focus {
+  border-color: var(--g);
+  box-shadow: 0 0 10px var(--gd);
+}
+.inp::placeholder { color: rgba(0,255,136,0.25); }
 
-        body[data-on="true"] .light-cone { 
-            opacity: 1; 
-        }
+.btn {
+  background: var(--g);
+  color: var(--bg);
+  border: none;
+  padding: 11px 14px;
+  font-weight: bold;
+  font-size: 12px;
+  font-family: var(--font-hud);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  cursor: pointer;
+  border-radius: 6px;
+  width: 100%;
+  transition: all 0.15s;
+  position: relative;
+  overflow: hidden;
+}
+.btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,0.15);
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.btn:hover::after { opacity: 1; }
+.btn:active { transform: scale(0.97); }
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--g);
+  color: var(--g);
+}
+.btn-outline:hover { background: var(--gd); }
+.btn-danger {
+  background: var(--red);
+  color: white;
+}
+.btn-sm {
+  padding: 5px 10px;
+  font-size: 10px;
+  width: auto;
+  letter-spacing: 1px;
+}
 
-        .mode-nav { 
-            display: flex; 
-            gap: 10px; 
-            margin-bottom: 30px;
-        }
+/* ============================================================
+   РЕАКТОР
+   ============================================================ */
+.reactor-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 8px 0;
+  position: relative;
+}
+.reactor-ring-outer {
+  width: 160px; height: 160px;
+  border-radius: 50%;
+  border: 2px solid var(--gray);
+  display: flex; align-items: center; justify-content: center;
+  animation: rotate-ring 8s linear infinite;
+  position: relative;
+}
+@keyframes rotate-ring {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+.reactor-ring-outer::before {
+  content: "";
+  position: absolute;
+  inset: 6px;
+  border-radius: 50%;
+  border: 1px dashed rgba(0,255,136,0.15);
+}
+.reactor-core {
+  width: 120px; height: 120px;
+  border-radius: 50%;
+  border: 3px solid var(--g);
+  background: radial-gradient(circle, rgba(0,255,136,0.12) 0%, rgba(0,255,136,0.03) 50%, transparent 70%);
+  box-shadow: 0 0 20px var(--gd), inset 0 0 20px var(--gd);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  cursor: pointer;
+  position: relative;
+  animation: counter-rotate 8s linear infinite, breathe 2s ease-in-out infinite;
+  transition: box-shadow 0.1s;
+  -webkit-tap-highlight-color: transparent;
+}
+@keyframes counter-rotate {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(-360deg); }
+}
+@keyframes breathe {
+  0%, 100% { box-shadow: 0 0 15px var(--gd), inset 0 0 15px var(--gd); }
+  50%       { box-shadow: 0 0 30px rgba(0,255,136,0.3), inset 0 0 25px rgba(0,255,136,0.15); }
+}
+.reactor-core:active {
+  transform: rotate(-360deg) scale(0.93) !important;
+  box-shadow: 0 0 40px rgba(0,255,136,0.5), inset 0 0 30px rgba(0,255,136,0.25) !important;
+}
+.reactor-icon {
+  font-family: var(--font-hud);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--g);
+  letter-spacing: 2px;
+  text-shadow: 0 0 8px var(--g);
+}
+.reactor-tap-hint {
+  font-size: 9px;
+  color: rgba(0,255,136,0.4);
+  margin-top: 2px;
+  letter-spacing: 1px;
+}
+.reactor-dots {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+}
+.reactor-dot {
+  position: absolute;
+  width: 6px; height: 6px;
+  background: var(--g);
+  border-radius: 50%;
+  box-shadow: 0 0 6px var(--g);
+}
 
-        .mode-btn { 
-            flex: 1; 
-            background: #080808; 
-            border: 1px solid #222; 
-            color: #444; 
-            padding: 14px 12px; 
-            border-radius: 15px; 
-            font-size: 10px; 
-            cursor: pointer; 
-            text-transform: uppercase; 
-            letter-spacing: 1px; 
-            transition: all 0.3s;
-            min-height: 50px;
-        }
+.tap-popup {
+  position: fixed;
+  font-family: var(--font-hud);
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--g);
+  text-shadow: 0 0 10px var(--g);
+  pointer-events: none;
+  z-index: 9999;
+  animation: tap-float 0.7s ease-out forwards;
+}
+@keyframes tap-float {
+  0%   { transform: translateY(0) scale(1);   opacity: 1; }
+  100% { transform: translateY(-60px) scale(1.3); opacity: 0; }
+}
 
-        .mode-btn:hover {
-            border-color: rgba(var(--dynamic-rgb), 0.3);
-        }
+/* ============================================================
+   ЧАТ
+   ============================================================ */
+.section-label {
+  font-family: var(--font-hud);
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: var(--gray);
+  text-transform: uppercase;
+  margin: 10px 0 4px;
+}
+.chat-box {
+  flex: 1;
+  min-height: 120px;
+  border: 1px solid var(--gray);
+  background: var(--bg2);
+  border-radius: 6px;
+  padding: 8px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--g2) var(--bg2);
+}
+.chat-msg {
+  padding: 5px 0;
+  border-bottom: 1px solid rgba(0,255,136,0.06);
+  font-size: 12px;
+  line-height: 1.5;
+  animation: msg-appear 0.3s ease;
+}
+@keyframes msg-appear {
+  from { opacity: 0; transform: translateX(-6px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.chat-sender {
+  color: var(--g);
+  cursor: pointer;
+  font-weight: bold;
+  text-decoration: none;
+  transition: text-shadow 0.2s;
+}
+.chat-sender:hover { text-shadow: 0 0 8px var(--g); }
+.chat-text { color: rgba(0,255,136,0.8); }
 
-        .mode-btn.active { 
-            border-color: var(--gold); 
-            color: var(--gold); 
-            box-shadow: 0 0 15px rgba(197, 160, 89, 0.2);
-            background: rgba(197, 160, 89, 0.05);
-        }
+.chat-input-row {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+}
+.chat-input-row .inp { margin: 0; }
+.chat-input-row .btn { width: auto; min-width: 56px; padding: 11px 12px; }
 
-        .selectors { 
-            display: grid; 
-            grid-template-columns: 1fr; 
-            gap: 15px; 
-            margin-bottom: 30px;
-        }
+/* PM */
+.pm-msg {
+  margin: 5px 0;
+  max-width: 80%;
+  animation: msg-appear 0.3s ease;
+}
+.pm-msg.me  { align-self: flex-end;  text-align: right; }
+.pm-msg.you { align-self: flex-start; }
+.pm-bubble {
+  display: inline-block;
+  padding: 6px 10px;
+  border-radius: 10px;
+  font-size: 12px;
+  line-height: 1.4;
+}
+.pm-msg.me  .pm-bubble { background: rgba(0,255,136,0.1); border: 1px solid var(--gray); }
+.pm-msg.you .pm-bubble { background: rgba(0,255,136,0.05); border: 1px solid rgba(0,255,136,0.1); }
+.pm-sender-label { font-size: 9px; color: var(--gray); margin-bottom: 2px; }
+.pm-box {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  padding: 6px;
+  border: 1px solid var(--gray);
+  background: var(--bg2);
+  border-radius: 6px;
+  min-height: 140px;
+  scrollbar-width: thin;
+}
 
-        select { 
-            width: 100%; 
-            background: rgba(0,0,0,0.6); 
-            border: 1px solid rgba(255,255,255,0.1); 
-            color: #aaa; 
-            padding: 16px 20px; 
-            border-radius: 18px; 
-            outline: none; 
-            font-size: 14px; 
-            appearance: none;
-            cursor: pointer;
-            transition: all 0.3s;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='%23c5a059'%3E%3Cpath d='M6 9L1 4h10z'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 20px center;
-        }
+/* ============================================================
+   КАНАЛЫ
+   ============================================================ */
+.channel-card {
+  border: 1px solid var(--gray);
+  background: var(--bg2);
+  border-radius: 6px;
+  padding: 10px;
+  margin-bottom: 6px;
+  animation: msg-appear 0.3s ease;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+.channel-card:hover { border-color: var(--g); background: var(--gd); }
+.channel-name { font-family: var(--font-hud); font-size: 12px; font-weight: 700; color: var(--g); }
+.channel-meta { font-size: 10px; color: var(--gray); margin-top: 2px; }
 
-        select:focus {
-            border-color: var(--gold);
-            box-shadow: 0 0 15px rgba(var(--dynamic-rgb), 0.2);
-        }
+.create-channel-box {
+  border: 1px dashed var(--gray);
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
 
-        .main-display { 
-            text-align: center; 
-            margin: 25px 0; 
-            padding: 25px 0;
-            border-top: 1px solid rgba(255,255,255,0.05);
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-        }
+/* ============================================================
+   МАРКЕТ
+   ============================================================ */
+.market-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid var(--gray);
+  background: var(--bg2);
+  border-radius: 6px;
+  padding: 10px;
+  margin-bottom: 6px;
+  animation: msg-appear 0.3s ease;
+}
+.market-item-info { font-size: 12px; }
+.market-item-title { color: var(--g); font-weight: bold; }
+.market-item-price { font-size: 10px; color: var(--gray); margin-top: 2px; }
 
-        .main-display label { 
-            font-size: 10px; 
-            color: #666; 
-            text-transform: uppercase; 
-            letter-spacing: 2px; 
-            display: block;
-            margin-bottom: 10px;
-        }
+/* ============================================================
+   ПОИСК
+   ============================================================ */
+.search-result {
+  padding: 8px;
+  border-bottom: 1px solid rgba(0,255,136,0.08);
+  font-size: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  animation: msg-appear 0.3s ease;
+  cursor: pointer;
+}
+.search-result:hover { background: var(--gd); }
+.search-tag {
+  font-size: 9px;
+  padding: 2px 6px;
+  border-radius: 10px;
+  border: 1px solid var(--gray);
+  color: var(--gray);
+}
 
-        .val-num { 
-            font-size: 4rem; 
-            font-weight: 200; 
-            color: rgb(var(--dynamic-rgb)); 
-            line-height: 1; 
-            margin: 10px 0;
-            text-shadow: 0 0 30px rgba(var(--dynamic-rgb), 0.3);
-        }
+/* ============================================================
+   НАВИГАЦИЯ
+   ============================================================ */
+#nav-bar {
+  display: none;
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: rgba(3,13,5,0.97);
+  border-top: 1px solid var(--gray);
+  padding: 6px 4px 8px;
+  z-index: 1000;
+  backdrop-filter: blur(10px);
+}
+.nav-inner {
+  display: flex;
+  justify-content: space-around;
+}
+.nav-btn {
+  background: none;
+  border: none;
+  color: rgba(0,255,136,0.35);
+  font-family: var(--font-main);
+  font-size: 9px;
+  padding: 4px 6px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  transition: color 0.2s;
+  width: 56px;
+  letter-spacing: 1px;
+}
+.nav-btn .nav-icon {
+  font-size: 18px;
+  line-height: 1;
+  transition: transform 0.2s, filter 0.2s;
+}
+.nav-btn.active {
+  color: var(--g);
+}
+.nav-btn.active .nav-icon {
+  transform: scale(1.15);
+  filter: drop-shadow(0 0 4px var(--g));
+}
+.nav-btn.god-btn {
+  color: rgba(255,51,85,0.5);
+}
+.nav-btn.god-btn.active { color: var(--red); }
 
-        .val-num span { 
-            font-size: 1.5rem; 
-            opacity: 0.5; 
-            margin-left: 5px; 
-            vertical-align: super;
-        }
+/* ============================================================
+   МОДАЛЬНОЕ ОКНО ПРОФИЛЯ
+   ============================================================ */
+.modal-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.85);
+  z-index: 2000;
+  justify-content: center;
+  align-items: center;
+  backdrop-filter: blur(4px);
+  animation: fade-in 0.2s ease;
+}
+.modal-overlay.open { display: flex; }
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
 
-        .slider-container {
-            position: relative;
-            margin: 30px 0 40px;
-            padding: 0 5px;
-        }
+.modal-card {
+  background: var(--bg3);
+  border: 1px solid var(--g);
+  border-radius: 10px;
+  padding: 20px;
+  width: 280px;
+  box-shadow: 0 0 30px rgba(0,255,136,0.2);
+  animation: modal-pop 0.25s ease;
+}
+@keyframes modal-pop {
+  from { transform: scale(0.9) translateY(10px); opacity: 0; }
+  to   { transform: scale(1) translateY(0); opacity: 1; }
+}
+.modal-avatar {
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0,255,136,0.15), transparent);
+  border: 2px solid var(--g);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  margin: 0 auto 10px;
+  box-shadow: 0 0 14px var(--gd);
+}
+.modal-username {
+  font-family: var(--font-hud);
+  font-size: 15px;
+  font-weight: 700;
+  text-align: center;
+  color: var(--g);
+  text-shadow: 0 0 8px var(--g);
+  margin-bottom: 12px;
+}
+.modal-info-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  padding: 5px 0;
+  border-bottom: 1px solid rgba(0,255,136,0.08);
+  color: rgba(0,255,136,0.7);
+}
+.modal-info-row .label { color: var(--gray); }
+.modal-info-row .value { color: var(--g); }
+.modal-wallet {
+  font-size: 9px;
+  color: rgba(0,255,136,0.4);
+  word-break: break-all;
+  text-align: center;
+  margin: 6px 0;
+  padding: 5px;
+  background: var(--bg2);
+  border-radius: 4px;
+  border: 1px solid rgba(0,255,136,0.08);
+}
+.modal-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 12px;
+}
 
-        input[type=range] { 
-            -webkit-appearance: none; 
-            width: 100%; 
-            background: transparent; 
-            cursor: pointer;
-            position: relative;
-            z-index: 2;
-            touch-action: pan-y;
-        }
+/* ============================================================
+   ADMIN PANEL
+   ============================================================ */
+.admin-block {
+  border: 1px solid;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 10px;
+}
+.admin-block.danger  { border-color: rgba(255,51,85,0.4);  background: rgba(255,51,85,0.03); }
+.admin-block.normal  { border-color: var(--gray);           background: var(--bg2); }
+.admin-block-title {
+  font-family: var(--font-hud);
+  font-size: 10px;
+  letter-spacing: 2px;
+  margin-bottom: 10px;
+  color: var(--gray);
+  text-transform: uppercase;
+}
+.admin-user-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 0;
+  border-bottom: 1px solid rgba(0,255,136,0.05);
+  font-size: 11px;
+  animation: msg-appear 0.3s ease;
+}
 
-        input[type=range]::-webkit-slider-runnable-track { 
-            height: 3px; 
-            background: linear-gradient(90deg,
-                rgba(100, 150, 255, 0.3) 0%,
-                rgba(var(--dynamic-rgb), 0.6) 50%,
-                rgba(255, 80, 60, 0.8) 100%);
-            border-radius: 1.5px;
-        }
+/* ============================================================
+   TOAST УВЕДОМЛЕНИЯ
+   ============================================================ */
+#toast-container {
+  position: fixed;
+  bottom: 70px; right: 10px;
+  z-index: 9998;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  pointer-events: none;
+}
+.toast {
+  background: var(--bg3);
+  border: 1px solid var(--g);
+  color: var(--g);
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 11px;
+  box-shadow: 0 0 12px var(--gd);
+  animation: toast-in 0.3s ease, toast-out 0.3s ease 2.7s forwards;
+  letter-spacing: 1px;
+}
+.toast.error {
+  border-color: var(--red);
+  color: var(--red);
+  box-shadow: 0 0 12px rgba(255,51,85,0.2);
+}
+@keyframes toast-in  { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes toast-out { from { opacity: 1; } to { opacity: 0; } }
 
-        input[type=range]::-webkit-slider-thumb { 
-            -webkit-appearance: none; 
-            height: 32px; 
-            width: 32px; 
-            border-radius: 50%; 
-            background: #fff; 
-            border: 5px solid rgb(var(--dynamic-rgb)); 
-            margin-top: -15px; 
-            box-shadow: 0 0 30px rgba(var(--dynamic-rgb), 0.8);
-            cursor: pointer;
-            transition: all 0.2s;
-        }
+/* ============================================================
+   TON WALLET VIEW секция
+   ============================================================ */
+.ton-section {
+  border: 1px solid rgba(83,156,255,0.3);
+  background: rgba(83,156,255,0.04);
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.ton-info { font-size: 11px; }
+.ton-label { color: rgba(83,156,255,0.6); font-size: 9px; letter-spacing: 2px; margin-bottom: 3px; }
+.ton-value { color: #539cff; font-size: 13px; font-weight: bold; word-break: break-all; }
 
-        input[type=range]::-webkit-slider-thumb:active {
-            transform: scale(1.15);
-            box-shadow: 0 0 40px rgba(var(--dynamic-rgb), 1);
-        }
-
-        .data-grid { 
-            display: grid; 
-            grid-template-columns: 1fr; 
-            gap: 15px; 
-            margin-bottom: 30px;
-        }
-
-        @media (min-width: 768px) {
-            .data-grid {
-                grid-template-columns: 1fr 1fr;
-            }
-        }
-
-        .data-card { 
-            background: rgba(0,0,0,0.4); 
-            padding: 25px 20px; 
-            border-radius: 20px; 
-            border: 1px solid rgba(255,255,255,0.03);
-            text-align: left;
-            transition: all 0.3s;
-        }
-
-        .data-card:active {
-            transform: scale(0.98);
-        }
-
-        .data-card label { 
-            font-size: 9px; 
-            color: #666; 
-            text-transform: uppercase; 
-            letter-spacing: 1.5px; 
-            margin-bottom: 10px; 
-            display: block;
-        }
-
-        .data-card .res { 
-            font-size: 24px; 
-            font-weight: 300; 
-            color: #eee; 
-            display: block;
-        }
-
-        .expert-verdict { 
-            margin-top: 30px; 
-            font-size: 12px; 
-            color: #888; 
-            line-height: 1.6; 
-            min-height: 100px; 
-            border-top: 1px solid rgba(255,255,255,0.05); 
-            padding-top: 20px; 
-            font-style: italic;
-        }
-
-        /* --- ПАНЕЛЬ РЕЦЕПТОВ --- */
-        .recipes-panel {
-            position: fixed;
-            right: -100%;
-            top: 0;
-            width: 100%;
-            height: 100vh;
-            background: rgba(18, 18, 18, 0.98);
-            border-left: none;
-            padding: 20px;
-            border-radius: 0;
-            z-index: 1002;
-            backdrop-filter: blur(10px);
-            transition: right 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-            border: none;
-            box-shadow: -20px 0 60px rgba(0,0,0,0.8);
-        }
-        
-        .recipes-panel.active {
-            right: 0;
-        }
-        
-        .recipes-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid rgba(var(--dynamic-rgb), 0.2);
-            position: sticky;
-            top: 0;
-            background: rgba(18, 18, 18, 0.95);
-            z-index: 1;
-            padding-top: 10px;
-        }
-        
-        .recipes-title {
-            font-size: 13px;
-            color: var(--gold);
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-        }
-        
-        .close-recipes {
-            background: rgba(var(--dynamic-rgb), 0.1);
-            border: 1px solid var(--gold);
-            color: var(--gold);
-            font-size: 24px;
-            cursor: pointer;
-            padding: 5px;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .method-filter {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            overflow-x: auto;
-            padding-bottom: 10px;
-            -webkit-overflow-scrolling: touch;
-        }
-        
-        .method-btn {
-            padding: 8px 12px;
-            background: rgba(0,0,0,0.3);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 12px;
-            color: #888;
-            font-size: 10px;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            white-space: nowrap;
-            flex-shrink: 0;
-        }
-        
-        .method-btn:active {
-            transform: scale(0.95);
-        }
-        
-        .method-btn.active {
-            background: rgba(var(--dynamic-rgb), 0.1);
-            border-color: var(--gold);
-            color: var(--gold);
-        }
-        
-        .recipes-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 12px;
-            margin-bottom: 25px;
-        }
-        
-        .recipe-card {
-            background: rgba(0,0,0,0.3);
-            border-radius: 15px;
-            padding: 18px;
-            cursor: pointer;
-            transition: all 0.3s;
-            border: 1px solid rgba(255,255,255,0.05);
-        }
-        
-        .recipe-card:active {
-            transform: scale(0.98);
-        }
-        
-        .recipe-card.active {
-            border-color: var(--gold);
-            background: rgba(var(--dynamic-rgb), 0.05);
-        }
-        
-        .recipe-name {
-            font-size: 14px;
-            color: #fff;
-            margin-bottom: 5px;
-            font-weight: 500;
-        }
-        
-        .recipe-desc {
-            font-size: 11px;
-            color: #888;
-            line-height: 1.4;
-            margin-bottom: 10px;
-        }
-        
-        .recipe-meta {
-            display: flex;
-            gap: 8px;
-            font-size: 9px;
-            flex-wrap: wrap;
-        }
-        
-        .recipe-temp {
-            color: var(--gold;
-        }
-        
-        .recipe-calories {
-            color: #aaa;
-        }
-        
-        .recipe-method {
-            color: #888;
-            background: rgba(255,255,255,0.05);
-            padding: 2px 8px;
-            border-radius: 10px;
-        }
-        
-        .ingredients-table {
-            width: 100%;
-            margin: 15px 0;
-            border-collapse: collapse;
-        }
-        
-        .ingredients-table th {
-            background: rgba(var(--dynamic-rgb), 0.1);
-            color: var(--gold);
-            font-size: 10px;
-            padding: 12px 8px;
-            text-align: left;
-            border-bottom: 2px solid rgba(var(--dynamic-rgb), 0.3);
-        }
-        
-        .ingredients-table td {
-            padding: 10px 8px;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            font-size: 12px;
-            color: #ccc;
-        }
-        
-        .servings-control {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin: 20px 0;
-            padding: 15px;
-            background: rgba(0,0,0,0.2);
-            border-radius: 15px;
-        }
-        
-        .servings-btn {
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            background: rgba(var(--dynamic-rgb), 0.1);
-            border: 1px solid rgba(var(--dynamic-rgb), 0.3);
-            color: var(--gold);
-            font-size: 20px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            touch-action: manipulation;
-        }
-        
-        .servings-btn:active {
-            transform: scale(0.9);
-        }
-        
-        .servings-value {
-            font-size: 22px;
-            color: var(--gold);
-            min-width: 60px;
-            text-align: center;
-        }
-        
-        .nutrition-breakdown {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 8px;
-            margin: 20px 0;
-        }
-        
-        .nutrition-item {
-            text-align: center;
-            padding: 12px 8px;
-            background: rgba(0,0,0,0.2);
-            border-radius: 8px;
-        }
-        
-        .nutrition-value {
-            font-size: 16px;
-            color: var(--gold);
-            font-weight: 300;
-        }
-        
-        .nutrition-label {
-            font-size: 9px;
-            color: #888;
-            margin-top: 5px;
-            text-transform: uppercase;
-        }
-        
-        .recipe-steps {
-            margin: 20px 0;
-        }
-        
-        .step {
-            margin-bottom: 15px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-        }
-        
-        .step-number {
-            display: inline-block;
-            width: 24px;
-            height: 24px;
-            background: var(--gold);
-            color: #000;
-            border-radius: 50%;
-            text-align: center;
-            line-height: 24px;
-            margin-right: 8px;
-            font-size: 11px;
-            font-weight: bold;
-            flex-shrink: 0;
-        }
-        
-        .step-content {
-            display: inline-block;
-            width: calc(100% - 35px);
-            vertical-align: top;
-            font-size: 12px;
-            color: #ccc;
-            line-height: 1.5;
-        }
-        
-        .recipes-button {
-            position: fixed;
-            right: 20px;
-            bottom: 20px;
-            background: var(--gold);
-            color: #000;
-            border: none;
-            padding: 14px 20px;
-            border-radius: 25px;
-            font-size: 11px;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            z-index: 999;
-            box-shadow: 0 8px 25px rgba(197, 160, 89, 0.3);
-            transition: all 0.3s;
-            font-weight: bold;
-            touch-action: manipulation;
-        }
-        
-        .recipes-button:active {
-            transform: scale(0.95);
-        }
-        
-        .cooking-method-icon {
-            font-size: 14px;
-            margin-right: 5px;
-        }
-        
-        .goal-badge {
-            display: inline-block;
-            padding: 3px 8px;
-            border-radius: 10px;
-            font-size: 8px;
-            font-weight: bold;
-            margin-right: 5px;
-        }
-        
-        .goal-loss {
-            background: rgba(255, 80, 80, 0.2);
-            color: #ff5050;
-        }
-        
-        .goal-maintain {
-            background: rgba(255, 200, 80, 0.2);
-            color: #ffc850;
-        }
-        
-        .goal-gain {
-            background: rgba(80, 255, 80, 0.2);
-            color: #50ff50;
-        }
-
-        /* Оверлей для панели рецептов */
-        .panel-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.7);
-            z-index: 1001;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.4s;
-        }
-        
-        .panel-overlay.active {
-            opacity: 1;
-            pointer-events: all;
-        }
-
-        /* Мобильные улучшения */
-        @media (max-width: 480px) {
-            .app-shell {
-                padding: 30px 20px;
-                border-radius: 30px;
-            }
-            
-            .val-num {
-                font-size: 3.5rem;
-            }
-            
-            .data-card {
-                padding: 20px 15px;
-            }
-            
-            .data-card .res {
-                font-size: 22px;
-            }
-            
-            .recipes-button {
-                right: 15px;
-                bottom: 15px;
-                padding: 12px 16px;
-                font-size: 10px;
-            }
-            
-            .power-button {
-                padding: 14px 20px;
-                font-size: 13px;
-            }
-        }
-
-        @media (max-height: 700px) {
-            .app-container {
-                padding-top: 120px;
-                padding-bottom: 80px;
-            }
-            
-            .main-display {
-                margin: 15px 0;
-                padding: 15px 0;
-            }
-            
-            .val-num {
-                font-size: 3rem;
-            }
-        }
-
-        /* Улучшения для iOS */
-        input, select, button {
-            -webkit-appearance: none;
-            appearance: none;
-        }
-        
-        select {
-            background-size: 12px;
-            background-position: right 15px center;
-        }
-        
-        /* Предотвращение масштабирования при фокусе на iOS */
-        @media (max-width: 768px) {
-            input, select, textarea {
-                font-size: 16px !important;
-            }
-        }
-        
-        /* Улучшенное поведение скролла */
-        .recipes-panel::-webkit-scrollbar {
-            width: 4px;
-        }
-        
-        .recipes-panel::-webkit-scrollbar-track {
-            background: rgba(0,0,0,0.2);
-        }
-        
-        .recipes-panel::-webkit-scrollbar-thumb {
-            background: var(--gold);
-            border-radius: 2px;
-        }
-
-        /* Анимация появления */
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .slide-up {
-            animation: slideUp 0.5s ease-out;
-        }
-    </style>
+/* Адаптивность */
+@media (max-width: 380px) {
+  .reactor-ring-outer { width: 140px; height: 140px; }
+  .reactor-core { width: 104px; height: 104px; }
+}
+</style>
 </head>
-<body data-on="false">
+<body>
 
-    <!-- Кнопка активации для мобильных -->
-    <div class="mobile-activation">
-        <button class="power-button" onclick="toggleLabPower()">
-            <span class="power-icon">⚡</span>
-            АКТИВИРОВАТЬ ЛАБОРАТОРИЮ
-        </button>
+<!-- Частицы фона -->
+<div id="particles"></div>
+
+<!-- ============================================================
+     ЭКРАН ЗАГРУЗКИ
+     ============================================================ -->
+<div id="boot-screen">
+  <div class="boot-logo">$TAPGRAM</div>
+  <div class="boot-sub">Network Terminal v2.0</div>
+  <div class="boot-bar-wrap"><div class="boot-bar-fill" id="boot-bar"></div></div>
+  <div class="boot-log" id="boot-log">Инициализация...</div>
+</div>
+
+<!-- ============================================================
+     ГЛАВНОЕ ПРИЛОЖЕНИЕ
+     ============================================================ -->
+<div id="app">
+
+  <!-- HUD Шапка -->
+  <div id="hud-header">
+    <div class="hud-row1">
+      <div class="hud-logo">⬡ TAPGRAM</div>
+      <div class="hud-user">
+        <span id="hud-badge" class="hud-badge" style="display:none">👑</span>
+        <span id="hud-username">@guest</span>
+      </div>
+    </div>
+    <div class="hud-row2">
+      <div>
+        <div class="hud-balance">
+          <span id="hud-balance">0</span>
+          <span>$TAPGRAM</span>
+        </div>
+      </div>
+      <div class="energy-bar">
+        <div class="energy-label">ЗАРЯД: <span id="hud-energy">1000</span>/1000</div>
+        <div class="energy-track"><div class="energy-fill" id="energy-fill" style="width:100%"></div></div>
+      </div>
+      <div class="wallet-chip disconnected" id="ton-chip" onclick="toggleTonWallet()">
+        💎 ПОДКЛЮЧИТЬ
+      </div>
+    </div>
+  </div>
+
+  <!-- AUTH -->
+  <div class="view active" id="view-auth">
+    <div class="auth-logo">$TAPGRAM NET</div>
+    <div class="auth-sub" id="auth-subtitle">Терминал Убежища — v2.0</div>
+
+    <div style="width:100%; max-width:300px; display:flex; flex-direction:column; gap:8px; align-self:center;">
+      <input class="inp" id="auth-user" type="text" placeholder="ЛОГИН (без @)" maxlength="20">
+      <input class="inp" id="auth-pass" type="password" placeholder="ПАРОЛЬ">
+      <button class="btn" onclick="handleAuth()">▶ СИНХРОНИЗАЦИЯ</button>
+    </div>
+  </div>
+
+  <!-- MAIN: РЕАКТОР -->
+  <div class="view" id="view-main">
+    <div class="reactor-wrap">
+      <div class="reactor-ring-outer">
+        <div class="reactor-core" onmousedown="handleTap(event)" ontouchstart="handleTap(event)">
+          <div class="reactor-icon">РЕАКТОР</div>
+          <div class="reactor-tap-hint">TAP TO MINE</div>
+        </div>
+      </div>
     </div>
 
-    <!-- Оверлей для панели рецептов -->
-    <div class="panel-overlay" id="panelOverlay" onclick="toggleRecipesPanel()"></div>
-
-    <div class="viewport-top">
-        <div class="lamp-container">
-            <div class="lamp-shade"></div>
-            <div class="light-cone" id="lightBeam"></div>
-        </div>
+    <!-- TON Кошелёк секция -->
+    <div class="ton-section">
+      <div class="ton-info">
+        <div class="ton-label">💎 TON КОШЕЛЁК</div>
+        <div class="ton-value" id="ton-address-display">Не подключён</div>
+      </div>
+      <button class="btn btn-sm btn-outline" id="ton-connect-btn" onclick="toggleTonWallet()">СВЯЗАТЬ</button>
     </div>
 
-    <button class="recipes-button" onclick="toggleRecipesPanel()">
-        <span>🍳</span>
-        РЕЦЕПТЫ
-    </button>
+    <div class="section-label">📡 Радиоэфир — Мировой Чат</div>
+    <div class="chat-box" id="global-chat-box">
+      <div style="text-align:center; color:var(--gray); font-size:11px; padding:20px 0;">Подключение к сети...</div>
+    </div>
+    <div class="chat-input-row" style="margin-top:6px;">
+      <input class="inp" id="global-msg-inp" type="text" placeholder="Сообщение в эфир..." maxlength="150">
+      <button class="btn" style="width:auto;min-width:56px;" onclick="sendGlobalMsg()">→</button>
+    </div>
+  </div>
 
-    <div class="app-container">
-        <div class="app-shell">
-            <div class="mode-nav">
-                <button class="mode-btn active" onclick="changeAppMode('bio')">Биодоступность</button>
-                <button class="mode-btn" onclick="changeAppMode('meta')">Метаболизм</button>
-            </div>
+  <!-- MESSAGES: ЛС -->
+  <div class="view" id="view-messages">
+    <h2 class="view-title">⚡ Личные Частоты</h2>
+    <div style="font-size:10px; color:var(--gray); margin-bottom:6px; letter-spacing:1px;">
+      ДИАЛОГ С: <span id="pm-target-label" style="color:var(--g);">— Выберите собеседника —</span>
+    </div>
+    <div class="pm-box" id="pm-box">
+      <div style="text-align:center;color:var(--gray);font-size:11px;padding:30px 0;align-self:center;">
+        Нажмите на ник любого жителя в чате,<br>чтобы открыть приватную беседу.
+      </div>
+    </div>
+    <div class="chat-input-row" style="margin-top:6px;">
+      <input class="inp" id="pm-inp" type="text" placeholder="Написать лично..." maxlength="300" disabled>
+      <button class="btn" id="pm-send-btn" style="width:auto;min-width:56px;" onclick="sendPM()" disabled>→</button>
+    </div>
+  </div>
 
-            <div class="selectors">
-                <select id="foodCategory" onchange="syncFoodList()">
-                    <option value="">Выберите категорию</option>
-                </select>
-                <select id="foodItem" onchange="runAnalysis()">
-                    <option value="">Выберите продукт</option>
-                </select>
-                <select id="cookingMethod" onchange="runAnalysis()">
-                    <option value="all">Все способы</option>
-                    <option value="raw">Сырое</option>
-                    <option value="steam">Паровая</option>
-                    <option value="boil">Варка</option>
-                    <option value="roast">Запекание</option>
-                    <option value="fry">Жарка</option>
-                    <option value="stew">Тушение</option>
-                    <option value="microwave">Микроволновка</option>
-                </select>
-            </div>
+  <!-- CHANNELS -->
+  <div class="view" id="view-channels">
+    <h2 class="view-title">📡 Информационные Вышки</h2>
 
-            <div class="main-display">
-                <label id="mainLabel">Температура приготовления</label>
-                <div class="val-num" id="mainVal">65<span>°C</span></div>
-            </div>
-            
-            <div class="slider-container">
-                <input type="range" id="thermSlider" min="30" max="250" value="65" 
-                       oninput="runAnalysis()">
-            </div>
-
-            <div class="data-grid">
-                <div class="data-card">
-                    <label id="labelL">Усвояемость</label>
-                    <span class="res" id="valL">--</span>
-                </div>
-                <div class="data-card">
-                    <label id="labelR">Биоценность</label>
-                    <span class="res" id="valR">--</span>
-                </div>
-            </div>
-
-            <div class="expert-verdict" id="verdict">
-                Лаборатория температурной нутрициологии готова к работе. Нажмите кнопку активации вверху.
-            </div>
-        </div>
+    <div class="create-channel-box">
+      <div class="admin-block-title">⊕ Создать свой канал</div>
+      <input class="inp" id="ch-title-inp" type="text" placeholder="Название канала" maxlength="40">
+      <input class="inp" id="ch-user-inp" type="text" placeholder="Юзернейм: @my_channel" maxlength="25">
+      <button class="btn" onclick="createChannel()">ЗАПУСТИТЬ ТРАНСЛЯЦИЮ</button>
     </div>
 
-    <!-- Панель рецептов -->
-    <div class="recipes-panel" id="recipesPanel">
-        <div class="recipes-header">
-            <div class="recipes-title" id="recipesTitle">РЕЦЕПТЫ</div>
-            <button class="close-recipes" onclick="toggleRecipesPanel()">×</button>
-        </div>
-        
-        <div class="method-filter" id="methodFilter">
-            <!-- Кнопки фильтров будут добавлены через JS -->
-        </div>
-        
-        <div class="recipes-grid" id="recipesGrid">
-            <!-- Рецепты будут генерироваться динамически -->
-        </div>
-        
-        <div id="recipeDetail">
-            <!-- Детали рецепта -->
-        </div>
+    <div class="section-label">📶 Все активные каналы сети</div>
+    <div id="channels-list"></div>
+  </div>
+
+  <!-- MARKET -->
+  <div class="view" id="view-market">
+    <h2 class="view-title">💠 Торговая Палата</h2>
+
+    <div style="font-size:11px; color:var(--gray); margin-bottom:10px; text-align:center; letter-spacing:1px;">
+      ОБМЕНИВАЙТЕ $TAPGRAM НА СТАТУСЫ И НИКУ
     </div>
+
+    <div class="market-item">
+      <div class="market-item-info">
+        <div class="market-item-title">@ton</div>
+        <div class="market-item-price">Редкий 3-буквенный ник</div>
+      </div>
+      <button class="btn btn-sm" onclick="buyUsername('@ton', 400000)">400K $TAP</button>
+    </div>
+
+    <div class="market-item">
+      <div class="market-item-info">
+        <div class="market-item-title">👑 Корона Смотрителя</div>
+        <div class="market-item-price">Золотой бейдж навсегда</div>
+      </div>
+      <button class="btn btn-sm" onclick="buyCrown(50000)">50K $TAP</button>
+    </div>
+
+    <div class="market-item">
+      <div class="market-item-info">
+        <div class="market-item-title">⚡ Сверхзаряд</div>
+        <div class="market-item-price">+500 к максимуму энергии (разово)</div>
+      </div>
+      <button class="btn btn-sm" onclick="buySupercharge(10000)">10K $TAP</button>
+    </div>
+  </div>
+
+  <!-- SEARCH -->
+  <div class="view" id="view-search">
+    <h2 class="view-title">🔍 Глобальный Радар</h2>
+    <input class="inp" id="search-inp" type="text" placeholder="Поиск жителей и каналов..." oninput="runSearch()">
+    <div id="search-results" style="margin-top:8px;"></div>
+  </div>
+
+  <!-- ADMIN -->
+  <div class="view" id="view-admin">
+    <h2 class="view-title" style="color:var(--red); text-shadow:0 0 10px var(--red);">☢ ПАНЕЛЬ БОГА</h2>
+
+    <div class="admin-block danger">
+      <div class="admin-block-title" style="color:rgba(255,51,85,0.7);">🚀 Начисление поинтов</div>
+      <select class="inp" id="admin-sel-user" style="margin-bottom:6px;"></select>
+      <input class="inp" id="admin-points-inp" type="number" placeholder="Количество $TAPGRAM">
+      <button class="btn btn-danger" style="margin-top:6px;" onclick="adminAddPoints()">ПРИМЕНИТЬ К БД</button>
+    </div>
+
+    <div class="admin-block normal">
+      <div class="admin-block-title">⚙ Глобальная конфигурация</div>
+      <label style="font-size:10px; color:var(--gray); letter-spacing:1px;">Название проекта:</label>
+      <input class="inp" id="admin-title-inp" value="TAPGRAM NETWORK" style="margin-bottom:6px;">
+      <label style="font-size:10px; color:var(--gray); letter-spacing:1px;">Порядок меню:</label>
+      <select class="inp" id="admin-nav-sel" style="margin-bottom:6px;">
+        <option value="normal">Стандартный</option>
+        <option value="reversed">Реверсивный</option>
+      </select>
+      <button class="btn" onclick="adminApplyConfig()">ОБНОВИТЬ ДЛЯ ВСЕХ</button>
+    </div>
+
+    <div class="admin-block normal">
+      <div class="admin-block-title">👥 Зарегистрированные жители</div>
+      <div id="admin-users-list"></div>
+    </div>
+  </div>
+
+  <!-- НИЖНЯЯ НАВИГАЦИЯ -->
+  <div id="nav-bar">
+    <div class="nav-inner" id="nav-inner">
+      <button class="nav-btn active" id="btn-main" onclick="switchView('main')">
+        <span class="nav-icon">⚛</span>Реактор
+      </button>
+      <button class="nav-btn" id="btn-messages" onclick="switchView('messages')">
+        <span class="nav-icon">💬</span>ЛС
+      </button>
+      <button class="nav-btn" id="btn-channels" onclick="switchView('channels')">
+        <span class="nav-icon">📡</span>Каналы
+      </button>
+      <button class="nav-btn" id="btn-market" onclick="switchView('market')">
+        <span class="nav-icon">💠</span>Биржа
+      </button>
+      <button class="nav-btn" id="btn-search" onclick="switchView('search')">
+        <span class="nav-icon">🔍</span>Поиск
+      </button>
+      <button class="nav-btn god-btn" id="btn-admin" onclick="switchView('admin')" style="display:none;">
+        <span class="nav-icon">☢</span>БОГ
+      </button>
+    </div>
+  </div>
+
+</div>
+
+<!-- ============================================================
+     ПРОФИЛЬ МОДАЛ
+     ============================================================ -->
+<div class="modal-overlay" id="profile-modal">
+  <div class="modal-card">
+    <div class="modal-avatar" id="modal-avatar">👤</div>
+    <div class="modal-username" id="modal-uname">@username</div>
+    <div class="modal-info-row">
+      <span class="label">Статус</span>
+      <span class="value" id="modal-status">Житель</span>
+    </div>
+    <div class="modal-info-row">
+      <span class="label">Баланс</span>
+      <span class="value" id="modal-balance">0 $TAP</span>
+    </div>
+    <div class="modal-wallet" id="modal-wallet">Кошелёк не привязан</div>
+    <div class="modal-actions">
+      <button class="btn" id="modal-pm-btn" onclick="">💬 НАПИСАТЬ В ЛС</button>
+      <button class="btn btn-outline" onclick="closeModal()">ЗАКРЫТЬ</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast контейнер -->
+<div id="toast-container"></div>
 
 <script>
-    // ==================== БАЗА ДАННЫХ ПРОДУКТОВ ====================
-    const GLOBAL_FOOD_DB = {
-        "Мясо и птица": {
-            "chicken_breast": { 
-                n: "Куриная грудка", 
-                kcal: 110, 
-                bio: 99, 
-                tips: [
-                    "60°C: Су-вид. Максимальная сочность и сохранение белка.",
-                    "72°C: На пару. Полная безопасность без потери сочности.",
-                    "75°C: Вареная. Классический диетический вариант.",
-                    "85°C: Переваренная. Белок уплотняется, хуже усваивается.",
-                    "180°C: Запеченная. С хрустящей корочкой, хороша для набора массы."
-                ]
-            },
-            "chicken_thigh": { 
-                n: "Куриное бедро", 
-                kcal: 180, 
-                bio: 95, 
-                tips: [
-                    "65°C: Медленное тушение. Коллаген превращается в желатин.",
-                    "75°C: Запеченное. Жир равномерно распределяется.",
-                    "82°C: Вареное. Для супов и бульонов.",
-                    "180°C: Жареное. Хрустящая кожица, калорийность повышается."
-                ]
-            },
-            "beef_mince": { 
-                n: "Говяжий фарш", 
-                kcal: 250, 
-                bio: 98, 
-                tips: [
-                    "70°C: Фрикадельки на пару. Легкие и диетические.",
-                    "75°C: Вареные тефтели. Минимум жира.",
-                    "100°C: Тушеные. С овощами в томатном соусе.",
-                    "180°C: Жареные котлеты. Классический вариант."
-                ]
-            },
-            "pork_neck": { 
-                n: "Свиная шея", 
-                kcal: 270, 
-                bio: 96, 
-                tips: [
-                    "65°C: Медленное томление. Мясо становится нежным.",
-                    "75°C: Вареная. Для холодца и заливного.",
-                    "85°C: Тушеная. С капустой или картофелем.",
-                    "200°C: Запеченная. С хрустящей корочкой."
-                ]
-            },
-            "turkey_breast": { 
-                n: "Индейка", 
-                kcal: 104, 
-                bio: 98, 
-                tips: [
-                    "62°C: Су-вид. Идеально для салатов.",
-                    "70°C: На пару. Сухое мясо становится сочным.",
-                    "74°C: Вареная. Диетический белок.",
-                    "160°C: Запеченная. С травами и лимоном."
-                ]
-            },
-            "beef_liver": { 
-                n: "Говяжья печень", 
-                kcal: 135, 
-                bio: 99, 
-                tips: [
-                    "40°C: Быстрая обжарка. Витамин A сохраняется на 90%.",
-                    "70°C: Вареная. Безопасно, железо доступно.",
-                    "75°C: Тушеная. С луком и сметаной.",
-                    "85°C: Переваренная. Становится жесткой."
-                ]
-            }
-        },
-        
-        "Рыба": {
-            "pollock": { 
-                n: "Минтай", 
-                kcal: 72, 
-                bio: 98, 
-                tips: [
-                    "60°C: На пару. Белок сохраняет структуру.",
-                    "65°C: Вареный. Для детского питания.",
-                    "70°C: Запеченный в фольге. Сочно и полезно.",
-                    "180°C: Жареный в кляре. Калорийность увеличивается в 2 раза."
-                ]
-            },
-            "herring": { 
-                n: "Сельдь", 
-                kcal: 158, 
-                bio: 97, 
-                tips: [
-                    "4°C: Соленая. Омега-3 в полном объеме.",
-                    "65°C: На пару. Жир сохраняется внутри.",
-                    "75°C: Вареная. Для ухи.",
-                    "180°C: Жареная. С хрустящей кожицей."
-                ]
-            },
-            "cod": { 
-                n: "Треска", 
-                kcal: 78, 
-                bio: 99, 
-                tips: [
-                    "60°C: Припущенная. Сохраняет сочность.",
-                    "65°C: На пару. Диетический вариант.",
-                    "70°C: Запеченная. С овощами.",
-                    "160°C: Жареная. В сухарях."
-                ]
-            },
-            "pike_perch": { 
-                n: "Судак", 
-                kcal: 84, 
-                bio: 98, 
-                tips: [
-                    "62°C: На пару. Нежное диетическое мясо.",
-                    "68°C: Вареный. Для котлет и тефтелей.",
-                    "75°C: Запеченный. С зеленью.",
-                    "170°C: Жареный. С лимоном."
-                ]
-            }
-        },
-        
-        "Яйца и молочное": {
-            "chicken_egg": { 
-                n: "Куриное яйцо", 
-                kcal: 155, 
-                bio: 98, 
-                tips: [
-                    "35°C: Сырое. Авидин не денатурирован, может мешать усвоению биотина.",
-                    "64°C: Пашот. Желток кремообразный, белок нежный.",
-                    "70°C: Всмятку. Быстрое усвоение.",
-                    "85°C: Вкрутую. Долгое переваривание, сытость на 3-4 часа.",
-                    "160°C: Омлет. Белок денатурирован полностью."
-                ]
-            },
-            "cottage_cheese": { 
-                n: "Творог 5%", 
-                kcal: 121, 
-                bio: 95, 
-                tips: [
-                    "4°C: Свежий. Кальций максимально доступен.",
-                    "65°C: Запеканка. Белок уплотняется.",
-                    "85°C: Сырники. С легкой корочкой.",
-                    "180°C: Жареные сырники. Калорийность повышается."
-                ]
-            },
-            "milk_2.5": { 
-                n: "Молоко 2.5%", 
-                kcal: 52, 
-                bio: 96, 
-                tips: [
-                    "4°C: Холодное. Витамины сохраняются.",
-                    "40°C: Теплое. Для лучшего усвоения.",
-                    "65°C: Пастеризованное. Безопасно, но теряется часть витаминов.",
-                    "85°C: Кипяченое. Уничтожаются бактерии, денатурируют белки."
-                ]
-            },
-            "sour_cream_15": { 
-                n: "Сметана 15%", 
-                kcal: 162, 
-                bio: 94, 
-                tips: [
-                    "4°C: Холодная. Пробиотики активны.",
-                    "40°C: Теплая. Для соусов.",
-                    "65°C: В запеканке. Теряет кислотность.",
-                    "85°C: В супе. Сворачивается."
-                ]
-            }
-        },
-        
-        "Овощи": {
-            "potato": { 
-                n: "Картофель", 
-                kcal: 77, 
-                bio: 97, 
-                tips: [
-                    "85°C: Вареный. Крахмал желатинизируется, становится доступным.",
-                    "95°C: Разваренный. Для пюре.",
-                    "100°C: На пару. Максимум витамина C.",
-                    "120°C: Запеченный. Образуется резистентный крахмал.",
-                    "180°C: Жареный. Калорийность увеличивается в 3 раза."
-                ]
-            },
-            "carrot": { 
-                n: "Морковь", 
-                kcal: 35, 
-                bio: 97, 
-                tips: [
-                    "20°C: Сырая. Клетчатка, но бета-каротин плохо усваивается.",
-                    "85°C: Вареная. Бета-каротин усваивается в 5 раз лучше.",
-                    "100°C: На пару. Сохраняет цвет и форму.",
-                    "120°C: Запеченная. Карамелизация сахаров.",
-                    "160°C: Жареная. Сладкий вкус."
-                ]
-            },
-            "beetroot": { 
-                n: "Свекла", 
-                kcal: 43, 
-                bio: 96, 
-                tips: [
-                    "85°C: Вареная. Нитраты преобразуются в полезные нитриты.",
-                    "95°C: Разваренная. Для борща.",
-                    "100°C: На пару. Сохраняет цвет.",
-                    "120°C: Запеченная. Концентрированный сладкий вкус."
-                ]
-            },
-            "cabbage": { 
-                n: "Капуста белокочанная", 
-                kcal: 25, 
-                bio: 98, 
-                tips: [
-                    "20°C: Сырая. Максимум витамина C и ферментов.",
-                    "75°C: Тушеная. Клетчатка размягчается.",
-                    "85°C: Вареная. Для супов.",
-                    "100°C: На пару. Быстрое приготовление.",
-                    "180°C: Жареная. С хрустящей корочкой."
-                ]
-            },
-            "onion": { 
-                n: "Лук репчатый", 
-                kcal: 40, 
-                bio: 95, 
-                tips: [
-                    "20°C: Сырой. Фитонциды активны.",
-                    "75°C: Тушеный. Становится сладким.",
-                    "100°C: Вареный. Для бульонов.",
-                    "120°C: Запеченный. Карамелизируется.",
-                    "180°C: Жареный. Золотистая корочка."
-                ]
-            },
-            "tomato": { 
-                n: "Помидор", 
-                kcal: 18, 
-                bio: 99, 
-                tips: [
-                    "20°C: Сырой. Ликопин доступен на 20%.",
-                    "85°C: Тушеный. Ликопин доступен на 80%.",
-                    "95°C: Вареный. Для соусов.",
-                    "120°C: Запеченный. Концентрированный вкус."
-                ]
-            }
-        },
-        
-        "Крупы и бобовые": {
-            "buckwheat": { 
-                n: "Гречка", 
-                kcal: 92, 
-                bio: 94, 
-                tips: [
-                    "85°C: Вареная. Крупа разваривается, крахмал доступен.",
-                    "95°C: Разваренная. Для детей и диетического питания.",
-                    "100°C: На пару. Рассыпчатая.",
-                    "180°C: Обжаренная. Ореховый вкус."
-                ]
-            },
-            "rice": { 
-                n: "Рис белый", 
-                kcal: 130, 
-                bio: 93, 
-                tips: [
-                    "85°C: Вареный. Крахмал желатинизируется.",
-                    "95°C: Разваренный. Для ризотто и супов.",
-                    "100°C: На пару. Рассыпчатый.",
-                    "180°C: Жареный. С овощами."
-                ]
-            },
-            "oatmeal": { 
-                n: "Овсянка", 
-                kcal: 88, 
-                bio: 96, 
-                tips: [
-                    "85°C: Каша. Бета-глюканы становятся вязкими.",
-                    "95°C: Размазня. Для слизистых диет.",
-                    "100°C: Запаренная. Сохраняет максимум полезного."
-                ]
-            },
-            "lentils": { 
-                n: "Чечевица", 
-                kcal: 116, 
-                bio: 85, 
-                tips: [
-                    "85°C: Вареная. Белок доступен на 85%.",
-                    "95°C: Разваренная. Для супов-пюре.",
-                    "100°C: На пару. Сохраняет форму.",
-                    "120°C: Тушеная. С овощами и специями."
-                ]
-            },
-            "beans": { 
-                n: "Фасоль белая", 
-                kcal: 102, 
-                bio: 82, 
-                tips: [
-                    "85°C: Вареная (после замачивания). Лектины разрушаются.",
-                    "95°C: Разваренная. Для пюре.",
-                    "100°C: На пару. Сохраняет форму.",
-                    "120°C: Тушеная. В томатном соусе."
-                ]
-            }
-        }
-    };
+/* ============================================================
+   ⚙ КОНФИГУРАЦИЯ — ВСТАВЬТЕ СВОИ ДАННЫЕ ЗДЕСЬ
+   ============================================================ */
 
-    // ==================== ПОЛНАЯ БАЗА РЕЦЕПТОВ ====================
-    const RECIPES_DB = {
-        "chicken_breast": [
-            {
-                id: 1,
-                name: "Куриная грудка на пару",
-                description: "Диетический вариант с сохранением всех нутриентов",
-                method: "steam",
-                temperature: 72,
-                calories: 165,
-                time: "25 мин",
-                difficulty: "легко",
-                goal: "loss",
-                ingredients: [
-                    { name: "Куриная грудка", amount: 200, unit: "г" },
-                    { name: "Соль", amount: 3, unit: "г" },
-                    { name: "Укроп свежий", amount: 10, unit: "г" },
-                    { name: "Лимон", amount: 2, unit: "дольки" },
-                    { name: "Вода", amount: 500, unit: "мл" }
-                ],
-                steps: [
-                    "Курицу промыть, промокнуть бумажным полотенцем",
-                    "Посолить с двух сторон",
-                    "Нарезать укроп",
-                    "Положить курицу в пароварку",
-                    "Готовить 20-25 минут до готовности",
-                    "Проверить готовность (белый сок при прокалывании)",
-                    "Посыпать укропом, сбрызнуть лимоном",
-                    "Дать постоять 5 минут перед нарезкой"
-                ],
-                tips: "Не переваривайте - курица станет сухой. Идеальная внутренняя температура 72°C.",
-                nutrition: { protein: 31, fat: 3, carbs: 0, fiber: 0 }
-            },
-            {
-                id: 2,
-                name: "Куриная грудка вареная",
-                description: "Классический диетический вариант",
-                method: "boil",
-                temperature: 75,
-                calories: 170,
-                time: "30 мин",
-                difficulty: "легко",
-                goal: "loss",
-                ingredients: [
-                    { name: "Куриная грудка", amount: 300, unit: "г" },
-                    { name: "Вода", amount: 1000, unit: "мл" },
-                    { name: "Соль", amount: 5, unit: "г" },
-                    { name: "Лавровый лист", amount: 2, unit: "шт" },
-                    { name: "Перец горошком", amount: 5, unit: "горошин" },
-                    { name: "Лук", amount: 1, unit: "шт" },
-                    { name: "Морковь", amount: 1, unit: "шт" }
-                ],
-                steps: [
-                    "Курицу промыть",
-                    "В кастрюлю налить воду, довести до кипения",
-                    "Добавить соль, специи, овощи",
-                    "Положить курицу, уменьшить огонь",
-                    "Варить 25-30 минут после закипания",
-                    "Достать курицу, дать остыть",
-                    "Нарезать порционно"
-                ],
-                tips: "Бульон можно использовать для супов. Не кипятите сильно - мясо станет жестким.",
-                nutrition: { protein: 32, fat: 4, carbs: 1, fiber: 0 }
-            },
-            {
-                id: 3,
-                name: "Запеченная куриная грудка",
-                description: "С хрустящей корочкой",
-                method: "roast",
-                temperature: 180,
-                calories: 220,
-                time: "35 мин",
-                difficulty: "легко",
-                goal: "maintain",
-                ingredients: [
-                    { name: "Куриная грудка", amount: 250, unit: "г" },
-                    { name: "Панировочные сухари", amount: 30, unit: "г" },
-                    { name: "Яйцо", amount: 1, unit: "шт" },
-                    { name: "Чеснок сушеный", amount: 3, unit: "г" },
-                    { name: "Паприка", amount: 3, unit: "г" },
-                    { name: "Соль", amount: 3, unit: "г" },
-                    { name: "Подсолнечное масло", amount: 10, unit: "мл" }
-                ],
-                steps: [
-                    "Курицу разрезать вдоль на 2 тонких филе",
-                    "Смешать сухари и специи",
-                    "Яйцо взбить с щепоткой соли",
-                    "Обмакнуть курицу в яйцо, затем в панировку",
-                    "Выложить на противень с бумагой",
-                    "Сбрызнуть маслом",
-                    "Запекать 25-30 минут при 180°C до золотистой корочки",
-                    "Дать остыть 5 минут"
-                ],
-                tips: "Для хрустящей корочки не накрывайте фольгой. Проверяйте готовность термометром (74°C внутри).",
-                nutrition: { protein: 35, fat: 8, carbs: 10, fiber: 1 }
-            },
-            {
-                id: 4,
-                name: "Куриные котлеты на пару",
-                description: "Нежные диетические котлеты",
-                method: "steam",
-                temperature: 85,
-                calories: 190,
-                time: "40 мин",
-                difficulty: "легко",
-                goal: "loss",
-                ingredients: [
-                    { name: "Куриный фарш", amount: 500, unit: "г" },
-                    { name: "Лук репчатый", amount: 1, unit: "шт" },
-                    { name: "Яйцо", amount: 1, unit: "шт" },
-                    { name: "Хлеб белый", amount: 50, unit: "г" },
-                    { name: "Молоко", amount: 50, unit: "мл" },
-                    { name: "Соль", amount: 5, unit: "г" },
-                    { name: "Перец черный", amount: 2, unit: "г" }
-                ],
-                steps: [
-                    "Хлеб замочить в молоке",
-                    "Лук мелко нарезать",
-                    "Смешать фарш, лук, яйцо, отжатый хлеб",
-                    "Добавить соль, перец, хорошо вымесить",
-                    "Сформировать котлеты",
-                    "Выложить в пароварку",
-                    "Готовить 25-30 минут",
-                    "Подавать с овощами"
-                ],
-                tips: "Для сочности можно добавить 1 ст.л. сметаны в фарш. Не делайте котлеты слишком толстыми.",
-                nutrition: { protein: 22, fat: 10, carbs: 8, fiber: 1 }
-            }
-        ],
+// 1. FIREBASE — Зайдите на console.firebase.google.com
+//    Создайте проект → Firestore Database → Project Settings → Your apps
+const firebaseConfig = {
+  apiKey: "AIzaSyCu-Wx23P4OpxUbSBywpdiETZHbOe08z9c",
+  authDomain: "refer-c9d1b.firebaseapp.com",
+  databaseURL: "https://refer-c9d1b-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "refer-c9d1b",
+  storageBucket: "refer-c9d1b.firebasestorage.app",
+  messagingSenderId: "552445924289",
+  appId: "1:552445924289:web:5d143815ec7c5ad6659540",
+  measurementId: "G-EJQQ1KBTX9"
+};
 
-        "chicken_thigh": [
-            {
-                id: 5,
-                name: "Тушеные куриные бедра",
-                description: "Нежные и сочные",
-                method: "stew",
-                temperature: 85,
-                calories: 240,
-                time: "45 мин",
-                difficulty: "легко",
-                goal: "maintain",
-                ingredients: [
-                    { name: "Куриные бедра", amount: 600, unit: "г" },
-                    { name: "Лук", amount: 200, unit: "г" },
-                    { name: "Морковь", amount: 200, unit: "г" },
-                    { name: "Сметана 15%", amount: 100, unit: "г" },
-                    { name: "Вода", amount: 200, unit: "мл" },
-                    { name: "Соль", amount: 5, unit: "г" },
-                    { name: "Перец", amount: 3, unit: "г" },
-                    { name: "Чеснок", amount: 3, unit: "зубчика" },
-                    { name: "Подсолнечное масло", amount: 20, unit: "мл" }
-                ],
-                steps: [
-                    "Бедра промыть, обсушить",
-                    "Лук нарезать полукольцами, морковь соломкой",
-                    "Разогреть масло, обжарить бедра 5 минут с каждой стороны",
-                    "Добавить лук, обжарить до прозрачности",
-                    "Добавить морковь, обжарить 3 минуты",
-                    "Добавить сметану, воду, специи",
-                    "Тушить под крышкой 25-30 минут",
-                    "За 5 минут до готовности добавить измельченный чеснок",
-                    "Дать настояться 10 минут"
-                ],
-                tips: "Не снимайте кожу - она дает сочность. Жир можно слить перед подачей.",
-                nutrition: { protein: 28, fat: 15, carbs: 8, fiber: 2 }
-            }
-        ],
+// 2. TON CONNECT — Зайдите на https://dev.tonconnect.org/
+//    Создайте приложение и получите URL манифеста
+//    Создайте файл tonconnect-manifest.json на вашем хостинге (пример ниже в комментарии)
+/*
+  tonconnect-manifest.json должен содержать:
+  {
+    "url": "https://ВАШ_ДОМЕН.com",
+    "name": "TAPGRAM NET",
+    "iconUrl": "https://ВАШ_ДОМЕН.com/icon.png"
+  }
+*/
+const TON_MANIFEST_URL = "https://ВАШ_ДОМЕН.com/tonconnect-manifest.json";
 
-        "beef_mince": [
-            {
-                id: 6,
-                name: "Тефтели на пару",
-                description: "Диетические мясные шарики",
-                method: "steam",
-                temperature: 85,
-                calories: 210,
-                time: "35 мин",
-                difficulty: "легко",
-                goal: "loss",
-                ingredients: [
-                    { name: "Говяжий фарш", amount: 500, unit: "г" },
-                    { name: "Рис отварной", amount: 100, unit: "г" },
-                    { name: "Лук", amount: 100, unit: "г" },
-                    { name: "Яйцо", amount: 1, unit: "шт" },
-                    { name: "Соль", amount: 5, unit: "г" },
-                    { name: "Перец", amount: 3, unit: "г" },
-                    { name: "Укроп", amount: 10, unit: "г" }
-                ],
-                steps: [
-                    "Лук мелко нарезать",
-                    "Смешать фарш, рис, лук, яйцо",
-                    "Добавить специи, зелень, вымесить",
-                    "Сформировать шарики диаметром 3-4 см",
-                    "Выложить в пароварку",
-                    "Готовить 25-30 минут",
-                    "Проверить готовность (сок прозрачный)"
-                ],
-                tips: "Рис должен быть полностью остывшим. Можно использовать бурый рис для клетчатки.",
-                nutrition: { protein: 24, fat: 12, carbs: 10, fiber: 1 }
-            }
-        ],
+// 3. СУПЕРАДМИН — Не меняйте без необходимости
+const SUPERADMIN_USER = "tapgram";
+const SUPERADMIN_PASS = "Bodicxer2541";
 
-        "potato": [
-            {
-                id: 7,
-                name: "Картофель вареный",
-                description: "Простой гарнир",
-                method: "boil",
-                temperature: 85,
-                calories: 82,
-                time: "25 мин",
-                difficulty: "легко",
-                goal: "loss",
-                ingredients: [
-                    { name: "Картофель", amount: 500, unit: "г" },
-                    { name: "Вода", amount: 1000, unit: "мл" },
-                    { name: "Соль", amount: 5, unit: "г" },
-                    { name: "Укроп", amount: 10, unit: "г" }
-                ],
-                steps: [
-                    "Картофель почистить, нарезать одинаковыми кусками",
-                    "Залить холодной водой, довести до кипения",
-                    "Добавить соль, уменьшить огонь",
-                    "Варить 20-25 минут до мягкости",
-                    "Слить воду, дать пару выйти 2-3 минуты",
-                    "Посыпать укропом"
-                ],
-                tips: "Начинайте варить в холодной воде - картофель приготовится равномернее. Не переваривайте.",
-                nutrition: { protein: 2, fat: 0, carbs: 18, fiber: 2 }
-            },
-            {
-                id: 8,
-                name: "Картофельное пюре",
-                description: "Нежное пюре",
-                method: "boil",
-                temperature: 95,
-                calories: 120,
-                time: "30 мин",
-                difficulty: "легко",
-                goal: "maintain",
-                ingredients: [
-                    { name: "Картофель", amount: 500, unit: "г" },
-                    { name: "Молоко", amount: 150, unit: "мл" },
-                    { name: "Сливочное масло", amount: 30, unit: "г" },
-                    { name: "Соль", amount: 5, unit: "г" },
-                    { name: "Вода", amount: 1000, unit: "мл" }
-                ],
-                steps: [
-                    "Картофель почистить, нарезать",
-                    "Залить холодной водой, довести до кипения",
-                    "Добавить соль, варить 20-25 минут до очень мягкого состояния",
-                    "Слить воду, дать пару выйти",
-                    "Размять картофель толкушкой",
-                    "Подогреть молоко (не кипятить)",
-                    "Постепенно добавлять молоко и масло, помешивая",
-                    "Довести до желаемой консистенции"
-                ],
-                tips: "Используйте горячее молоко - пюре будет более воздушным. Не используйте блендер - крахмал станет клейким.",
-                nutrition: { protein: 3, fat: 5, carbs: 20, fiber: 2 }
-            }
-        ],
+/* ============================================================
+   ИНИЦИАЛИЗАЦИЯ
+   ============================================================ */
+firebase.initializeApp(FIREBASE_CONFIG);
+const db = firebase.firestore();
 
-        "carrot": [
-            {
-                id: 9,
-                name: "Морковь вареная",
-                description: "Для лучшего усвоения бета-каротина",
-                method: "boil",
-                temperature: 85,
-                calories: 35,
-                time: "20 мин",
-                difficulty: "легко",
-                goal: "loss",
-                ingredients: [
-                    { name: "Морковь", amount: 300, unit: "г" },
-                    { name: "Вода", amount: 500, unit: "мл" },
-                    { name: "Соль", amount: 3, unit: "г" },
-                    { name: "Сливочное масло", amount: 10, unit: "г" }
-                ],
-                steps: [
-                    "Морковь почистить, нарезать кружочками или кубиками",
-                    "Залить холодной водой, довести до кипения",
-                    "Добавить соль, уменьшить огонь",
-                    "Варить 15-20 минут до мягкости",
-                    "Слить воду",
-                    "Добавить масло, перемешать"
-                ],
-                tips: "Варите под крышкой - сохраняется больше питательных веществ. Бета-каротин лучше усваивается с жиром.",
-                nutrition: { protein: 1, fat: 3, carbs: 6, fiber: 2 }
-            }
-        ],
+// Состояние приложения
+const state = {
+  user: {
+    username: "guest",
+    balance: 0,
+    energy: 1000,
+    maxEnergy: 1000,
+    wallet: null,
+    crown: false,
+    isGod: false,
+    supercharge: false
+  },
+  activePmUser: null,
+  pmUnsub: null,
+  tonConnector: null,
+  tonAddress: null
+};
 
-        "cabbage": [
-            {
-                id: 10,
-                name: "Капуста тушеная",
-                description: "Классическое тушение",
-                method: "stew",
-                temperature: 85,
-                calories: 45,
-                time: "40 мин",
-                difficulty: "легко",
-                goal: "loss",
-                ingredients: [
-                    { name: "Капуста белокочанная", amount: 500, unit: "г" },
-                    { name: "Лук", amount: 100, unit: "г" },
-                    { name: "Морковь", amount: 100, unit: "г" },
-                    { name: "Томатная паста", amount: 20, unit: "г" },
-                    { name: "Вода", amount: 100, unit: "мл" },
-                    { name: "Соль", amount: 5, unit: "г" },
-                    { name: "Перец", amount: 3, unit: "г" },
-                    { name: "Подсолнечное масло", amount: 20, unit: "мл" }
-                ],
-                steps: [
-                    "Капусту нашинковать",
-                    "Лук нарезать полукольцами, морковь натереть",
-                    "Разогреть масло, обжарить лук до прозрачности",
-                    "Добавить морковь, обжарить 3 минуты",
-                    "Добавить капусту, обжарить 5 минут",
-                    "Добавить томатную пасту, воду, специи",
-                    "Тушить под крышкой 25-30 минут до мягкости",
-                    "Периодически помешивать"
-                ],
-                tips: "Не добавляйте много воды - капуста даст свой сок. Можно добавить лавровый лист за 10 минут до готовности.",
-                nutrition: { protein: 2, fat: 3, carbs: 7, fiber: 4 }
-            }
-        ],
+/* ============================================================
+   BOOT SCREEN
+   ============================================================ */
+const bootMessages = [
+  "Инициализация ядра...",
+  "Подключение к сети...",
+  "Загрузка модулей...",
+  "Синхронизация с облаком...",
+  "Проверка целостности БД...",
+  "Запуск терминала..."
+];
 
-        "buckwheat": [
-            {
-                id: 11,
-                name: "Гречка вареная",
-                description: "Рассыпчатая каша",
-                method: "boil",
-                temperature: 85,
-                calories: 100,
-                time: "25 мин",
-                difficulty: "легко",
-                goal: "loss",
-                ingredients: [
-                    { name: "Гречневая крупа", amount: 200, unit: "г" },
-                    { name: "Вода", amount: 400, unit: "мл" },
-                    { name: "Соль", amount: 3, unit: "г" },
-                    { name: "Сливочное масло", amount: 20, unit: "г" }
-                ],
-                steps: [
-                    "Гречку перебрать, промыть",
-                    "Залить холодной водой, довести до кипения",
-                    "Снять пену, добавить соль",
-                    "Уменьшить огонь до минимума, накрыть крышкой",
-                    "Варить 15-20 минут до впитывания воды",
-                    "Снять с огня, добавить масло",
-                    "Дать постоять под крышкой 10 минут"
-                ],
-                tips: "Не мешайте во время варки - крупа будет рассыпчатой. Соотношение воды 1:2 для рассыпчатой каши.",
-                nutrition: { protein: 5, fat: 4, carbs: 18, fiber: 3 }
-            }
-        ],
+function bootSequence() {
+  // Создаём частицы
+  const pc = document.getElementById('particles');
+  for (let i = 0; i < 18; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.left = Math.random() * 100 + '%';
+    p.style.animationDuration = (6 + Math.random() * 8) + 's';
+    p.style.animationDelay = (Math.random() * 6) + 's';
+    p.style.width = p.style.height = (Math.random() * 2 + 1) + 'px';
+    pc.appendChild(p);
+  }
 
-        "rice": [
-            {
-                id: 12,
-                name: "Рис вареный",
-                description: "Рассыпчатый рис",
-                method: "boil",
-                temperature: 85,
-                calories: 130,
-                time: "20 мин",
-                difficulty: "легко",
-                goal: "loss",
-                ingredients: [
-                    { name: "Рис белый", amount: 200, unit: "г" },
-                    { name: "Вода", amount: 400, unit: "мл" },
-                    { name: "Соль", amount: 3, unit: "г" },
-                    { name: "Подсолнечное масло", amount: 10, unit: "мл" }
-                ],
-                steps: [
-                    "Рис промыть до прозрачной воды",
-                    "Залить холодной водой, довести до кипения",
-                    "Добавить соль, масло",
-                    "Уменьшить огонь до минимума, накрыть крышкой",
-                    "Варить 15-18 минут до впитывания воды",
-                    "Снять с огня, дать постоять 5 минут под крышкой"
-                ],
-                tips: "Не открывайте крышку во время варки - пар важен для равномерного приготовления. Промывание удаляет лишний крахмал.",
-                nutrition: { protein: 3, fat: 2, carbs: 28, fiber: 1 }
-            }
-        ],
+  const bar  = document.getElementById('boot-bar');
+  const log  = document.getElementById('boot-log');
+  let  step  = 0;
+  const total = bootMessages.length;
 
-        "oatmeal": [
-            {
-                id: 13,
-                name: "Овсяная каша на воде",
-                description: "Диетический завтрак",
-                method: "boil",
-                temperature: 85,
-                calories: 88,
-                time: "15 мин",
-                difficulty: "легко",
-                goal: "loss",
-                ingredients: [
-                    { name: "Овсяные хлопья", amount: 50, unit: "г" },
-                    { name: "Вода", amount: 200, unit: "мл" },
-                    { name: "Соль", amount: 1, unit: "г" },
-                    { name: "Мед", amount: 10, unit: "г" }
-                ],
-                steps: [
-                    "Воду довести до кипения",
-                    "Добавить соль, овсяные хлопья",
-                    "Варить 10-12 минут на медленном огне, помешивая",
-                    "Снять с огня, добавить мед",
-                    "Дать постоять 3-5 минут"
-                ],
-                tips: "Используйте овсяные хлопья долгой варки - в них больше клетчатки. Не добавляйте мед в кипяток - разрушаются ферменты.",
-                nutrition: { protein: 3, fat: 2, carbs: 16, fiber: 3 }
-            },
-            {
-                id: 14,
-                name: "Овсяная каша на молоке",
-                description: "Сытный завтрак",
-                method: "boil",
-                temperature: 85,
-                calories: 150,
-                time: "20 мин",
-                difficulty: "легко",
-                goal: "maintain",
-                ingredients: [
-                    { name: "Овсяные хлопья", amount: 60, unit: "г" },
-                    { name: "Молоко 2.5%", amount: 200, unit: "мл" },
-                    { name: "Вода", amount: 50, unit: "мл" },
-                    { name: "Соль", amount: 1, unit: "г" },
-                    { name: "Сахар", amount: 10, unit: "г" },
-                    { name: "Сливочное масло", amount: 10, unit: "г" }
-                ],
-                steps: [
-                    "Молоко смешать с водой, довести до кипения",
-                    "Добавить соль, сахар, овсяные хлопья",
-                    "Варить 12-15 минут на медленном огне, помешивая",
-                    "Снять с огня, добавить масло",
-                    "Дать постоять 5 минут"
-                ],
-                tips: "Смесь молока и воды предотвращает пригорание. Можно добавить ягоды или фрукты.",
-                nutrition: { protein: 6, fat: 5, carbs: 22, fiber: 3 }
-            }
-        ],
-
-        "chicken_egg": [
-            {
-                id: 15,
-                name: "Яйца вареные вкрутую",
-                description: "Сытный белковый продукт",
-                method: "boil",
-                temperature: 100,
-                calories: 155,
-                time: "10 мин",
-                difficulty: "легко",
-                goal: "loss",
-                ingredients: [
-                    { name: "Яйца куриные", amount: 4, unit: "шт" },
-                    { name: "Вода", amount: 1000, unit: "мл" },
-                    { name: "Соль", amount: 5, unit: "г" }
-                ],
-                steps: [
-                    "Яйца промыть",
-                    "В кастрюлю налить воду, довести до кипения",
-                    "Аккуратно опустить яйца в кипящую воду",
-                    "Добавить соль (скорлупа не треснет)",
-                    "Варить 8-9 минут",
-                    "Слить горячую воду, залить холодной",
-                    "Охлаждать 5 минут, затем очистить"
-                ],
-                tips: "Яйца комнатной температуры реже трескаются при варке. Соль действительно помогает сохранить скорлупу целой.",
-                nutrition: { protein: 13, fat: 11, carbs: 1, fiber: 0 }
-            },
-            {
-                id: 16,
-                name: "Яйца вареные всмятку",
-                description: "Быстрое приготовление",
-                method: "boil",
-                temperature: 100,
-                calories: 140,
-                time: "5 мин",
-                difficulty: "легко",
-                goal: "loss",
-                ingredients: [
-                    { name: "Яйца куриные", amount: 4, unit: "шт" },
-                    { name: "Вода", amount: 1000, unit: "мл" }
-                ],
-                steps: [
-                    "Яйца промыть",
-                    "В кастрюлю налить воду, довести до кипения",
-                    "Аккуратно опустить яйца в кипящую воду",
-                    "Варить 3-4 минуты",
-                    "Слить горячую воду, залить холодной на 1 минуту",
-                    "Подавать в скорлупе, срезав верхушку"
-                ],
-                tips: "Точное время зависит от размера яиц: S - 3 мин, M - 3.5 мин, L - 4 мин. Подавайте немедленно.",
-                nutrition: { protein: 12, fat: 10, carbs: 1, fiber: 0 }
-            },
-            {
-                id: 17,
-                name: "Яичница глазунья",
-                description: "Быстрый завтрак",
-                method: "fry",
-                temperature: 140,
-                calories: 180,
-                time: "10 мин",
-                difficulty: "легко",
-                goal: "maintain",
-                ingredients: [
-                    { name: "Яйца", amount: 3, unit: "шт" },
-                    { name: "Подсолнечное масло", amount: 15, unit: "мл" },
-                    { name: "Соль", amount: 3, unit: "г" },
-                    { name: "Перец черный", amount: 1, unit: "г" }
-                ],
-                steps: [
-                    "Разогреть масло в сковороде",
-                    "Аккуратно разбить яйца, не повредив желтки",
-                    "Готовить на среднем огне 3-4 минуты",
-                    "Посолить, поперчить",
-                    "Накрыть крышкой, готовить еще 1-2 минуты до желаемой степени прожарки желтка",
-                    "Подавать немедленно"
-                ],
-                tips: "Не разбивайте яйца прямо в сковороду - возможны осколки скорлупы. Используйте средний огонь.",
-                nutrition: { protein: 14, fat: 14, carbs: 1, fiber: 0 }
-            },
-            {
-                id: 18,
-                name: "Омлет с молоком",
-                description: "Пышный омлет",
-                method: "fry",
-                temperature: 160,
-                calories: 220,
-                time: "15 мин",
-                difficulty: "легко",
-                goal: "gain",
-                ingredients: [
-                    { name: "Яйца", amount: 3, unit: "шт" },
-                    { name: "Молоко", amount: 100, unit: "мл" },
-                    { name: "Соль", amount: 3, unit: "г" },
-                    { name: "Подсолнечное масло", amount: 10, unit: "мл" },
-                    { name: "Зелень", amount: 10, unit: "г" }
-                ],
-                steps: [
-                    "Яйца взбить с молоком и солью до однородности",
-                    "Разогреть масло в сковороде",
-                    "Вылить яичную смесь",
-                    "Готовить на среднем огне 5-7 минут",
-                    "Когда низ схватится, накрыть крышкой",
-                    "Готовить еще 3-4 минуты",
-                    "Посыпать зеленью, сложить пополам"
-                ],
-                tips: "Не перемешивайте омлет во время готовки. Молоко можно заменить водой для более плотной текстуры.",
-                nutrition: { protein: 16, fat: 15, carbs: 5, fiber: 0 }
-            }
-        ],
-
-        "cottage_cheese": [
-            {
-                id: 19,
-                name: "Творог со сметаной",
-                description: "Простой и полезный завтрак",
-                method: "raw",
-                temperature: 4,
-                calories: 180,
-                time: "5 мин",
-                difficulty: "легко",
-                goal: "loss",
-                ingredients: [
-                    { name: "Творог 5%", amount: 200, unit: "г" },
-                    { name: "Сметана 15%", amount: 30, unit: "г" },
-                    { name: "Соль", amount: 2, unit: "г" },
-                    { name: "Зелень", amount: 10, unit: "г" }
-                ],
-                steps: [
-                    "Творог выложить в миску",
-                    "Добавить сметану, соль",
-                    "Аккуратно перемешать",
-                    "Посыпать зеленью"
-                ],
-                tips: "Используйте некислый творог. Можно добавить редис или огурец.",
-                nutrition: { protein: 18, fat: 10, carbs: 4, fiber: 0 }
-            },
-            {
-                id: 20,
-                name: "Сырники в духовке",
-                description: "Диетические сырники",
-                method: "roast",
-                temperature: 180,
-                calories: 200,
-                time: "30 мин",
-                difficulty: "легко",
-                goal: "maintain",
-                ingredients: [
-                    { name: "Творог 5%", amount: 500, unit: "г" },
-                    { name: "Яйцо", amount: 1, unit: "шт" },
-                    { name: "Мука", amount: 50, unit: "г" },
-                    { name: "Сахар", amount: 20, unit: "г" },
-                    { name: "Соль", amount: 2, unit: "г" },
-                    { name: "Ванилин", amount: 1, unit: "г" },
-                    { name: "Подсолнечное масло", amount: 10, unit: "мл" }
-                ],
-                steps: [
-                    "Творог протереть через сито",
-                    "Добавить яйцо, сахар, соль, ванилин",
-                    "Добавить муку, вымесить тесто",
-                    "Сформировать сырники, обвалять в муке",
-                    "Выложить на противень с бумагой",
-                    "Сбрызнуть маслом",
-                    "Запекать 20-25 минут при 180°C до золотистого цвета",
-                    "Перевернуть через 15 минут"
-                ],
-                tips: "Не добавляйте много муки - сырники будут жесткими. Творог должен быть сухим.",
-                nutrition: { protein: 20, fat: 8, carbs: 15, fiber: 1 }
-            }
-        ],
-
-        "milk_2.5": [
-            {
-                id: 21,
-                name: "Теплое молоко с медом",
-                description: "Успокаивающий напиток перед сном",
-                method: "boil",
-                temperature: 40,
-                calories: 90,
-                time: "5 мин",
-                difficulty: "легко",
-                goal: "maintain",
-                ingredients: [
-                    { name: "Молоко 2.5%", amount: 250, unit: "мл" },
-                    { name: "Мед", amount: 15, unit: "г" }
-                ],
-                steps: [
-                    "Молоко подогреть до 40°C",
-                    "Не доводить до кипения",
-                    "Добавить мед, размешать",
-                    "Пить теплым"
-                ],
-                tips: "Не добавляйте мед в кипящее молоко - разрушаются полезные ферменты меда.",
-                nutrition: { protein: 8, fat: 6, carbs: 12, fiber: 0 }
-            },
-            {
-                id: 22,
-                name: "Молочный суп с вермишелью",
-                description: "Классический детский суп",
-                method: "boil",
-                temperature: 85,
-                calories: 180,
-                time: "20 мин",
-                difficulty: "легко",
-                goal: "gain",
-                ingredients: [
-                    { name: "Молоко 2.5%", amount: 500, unit: "мл" },
-                    { name: "Вермишель мелкая", amount: 100, unit: "г" },
-                    { name: "Сахар", amount: 20, unit: "г" },
-                    { name: "Соль", amount: 2, unit: "г" },
-                    { name: "Сливочное масло", amount: 20, unit: "г" }
-                ],
-                steps: [
-                    "Молоко довести до кипения",
-                    "Добавить соль, сахар",
-                    "Всыпать вермишель",
-                    "Варить 8-10 минут на медленном огне",
-                    "Добавить масло",
-                    "Дать настояться 5 минут"
-                ],
-                tips: "Чтобы молоко не пригорело, используйте толстостенную кастрюлю. Помешивайте во время варки.",
-                nutrition: { protein: 12, fat: 8, carbs: 25, fiber: 1 }
-            }
-        ],
-
-        "sour_cream_15": [
-            {
-                id: 23,
-                name: "Соус из сметаны с укропом",
-                description: "Универсальный соус для овощей и мяса",
-                method: "raw",
-                temperature: 4,
-                calories: 85,
-                time: "10 мин",
-                difficulty: "легко",
-                goal: "loss",
-                ingredients: [
-                    { name: "Сметана 15%", amount: 200, unit: "г" },
-                    { name: "Укроп свежий", amount: 20, unit: "г" },
-                    { name: "Чеснок", amount: 2, unit: "зубчика" },
-                    { name: "Соль", amount: 3, unit: "г" },
-                    { name: "Лимонный сок", amount: 10, unit: "мл" }
-                ],
-                steps: [
-                    "Укроп мелко порубить",
-                    "Чеснок измельчить",
-                    "Смешать сметану с укропом и чесноком",
-                    "Добавить соль и лимонный сок",
-                    "Тщательно перемешать",
-                    "Охладить 30 минут перед подачей"
-                ],
-                tips: "Для более густого соуса можно добавить 1 ч.л. горчицы. Храните в холодильнике до 3 дней.",
-                nutrition: { protein: 4, fat: 7, carbs: 3, fiber: 0 }
-            },
-            {
-                id: 24,
-                name: "Борщ со сметаной",
-                description: "Классический суп со сметаной",
-                method: "boil",
-                temperature: 95,
-                calories: 150,
-                time: "60 мин",
-                difficulty: "средне",
-                goal: "maintain",
-                ingredients: [
-                    { name: "Сметана 15%", amount: 50, unit: "г" },
-                    { name: "Свекла", amount: 200, unit: "г" },
-                    { name: "Картофель", amount: 300, unit: "г" },
-                    { name: "Капуста", amount: 200, unit: "г" },
-                    { name: "Морковь", amount: 100, unit: "г" },
-                    { name: "Лук", amount: 100, unit: "г" },
-                    { name: "Томатная паста", amount: 30, unit: "г" },
-                    { name: "Говядина", amount: 300, unit: "г" },
-                    { name: "Вода", amount: 2000, unit: "мл" },
-                    { name: "Соль", amount: 10, unit: "г" }
-                ],
-                steps: [
-                    "Мясо варить 40 минут",
-                    "Добавить нарезанные овощи",
-                    "Варить еще 20 минут",
-                    "Добавить томатную пасту",
-                    "Посолить",
-                    "Подавать со сметаной"
-                ],
-                tips: "Сметану добавляйте непосредственно в тарелку, чтобы сохранить ее полезные свойства.",
-                nutrition: { protein: 18, fat: 6, carbs: 20, fiber: 5 }
-            }
-        ],
-
-        "beetroot": [
-            {
-                id: 25,
-                name: "Свекла вареная",
-                description: "Базовый ингредиент для салатов",
-                method: "boil",
-                temperature: 85,
-                calories: 45,
-                time: "60 мин",
-                difficulty: "легко",
-                goal: "loss",
-                ingredients: [
-                    { name: "Свекла", amount: 400, unit: "г" },
-                    { name: "Вода", amount: 1000, unit: "мл" },
-                    { name: "Соль", amount: 5, unit: "г" }
-                ],
-                steps: [
-                    "Свеклу тщательно промыть",
-                    "Залить холодной водой",
-                    "Довести до кипения, добавить соль",
-                    "Варить 50-60 минут до мягкости",
-                    "Проверить готовность вилкой",
-                    "Слить воду, охладить",
-                    "Очистить от кожуры"
-                ],
-                tips: "Не срезайте хвостик свеклы полностью - так она сохранит цвет. Варите под крышкой.",
-                nutrition: { protein: 2, fat: 0, carbs: 10, fiber: 3 }
-            },
-            {
-                id: 26,
-                name: "Винегрет",
-                description: "Классический овощной салат",
-                method: "boil",
-                temperature: 85,
-                calories: 120,
-                time: "90 мин",
-                difficulty: "легко",
-                goal: "loss",
-                ingredients: [
-                    { name: "Свекла вареная", amount: 200, unit: "г" },
-                    { name: "Картофель вареный", amount: 200, unit: "г" },
-                    { name: "Морковь вареная", amount: 150, unit: "г" },
-                    { name: "Квашеная капуста", amount: 150, unit: "г" },
-                    { name: "Лук репчатый", amount: 100, unit: "г" },
-                    { name: "Огурцы соленые", amount: 100, unit: "г" },
-                    { name: "Подсолнечное масло", amount: 30, unit: "мл" },
-                    { name: "Соль", amount: 3, unit: "г" }
-                ],
-                steps: [
-                    "Все овощи отварить и остудить",
-                    "Нарезать кубиками одинакового размера",
-                    "Лук мелко нарезать",
-                    "Смешать все ингредиенты",
-                    "Добавить масло и соль",
-                    "Аккуратно перемешать"
-                ],
-                tips: "Дайте салату настояться 1-2 часа в холодильнике - вкус станет более насыщенным.",
-                nutrition: { protein: 4, fat: 5, carbs: 18, fiber: 6 }
-            }
-        ],
-
-        "onion": [
-            {
-                id: 27,
-                name: "Лук тушеный",
-                description: "Сладкий тушеный лук для гарнира",
-                method: "stew",
-                temperature: 85,
-                calories: 60,
-                time: "25 мин",
-                difficulty: "легко",
-                goal: "loss",
-                ingredients: [
-                    { name: "Лук репчатый", amount: 500, unit: "г" },
-                    { name: "Подсолнечное масло", amount: 20, unit: "мл" },
-                    { name: "Соль", amount: 3, unit: "г" },
-                    { name: "Сахар", amount: 5, unit: "г" },
-                    { name: "Вода", amount: 50, unit: "мл" }
-                ],
-                steps: [
-                    "Лук нарезать полукольцами",
-                    "Разогреть масло в сковороде",
-                    "Обжарить лук 5 минут до прозрачности",
-                    "Добавить соль, сахар, воду",
-                    "Тушить под крышкой 15-20 минут на медленном огне",
-                    "Периодически помешивать"
-                ],
-                tips: "Для карамелизации увеличьте время тушения до 30 минут. Можно добавить бальзамический уксус в конце.",
-                nutrition: { protein: 2, fat: 4, carbs: 8, fiber: 2 }
-            },
-            {
-                id: 28,
-                name: "Лук жареный",
-                description: "Золотистый жареный лук",
-                method: "fry",
-                temperature: 160,
-                calories: 90,
-                time: "15 мин",
-                difficulty: "легко",
-                goal: "maintain",
-                ingredients: [
-                    { name: "Лук репчатый", amount: 300, unit: "г" },
-                    { name: "Подсолнечное масло", amount: 30, unit: "мл" },
-                    { name: "Соль", amount: 3, unit: "г" }
-                ],
-                steps: [
-                    "Лук нарезать тонкими полукольцами",
-                    "Разогреть масло в сковороде",
-                    "Выложить лук в один слой",
-                    "Жарить на среднем огне 10-12 минут",
-                    "Периодически помешивать",
-                    "Когда лук станет золотистым, посолить",
-                    "Выложить на бумажное полотенце"
-                ],
-                tips: "Не накрывайте сковороду крышкой - лук должен жариться, а не тушиться. Используйте средний огонь.",
-                nutrition: { protein: 2, fat: 7, carbs: 6, fiber: 1 }
-            }
-        ],
-
-        "tomato": [
-            {
-                id: 29,
-                name: "Томатный соус",
-                description: "Базовый соус для пасты и пиццы",
-                method: "stew",
-                temperature: 85,
-                calories: 40,
-                time: "30 мин",
-                difficulty: "легко",
-                goal: "loss",
-                ingredients: [
-                    { name: "Помидоры", amount: 500, unit: "г" },
-                    { name: "Лук", amount: 100, unit: "г" },
-                    { name: "Чеснок", amount: 3, unit: "зубчика" },
-                    { name: "Подсолнечное масло", amount: 20, unit: "мл" },
-                    { name: "Соль", amount: 5, unit: "г" },
-                    { name: "Сахар", amount: 5, unit: "г" },
-                    { name: "Базилик сушеный", amount: 3, unit: "г" }
-                ],
-                steps: [
-                    "Помидоры обдать кипятком, снять кожицу",
-                    "Нарезать кубиками",
-                    "Лук и чеснок измельчить",
-                    "Разогреть масло, обжарить лук до прозрачности",
-                    "Добавить чеснок, обжарить 1 минуту",
-                    "Добавить помидоры, специи",
-                    "Тушить 20-25 минут на медленном огне",
-                    "При необходимости измельчить блендером"
-                ],
-                tips: "Добавьте 1 ч.л. лимонного сока для баланса вкуса. Соус можно замораживать порциями.",
-                nutrition: { protein: 2, fat: 3, carbs: 6, fiber: 2 }
-            },
-            {
-                id: 30,
-                name: "Свежий томатный салат",
-                description: "Летний салат с помидорами",
-                method: "raw",
-                temperature: 20,
-                calories: 35,
-                time: "10 мин",
-                difficulty: "легко",
-                goal: "loss",
-                ingredients: [
-                    { name: "Помидоры", amount: 300, unit: "г" },
-                    { name: "Огурцы", amount: 200, unit: "г" },
-                    { name: "Лук репчатый", amount: 50, unit: "г" },
-                    { name: "Укроп", amount: 10, unit: "г" },
-                    { name: "Подсолнечное масло", amount: 15, unit: "мл" },
-                    { name: "Соль", amount: 3, unit: "г" }
-                ],
-                steps: [
-                    "Помидоры и огурцы нарезать кружочками",
-                    "Лук нарезать тонкими полукольцами",
-                    "Укроп мелко порубить",
-                    "Сложить овощи в миску",
-                    "Добавить соль, масло",
-                    "Аккуратно перемешать",
-                    "Дать настояться 5 минут"
-                ],
-                tips: "Используйте спелые сезонные помидоры для лучшего вкуса. Солите непосредственно перед подачей.",
-                nutrition: { protein: 2, fat: 3, carbs: 5, fiber: 2 }
-            }
-        ],
-
-        "lentils": [
-            {
-                id: 31,
-                name: "Чечевица вареная",
-                description: "Белковый гарнир",
-                method: "boil",
-                temperature: 85,
-                calories: 120,
-                time: "25 мин",
-                difficulty: "легко",
-                goal: "loss",
-                ingredients: [
-                    { name: "Чечевица", amount: 200, unit: "г" },
-                    { name: "Вода", amount: 500, unit: "мл" },
-                    { name: "Соль", amount: 5, unit: "г" },
-                    { name: "Лавровый лист", amount: 1, unit: "шт" }
-                ],
-                steps: [
-                    "Чечевицу промыть",
-                    "Залить холодной водой",
-                    "Довести до кипения, снять пену",
-                    "Добавить соль и лавровый лист",
-                    "Варить 20-25 минут до мягкости",
-                    "Слить лишнюю воду"
-                ],
-                tips: "Красная чечевица варится быстрее зеленой. Не переваривайте - чечевица превратится в пюре.",
-                nutrition: { protein: 18, fat: 1, carbs: 20, fiber: 8 }
-            },
-            {
-                id: 32,
-                name: "Суп из чечевицы",
-                description: "Сытный овощной суп",
-                method: "stew",
-                temperature: 95,
-                calories: 150,
-                time: "45 мин",
-                difficulty: "легко",
-                goal: "maintain",
-                ingredients: [
-                    { name: "Чечевица", amount: 150, unit: "г" },
-                    { name: "Картофель", amount: 300, unit: "г" },
-                    { name: "Морковь", amount: 100, unit: "г" },
-                    { name: "Лук", amount: 100, unit: "г" },
-                    { name: "Томатная паста", amount: 30, unit: "г" },
-                    { name: "Вода", amount: 1500, unit: "мл" },
-                    { name: "Соль", amount: 8, unit: "г" },
-                    { name: "Подсолнечное масло", amount: 20, unit: "мл" }
-                ],
-                steps: [
-                    "Чечевицу промыть",
-                    "Овощи нарезать кубиками",
-                    "Разогреть масло, обжарить лук и морковь",
-                    "Добавить томатную пасту, обжарить 2 минуты",
-                    "Залить водой, добавить чечевицу и картофель",
-                    "Довести до кипения",
-                    "Варить 30-35 минут до готовности чечевицы",
-                    "Посолить за 5 минут до готовности"
-                ],
-                tips: "Для более густого супа можно размять часть чечевицы в конце варки. Можно добавить копченую паприку для вкуса.",
-                nutrition: { protein: 15, fat: 3, carbs: 25, fiber: 10 }
-            }
-        ],
-
-        "beans": [
-            {
-                id: 33,
-                name: "Фасоль вареная",
-                description: "Базовый ингредиент после замачивания",
-                method: "boil",
-                temperature: 85,
-                calories: 110,
-                time: "90 мин",
-                difficulty: "легко",
-                goal: "loss",
-                ingredients: [
-                    { name: "Фасоль белая", amount: 200, unit: "г" },
-                    { name: "Вода", amount: 1000, unit: "мл" },
-                    { name: "Соль", amount: 5, unit: "г" }
-                ],
-                steps: [
-                    "Фасоль замочить на 8-12 часов",
-                    "Слить воду, промыть",
-                    "Залить свежей водой",
-                    "Довести до кипения, слить первую воду",
-                    "Залить новой водой",
-                    "Варить 1-1.5 часа до мягкости",
-                    "За 10 минут до готовности добавить соль"
-                ],
-                tips: "Не солите в начале варки - фасоль будет жесткой. Первую воду обязательно сливайте.",
-                nutrition: { protein: 14, fat: 1, carbs: 20, fiber: 7 }
-            },
-            {
-                id: 34,
-                name: "Фасоль тушеная с овощами",
-                description: "Сытное овощное рагу",
-                method: "stew",
-                temperature: 95,
-                calories: 180,
-                time: "120 мин",
-                difficulty: "средне",
-                goal: "maintain",
-                ingredients: [
-                    { name: "Фасоль вареная", amount: 300, unit: "г" },
-                    { name: "Лук", amount: 150, unit: "г" },
-                    { name: "Морковь", amount: 150, unit: "г" },
-                    { name: "Томатная паста", amount: 50, unit: "г" },
-                    { name: "Подсолнечное масло", amount: 30, unit: "мл" },
-                    { name: "Вода", amount: 200, unit: "мл" },
-                    { name: "Соль", amount: 5, unit: "г" },
-                    { name: "Перец", amount: 3, unit: "г" },
-                    { name: "Лавровый лист", amount: 2, unit: "шт" }
-                ],
-                steps: [
-                    "Лук нарезать кубиками, морковь натереть",
-                    "Разогреть масло, обжарить лук до прозрачности",
-                    "Добавить морковь, обжарить 5 минут",
-                    "Добавить томатную пасту, обжарить 2 минуты",
-                    "Добавить вареную фасоль, воду, специи",
-                    "Тушить 20-25 минут на медленном огне",
-                    "Дать настояться 15 минут"
-                ],
-                tips: "Можно добавить 1 ч.л. сахара для баланса кислоты томатной пасты. Блюдо вкуснее на следующий день.",
-                nutrition: { protein: 12, fat: 4, carbs: 30, fiber: 12 }
-            }
-        ],
-
-        "beef_liver": [
-            {
-                id: 35,
-                name: "Печень тушеная с луком",
-                description: "Классическое блюдо с сохранением железа",
-                method: "stew",
-                temperature: 85,
-                calories: 180,
-                time: "25 мин",
-                difficulty: "легко",
-                goal: "loss",
-                ingredients: [
-                    { name: "Говяжья печень", amount: 400, unit: "г" },
-                    { name: "Лук", amount: 200, unit: "г" },
-                    { name: "Мука", amount: 30, unit: "г" },
-                    { name: "Сметана 15%", amount: 100, unit: "г" },
-                    { name: "Вода", amount: 100, unit: "мл" },
-                    { name: "Соль", amount: 5, unit: "г" },
-                    { name: "Перец", amount: 3, unit: "г" },
-                    { name: "Подсолнечное масло", amount: 30, unit: "мл" }
-                ],
-                steps: [
-                    "Печень очистить от пленок, нарезать ломтиками",
-                    "Обвалять в муке",
-                    "Лук нарезать полукольцами",
-                    "Разогреть масло, обжарить лук до золотистого цвета",
-                    "Добавить печень, обжарить 3-4 минуты с каждой стороны",
-                    "Добавить сметану, воду, специи",
-                    "Тушить под крышкой 10-12 минут"
-                ],
-                tips: "Не пережаривайте печень - она станет жесткой. Снимайте с огня, когда сок станет прозрачным.",
-                nutrition: { protein: 30, fat: 8, carbs: 10, fiber: 1 }
-            }
-        ],
-
-        "pork_neck": [
-            {
-                id: 36,
-                name: "Свинина тушеная",
-                description: "Нежное тушеное мясо",
-                method: "stew",
-                temperature: 95,
-                calories: 280,
-                time: "120 мин",
-                difficulty: "легко",
-                goal: "gain",
-                ingredients: [
-                    { name: "Свиная шея", amount: 600, unit: "г" },
-                    { name: "Лук", amount: 200, unit: "г" },
-                    { name: "Морковь", amount: 200, unit: "г" },
-                    { name: "Вода", amount: 300, unit: "мл" },
-                    { name: "Соль", amount: 8, unit: "г" },
-                    { name: "Перец", amount: 5, unit: "г" },
-                    { name: "Лавровый лист", amount: 2, unit: "шт" },
-                    { name: "Подсолнечное масло", amount: 30, unit: "мл" }
-                ],
-                steps: [
-                    "Мясо нарезать кубиками 3x3 см",
-                    "Овощи нарезать крупно",
-                    "Разогреть масло, обжарить мясо до корочки",
-                    "Добавить овощи, обжарить 5 минут",
-                    "Залить водой, добавить специи",
-                    "Тушить под крышкой 1.5-2 часа до мягкости мяса",
-                    "При необходимости доливать воду"
-                ],
-                tips: "Чем дольше тушится, тем нежнее мясо. Можно готовить в духовке при 95°C 2-3 часа.",
-                nutrition: { protein: 35, fat: 15, carbs: 8, fiber: 2 }
-            }
-        ],
-
-        "turkey_breast": [
-            {
-                id: 37,
-                name: "Индейка на пару",
-                description: "Диетическое белое мясо",
-                method: "steam",
-                temperature: 74,
-                calories: 120,
-                time: "30 мин",
-                difficulty: "легко",
-                goal: "loss",
-                ingredients: [
-                    { name: "Филе индейки", amount: 300, unit: "г" },
-                    { name: "Соль", amount: 5, unit: "г" },
-                    { name: "Лимон", amount: 3, unit: "дольки" },
-                    { name: "Розмарин", amount: 2, unit: "веточки" },
-                    { name: "Вода", amount: 500, unit: "мл" }
-                ],
-                steps: [
-                    "Индейку промыть, промокнуть",
-                    "Посолить с двух сторон",
-                    "Положить в пароварку",
-                    "Сверху положить лимон и розмарин",
-                    "Готовить 25-30 минут",
-                    "Проверить готовность (внутренняя температура 74°C)",
-                    "Дать отдохнуть 5 минут перед нарезкой"
-                ],
-                tips: "Индейка очень сухое мясо, поэтому важно не переварить. Используйте термометр для контроля.",
-                nutrition: { protein: 28, fat: 2, carbs: 0, fiber: 0 }
-            }
-        ],
-
-        "pollock": [
-            {
-                id: 38,
-                name: "Минтай на пару",
-                description: "Диетическая рыба",
-                method: "steam",
-                temperature: 65,
-                calories: 85,
-                time: "20 мин",
-                difficulty: "легко",
-                goal: "loss",
-                ingredients: [
-                    { name: "Филе минтая", amount: 400, unit: "г" },
-                    { name: "Соль", amount: 5, unit: "г" },
-                    { name: "Лимон", amount: 4, unit: "дольки" },
-                    { name: "Укроп", amount: 10, unit: "г" },
-                    { name: "Вода", amount: 500, unit: "мл" }
-                ],
-                steps: [
-                    "Рыбу промыть, обсушить",
-                    "Посолить",
-                    "Выложить в пароварку",
-                    "Сверху положить лимон и укроп",
-                    "Готовить 15-18 минут",
-                    "Проверить готовность (рыба должна легко разделяться на волокна)"
-                ],
-                tips: "Минтай очень нежная рыба, не переваривайте. Подавайте с отварными овощами.",
-                nutrition: { protein: 19, fat: 1, carbs: 0, fiber: 0 }
-            }
-        ],
-
-        "herring": [
-            {
-                id: 39,
-                name: "Сельдь соленая",
-                description: "Классическая соленая рыба",
-                method: "raw",
-                temperature: 4,
-                calories: 160,
-                time: "48 часов",
-                difficulty: "легко",
-                goal: "maintain",
-                ingredients: [
-                    { name: "Сельдь свежая", amount: 2, unit: "шт" },
-                    { name: "Соль", amount: 100, unit: "г" },
-                    { name: "Сахар", amount: 20, unit: "г" },
-                    { name: "Лавровый лист", amount: 3, unit: "шт" },
-                    { name: "Перец горошком", amount: 10, unit: "горошин" }
-                ],
-                steps: [
-                    "Рыбу выпотрошить, промыть",
-                    "Смешать соль, сахар и специи",
-                    "Натереть рыбу смесью внутри и снаружи",
-                    "Плотно уложить в емкость",
-                    "Накрыть тарелкой, поставить гнет",
-                    "Убрать в холодильник на 48 часов",
-                    "Промыть перед подачей"
-                ],
-                tips: "Для ускорения процесса можно сделать надрезы на спине рыбы. Храните в рассоле до 5 дней.",
-                nutrition: { protein: 18, fat: 10, carbs: 0, fiber: 0 }
-            }
-        ],
-
-        "cod": [
-            {
-                id: 40,
-                name: "Треска запеченная",
-                description: "Нежная запеченная рыба",
-                method: "roast",
-                temperature: 180,
-                calories: 110,
-                time: "30 мин",
-                difficulty: "легко",
-                goal: "maintain",
-                ingredients: [
-                    { name: "Филе трески", amount: 500, unit: "г" },
-                    { name: "Лимон", amount: 1, unit: "шт" },
-                    { name: "Соль", amount: 5, unit: "г" },
-                    { name: "Перец", amount: 3, unit: "г" },
-                    { name: "Подсолнечное масло", amount: 15, unit: "мл" },
-                    { name: "Зелень", amount: 10, unit: "г" }
-                ],
-                steps: [
-                    "Рыбу промыть, обсушить",
-                    "Посолить, поперчить",
-                    "Выложить в форму для запекания",
-                    "Сбрызнуть маслом",
-                    "Накрыть дольками лимона",
-                    "Запекать 20-25 минут при 180°C",
-                    "Посыпать зеленью перед подачей"
-                ],
-                tips: "Не пересушивайте рыбу. Проверяйте готовность вилкой - мясо должно быть непрозрачным.",
-                nutrition: { protein: 23, fat: 3, carbs: 1, fiber: 0 }
-            }
-        ],
-
-        "pike_perch": [
-            {
-                id: 41,
-                name: "Котлеты из судака",
-                description: "Нежные рыбные котлеты",
-                method: "fry",
-                temperature: 170,
-                calories: 180,
-                time: "35 мин",
-                difficulty: "средне",
-                goal: "maintain",
-                ingredients: [
-                    { name: "Филе судака", amount: 500, unit: "г" },
-                    { name: "Лук", amount: 100, unit: "г" },
-                    { name: "Яйцо", amount: 1, unit: "шт" },
-                    { name: "Мука", amount: 50, unit: "г" },
-                    { name: "Соль", amount: 5, unit: "г" },
-                    { name: "Перец", amount: 3, unit: "г" },
-                    { name: "Подсолнечное масло", amount: 40, unit: "мл" }
-                ],
-                steps: [
-                    "Рыбу пропустить через мясорубку с луком",
-                    "Добавить яйцо, соль, перец",
-                    "Добавить муку, вымесить фарш",
-                    "Сформировать котлеты",
-                    "Обвалять в муке",
-                    "Разогреть масло",
-                    "Обжарить по 4-5 минут с каждой стороны",
-                    "Выложить на бумажное полотенце"
-                ],
-                tips: "Для более нежных котлет добавьте 2 ст.л. сливок в фарш. Не делайте котлеты слишком толстыми.",
-                nutrition: { protein: 25, fat: 6, carbs: 8, fiber: 1 }
-            }
-        ]
-    };
-
-    // ==================== МЕТОДЫ ПРИГОТОВЛЕНИЯ ====================
-    const COOKING_METHODS = {
-        "raw": { name: "Сырое", icon: "🥩", tempRange: [30, 45] },
-        "steam": { name: "Пар", icon: "💨", tempRange: [55, 85] },
-        "boil": { name: "Варка", icon: "🥘", tempRange: [70, 100] },
-        "roast": { name: "Запекание", icon: "🔥", tempRange: [120, 220] },
-        "fry": { name: "Жарка", icon: "🍳", tempRange: [140, 200] },
-        "stew": { name: "Тушение", icon: "🍲", tempRange: [85, 120] },
-        "microwave": { name: "Микроволновка", icon: "⚡", tempRange: [100, 100] }
-    };
-
-    // ==================== ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ====================
-    let isLabOn = false;
-    let currentMode = 'bio';
-    let currentTemp = 65;
-    let currentFood = null;
-    let currentFoodKey = '';
-    let currentMethod = 'all';
-    let servingsMultiplier = 1;
-    let currentRecipeId = null;
-
-    // ==================== АКТИВАЦИЯ ЛАБОРАТОРИИ ====================
-    function toggleLabPower() {
-        isLabOn = !isLabOn;
-        document.body.setAttribute("data-on", isLabOn);
-        
-        if(isLabOn) {
-            gsap.to("body", { 
-                backgroundColor: "#0c0d0f", 
-                duration: 1.2
-            });
-            
-            gsap.fromTo(".app-shell",
-                { scale: 0.95, opacity: 0.5 },
-                { scale: 1, opacity: 1, duration: 0.8, ease: "back.out(1.2)" }
-            );
-            
-            gsap.to(".power-button", {
-                backgroundColor: "rgba(255,255,255,0.1)",
-                color: "#888",
-                duration: 0.5
-            });
-            
-            populateCategoryList();
-            runAnalysis();
-            
-            // Анимация для кнопки
-            document.querySelector('.power-button').innerHTML = '<span>🔆</span> ЛАБОРАТОРИЯ АКТИВИРОВАНА';
-        } else {
-            gsap.to("body", { 
-                backgroundColor: "#050505", 
-                duration: 1
-            });
-            
-            gsap.to(".power-button", {
-                backgroundColor: "linear-gradient(135deg, var(--gold-dark), var(--gold))",
-                color: "#000",
-                duration: 0.5
-            });
-            
-            resetLabUI();
-            
-            // Возвращаем исходный текст кнопки
-            document.querySelector('.power-button').innerHTML = '<span class="power-icon">⚡</span> АКТИВИРОВАТЬ ЛАБОРАТОРИЮ';
-        }
+  const iv = setInterval(() => {
+    if (step >= total) {
+      clearInterval(iv);
+      setTimeout(() => {
+        document.getElementById('boot-screen').classList.add('hide');
+      }, 300);
+      return;
     }
+    const pct = Math.round((step / total) * 100);
+    bar.style.width = pct + '%';
+    log.innerText   = bootMessages[step];
+    step++;
+  }, 380);
+}
 
-    // ==================== ЗАПОЛНЕНИЕ СПИСКОВ ====================
-    function populateCategoryList() {
-        const catSel = document.getElementById('foodCategory');
-        catSel.innerHTML = '<option value="">Выберите категорию</option>';
-        
-        for(let category in GLOBAL_FOOD_DB) {
-            let option = document.createElement("option");
-            option.value = category;
-            option.textContent = category;
-            catSel.appendChild(option);
-        }
-    }
+/* ============================================================
+   AUTH
+   ============================================================ */
+async function handleAuth() {
+  const uRaw = document.getElementById('auth-user').value.trim();
+  const pass  = document.getElementById('auth-pass').value.trim();
 
-    function syncFoodList() {
-        if (!isLabOn) return;
-        
-        const category = document.getElementById('foodCategory').value;
-        const itemSelect = document.getElementById('foodItem');
-        
-        if (!category) {
-            itemSelect.innerHTML = '<option value="">Выберите продукт</option>';
-            resetFoodDisplay();
-            return;
-        }
-        
-        itemSelect.innerHTML = '<option value="">Выберите продукт</option>';
-        
-        for(let key in GLOBAL_FOOD_DB[category]) {
-            let food = GLOBAL_FOOD_DB[category][key];
-            let option = document.createElement("option");
-            option.value = key;
-            option.textContent = food.n;
-            itemSelect.appendChild(option);
-        }
-        
-        runAnalysis();
-    }
+  if (uRaw.length < 2 || pass.length < 3) {
+    showToast("ОШИБКА: Логин ≥ 2 символа, пароль ≥ 3 символа", true);
+    return;
+  }
 
-    // ==================== ПЕРЕКЛЮЧЕНИЕ РЕЖИМОВ ====================
-    function changeAppMode(mode) {
-        if(!isLabOn) return;
-        
-        currentMode = mode;
-        document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
-        event.target.classList.add('active');
-        
-        if (mode === 'bio') {
-            document.getElementById('lightBeam').style.opacity = '1';
-            
-            document.getElementById('mainLabel').textContent = "Температура приготовления";
-            document.getElementById('labelL').textContent = "Усвояемость";
-            document.getElementById('labelR').textContent = "Биоценность";
-        } else {
-            document.getElementById('lightBeam').style.opacity = '0';
-            
-            document.getElementById('mainLabel').textContent = "Метаболическая плотность";
-            document.getElementById('labelL').textContent = "Ккал / 100г";
-            document.getElementById('labelR').textContent = "Инсулиновый индекс";
-        }
-        
-        runAnalysis();
-    }
+  const isGod = (uRaw.toLowerCase() === SUPERADMIN_USER && pass === SUPERADMIN_PASS);
+  const username = (uRaw.startsWith('@') ? uRaw : '@' + uRaw).toLowerCase();
 
-    // ==================== ОСНОВНОЙ АНАЛИЗ ====================
-    function runAnalysis() {
-        if (!isLabOn) return;
-        
-        const foodKey = document.getElementById('foodItem').value;
-        if (!foodKey) return;
-        
-        currentFoodKey = foodKey;
-        const category = document.getElementById('foodCategory').value;
-        currentFood = GLOBAL_FOOD_DB[category][foodKey];
-        currentMethod = document.getElementById('cookingMethod').value;
-        
-        const temp = parseInt(document.getElementById('thermSlider').value);
-        currentTemp = temp;
-        
-        updateDynamicColor(temp);
-        document.getElementById('mainVal').innerHTML = temp + "<span>°C</span>";
-        
-        if (currentMode === 'bio') {
-            calculateBioMode(temp);
-        } else {
-            calculateMetaMode(temp);
-        }
-        
-        updateRecipesPanel();
-    }
+  state.user.isGod     = isGod;
+  state.user.username  = isGod ? "@tapgram" : username;
 
-    function updateDynamicColor(temp) {
-        let r, g, b;
-        
-        if (temp < 50) {
-            r = 150 + Math.min(47, (temp - 30) * 2.35);
-            g = 160 + Math.min(30, (temp - 30) * 1.5);
-            b = 89;
-        } else if (temp < 100) {
-            r = 197;
-            g = Math.max(100, 160 - (temp - 50));
-            b = Math.max(50, 89 - (temp - 50) * 0.78);
-        } else {
-            r = 197 + Math.min(58, (temp - 100) * 0.39);
-            g = Math.max(60, 110 - (temp - 100) * 0.5);
-            b = Math.max(30, 39 - (temp - 100) * 0.19);
-        }
-        
-        document.documentElement.style.setProperty('--dynamic-rgb', `${r}, ${g}, ${b}`);
-        
-        gsap.to(".lamp-shade", {
-            borderBottomColor: `rgb(${r}, ${g}, ${b})`,
-            duration: 0.5
-        });
-    }
+  const ref = db.collection("users").doc(state.user.username);
+  const doc = await ref.get();
 
-    function calculateBioMode(temp) {
-        const food = currentFood;
-        
-        let bioavailability;
-        if (temp < 45) {
-            bioavailability = food.bio;
-        } else if (temp < 65) {
-            bioavailability = food.bio * (0.98 - (temp - 45) * 0.004);
-        } else if (temp < 85) {
-            bioavailability = food.bio * (0.88 - (temp - 65) * 0.008);
-        } else if (temp < 120) {
-            bioavailability = food.bio * (0.72 - (temp - 85) * 0.006);
-        } else {
-            bioavailability = Math.max(10, food.bio * 0.5);
-        }
-        
-        let nutrientIndex;
-        if (temp < 50) {
-            nutrientIndex = food.bio;
-        } else if (temp < 75) {
-            nutrientIndex = food.bio * (0.95 - (temp - 50) * 0.006);
-        } else if (temp < 100) {
-            nutrientIndex = food.bio * (0.8 - (temp - 75) * 0.01);
-        } else {
-            nutrientIndex = food.bio * (0.5 - (temp - 100) * 0.015);
-        }
-        
-        document.getElementById('valL').textContent = Math.round(bioavailability) + "%";
-        document.getElementById('valR').textContent = Math.round(nutrientIndex) + "%";
-        
-        let tipIndex;
-        if (temp < 45) tipIndex = 0;
-        else if (temp < 55) tipIndex = 1;
-        else if (temp < 65) tipIndex = 2;
-        else if (temp < 75) tipIndex = 3;
-        else if (temp < 85) tipIndex = 4;
-        else tipIndex = 5;
-        
-        const tips = food.tips || ["Нет данных"];
-        const selectedTip = tips[Math.min(tipIndex, tips.length - 1)];
-        
-        document.getElementById('verdict').innerHTML = `
-            <strong>${food.n}</strong><br><br>
-            ${selectedTip}<br><br>
-            <em>Температура: ${temp}°C | Биодоступность: ${Math.round(bioavailability)}%</em>
-        `;
-    }
-
-    function calculateMetaMode(temp) {
-        const food = currentFood;
-        
-        let baseKcal = food.kcal;
-        let modifiedKcal;
-        
-        if (temp < 50) {
-            modifiedKcal = Math.round(baseKcal * 0.95);
-        } else if (temp < 80) {
-            modifiedKcal = Math.round(baseKcal * (1 + (temp - 50) / 300));
-        } else if (temp < 120) {
-            modifiedKcal = Math.round(baseKcal * (1.1 + (temp - 80) / 400));
-        } else {
-            modifiedKcal = Math.round(baseKcal * (1.2 + (temp - 120) / 800));
-        }
-        
-        let insulinIndex;
-        if (temp < 60) {
-            insulinIndex = Math.round(30 + (temp - 30) * 1.5);
-        } else if (temp < 100) {
-            insulinIndex = Math.round(75 + (temp - 60) * 0.8);
-        } else {
-            insulinIndex = Math.min(100, 85 + (temp - 100) * 0.3);
-        }
-        
-        document.getElementById('valL').textContent = modifiedKcal + " ккал";
-        document.getElementById('valR').textContent = insulinIndex + " iX";
-        
-        let metabolicVerdict;
-        if (temp < 65) {
-            metabolicVerdict = "РЕЖИМ ХУДОБЫ: Структурная сложность максимальна. Организм тратит 20-30% калорий на переваривание.";
-        } else if (temp < 85) {
-            metabolicVerdict = "РЕЖИМ ПОДДЕРЖАНИЯ: Оптимальный баланс доступности и сложности.";
-        } else {
-            metabolicVerdict = "РЕЖИМ НАБОРА: Максимальная доступность нутриентов. Калории усваиваются на 95-98%.";
-        }
-        
-        document.getElementById('verdict').innerHTML = `
-            <strong>Метаболический профиль</strong><br><br>
-            ${metabolicVerdict}<br><br>
-            <em>Эффективные калории: ${modifiedKcal} | Инсулиновый индекс: ${insulinIndex}</em>
-        `;
-    }
-
-    // ==================== СИСТЕМА РЕЦЕПТОВ ====================
-    function toggleRecipesPanel() {
-        const panel = document.getElementById('recipesPanel');
-        const overlay = document.getElementById('panelOverlay');
-        
-        panel.classList.toggle('active');
-        overlay.classList.toggle('active');
-        
-        if (panel.classList.contains('active')) {
-            loadRecipesForCurrentFood();
-        }
-    }
-
-    function loadRecipesForCurrentFood() {
-        if (!currentFoodKey) {
-            showRecipesEmpty();
-            return;
-        }
-        
-        const recipes = RECIPES_DB[currentFoodKey] || [];
-        const recipesGrid = document.getElementById('recipesGrid');
-        const recipesTitle = document.getElementById('recipesTitle');
-        const methodFilter = document.getElementById('methodFilter');
-        
-        recipesTitle.textContent = `РЕЦЕПТЫ: ${currentFood.n}`;
-        
-        methodFilter.innerHTML = `
-            <div class="method-btn ${currentMethod === 'all' ? 'active' : ''}" 
-                 onclick="filterRecipesByMethod('all')">
-                Все методы
-            </div>
-        `;
-        
-        for (let method in COOKING_METHODS) {
-            const methodData = COOKING_METHODS[method];
-            const hasRecipes = recipes.some(r => r.method === method);
-            
-            if (hasRecipes) {
-                methodFilter.innerHTML += `
-                    <div class="method-btn ${currentMethod === method ? 'active' : ''}" 
-                         onclick="filterRecipesByMethod('${method}')">
-                        ${methodData.icon} ${methodData.name}
-                    </div>
-                `;
-            }
-        }
-        
-        if (recipes.length === 0) {
-            showRecipesEmpty();
-            return;
-        }
-        
-        updateRecipesGrid();
-    }
-
-    function filterRecipesByMethod(method) {
-        currentMethod = method;
-        
-        document.querySelectorAll('.method-btn').forEach(btn => {
-            btn.classList.remove('active');
-        });
-        event.target.classList.add('active');
-        
-        updateRecipesGrid();
-    }
-
-    function updateRecipesGrid() {
-        const recipes = RECIPES_DB[currentFoodKey] || [];
-        const recipesGrid = document.getElementById('recipesGrid');
-        
-        let filteredRecipes = recipes;
-        if (currentMethod !== 'all') {
-            filteredRecipes = recipes.filter(recipe => recipe.method === currentMethod);
-        }
-        
-        filteredRecipes = filteredRecipes.filter(recipe => {
-            const methodData = COOKING_METHODS[recipe.method];
-            if (!methodData) return true;
-            
-            const [minTemp, maxTemp] = methodData.tempRange;
-            return recipe.temperature >= minTemp && recipe.temperature <= maxTemp;
-        });
-        
-        if (filteredRecipes.length === 0) {
-            recipesGrid.innerHTML = `
-                <div style="text-align: center; padding: 40px; color: #666;">
-                    <div style="font-size: 48px; margin-bottom: 20px;">🍳</div>
-                    <div style="font-size: 14px; margin-bottom: 10px;">Рецепты не найдены</div>
-                    <div style="font-size: 12px;">Попробуйте изменить метод приготовления</div>
-                </div>
-            `;
-            document.getElementById('recipeDetail').innerHTML = '';
-            return;
-        }
-        
-        recipesGrid.innerHTML = '';
-        
-        filteredRecipes.forEach((recipe, index) => {
-            const methodData = COOKING_METHODS[recipe.method] || { name: 'Неизвестно', icon: '❓' };
-            const goalClass = `goal-${recipe.goal}`;
-            const goalText = recipe.goal === 'loss' ? 'Похудение' : 
-                           recipe.goal === 'maintain' ? 'Поддержание' : 'Набор массы';
-            
-            const card = document.createElement('div');
-            card.className = `recipe-card ${index === 0 ? 'active' : ''}`;
-            card.innerHTML = `
-                <div class="recipe-name">${recipe.name}</div>
-                <div class="recipe-desc">${recipe.description}</div>
-                <div class="recipe-meta">
-                    <span class="recipe-temp">${recipe.temperature}°C</span>
-                    <span class="recipe-calories">${recipe.calories} ккал</span>
-                    <span class="recipe-method">${methodData.icon} ${methodData.name}</span>
-                    <span class="${goalClass} goal-badge">${goalText}</span>
-                </div>
-            `;
-            
-            card.onclick = function() {
-                showRecipeDetail(recipe);
-            };
-            
-            recipesGrid.appendChild(card);
-        });
-        
-        if (filteredRecipes.length > 0) {
-            showRecipeDetail(filteredRecipes[0]);
-        }
-    }
-
-    function showRecipesEmpty() {
-        const recipesGrid = document.getElementById('recipesGrid');
-        recipesGrid.innerHTML = `
-            <div style="text-align: center; padding: 40px; color: #666;">
-                <div style="font-size: 48px; margin-bottom: 20px;">🍳</div>
-                <div style="font-size: 14px; margin-bottom: 10px;">Рецепты не найдены</div>
-                <div style="font-size: 12px;">Выберите другой продукт</div>
-            </div>
-        `;
-        
-        document.getElementById('recipeDetail').innerHTML = '';
-    }
-
-    function showRecipeDetail(recipe) {
-        servingsMultiplier = 1;
-        currentRecipeId = recipe.id;
-        
-        document.querySelectorAll('.recipe-card').forEach(card => {
-            card.classList.remove('active');
-        });
-        
-        const methodData = COOKING_METHODS[recipe.method] || { name: 'Неизвестно', icon: '❓' };
-        const goalClass = `goal-${recipe.goal}`;
-        const goalText = recipe.goal === 'loss' ? 'Похудение' : 
-                       recipe.goal === 'maintain' ? 'Поддержание' : 'Набор массы';
-        
-        const detailContainer = document.getElementById('recipeDetail');
-        detailContainer.innerHTML = `
-            <div style="margin-bottom: 20px;">
-                <div style="font-size: 16px; color: #fff; margin-bottom: 5px;">${recipe.name}</div>
-                <div style="font-size: 12px; color: #888;">${recipe.description}</div>
-            </div>
-            
-            <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
-                <span style="background: rgba(var(--dynamic-rgb), 0.2); padding: 5px 12px; border-radius: 15px; font-size: 11px;">
-                    ${methodData.icon} ${methodData.name}
-                </span>
-                <span style="background: rgba(var(--dynamic-rgb), 0.2); padding: 5px 12px; border-radius: 15px; font-size: 11px;">
-                    🌡️ ${recipe.temperature}°C
-                </span>
-                <span style="background: rgba(var(--dynamic-rgb), 0.2); padding: 5px 12px; border-radius: 15px; font-size: 11px;">
-                    ⏱️ ${recipe.time}
-                </span>
-                <span style="background: rgba(var(--dynamic-rgb), 0.2); padding: 5px 12px; border-radius: 15px; font-size: 11px;">
-                    🎯 ${recipe.calories} ккал
-                </span>
-                <span class="${goalClass} goal-badge" style="font-size: 11px; padding: 5px 12px;">
-                    ${goalText}
-                </span>
-            </div>
-            
-            <div class="servings-control">
-                <button class="servings-btn" onclick="adjustServings(-1)">-</button>
-                <div class="servings-value" id="servingsValue">1 порция</div>
-                <button class="servings-btn" onclick="adjustServings(1)">+</button>
-            </div>
-            
-            <div style="font-size: 12px; color: var(--gold); margin-bottom: 15px;">
-                Ингредиенты:
-            </div>
-            
-            <table class="ingredients-table">
-                <thead>
-                    <tr>
-                        <th>Ингредиент</th>
-                        <th style="text-align: right;">Количество</th>
-                    </tr>
-                </thead>
-                <tbody id="ingredientsBody">
-                    ${recipe.ingredients.map(ing => `
-                        <tr>
-                            <td>${ing.name}</td>
-                            <td style="text-align: right; color: var(--gold);">
-                                ${ing.amount} ${ing.unit}
-                            </td>
-                        </tr>
-                    `).join('')}
-                </tbody>
-            </table>
-            
-            <div class="nutrition-breakdown">
-                <div class="nutrition-item">
-                    <div class="nutrition-value">${recipe.nutrition.protein}</div>
-                    <div class="nutrition-label">Белки</div>
-                </div>
-                <div class="nutrition-item">
-                    <div class="nutrition-value">${recipe.nutrition.fat}</div>
-                    <div class="nutrition-label">Жиры</div>
-                </div>
-                <div class="nutrition-item">
-                    <div class="nutrition-value">${recipe.nutrition.carbs}</div>
-                    <div class="nutrition-label">Углеводы</div>
-                </div>
-                <div class="nutrition-item">
-                    <div class="nutrition-value">${recipe.nutrition.fiber || 0}</div>
-                    <div class="nutrition-label">Клетчатка</div>
-                </div>
-            </div>
-            
-            <div style="font-size: 12px; color: var(--gold); margin: 25px 0 15px;">
-                Приготовление:
-            </div>
-            
-            <div class="recipe-steps">
-                ${recipe.steps.map((step, index) => `
-                    <div class="step">
-                        <span class="step-number">${index + 1}</span>
-                        <span class="step-content">${step}</span>
-                    </div>
-                `).join('')}
-            </div>
-            
-            ${recipe.tips ? `
-                <div style="margin-top: 25px; padding: 15px; background: rgba(var(--dynamic-rgb), 0.1); border-radius: 10px;">
-                    <div style="font-size: 11px; color: var(--gold); margin-bottom: 5px;">💡 Профессиональный совет:</div>
-                    <div style="font-size: 11px; color: #ccc;">${recipe.tips}</div>
-                </div>
-            ` : ''}
-            
-            <div style="margin-top: 25px; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 10px; font-size: 11px; color: #888;">
-                <strong>Температурный режим:</strong> ${recipe.temperature}°C<br>
-                <strong>Способ:</strong> ${methodData.name}<br>
-                <strong>Цель:</strong> ${goalText}<br>
-                <strong>Сложность:</strong> ${recipe.difficulty}
-            </div>
-        `;
-    }
-
-    function adjustServings(delta) {
-        if (!currentRecipeId || !currentFoodKey) return;
-        
-        const recipes = RECIPES_DB[currentFoodKey];
-        if (!recipes) return;
-        
-        const currentRecipe = recipes.find(r => r.id === currentRecipeId);
-        if (!currentRecipe) return;
-        
-        servingsMultiplier += delta;
-        if (servingsMultiplier < 1) servingsMultiplier = 1;
-        if (servingsMultiplier > 12) servingsMultiplier = 12;
-        
-        const servingsValueElement = document.querySelector('#servingsValue');
-        if (servingsValueElement) {
-            servingsValueElement.textContent = 
-                `${servingsMultiplier} порц${servingsMultiplier === 1 ? 'ия' : 
-                 servingsMultiplier >= 2 && servingsMultiplier <= 4 ? 'ии' : 'ий'}`;
-        }
-        
-        const ingredientsBody = document.querySelector('#ingredientsBody');
-        if (ingredientsBody && currentRecipe.ingredients) {
-            ingredientsBody.innerHTML = currentRecipe.ingredients.map(ing => `
-                <tr>
-                    <td>${ing.name}</td>
-                    <td style="text-align: right; color: var(--gold);">
-                        ${Math.round(ing.amount * servingsMultiplier * 10) / 10} ${ing.unit}
-                    </td>
-                </tr>
-            `).join('');
-        }
-    }
-
-    function updateRecipesPanel() {
-        if (document.getElementById('recipesPanel').classList.contains('active')) {
-            loadRecipesForCurrentFood();
-        }
-    }
-
-    // ==================== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ====================
-    function resetLabUI() {
-        document.getElementById('mainVal').innerHTML = '65<span>°C</span>';
-        document.getElementById('valL').textContent = '--';
-        document.getElementById('valR').textContent = '--';
-        document.getElementById('verdict').textContent = 'Лаборатория температурной нутрициологии готова к работе. Нажмите кнопку активации вверху.';
-    }
-
-    function resetFoodDisplay() {
-        document.getElementById('valL').textContent = '--';
-        document.getElementById('valR').textContent = '--';
-        document.getElementById('verdict').textContent = 'Выберите продукт для анализа';
-    }
-
-    // ==================== ИНИЦИАЛИЗАЦИЯ ====================
-    window.addEventListener('DOMContentLoaded', () => {
-        const slider = document.getElementById('thermSlider');
-        slider.addEventListener('input', function() {
-            document.getElementById('mainVal').innerHTML = this.value + "<span>°C</span>";
-        });
-        
-        // Настройка сенсорных событий
-        document.querySelectorAll('button, .recipe-card, .method-btn').forEach(element => {
-            element.addEventListener('touchstart', function() {
-                this.style.opacity = '0.7';
-            });
-            
-            element.addEventListener('touchend', function() {
-                this.style.opacity = '1';
-            });
-        });
-        
-        // Предотвращение скроллинга при касании
-        document.addEventListener('touchmove', function(e) {
-            if(e.target.tagName === 'SELECT') {
-                e.preventDefault();
-            }
-        }, { passive: false });
-        
-        // Анимация появления
-        gsap.from(".app-shell", {
-            opacity: 0,
-            y: 30,
-            duration: 0.8,
-            delay: 0.3,
-            ease: "power2.out"
-        });
+  if (!doc.exists) {
+    await ref.set({
+      username: state.user.username,
+      balance:  isGod ? 9999999 : 0,
+      wallet:   null,
+      crown:    false,
+      isGod:    isGod,
+      supercharge: false,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });
+    state.user.balance = isGod ? 9999999 : 0;
+  } else {
+    const d = doc.data();
+    state.user.balance    = d.balance    || 0;
+    state.user.wallet     = d.wallet     || null;
+    state.user.crown      = d.crown      || false;
+    state.user.supercharge = d.supercharge || false;
+    if (state.user.supercharge) state.user.maxEnergy = 1500;
+  }
+
+  // Обновляем HUD
+  document.getElementById('hud-username').innerText = state.user.username;
+  if (state.user.crown) document.getElementById('hud-badge').style.display = 'inline';
+  updateBalance();
+  updateEnergy();
+
+  // Показываем интерфейс
+  document.getElementById('view-auth').classList.remove('active');
+  document.getElementById('hud-header').style.display = 'block';
+  document.getElementById('nav-bar').style.display    = 'block';
+  if (isGod) {
+    document.getElementById('btn-admin').style.display = 'flex';
+    showToast("☢ РЕЖИМ БОГА АКТИВИРОВАН");
+  }
+
+  switchView('main');
+
+  // Слушатели
+  listenGlobalChat();
+  listenChannels();
+  listenAppConfig();
+  if (isGod) listenAdminUsers();
+
+  // Слушаем свой баланс в реальном времени
+  db.collection("users").doc(state.user.username).onSnapshot(snap => {
+    if (!snap.exists) return;
+    const d = snap.data();
+    state.user.balance = d.balance || 0;
+    state.user.crown   = d.crown   || false;
+    if (state.user.crown) document.getElementById('hud-badge').style.display = 'inline';
+    updateBalance();
+  });
+
+  // TON Connect
+  initTonConnect();
+}
+
+/* ============================================================
+   HUD HELPERS
+   ============================================================ */
+function updateBalance() {
+  document.getElementById('hud-balance').innerText =
+    state.user.balance.toLocaleString('ru');
+}
+
+function updateEnergy() {
+  const pct = (state.user.energy / state.user.maxEnergy) * 100;
+  document.getElementById('hud-energy').innerText = state.user.energy;
+  document.getElementById('energy-fill').style.width = pct + '%';
+}
+
+/* ============================================================
+   НАВИГАЦИЯ
+   ============================================================ */
+function switchView(name) {
+  if (name === 'admin' && !state.user.isGod) return;
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('view-' + name).classList.add('active');
+  document.getElementById('btn-' + name).classList.add('active');
+}
+
+/* ============================================================
+   РЕАКТОР — ТАП
+   ============================================================ */
+function handleTap(e) {
+  e.preventDefault();
+  if (state.user.energy < 5) {
+    showToast("⚡ Заряд на исходе! Ждите восстановления.", true);
+    return;
+  }
+  state.user.balance += 10;
+  state.user.energy  -= 5;
+  updateBalance();
+  updateEnergy();
+
+  db.collection("users").doc(state.user.username).update({
+    balance: state.user.balance
+  });
+
+  // Попап +10
+  const pop = document.createElement('div');
+  pop.className = 'tap-popup';
+  pop.innerText = '+10 $TAP';
+  const touch = e.touches ? e.touches[0] : e;
+  pop.style.left = touch.clientX + 'px';
+  pop.style.top  = touch.clientY + 'px';
+  document.body.appendChild(pop);
+  setTimeout(() => pop.remove(), 700);
+}
+
+// Регенерация энергии
+setInterval(() => {
+  if (state.user.energy < state.user.maxEnergy) {
+    state.user.energy = Math.min(state.user.maxEnergy, state.user.energy + 3);
+    updateEnergy();
+  }
+}, 1000);
+
+/* ============================================================
+   ГЛОБАЛЬНЫЙ ЧАТ
+   ============================================================ */
+function listenGlobalChat() {
+  db.collection("global_messages")
+    .orderBy("timestamp", "asc")
+    .limitToLast(50)
+    .onSnapshot(snap => {
+      const box = document.getElementById('global-chat-box');
+      box.innerHTML = '';
+      snap.forEach(doc => {
+        const m   = doc.data();
+        const div = document.createElement('div');
+        div.className = 'chat-msg';
+        div.innerHTML =
+          `<span class="chat-sender" onclick="openProfile('${m.sender}')">${m.sender}</span>: ` +
+          `<span class="chat-text">${escHtml(m.text)}</span>`;
+        box.appendChild(div);
+      });
+      box.scrollTop = box.scrollHeight;
+    });
+}
+
+function sendGlobalMsg() {
+  const inp = document.getElementById('global-msg-inp');
+  const txt = inp.value.trim();
+  if (!txt) return;
+  db.collection("global_messages").add({
+    sender: state.user.username,
+    text:   txt,
+    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+  });
+  inp.value = '';
+}
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    const v = document.getElementById('view-main');
+    if (v && v.classList.contains('active')) sendGlobalMsg();
+    const vp = document.getElementById('view-messages');
+    if (vp && vp.classList.contains('active')) sendPM();
+  }
+});
+
+/* ============================================================
+   ЛИЧНЫЕ СООБЩЕНИЯ
+   ============================================================ */
+function openPM(targetUser) {
+  state.activePmUser = targetUser;
+  document.getElementById('pm-target-label').innerText = targetUser;
+  document.getElementById('pm-inp').disabled = false;
+  document.getElementById('pm-send-btn').disabled = false;
+  switchView('messages');
+
+  if (state.pmUnsub) state.pmUnsub();
+
+  const pairId = [state.user.username, targetUser].sort().join('||');
+  state.pmUnsub = db.collection("private_messages").doc(pairId)
+    .collection("chats")
+    .orderBy("timestamp", "asc")
+    .onSnapshot(snap => {
+      const box = document.getElementById('pm-box');
+      box.innerHTML = '';
+      if (snap.empty) {
+        box.innerHTML = `<div style="text-align:center;color:var(--gray);font-size:11px;padding:30px 0;align-self:center;">Напишите первое сообщение</div>`;
+        return;
+      }
+      snap.forEach(doc => {
+        const m   = doc.data();
+        const div = document.createElement('div');
+        const isMe = m.sender === state.user.username;
+        div.className = 'pm-msg ' + (isMe ? 'me' : 'you');
+        div.innerHTML =
+          `<div class="pm-sender-label">${m.sender}</div>` +
+          `<div class="pm-bubble">${escHtml(m.text)}</div>`;
+        box.appendChild(div);
+      });
+      box.scrollTop = box.scrollHeight;
+    });
+}
+
+function sendPM() {
+  const inp = document.getElementById('pm-inp');
+  const txt = inp.value.trim();
+  if (!txt || !state.activePmUser) return;
+
+  const pairId = [state.user.username, state.activePmUser].sort().join('||');
+  db.collection("private_messages").doc(pairId).collection("chats").add({
+    sender: state.user.username,
+    text:   txt,
+    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+  });
+  inp.value = '';
+}
+
+/* ============================================================
+   ПРОФИЛЬ МОДАЛ
+   ============================================================ */
+async function openProfile(username) {
+  const modal = document.getElementById('profile-modal');
+  modal.classList.add('open');
+  document.getElementById('modal-uname').innerText   = username;
+  document.getElementById('modal-avatar').innerText  = '👤';
+  document.getElementById('modal-status').innerText  = '...';
+  document.getElementById('modal-balance').innerText = '...';
+  document.getElementById('modal-wallet').innerText  = '...';
+
+  const doc = await db.collection("users").doc(username).get();
+  if (doc.exists) {
+    const d = doc.data();
+    document.getElementById('modal-avatar').innerText  = d.crown ? '👑' : '👤';
+    document.getElementById('modal-status').innerText  =
+      d.isGod ? '☢ БОГ' : (d.crown ? 'Смотритель 👑' : 'Житель');
+    document.getElementById('modal-balance').innerText =
+      (d.balance || 0).toLocaleString('ru') + ' $TAP';
+    document.getElementById('modal-wallet').innerText  =
+      d.wallet || 'Кошелёк не привязан';
+  } else {
+    document.getElementById('modal-status').innerText  = 'Неизвестный странник';
+    document.getElementById('modal-balance').innerText = '0 $TAP';
+    document.getElementById('modal-wallet').innerText  = 'Не зарегистрирован';
+  }
+
+  const pmBtn = document.getElementById('modal-pm-btn');
+  if (username === state.user.username) {
+    pmBtn.style.display = 'none';
+  } else {
+    pmBtn.style.display = 'block';
+    pmBtn.onclick = () => { closeModal(); openPM(username); };
+  }
+}
+
+function closeModal() {
+  document.getElementById('profile-modal').classList.remove('open');
+}
+document.getElementById('profile-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+/* ============================================================
+   КАНАЛЫ
+   ============================================================ */
+function listenChannels() {
+  db.collection("channels").onSnapshot(snap => {
+    const list = document.getElementById('channels-list');
+    list.innerHTML = '';
+    snap.forEach(doc => {
+      const ch  = doc.data();
+      const div = document.createElement('div');
+      div.className = 'channel-card';
+      div.innerHTML =
+        `<div class="channel-name">${escHtml(ch.title)} <span style="color:var(--gray)">${escHtml(ch.username)}</span></div>` +
+        `<div class="channel-meta">Создатель: ${escHtml(ch.owner)} · 👥 ${ch.subs || 0} читателей</div>`;
+      list.appendChild(div);
+    });
+  });
+}
+
+function createChannel() {
+  let title = document.getElementById('ch-title-inp').value.trim();
+  let uname = document.getElementById('ch-user-inp').value.trim();
+  if (!title || !uname) { showToast("Заполните все поля!", true); return; }
+  if (!uname.startsWith('@')) uname = '@' + uname;
+
+  db.collection("channels").doc(uname).set({
+    title, username: uname,
+    owner: state.user.username,
+    subs:  0,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  });
+
+  document.getElementById('ch-title-inp').value = '';
+  document.getElementById('ch-user-inp').value  = '';
+  showToast("Канал запущен в глобальную сеть!");
+}
+
+/* ============================================================
+   МАРКЕТ
+   ============================================================ */
+async function buyUsername(newName, price) {
+  if (state.user.balance < price) { showToast("Недостаточно $TAPGRAM!", true); return; }
+  if (!confirm(`Купить ник ${newName} за ${price} $TAP?`)) return;
+
+  await db.collection("users").doc(newName).set({
+    username: newName,
+    balance:  state.user.balance - price,
+    wallet:   state.user.wallet,
+    crown:    state.user.crown,
+    isGod:    state.user.isGod,
+    supercharge: state.user.supercharge
+  });
+  await db.collection("users").doc(state.user.username).delete();
+  state.user.username = newName;
+  state.user.balance -= price;
+  document.getElementById('hud-username').innerText = newName;
+  updateBalance();
+  showToast(`Ник изменён на ${newName}!`);
+}
+
+async function buyCrown(price) {
+  if (state.user.balance < price) { showToast("Недостаточно $TAPGRAM!", true); return; }
+  state.user.balance -= price;
+  state.user.crown    = true;
+  await db.collection("users").doc(state.user.username).update({
+    balance: state.user.balance, crown: true
+  });
+  document.getElementById('hud-badge').style.display = 'inline';
+  updateBalance();
+  showToast("👑 Статус Смотрителя получен!");
+}
+
+async function buySupercharge(price) {
+  if (state.user.balance < price) { showToast("Недостаточно $TAPGRAM!", true); return; }
+  state.user.balance -= price;
+  state.user.supercharge = true;
+  state.user.maxEnergy   = 1500;
+  await db.collection("users").doc(state.user.username).update({
+    balance: state.user.balance, supercharge: true
+  });
+  updateBalance();
+  showToast("⚡ Максимум энергии увеличен до 1500!");
+}
+
+/* ============================================================
+   ПОИСК
+   ============================================================ */
+async function runSearch() {
+  const q   = document.getElementById('search-inp').value.toLowerCase().trim();
+  const box = document.getElementById('search-results');
+  box.innerHTML = '';
+  if (!q) return;
+
+  const uSnap = await db.collection("users").get();
+  uSnap.forEach(doc => {
+    const u = doc.data();
+    if (u.username.toLowerCase().includes(q)) {
+      const div = document.createElement('div');
+      div.className = 'search-result';
+      div.onclick   = () => openProfile(u.username);
+      div.innerHTML =
+        `<span>${u.username} ${u.crown ? '👑' : ''}</span>` +
+        `<span class="search-tag">ЖИТЕЛЬ</span>`;
+      box.appendChild(div);
+    }
+  });
+
+  const cSnap = await db.collection("channels").get();
+  cSnap.forEach(doc => {
+    const ch = doc.data();
+    if (ch.title.toLowerCase().includes(q) || ch.username.toLowerCase().includes(q)) {
+      const div = document.createElement('div');
+      div.className = 'search-result';
+      div.innerHTML =
+        `<span>${escHtml(ch.title)} ${escHtml(ch.username)}</span>` +
+        `<span class="search-tag">КАНАЛ</span>`;
+      box.appendChild(div);
+    }
+  });
+
+  if (!box.children.length) {
+    box.innerHTML = `<div style="text-align:center;color:var(--gray);font-size:11px;padding:20px 0;">Ничего не найдено</div>`;
+  }
+}
+
+/* ============================================================
+   TON CONNECT
+   ============================================================ */
+function initTonConnect() {
+  try {
+    state.tonConnector = new TON_CONNECT_UI.TonConnectUI({
+      manifestUrl: TON_MANIFEST_URL,
+      buttonRootId: null
+    });
+
+    state.tonConnector.onStatusChange(wallet => {
+      if (wallet) {
+        const addr = wallet.account.address;
+        const short = addr.slice(0, 6) + '...' + addr.slice(-4);
+        state.tonAddress = addr;
+        state.user.wallet = addr;
+
+        document.getElementById('ton-chip').innerText     = '💎 ' + short;
+        document.getElementById('ton-chip').className     = 'wallet-chip connected';
+        document.getElementById('ton-address-display').innerText = short;
+        document.getElementById('ton-connect-btn').innerText = 'ОТВЯЗАТЬ';
+
+        db.collection("users").doc(state.user.username).update({ wallet: addr });
+      } else {
+        state.tonAddress = null;
+        state.user.wallet = null;
+        document.getElementById('ton-chip').innerText     = '💎 ПОДКЛЮЧИТЬ';
+        document.getElementById('ton-chip').className     = 'wallet-chip disconnected';
+        document.getElementById('ton-address-display').innerText = 'Не подключён';
+        document.getElementById('ton-connect-btn').innerText = 'СВЯЗАТЬ';
+        db.collection("users").doc(state.user.username).update({ wallet: null });
+      }
+    });
+  } catch (e) {
+    console.warn("TON Connect init failed:", e);
+  }
+}
+
+async function toggleTonWallet() {
+  if (!state.tonConnector) { showToast("TON Connect не инициализирован. Проверьте манифест URL.", true); return; }
+  if (state.tonAddress) {
+    await state.tonConnector.disconnect();
+  } else {
+    await state.tonConnector.openModal();
+  }
+}
+
+/* ============================================================
+   КОНФИГ ПРИЛОЖЕНИЯ (реальное время)
+   ============================================================ */
+function listenAppConfig() {
+  db.collection("app_config").doc("main").onSnapshot(doc => {
+    if (!doc.exists) return;
+    const c = doc.data();
+    if (c.title) {
+      document.title = c.title;
+      document.getElementById('auth-subtitle').innerText = c.title;
+    }
+  });
+}
+
+/* ============================================================
+   SUPERADMIN ПАНЕЛЬ
+   ============================================================ */
+function listenAdminUsers() {
+  db.collection("users").onSnapshot(snap => {
+    const sel  = document.getElementById('admin-sel-user');
+    const list = document.getElementById('admin-users-list');
+    sel.innerHTML  = '<option value="SELF">СЕБЕ (Суперадмин)</option>';
+    list.innerHTML = '';
+
+    snap.forEach(doc => {
+      const u = doc.data();
+      if (u.username === state.user.username) return;
+
+      const opt = document.createElement('option');
+      opt.value     = u.username;
+      opt.innerText = `${u.username} (${(u.balance || 0).toLocaleString('ru')} $TAP)`;
+      sel.appendChild(opt);
+
+      const row = document.createElement('div');
+      row.className = 'admin-user-row';
+      row.innerHTML =
+        `<span>${u.username} <span style="color:var(--gray)">${(u.balance || 0).toLocaleString('ru')} $TAP</span></span>` +
+        `<button class="btn btn-danger btn-sm" onclick="adminDelUser('${u.username}')">СТЕРЕТЬ</button>`;
+      list.appendChild(row);
+    });
+  });
+}
+
+async function adminAddPoints() {
+  const target = document.getElementById('admin-sel-user').value;
+  const amount = parseInt(document.getElementById('admin-points-inp').value);
+  if (isNaN(amount) || amount <= 0) { showToast("Введите корректную сумму", true); return; }
+
+  if (target === "SELF") {
+    state.user.balance += amount;
+    await db.collection("users").doc(state.user.username).update({ balance: state.user.balance });
+    updateBalance();
+  } else {
+    const ref = db.collection("users").doc(target);
+    const doc = await ref.get();
+    if (doc.exists) {
+      await ref.update({ balance: (doc.data().balance || 0) + amount });
+      showToast(`+${amount.toLocaleString('ru')} $TAP → ${target}`);
+    }
+  }
+  document.getElementById('admin-points-inp').value = '';
+}
+
+function adminDelUser(username) {
+  if (!confirm(`Удалить аккаунт ${username}?`)) return;
+  db.collection("users").doc(username).delete();
+  showToast(`Аккаунт ${username} удалён`);
+}
+
+async function adminApplyConfig() {
+  const title    = document.getElementById('admin-title-inp').value;
+  const navOrder = document.getElementById('admin-nav-sel').value;
+  await db.collection("app_config").doc("main").set({ title, navOrder }, { merge: true });
+  showToast("Конфигурация обновлена для всех пользователей!");
+}
+
+/* ============================================================
+   УТИЛИТЫ
+   ============================================================ */
+function escHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function showToast(msg, isError = false) {
+  const container = document.getElementById('toast-container');
+  const t = document.createElement('div');
+  t.className = 'toast' + (isError ? ' error' : '');
+  t.innerText = msg;
+  container.appendChild(t);
+  setTimeout(() => t.remove(), 3200);
+}
+
+/* ============================================================
+   ЗАПУСК
+   ============================================================ */
+window.addEventListener('load', bootSequence);
 </script>
+
 </body>
 </html>
