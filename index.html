@@ -1,1741 +1,1719 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>$TAPGRAM NET</title>
-
-<!-- Google Fonts -->
 <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
-
-<!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-
-<!-- TON Connect UI -->
 <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
 
 <style>
-/* ============================================================
-   ГЛОБАЛЬНЫЕ СТИЛИ
-   ============================================================ */
-*, *::before, *::after {
-  box-sizing: border-box;
-  -webkit-tap-highlight-color: transparent;
-  user-select: none;
+/* ===== RESET & ROOT ===== */
+*,*::before,*::after{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none}
+:root{
+  --g:#00ff88;--g2:#00cc66;--gd:rgba(0,255,136,0.15);
+  --bg:#030d05;--bg2:#061208;--bg3:#0a1e0f;
+  --red:#ff3355;--gold:#ffd700;--blue:#539cff;
+  --gray:rgba(0,255,136,0.3);
+  --fm:'Share Tech Mono',monospace;--fh:'Orbitron',sans-serif;
 }
+html,body{margin:0;padding:0;height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(--g);font-family:var(--fm)}
+body::before{content:"";position:fixed;inset:0;background:repeating-linear-gradient(0deg,rgba(0,0,0,0.07) 0,rgba(0,0,0,0.07) 1px,transparent 1px,transparent 3px);pointer-events:none;z-index:99998}
+body::after{content:"";position:fixed;inset:0;background:radial-gradient(ellipse at center,transparent 60%,rgba(0,0,0,0.65) 100%);pointer-events:none;z-index:99997}
 
-:root {
-  --g: #00ff88;
-  --g2: #00cc66;
-  --gd: #00ff8822;
-  --bg: #030d05;
-  --bg2: #061208;
-  --bg3: #0a1e0f;
-  --red: #ff3355;
-  --gold: #ffd700;
-  --gray: rgba(0,255,136,0.3);
-  --font-main: 'Share Tech Mono', monospace;
-  --font-hud: 'Orbitron', sans-serif;
-}
+/* ===== PARTICLES ===== */
+#particles{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.particle{position:absolute;width:2px;height:2px;background:var(--g);border-radius:50%;animation:fp linear infinite;opacity:0}
+@keyframes fp{0%{transform:translateY(100vh);opacity:0}10%{opacity:.5}90%{opacity:.2}100%{transform:translateY(-10vh) translateX(20px);opacity:0}}
 
-html, body {
-  margin: 0; padding: 0;
-  height: 100%; width: 100%;
-  overflow: hidden;
-  background: var(--bg);
-  color: var(--g);
-  font-family: var(--font-main);
-}
+/* ===== BOOT ===== */
+#boot{position:fixed;inset:0;background:var(--bg);z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;transition:opacity .6s}
+#boot.hide{opacity:0;pointer-events:none}
+.boot-logo{font-family:var(--fh);font-size:28px;font-weight:900;color:var(--g);text-shadow:0 0 20px var(--g);animation:pglow 2s ease-in-out infinite;letter-spacing:3px}
+.boot-sub{font-size:10px;color:var(--gray);letter-spacing:4px}
+.boot-bar-w{width:200px;height:4px;background:rgba(0,255,136,.1);border:1px solid var(--gray);border-radius:2px;overflow:hidden}
+.boot-bar{height:100%;width:0%;background:var(--g);box-shadow:0 0 8px var(--g);transition:width .1s linear}
+.boot-log{font-size:10px;color:rgba(0,255,136,.5);min-height:14px;letter-spacing:1px}
 
-/* CRT Эффект */
-body::before {
-  content: "";
-  position: fixed; inset: 0;
-  background: repeating-linear-gradient(0deg, rgba(0,0,0,0.08) 0px, rgba(0,0,0,0.08) 1px, transparent 1px, transparent 3px);
-  pointer-events: none;
-  z-index: 99998;
-}
-body::after {
-  content: "";
-  position: fixed; inset: 0;
-  background: radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.7) 100%);
-  pointer-events: none;
-  z-index: 99997;
-}
+/* ===== APP SHELL ===== */
+#app{position:relative;display:flex;flex-direction:column;height:100vh;z-index:10;overflow:hidden}
+@keyframes pglow{0%,100%{text-shadow:0 0 10px var(--g),0 0 20px var(--g)}50%{text-shadow:0 0 20px var(--g),0 0 40px var(--g),0 0 60px var(--g2)}}
 
-/* Анимированные частицы фона */
-#particles {
-  position: fixed; inset: 0;
-  pointer-events: none;
-  z-index: 0;
-  overflow: hidden;
-}
-.particle {
-  position: absolute;
-  width: 2px; height: 2px;
-  background: var(--g);
-  border-radius: 50%;
-  animation: float-particle linear infinite;
-  opacity: 0;
-}
-@keyframes float-particle {
-  0%   { transform: translateY(100vh) translateX(0); opacity: 0; }
-  10%  { opacity: 0.6; }
-  90%  { opacity: 0.3; }
-  100% { transform: translateY(-10vh) translateX(30px); opacity: 0; }
-}
+/* ===== HUD HEADER ===== */
+#hud{display:none;padding:5px 10px;border-bottom:1px solid var(--gray);background:rgba(3,13,5,.97);flex-shrink:0}
+.hud-r1{display:flex;justify-content:space-between;align-items:center;margin-bottom:3px}
+.hud-logo{font-family:var(--fh);font-size:12px;font-weight:700;color:var(--g);text-shadow:0 0 8px var(--g);letter-spacing:2px}
+.hud-user{font-size:11px;color:var(--g2);display:flex;align-items:center;gap:5px}
+.hud-r2{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.hud-bal{font-family:var(--fh);font-size:17px;font-weight:700;color:var(--g);text-shadow:0 0 8px var(--g)}
+.hud-bal span{font-size:9px;color:var(--gray);font-family:var(--fm)}
+.energy-bar{flex:1;max-width:110px}
+.energy-lbl{font-size:9px;color:var(--gray);margin-bottom:2px}
+.energy-track{height:4px;background:rgba(0,255,136,.08);border:1px solid var(--gray);border-radius:3px;overflow:hidden}
+.energy-fill{height:100%;background:linear-gradient(90deg,var(--g2),var(--g));transition:width .3s}
+.wallet-chip{font-size:8px;padding:3px 7px;border:1px solid;border-radius:20px;cursor:pointer;transition:all .2s;white-space:nowrap}
+.wallet-chip.dc{border-color:#f90;color:#f90}
+.wallet-chip.cn{border-color:var(--g);color:var(--g);box-shadow:0 0 5px var(--g)}
 
-/* ============================================================
-   ЭКРАН ЗАГРУЗКИ
-   ============================================================ */
-#boot-screen {
-  position: fixed; inset: 0;
-  background: var(--bg);
-  z-index: 99999;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-  transition: opacity 0.6s ease;
-}
-#boot-screen.hide {
-  opacity: 0;
-  pointer-events: none;
-}
-.boot-logo {
-  font-family: var(--font-hud);
-  font-size: 28px;
-  font-weight: 900;
-  color: var(--g);
-  text-shadow: 0 0 20px var(--g), 0 0 40px var(--g);
-  animation: pulse-glow 2s ease-in-out infinite;
-  letter-spacing: 3px;
-}
-.boot-sub {
-  font-size: 11px;
-  color: var(--gray);
-  letter-spacing: 4px;
-  text-transform: uppercase;
-}
-.boot-bar-wrap {
-  width: 200px;
-  height: 4px;
-  background: rgba(0,255,136,0.1);
-  border: 1px solid var(--gray);
-  border-radius: 2px;
-  overflow: hidden;
-}
-.boot-bar-fill {
-  height: 100%;
-  width: 0%;
-  background: var(--g);
-  box-shadow: 0 0 8px var(--g);
-  transition: width 0.1s linear;
-}
-.boot-log {
-  font-size: 10px;
-  color: rgba(0,255,136,0.5);
-  min-height: 14px;
-  letter-spacing: 1px;
-}
+/* ===== VIEWS ===== */
+.view{display:none;flex:1;flex-direction:column;overflow-y:auto;padding:8px;padding-bottom:72px;scrollbar-width:thin;scrollbar-color:var(--g2) var(--bg2)}
+.view.active{display:flex}
+.view::-webkit-scrollbar{width:3px}
+.view::-webkit-scrollbar-thumb{background:var(--g2);border-radius:3px}
+h2.vtitle{font-family:var(--fh);font-size:12px;font-weight:700;text-align:center;letter-spacing:3px;color:var(--g);text-shadow:0 0 8px var(--g);text-transform:uppercase;margin:0 0 8px;padding-bottom:5px;border-bottom:1px dashed var(--gray)}
 
-/* ============================================================
-   ГЛАВНЫЙ КОНТЕЙНЕР
-   ============================================================ */
-#app {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  z-index: 10;
-  overflow: hidden;
-}
+/* ===== AUTH ===== */
+#v-auth{align-items:center;justify-content:center;gap:10px}
+.auth-logo{font-family:var(--fh);font-size:22px;font-weight:900;color:var(--g);text-shadow:0 0 20px var(--g);text-align:center;letter-spacing:3px;animation:pglow 2s ease-in-out infinite;margin-bottom:4px}
+.auth-sub{font-size:9px;color:var(--gray);letter-spacing:4px;text-align:center;margin-bottom:12px}
+.auth-tabs{display:flex;gap:6px;margin-bottom:8px}
+.auth-tab{flex:1;padding:7px;font-family:var(--fh);font-size:9px;letter-spacing:1px;border:1px solid var(--gray);background:transparent;color:var(--gray);border-radius:5px;cursor:pointer;transition:all .2s;text-transform:uppercase}
+.auth-tab.active{border-color:var(--g);color:var(--g);background:var(--gd)}
 
-/* Шапка HUD */
-#hud-header {
-  display: none;
-  padding: 6px 10px;
-  border-bottom: 1px solid var(--gray);
-  background: rgba(3,13,5,0.95);
-  flex-shrink: 0;
-  position: relative;
-}
-.hud-row1 {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 4px;
-}
-.hud-logo {
-  font-family: var(--font-hud);
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--g);
-  text-shadow: 0 0 8px var(--g);
-  letter-spacing: 2px;
-}
-.hud-user {
-  font-size: 11px;
-  color: var(--g2);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.hud-badge {
-  font-size: 14px;
-  animation: spin-badge 3s linear infinite;
-}
-@keyframes spin-badge {
-  0%  { text-shadow: 0 0 6px gold; }
-  50% { text-shadow: 0 0 16px gold; }
-  100%{ text-shadow: 0 0 6px gold; }
-}
-.hud-row2 {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 8px;
-}
-.hud-balance {
-  font-family: var(--font-hud);
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--g);
-  text-shadow: 0 0 10px var(--g);
-}
-.hud-balance span {
-  font-size: 10px;
-  color: var(--gray);
-  font-family: var(--font-main);
-}
-.energy-bar {
-  flex: 1;
-  max-width: 120px;
-}
-.energy-label {
-  font-size: 9px;
-  color: var(--gray);
-  margin-bottom: 2px;
-}
-.energy-track {
-  height: 5px;
-  background: rgba(0,255,136,0.1);
-  border: 1px solid var(--gray);
-  border-radius: 3px;
-  overflow: hidden;
-}
-.energy-fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--g2), var(--g));
-  box-shadow: 0 0 6px var(--g);
-  transition: width 0.3s ease;
-}
-.wallet-chip {
-  font-size: 9px;
-  padding: 3px 7px;
-  border: 1px solid;
-  border-radius: 20px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-.wallet-chip.disconnected { border-color: #ff9900; color: #ff9900; }
-.wallet-chip.connected    { border-color: var(--g); color: var(--g); box-shadow: 0 0 6px var(--g); }
+/* ===== INPUTS & BUTTONS ===== */
+.inp{background:var(--bg2);border:1px solid var(--gray);color:var(--g);padding:10px 13px;border-radius:6px;font-size:13px;font-family:var(--fm);outline:none;width:100%;transition:border-color .2s,box-shadow .2s}
+.inp:focus{border-color:var(--g);box-shadow:0 0 8px var(--gd)}
+.inp::placeholder{color:rgba(0,255,136,.2)}
+select.inp option{background:var(--bg2);color:var(--g)}
+.btn{background:var(--g);color:var(--bg);border:none;padding:10px 13px;font-weight:bold;font-size:11px;font-family:var(--fh);text-transform:uppercase;letter-spacing:2px;cursor:pointer;border-radius:6px;width:100%;transition:all .15s;position:relative;overflow:hidden}
+.btn:active{transform:scale(.97)}
+.btn-o{background:transparent;border:1px solid var(--g);color:var(--g)}
+.btn-o:hover{background:var(--gd)}
+.btn-d{background:var(--red);color:#fff}
+.btn-sm{padding:5px 9px;font-size:9px;width:auto;letter-spacing:1px}
+.btn-blue{background:#539cff;color:#000}
 
-/* ============================================================
-   VIEWS
-   ============================================================ */
-.view {
-  display: none;
-  flex: 1;
-  flex-direction: column;
-  overflow-y: auto;
-  padding: 8px;
-  padding-bottom: 70px;
-  scrollbar-width: thin;
-  scrollbar-color: var(--g2) var(--bg2);
-}
-.view.active { display: flex; }
-.view::-webkit-scrollbar { width: 4px; }
-.view::-webkit-scrollbar-thumb { background: var(--g2); border-radius: 4px; }
+/* ===== REACTOR ===== */
+.reactor-wrap{display:flex;flex-direction:column;align-items:center;margin:6px 0;position:relative}
+.reactor-ring{width:155px;height:155px;border-radius:50%;border:2px solid var(--gray);display:flex;align-items:center;justify-content:center;animation:rring 8s linear infinite;position:relative}
+@keyframes rring{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.reactor-ring::before{content:"";position:absolute;inset:6px;border-radius:50%;border:1px dashed rgba(0,255,136,.12)}
+.reactor-core{width:115px;height:115px;border-radius:50%;border:3px solid var(--g);background:radial-gradient(circle,rgba(0,255,136,.1) 0%,transparent 70%);box-shadow:0 0 20px var(--gd),inset 0 0 20px var(--gd);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;animation:rcrot 8s linear infinite,breathe 2s ease-in-out infinite;transition:box-shadow .1s}
+@keyframes rcrot{from{transform:rotate(0deg)}to{transform:rotate(-360deg)}}
+@keyframes breathe{0%,100%{box-shadow:0 0 15px var(--gd),inset 0 0 15px var(--gd)}50%{box-shadow:0 0 28px rgba(0,255,136,.28),inset 0 0 22px rgba(0,255,136,.14)}}
+.reactor-core:active{transform:rotate(-360deg) scale(.92)!important;box-shadow:0 0 40px rgba(0,255,136,.5),inset 0 0 30px rgba(0,255,136,.25)!important}
+.reactor-icon{font-family:var(--fh);font-size:10px;font-weight:700;color:var(--g);letter-spacing:2px;text-shadow:0 0 6px var(--g)}
+.reactor-hint{font-size:8px;color:rgba(0,255,136,.4);margin-top:2px;letter-spacing:1px}
+.reactor-multi{font-family:var(--fh);font-size:13px;color:var(--gold);text-shadow:0 0 8px var(--gold);margin-top:2px}
+.tap-popup{position:fixed;font-family:var(--fh);font-weight:700;font-size:15px;color:var(--g);text-shadow:0 0 8px var(--g);pointer-events:none;z-index:9999;animation:tpop .7s ease-out forwards}
+@keyframes tpop{0%{transform:translateY(0) scale(1);opacity:1}100%{transform:translateY(-55px) scale(1.3);opacity:0}}
 
-h2.view-title {
-  font-family: var(--font-hud);
-  font-size: 13px;
-  font-weight: 700;
-  text-align: center;
-  letter-spacing: 3px;
-  color: var(--g);
-  text-shadow: 0 0 10px var(--g);
-  text-transform: uppercase;
-  margin: 0 0 10px;
-  padding-bottom: 6px;
-  border-bottom: 1px dashed var(--gray);
-}
+/* ===== COMBO & STREAK ===== */
+.streak-bar{display:flex;justify-content:space-between;align-items:center;padding:5px 10px;background:var(--bg2);border:1px solid var(--gray);border-radius:6px;margin-bottom:6px;font-size:10px}
+.streak-lbl{color:var(--gray)}
+.streak-val{color:var(--gold);font-family:var(--fh);font-size:12px}
 
-/* ============================================================
-   AUTH VIEW
-   ============================================================ */
-#view-auth {
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-}
-.auth-logo {
-  font-family: var(--font-hud);
-  font-size: 24px;
-  font-weight: 900;
-  color: var(--g);
-  text-shadow: 0 0 20px var(--g);
-  text-align: center;
-  letter-spacing: 3px;
-  animation: pulse-glow 2s ease-in-out infinite;
-  margin-bottom: 6px;
-}
-.auth-sub {
-  font-size: 10px;
-  color: var(--gray);
-  letter-spacing: 4px;
-  text-align: center;
-  margin-bottom: 16px;
-  text-transform: uppercase;
-}
-@keyframes pulse-glow {
-  0%, 100% { text-shadow: 0 0 10px var(--g), 0 0 20px var(--g); }
-  50%       { text-shadow: 0 0 20px var(--g), 0 0 40px var(--g), 0 0 60px var(--g2); }
-}
+/* ===== TASKS ===== */
+.task-card{border:1px solid var(--gray);background:var(--bg2);border-radius:7px;padding:10px;margin-bottom:7px;display:flex;justify-content:space-between;align-items:center;animation:mapp .3s ease}
+.task-card.done{opacity:.4;border-color:rgba(0,255,136,.1)}
+.task-info .task-title{font-size:12px;color:var(--g);font-weight:bold;margin-bottom:2px}
+.task-info .task-desc{font-size:10px;color:var(--gray)}
+.task-reward{font-family:var(--fh);font-size:11px;color:var(--gold);white-space:nowrap}
 
-/* ============================================================
-   ИНПУТЫ И КНОПКИ
-   ============================================================ */
-.inp {
-  background: var(--bg2);
-  border: 1px solid var(--gray);
-  color: var(--g);
-  padding: 11px 14px;
-  border-radius: 6px;
-  font-size: 14px;
-  font-family: var(--font-main);
-  outline: none;
-  width: 100%;
-  transition: border-color 0.2s, box-shadow 0.2s;
-}
-.inp:focus {
-  border-color: var(--g);
-  box-shadow: 0 0 10px var(--gd);
-}
-.inp::placeholder { color: rgba(0,255,136,0.25); }
+/* ===== CHAT ===== */
+.slbl{font-family:var(--fh);font-size:8px;letter-spacing:3px;color:var(--gray);text-transform:uppercase;margin:8px 0 3px}
+.chat-box{min-height:100px;border:1px solid var(--gray);background:var(--bg2);border-radius:6px;padding:7px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--g2) var(--bg2);max-height:220px}
+.chat-msg{padding:4px 0;border-bottom:1px solid rgba(0,255,136,.06);font-size:11px;line-height:1.5;animation:mapp .3s ease}
+@keyframes mapp{from{opacity:0;transform:translateX(-5px)}to{opacity:1;transform:none}}
+.chat-sender{color:var(--g);cursor:pointer;font-weight:bold;text-decoration:none;transition:text-shadow .2s}
+.chat-sender:hover{text-shadow:0 0 8px var(--g)}
+.chat-text{color:rgba(0,255,136,.8)}
+.chat-ir{display:flex;gap:6px;margin-top:5px}
+.chat-ir .inp{margin:0}
+.chat-ir .btn{width:auto;min-width:50px;padding:10px 11px}
 
-.btn {
-  background: var(--g);
-  color: var(--bg);
-  border: none;
-  padding: 11px 14px;
-  font-weight: bold;
-  font-size: 12px;
-  font-family: var(--font-hud);
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  cursor: pointer;
-  border-radius: 6px;
-  width: 100%;
-  transition: all 0.15s;
-  position: relative;
-  overflow: hidden;
-}
-.btn::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: rgba(255,255,255,0.15);
-  opacity: 0;
-  transition: opacity 0.15s;
-}
-.btn:hover::after { opacity: 1; }
-.btn:active { transform: scale(0.97); }
-.btn-outline {
-  background: transparent;
-  border: 1px solid var(--g);
-  color: var(--g);
-}
-.btn-outline:hover { background: var(--gd); }
-.btn-danger {
-  background: var(--red);
-  color: white;
-}
-.btn-sm {
-  padding: 5px 10px;
-  font-size: 10px;
-  width: auto;
-  letter-spacing: 1px;
-}
+/* ===== PM ===== */
+.pm-msg{margin:4px 0;max-width:80%;animation:mapp .3s ease}
+.pm-msg.me{align-self:flex-end;text-align:right}
+.pm-msg.you{align-self:flex-start}
+.pm-bubble{display:inline-block;padding:5px 9px;border-radius:9px;font-size:11px;line-height:1.4}
+.pm-msg.me .pm-bubble{background:rgba(0,255,136,.1);border:1px solid var(--gray)}
+.pm-msg.you .pm-bubble{background:rgba(0,255,136,.05);border:1px solid rgba(0,255,136,.1)}
+.pm-slbl{font-size:8px;color:var(--gray);margin-bottom:2px}
+.pm-box{flex:1;display:flex;flex-direction:column;overflow-y:auto;padding:5px;border:1px solid var(--gray);background:var(--bg2);border-radius:6px;min-height:130px;scrollbar-width:thin}
 
-/* ============================================================
-   РЕАКТОР
-   ============================================================ */
-.reactor-wrap {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin: 8px 0;
-  position: relative;
-}
-.reactor-ring-outer {
-  width: 160px; height: 160px;
-  border-radius: 50%;
-  border: 2px solid var(--gray);
-  display: flex; align-items: center; justify-content: center;
-  animation: rotate-ring 8s linear infinite;
-  position: relative;
-}
-@keyframes rotate-ring {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(360deg); }
-}
-.reactor-ring-outer::before {
-  content: "";
-  position: absolute;
-  inset: 6px;
-  border-radius: 50%;
-  border: 1px dashed rgba(0,255,136,0.15);
-}
-.reactor-core {
-  width: 120px; height: 120px;
-  border-radius: 50%;
-  border: 3px solid var(--g);
-  background: radial-gradient(circle, rgba(0,255,136,0.12) 0%, rgba(0,255,136,0.03) 50%, transparent 70%);
-  box-shadow: 0 0 20px var(--gd), inset 0 0 20px var(--gd);
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  cursor: pointer;
-  position: relative;
-  animation: counter-rotate 8s linear infinite, breathe 2s ease-in-out infinite;
-  transition: box-shadow 0.1s;
-  -webkit-tap-highlight-color: transparent;
-}
-@keyframes counter-rotate {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(-360deg); }
-}
-@keyframes breathe {
-  0%, 100% { box-shadow: 0 0 15px var(--gd), inset 0 0 15px var(--gd); }
-  50%       { box-shadow: 0 0 30px rgba(0,255,136,0.3), inset 0 0 25px rgba(0,255,136,0.15); }
-}
-.reactor-core:active {
-  transform: rotate(-360deg) scale(0.93) !important;
-  box-shadow: 0 0 40px rgba(0,255,136,0.5), inset 0 0 30px rgba(0,255,136,0.25) !important;
-}
-.reactor-icon {
-  font-family: var(--font-hud);
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--g);
-  letter-spacing: 2px;
-  text-shadow: 0 0 8px var(--g);
-}
-.reactor-tap-hint {
-  font-size: 9px;
-  color: rgba(0,255,136,0.4);
-  margin-top: 2px;
-  letter-spacing: 1px;
-}
-.reactor-dots {
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-}
-.reactor-dot {
-  position: absolute;
-  width: 6px; height: 6px;
-  background: var(--g);
-  border-radius: 50%;
-  box-shadow: 0 0 6px var(--g);
-}
+/* ===== CHANNELS ===== */
+.ch-card{border:1px solid var(--gray);background:var(--bg2);border-radius:7px;padding:10px;margin-bottom:6px;animation:mapp .3s ease;cursor:pointer;transition:border-color .2s,background .2s}
+.ch-card:hover{border-color:var(--g);background:var(--gd)}
+.ch-name{font-family:var(--fh);font-size:11px;font-weight:700;color:var(--g)}
+.ch-meta{font-size:9px;color:var(--gray);margin-top:2px}
+.ch-post{border:1px solid rgba(0,255,136,.1);background:var(--bg3);border-radius:5px;padding:8px;margin:5px 0;font-size:11px;line-height:1.5;animation:mapp .3s ease}
+.ch-post-hd{display:flex;justify-content:space-between;font-size:9px;color:var(--gray);margin-bottom:4px}
+.create-ch{border:1px dashed var(--gray);border-radius:8px;padding:10px;margin-bottom:12px;display:flex;flex-direction:column;gap:6px}
 
-.tap-popup {
-  position: fixed;
-  font-family: var(--font-hud);
-  font-weight: 700;
-  font-size: 16px;
-  color: var(--g);
-  text-shadow: 0 0 10px var(--g);
-  pointer-events: none;
-  z-index: 9999;
-  animation: tap-float 0.7s ease-out forwards;
-}
-@keyframes tap-float {
-  0%   { transform: translateY(0) scale(1);   opacity: 1; }
-  100% { transform: translateY(-60px) scale(1.3); opacity: 0; }
-}
+/* ===== MARKET ===== */
+.mkt-item{display:flex;justify-content:space-between;align-items:center;border:1px solid var(--gray);background:var(--bg2);border-radius:7px;padding:10px;margin-bottom:6px;animation:mapp .3s ease}
+.mkt-info-title{color:var(--g);font-size:12px;font-weight:bold}
+.mkt-info-price{font-size:10px;color:var(--gray);margin-top:2px}
 
-/* ============================================================
-   ЧАТ
-   ============================================================ */
-.section-label {
-  font-family: var(--font-hud);
-  font-size: 9px;
-  letter-spacing: 3px;
-  color: var(--gray);
-  text-transform: uppercase;
-  margin: 10px 0 4px;
-}
-.chat-box {
-  flex: 1;
-  min-height: 120px;
-  border: 1px solid var(--gray);
-  background: var(--bg2);
-  border-radius: 6px;
-  padding: 8px;
-  overflow-y: auto;
-  scrollbar-width: thin;
-  scrollbar-color: var(--g2) var(--bg2);
-}
-.chat-msg {
-  padding: 5px 0;
-  border-bottom: 1px solid rgba(0,255,136,0.06);
-  font-size: 12px;
-  line-height: 1.5;
-  animation: msg-appear 0.3s ease;
-}
-@keyframes msg-appear {
-  from { opacity: 0; transform: translateX(-6px); }
-  to   { opacity: 1; transform: translateX(0); }
-}
-.chat-sender {
-  color: var(--g);
-  cursor: pointer;
-  font-weight: bold;
-  text-decoration: none;
-  transition: text-shadow 0.2s;
-}
-.chat-sender:hover { text-shadow: 0 0 8px var(--g); }
-.chat-text { color: rgba(0,255,136,0.8); }
+/* ===== PROFILE VIEW ===== */
+.pf-avatar{width:72px;height:72px;border-radius:50%;background:radial-gradient(circle,rgba(0,255,136,.12),transparent);border:3px solid var(--g);display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 8px;box-shadow:0 0 16px var(--gd);cursor:pointer;position:relative;overflow:hidden}
+.pf-avatar-edit{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.7);font-size:8px;text-align:center;padding:2px;color:var(--g);letter-spacing:1px}
+.pf-name{font-family:var(--fh);font-size:16px;font-weight:700;text-align:center;color:var(--g);text-shadow:0 0 8px var(--g);margin-bottom:4px}
+.pf-bio{font-size:10px;color:var(--gray);text-align:center;margin-bottom:10px;cursor:pointer;padding:4px 8px;border:1px dashed transparent;border-radius:5px;transition:border-color .2s}
+.pf-bio:hover{border-color:var(--gray)}
+.pf-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px}
+.pf-stat{text-align:center;background:var(--bg2);border:1px solid var(--gray);border-radius:6px;padding:7px 5px}
+.pf-stat-val{font-family:var(--fh);font-size:14px;color:var(--g);font-weight:700}
+.pf-stat-lbl{font-size:8px;color:var(--gray);letter-spacing:1px;margin-top:2px}
+.pf-row{display:flex;justify-content:space-between;font-size:11px;padding:5px 0;border-bottom:1px solid rgba(0,255,136,.07);align-items:center}
+.pf-row .lbl{color:var(--gray)}
+.pf-row .val{color:var(--g)}
 
-.chat-input-row {
-  display: flex;
-  gap: 6px;
-  margin-top: 6px;
-}
-.chat-input-row .inp { margin: 0; }
-.chat-input-row .btn { width: auto; min-width: 56px; padding: 11px 12px; }
+/* ===== SETTINGS ===== */
+.settings-block{border:1px solid var(--gray);background:var(--bg2);border-radius:7px;padding:10px;margin-bottom:8px}
+.settings-title{font-family:var(--fh);font-size:9px;letter-spacing:2px;color:var(--gray);margin-bottom:8px;text-transform:uppercase}
+.lang-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;max-height:200px;overflow-y:auto;scrollbar-width:thin}
+.lang-btn{font-size:9px;padding:5px;border:1px solid var(--gray);background:transparent;color:var(--gray);border-radius:4px;cursor:pointer;text-align:center;transition:all .2s;font-family:var(--fm)}
+.lang-btn:hover,.lang-btn.active{border-color:var(--g);color:var(--g);background:var(--gd)}
+.toggle-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(0,255,136,.06);font-size:11px}
+.toggle-row .lbl{color:rgba(0,255,136,.7)}
+.toggle{width:34px;height:18px;background:rgba(0,255,136,.1);border:1px solid var(--gray);border-radius:9px;cursor:pointer;position:relative;transition:background .2s}
+.toggle.on{background:rgba(0,255,136,.3);border-color:var(--g)}
+.toggle::after{content:"";position:absolute;top:2px;left:2px;width:12px;height:12px;background:var(--gray);border-radius:50%;transition:left .2s,background .2s}
+.toggle.on::after{left:18px;background:var(--g)}
 
-/* PM */
-.pm-msg {
-  margin: 5px 0;
-  max-width: 80%;
-  animation: msg-appear 0.3s ease;
-}
-.pm-msg.me  { align-self: flex-end;  text-align: right; }
-.pm-msg.you { align-self: flex-start; }
-.pm-bubble {
-  display: inline-block;
-  padding: 6px 10px;
-  border-radius: 10px;
-  font-size: 12px;
-  line-height: 1.4;
-}
-.pm-msg.me  .pm-bubble { background: rgba(0,255,136,0.1); border: 1px solid var(--gray); }
-.pm-msg.you .pm-bubble { background: rgba(0,255,136,0.05); border: 1px solid rgba(0,255,136,0.1); }
-.pm-sender-label { font-size: 9px; color: var(--gray); margin-bottom: 2px; }
-.pm-box {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  overflow-y: auto;
-  padding: 6px;
-  border: 1px solid var(--gray);
-  background: var(--bg2);
-  border-radius: 6px;
-  min-height: 140px;
-  scrollbar-width: thin;
-}
+/* ===== GRAMBOT ===== */
+#grambot-bubble{position:fixed;bottom:80px;right:12px;width:46px;height:46px;border-radius:50%;background:radial-gradient(circle,rgba(0,255,136,.25),rgba(0,255,136,.08));border:2px solid var(--g);box-shadow:0 0 12px var(--gd);cursor:pointer;z-index:500;display:none;align-items:center;justify-content:center;flex-direction:column;animation:bot-pulse 2.5s ease-in-out infinite}
+@keyframes bot-pulse{0%,100%{box-shadow:0 0 8px var(--gd)}50%{box-shadow:0 0 18px rgba(0,255,136,.35)}}
+.bot-icon{font-size:18px}
+.bot-lbl{font-size:6px;color:var(--g);letter-spacing:1px;font-family:var(--fh);margin-top:1px}
+#grambot-panel{position:fixed;bottom:80px;right:12px;width:280px;max-height:400px;background:var(--bg3);border:1px solid var(--g);border-radius:12px;box-shadow:0 0 20px rgba(0,255,136,.2);z-index:501;display:none;flex-direction:column;overflow:hidden;animation:bot-open .25s ease}
+@keyframes bot-open{from{opacity:0;transform:scale(.9) translateY(10px)}to{opacity:1;transform:none}}
+.bot-header{padding:10px 12px;border-bottom:1px solid var(--gray);display:flex;align-items:center;gap:8px}
+.bot-avatar{width:32px;height:32px;border-radius:50%;background:radial-gradient(circle,rgba(0,255,136,.2),transparent);border:1px solid var(--g);display:flex;align-items:center;justify-content:center;font-size:14px}
+.bot-name{font-family:var(--fh);font-size:11px;color:var(--g);letter-spacing:1px}
+.bot-status{font-size:9px;color:var(--g2)}
+.bot-close{margin-left:auto;background:none;border:none;color:var(--gray);cursor:pointer;font-size:14px;padding:3px}
+.bot-msgs{flex:1;overflow-y:auto;padding:8px;display:flex;flex-direction:column;gap:5px;scrollbar-width:thin;max-height:260px}
+.bot-msg{padding:6px 8px;border-radius:7px;font-size:10px;line-height:1.5;max-width:85%;animation:mapp .3s ease}
+.bot-msg.bot{background:rgba(0,255,136,.08);border:1px solid rgba(0,255,136,.15);align-self:flex-start;color:rgba(0,255,136,.9)}
+.bot-msg.user{background:rgba(0,255,136,.15);border:1px solid rgba(0,255,136,.25);align-self:flex-end;color:var(--g)}
+.bot-typing{display:flex;gap:3px;padding:8px;align-self:flex-start}
+.bot-typing span{width:5px;height:5px;background:var(--g);border-radius:50%;animation:btype 1s ease infinite}
+.bot-typing span:nth-child(2){animation-delay:.2s}
+.bot-typing span:nth-child(3){animation-delay:.4s}
+@keyframes btype{0%,100%{opacity:.3;transform:scale(1)}50%{opacity:1;transform:scale(1.3)}}
+.bot-suggest{display:flex;flex-wrap:wrap;gap:4px;padding:6px 8px;border-top:1px solid rgba(0,255,136,.1)}
+.bot-sug-btn{font-size:8px;padding:3px 7px;border:1px solid var(--gray);background:transparent;color:var(--gray);border-radius:10px;cursor:pointer;transition:all .2s;font-family:var(--fm)}
+.bot-sug-btn:hover{border-color:var(--g);color:var(--g)}
+.bot-ir{display:flex;gap:5px;padding:6px 8px;border-top:1px solid var(--gray)}
+.bot-ir input{flex:1;background:transparent;border:1px solid rgba(0,255,136,.2);color:var(--g);border-radius:5px;padding:5px 7px;font-size:10px;font-family:var(--fm);outline:none}
+.bot-ir input:focus{border-color:var(--g)}
+.bot-ir button{background:var(--g);border:none;color:var(--bg);border-radius:5px;padding:5px 9px;cursor:pointer;font-size:10px;font-family:var(--fh);font-weight:bold}
 
-/* ============================================================
-   КАНАЛЫ
-   ============================================================ */
-.channel-card {
-  border: 1px solid var(--gray);
-  background: var(--bg2);
-  border-radius: 6px;
-  padding: 10px;
-  margin-bottom: 6px;
-  animation: msg-appear 0.3s ease;
-  cursor: pointer;
-  transition: border-color 0.2s, background 0.2s;
-}
-.channel-card:hover { border-color: var(--g); background: var(--gd); }
-.channel-name { font-family: var(--font-hud); font-size: 12px; font-weight: 700; color: var(--g); }
-.channel-meta { font-size: 10px; color: var(--gray); margin-top: 2px; }
+/* ===== NAV ===== */
+#nav{display:none;position:fixed;bottom:0;left:0;right:0;background:rgba(3,13,5,.97);border-top:1px solid var(--gray);padding:5px 2px 7px;z-index:1000;backdrop-filter:blur(10px)}
+.nav-inner{display:flex;justify-content:space-around}
+.nav-btn{background:none;border:none;color:rgba(0,255,136,.3);font-family:var(--fm);font-size:8px;padding:3px 4px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;transition:color .2s;width:52px;letter-spacing:1px}
+.nav-icon{font-size:17px;line-height:1;transition:transform .2s,filter .2s}
+.nav-btn.active{color:var(--g)}
+.nav-btn.active .nav-icon{transform:scale(1.15);filter:drop-shadow(0 0 4px var(--g))}
+.nav-btn.god-btn{color:rgba(255,51,85,.4)}
+.nav-btn.god-btn.active{color:var(--red)}
 
-.create-channel-box {
-  border: 1px dashed var(--gray);
-  border-radius: 8px;
-  padding: 10px;
-  margin-bottom: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
+/* ===== TON SECTION ===== */
+.ton-sec{border:1px solid rgba(83,156,255,.3);background:rgba(83,156,255,.04);border-radius:7px;padding:10px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.ton-lbl{color:rgba(83,156,255,.6);font-size:8px;letter-spacing:2px;margin-bottom:2px}
+.ton-val{color:#539cff;font-size:11px;font-weight:bold;word-break:break-all}
 
-/* ============================================================
-   МАРКЕТ
-   ============================================================ */
-.market-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border: 1px solid var(--gray);
-  background: var(--bg2);
-  border-radius: 6px;
-  padding: 10px;
-  margin-bottom: 6px;
-  animation: msg-appear 0.3s ease;
-}
-.market-item-info { font-size: 12px; }
-.market-item-title { color: var(--g); font-weight: bold; }
-.market-item-price { font-size: 10px; color: var(--gray); margin-top: 2px; }
+/* ===== SEARCH ===== */
+.search-res{padding:7px;border-bottom:1px solid rgba(0,255,136,.07);font-size:11px;display:flex;justify-content:space-between;align-items:center;animation:mapp .3s ease;cursor:pointer;border-radius:5px;transition:background .15s}
+.search-res:hover{background:var(--gd)}
+.stag{font-size:8px;padding:2px 6px;border-radius:9px;border:1px solid var(--gray);color:var(--gray)}
 
-/* ============================================================
-   ПОИСК
-   ============================================================ */
-.search-result {
-  padding: 8px;
-  border-bottom: 1px solid rgba(0,255,136,0.08);
-  font-size: 12px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  animation: msg-appear 0.3s ease;
-  cursor: pointer;
-}
-.search-result:hover { background: var(--gd); }
-.search-tag {
-  font-size: 9px;
-  padding: 2px 6px;
-  border-radius: 10px;
-  border: 1px solid var(--gray);
-  color: var(--gray);
-}
+/* ===== MODAL ===== */
+.modal-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:2000;justify-content:center;align-items:center;backdrop-filter:blur(4px);animation:fi .2s ease}
+.modal-ov.open{display:flex}
+@keyframes fi{from{opacity:0}to{opacity:1}}
+.modal-card{background:var(--bg3);border:1px solid var(--g);border-radius:10px;padding:18px;width:285px;box-shadow:0 0 28px rgba(0,255,136,.18);animation:mpop .25s ease}
+@keyframes mpop{from{transform:scale(.9) translateY(10px);opacity:0}to{transform:none;opacity:1}}
+.modal-avatar{width:52px;height:52px;border-radius:50%;background:radial-gradient(circle,rgba(0,255,136,.12),transparent);border:2px solid var(--g);display:flex;align-items:center;justify-content:center;font-size:20px;margin:0 auto 9px;box-shadow:0 0 12px var(--gd)}
+.modal-uname{font-family:var(--fh);font-size:14px;font-weight:700;text-align:center;color:var(--g);text-shadow:0 0 8px var(--g);margin-bottom:10px}
+.modal-irow{display:flex;justify-content:space-between;font-size:10px;padding:4px 0;border-bottom:1px solid rgba(0,255,136,.07);color:rgba(0,255,136,.7)}
+.modal-irow .lbl{color:var(--gray)}
+.modal-wallet{font-size:8px;color:rgba(0,255,136,.35);word-break:break-all;text-align:center;margin:5px 0;padding:4px;background:var(--bg2);border-radius:4px;border:1px solid rgba(0,255,136,.07)}
+.modal-acts{display:flex;flex-direction:column;gap:5px;margin-top:10px}
 
-/* ============================================================
-   НАВИГАЦИЯ
-   ============================================================ */
-#nav-bar {
-  display: none;
-  position: fixed;
-  bottom: 0; left: 0; right: 0;
-  background: rgba(3,13,5,0.97);
-  border-top: 1px solid var(--gray);
-  padding: 6px 4px 8px;
-  z-index: 1000;
-  backdrop-filter: blur(10px);
-}
-.nav-inner {
-  display: flex;
-  justify-content: space-around;
-}
-.nav-btn {
-  background: none;
-  border: none;
-  color: rgba(0,255,136,0.35);
-  font-family: var(--font-main);
-  font-size: 9px;
-  padding: 4px 6px;
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 3px;
-  transition: color 0.2s;
-  width: 56px;
-  letter-spacing: 1px;
-}
-.nav-btn .nav-icon {
-  font-size: 18px;
-  line-height: 1;
-  transition: transform 0.2s, filter 0.2s;
-}
-.nav-btn.active {
-  color: var(--g);
-}
-.nav-btn.active .nav-icon {
-  transform: scale(1.15);
-  filter: drop-shadow(0 0 4px var(--g));
-}
-.nav-btn.god-btn {
-  color: rgba(255,51,85,0.5);
-}
-.nav-btn.god-btn.active { color: var(--red); }
+/* ===== TRANSFER ===== */
+.transfer-box{border:1px solid rgba(83,156,255,.3);background:rgba(83,156,255,.04);border-radius:7px;padding:10px;margin-bottom:8px}
+.transfer-lbl{color:rgba(83,156,255,.6);font-size:8px;letter-spacing:2px;margin-bottom:6px}
 
-/* ============================================================
-   МОДАЛЬНОЕ ОКНО ПРОФИЛЯ
-   ============================================================ */
-.modal-overlay {
-  display: none;
-  position: fixed; inset: 0;
-  background: rgba(0,0,0,0.85);
-  z-index: 2000;
-  justify-content: center;
-  align-items: center;
-  backdrop-filter: blur(4px);
-  animation: fade-in 0.2s ease;
-}
-.modal-overlay.open { display: flex; }
-@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+/* ===== ADMIN ===== */
+.admin-block{border:1px solid;border-radius:7px;padding:11px;margin-bottom:9px}
+.admin-block.danger{border-color:rgba(255,51,85,.35);background:rgba(255,51,85,.03)}
+.admin-block.normal{border-color:var(--gray);background:var(--bg2)}
+.admin-title{font-family:var(--fh);font-size:9px;letter-spacing:2px;margin-bottom:8px;color:var(--gray);text-transform:uppercase}
+.admin-urow{display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid rgba(0,255,136,.04);font-size:10px;animation:mapp .3s ease}
 
-.modal-card {
-  background: var(--bg3);
-  border: 1px solid var(--g);
-  border-radius: 10px;
-  padding: 20px;
-  width: 280px;
-  box-shadow: 0 0 30px rgba(0,255,136,0.2);
-  animation: modal-pop 0.25s ease;
-}
-@keyframes modal-pop {
-  from { transform: scale(0.9) translateY(10px); opacity: 0; }
-  to   { transform: scale(1) translateY(0); opacity: 1; }
-}
-.modal-avatar {
-  width: 56px; height: 56px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(0,255,136,0.15), transparent);
-  border: 2px solid var(--g);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 22px;
-  margin: 0 auto 10px;
-  box-shadow: 0 0 14px var(--gd);
-}
-.modal-username {
-  font-family: var(--font-hud);
-  font-size: 15px;
-  font-weight: 700;
-  text-align: center;
-  color: var(--g);
-  text-shadow: 0 0 8px var(--g);
-  margin-bottom: 12px;
-}
-.modal-info-row {
-  display: flex;
-  justify-content: space-between;
-  font-size: 11px;
-  padding: 5px 0;
-  border-bottom: 1px solid rgba(0,255,136,0.08);
-  color: rgba(0,255,136,0.7);
-}
-.modal-info-row .label { color: var(--gray); }
-.modal-info-row .value { color: var(--g); }
-.modal-wallet {
-  font-size: 9px;
-  color: rgba(0,255,136,0.4);
-  word-break: break-all;
-  text-align: center;
-  margin: 6px 0;
-  padding: 5px;
-  background: var(--bg2);
-  border-radius: 4px;
-  border: 1px solid rgba(0,255,136,0.08);
-}
-.modal-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  margin-top: 12px;
-}
+/* ===== TOAST ===== */
+#toast-c{position:fixed;bottom:74px;right:10px;z-index:9998;display:flex;flex-direction:column;gap:5px;pointer-events:none}
+.toast{background:var(--bg3);border:1px solid var(--g);color:var(--g);padding:7px 11px;border-radius:5px;font-size:10px;box-shadow:0 0 10px var(--gd);animation:tin .3s ease,tout .3s ease 2.7s forwards;letter-spacing:1px}
+.toast.err{border-color:var(--red);color:var(--red);box-shadow:0 0 10px rgba(255,51,85,.18)}
+@keyframes tin{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:none}}
+@keyframes tout{from{opacity:1}to{opacity:0}}
 
-/* ============================================================
-   ADMIN PANEL
-   ============================================================ */
-.admin-block {
-  border: 1px solid;
-  border-radius: 8px;
-  padding: 12px;
-  margin-bottom: 10px;
-}
-.admin-block.danger  { border-color: rgba(255,51,85,0.4);  background: rgba(255,51,85,0.03); }
-.admin-block.normal  { border-color: var(--gray);           background: var(--bg2); }
-.admin-block-title {
-  font-family: var(--font-hud);
-  font-size: 10px;
-  letter-spacing: 2px;
-  margin-bottom: 10px;
-  color: var(--gray);
-  text-transform: uppercase;
-}
-.admin-user-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 5px 0;
-  border-bottom: 1px solid rgba(0,255,136,0.05);
-  font-size: 11px;
-  animation: msg-appear 0.3s ease;
-}
-
-/* ============================================================
-   TOAST УВЕДОМЛЕНИЯ
-   ============================================================ */
-#toast-container {
-  position: fixed;
-  bottom: 70px; right: 10px;
-  z-index: 9998;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  pointer-events: none;
-}
-.toast {
-  background: var(--bg3);
-  border: 1px solid var(--g);
-  color: var(--g);
-  padding: 8px 12px;
-  border-radius: 6px;
-  font-size: 11px;
-  box-shadow: 0 0 12px var(--gd);
-  animation: toast-in 0.3s ease, toast-out 0.3s ease 2.7s forwards;
-  letter-spacing: 1px;
-}
-.toast.error {
-  border-color: var(--red);
-  color: var(--red);
-  box-shadow: 0 0 12px rgba(255,51,85,0.2);
-}
-@keyframes toast-in  { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
-@keyframes toast-out { from { opacity: 1; } to { opacity: 0; } }
-
-/* ============================================================
-   TON WALLET VIEW секция
-   ============================================================ */
-.ton-section {
-  border: 1px solid rgba(83,156,255,0.3);
-  background: rgba(83,156,255,0.04);
-  border-radius: 8px;
-  padding: 12px;
-  margin-bottom: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-}
-.ton-info { font-size: 11px; }
-.ton-label { color: rgba(83,156,255,0.6); font-size: 9px; letter-spacing: 2px; margin-bottom: 3px; }
-.ton-value { color: #539cff; font-size: 13px; font-weight: bold; word-break: break-all; }
-
-/* Адаптивность */
-@media (max-width: 380px) {
-  .reactor-ring-outer { width: 140px; height: 140px; }
-  .reactor-core { width: 104px; height: 104px; }
-}
+/* ===== AVATAR PICKER ===== */
+.avatar-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:5px;margin:8px 0}
+.av-opt{font-size:22px;text-align:center;cursor:pointer;padding:5px;border:1px solid transparent;border-radius:6px;transition:all .15s}
+.av-opt:hover,.av-opt.selected{border-color:var(--g);background:var(--gd)}
 </style>
 </head>
 <body>
-
-<!-- Частицы фона -->
 <div id="particles"></div>
 
-<!-- ============================================================
-     ЭКРАН ЗАГРУЗКИ
-     ============================================================ -->
-<div id="boot-screen">
+<!-- BOOT -->
+<div id="boot">
   <div class="boot-logo">$TAPGRAM</div>
-  <div class="boot-sub">Network Terminal v2.0</div>
-  <div class="boot-bar-wrap"><div class="boot-bar-fill" id="boot-bar"></div></div>
-  <div class="boot-log" id="boot-log">Инициализация...</div>
+  <div class="boot-sub">Network Terminal v3.0</div>
+  <div class="boot-bar-w"><div class="boot-bar" id="boot-bar"></div></div>
+  <div class="boot-log" id="boot-log">...</div>
 </div>
 
-<!-- ============================================================
-     ГЛАВНОЕ ПРИЛОЖЕНИЕ
-     ============================================================ -->
 <div id="app">
-
-  <!-- HUD Шапка -->
-  <div id="hud-header">
-    <div class="hud-row1">
+  <!-- HUD -->
+  <div id="hud">
+    <div class="hud-r1">
       <div class="hud-logo">⬡ TAPGRAM</div>
       <div class="hud-user">
-        <span id="hud-badge" class="hud-badge" style="display:none">👑</span>
-        <span id="hud-username">@guest</span>
+        <span id="hud-badge" style="display:none;animation:pglow 2s infinite;font-size:13px">👑</span>
+        <span id="hud-uname" style="cursor:pointer" onclick="switchView('profile')">@guest</span>
+        <span style="color:var(--gray);font-size:9px">▸ PROFILE</span>
       </div>
     </div>
-    <div class="hud-row2">
+    <div class="hud-r2">
       <div>
-        <div class="hud-balance">
-          <span id="hud-balance">0</span>
-          <span>$TAPGRAM</span>
-        </div>
+        <div class="hud-bal"><span id="hud-bal">0</span> <span>$TAPGRAM</span></div>
       </div>
       <div class="energy-bar">
-        <div class="energy-label">ЗАРЯД: <span id="hud-energy">1000</span>/1000</div>
-        <div class="energy-track"><div class="energy-fill" id="energy-fill" style="width:100%"></div></div>
+        <div class="energy-lbl">⚡<span id="hud-en">1000</span>/1000</div>
+        <div class="energy-track"><div class="energy-fill" id="efill" style="width:100%"></div></div>
       </div>
-      <div class="wallet-chip disconnected" id="ton-chip" onclick="toggleTonWallet()">
-        💎 ПОДКЛЮЧИТЬ
-      </div>
+      <div class="wallet-chip dc" id="ton-chip" onclick="toggleTon()">💎 TON</div>
     </div>
   </div>
 
   <!-- AUTH -->
-  <div class="view active" id="view-auth">
+  <div class="view active" id="v-auth">
     <div class="auth-logo">$TAPGRAM NET</div>
-    <div class="auth-sub" id="auth-subtitle">Терминал Убежища — v2.0</div>
-
-    <div style="width:100%; max-width:300px; display:flex; flex-direction:column; gap:8px; align-self:center;">
-      <input class="inp" id="auth-user" type="text" placeholder="ЛОГИН (без @)" maxlength="20">
-      <input class="inp" id="auth-pass" type="password" placeholder="ПАРОЛЬ">
-      <button class="btn" onclick="handleAuth()">▶ СИНХРОНИЗАЦИЯ</button>
+    <div class="auth-sub" id="auth-sub">Blockchain Network Terminal</div>
+    <div style="width:100%;max-width:290px;display:flex;flex-direction:column;gap:7px;align-self:center">
+      <div class="auth-tabs">
+        <button class="auth-tab active" id="tab-login" onclick="setAuthMode('login')" id="tab-login" data-i18n="login">LOGIN</button>
+        <button class="auth-tab" id="tab-reg" onclick="setAuthMode('register')" data-i18n="register">REGISTER</button>
+      </div>
+      <input class="inp" id="auth-user" type="text" placeholder="Username (no @)" maxlength="20" data-i18n-ph="username_ph">
+      <input class="inp" id="auth-pass" type="password" placeholder="Password" maxlength="30" data-i18n-ph="password_ph">
+      <input class="inp" id="auth-ref" type="text" placeholder="Referral code (optional)" maxlength="20" data-i18n-ph="ref_ph" style="display:none">
+      <button class="btn" id="auth-btn" onclick="handleAuth()" data-i18n="connect">▶ CONNECT</button>
+      <div style="font-size:9px;color:var(--gray);text-align:center;margin-top:3px" data-i18n="auth-hint">
+        New users earn 1000 $TAPGRAM bonus!
+      </div>
+    </div>
+    <div style="margin-top:16px;text-align:center">
+      <div style="font-size:8px;color:var(--gray);letter-spacing:2px;margin-bottom:8px" data-i18n="select-lang">LANGUAGE / ЯЗЫК</div>
+      <select class="inp" style="width:200px;font-size:10px" onchange="setLang(this.value)" id="lang-sel-auth">
+        <option value="en">🇬🇧 English</option>
+        <option value="ru">🇷🇺 Русский</option>
+        <option value="uk">🇺🇦 Українська</option>
+        <option value="de">🇩🇪 Deutsch</option>
+        <option value="fr">🇫🇷 Français</option>
+        <option value="es">🇪🇸 Español</option>
+        <option value="pt">🇧🇷 Português</option>
+        <option value="it">🇮🇹 Italiano</option>
+        <option value="pl">🇵🇱 Polski</option>
+        <option value="tr">🇹🇷 Türkçe</option>
+        <option value="ar">🇸🇦 العربية</option>
+        <option value="zh">🇨🇳 中文</option>
+        <option value="ja">🇯🇵 日本語</option>
+        <option value="ko">🇰🇷 한국어</option>
+        <option value="hi">🇮🇳 हिन्दी</option>
+        <option value="bn">🇧🇩 বাংলা</option>
+        <option value="id">🇮🇩 Indonesia</option>
+        <option value="vi">🇻🇳 Tiếng Việt</option>
+        <option value="th">🇹🇭 ไทย</option>
+        <option value="nl">🇳🇱 Nederlands</option>
+        <option value="sv">🇸🇪 Svenska</option>
+        <option value="no">🇳🇴 Norsk</option>
+        <option value="da">🇩🇰 Dansk</option>
+        <option value="fi">🇫🇮 Suomi</option>
+        <option value="cs">🇨🇿 Čeština</option>
+        <option value="ro">🇷🇴 Română</option>
+        <option value="hu">🇭🇺 Magyar</option>
+        <option value="el">🇬🇷 Ελληνικά</option>
+        <option value="he">🇮🇱 עברית</option>
+        <option value="fa">🇮🇷 فارسی</option>
+        <option value="ms">🇲🇾 Melayu</option>
+      </select>
     </div>
   </div>
 
-  <!-- MAIN: РЕАКТОР -->
-  <div class="view" id="view-main">
+  <!-- MAIN: REACTOR -->
+  <div class="view" id="v-main">
+    <div class="streak-bar">
+      <div>
+        <div class="streak-lbl" data-i18n="streak">🔥 Daily Streak</div>
+        <div class="streak-val" id="streak-val">0 days</div>
+      </div>
+      <div>
+        <div class="streak-lbl" data-i18n="multiplier">⚡ Multiplier</div>
+        <div class="streak-val" id="mult-val">×1</div>
+      </div>
+      <div>
+        <div class="streak-lbl" data-i18n="total-taps">🎯 Taps</div>
+        <div class="streak-val" id="taps-val">0</div>
+      </div>
+    </div>
     <div class="reactor-wrap">
-      <div class="reactor-ring-outer">
+      <div class="reactor-ring">
         <div class="reactor-core" onmousedown="handleTap(event)" ontouchstart="handleTap(event)">
-          <div class="reactor-icon">РЕАКТОР</div>
-          <div class="reactor-tap-hint">TAP TO MINE</div>
+          <div class="reactor-icon">REACTOR</div>
+          <div class="reactor-hint">TAP TO MINE</div>
+          <div class="reactor-multi" id="reactor-multi">×1</div>
         </div>
       </div>
     </div>
-
-    <!-- TON Кошелёк секция -->
-    <div class="ton-section">
-      <div class="ton-info">
-        <div class="ton-label">💎 TON КОШЕЛЁК</div>
-        <div class="ton-value" id="ton-address-display">Не подключён</div>
+    <div class="ton-sec">
+      <div>
+        <div class="ton-lbl">💎 TON WALLET</div>
+        <div class="ton-val" id="ton-addr">Not connected</div>
       </div>
-      <button class="btn btn-sm btn-outline" id="ton-connect-btn" onclick="toggleTonWallet()">СВЯЗАТЬ</button>
+      <button class="btn btn-sm btn-o" id="ton-btn" onclick="toggleTon()" data-i18n="connect-wallet">CONNECT</button>
     </div>
-
-    <div class="section-label">📡 Радиоэфир — Мировой Чат</div>
-    <div class="chat-box" id="global-chat-box">
-      <div style="text-align:center; color:var(--gray); font-size:11px; padding:20px 0;">Подключение к сети...</div>
-    </div>
-    <div class="chat-input-row" style="margin-top:6px;">
-      <input class="inp" id="global-msg-inp" type="text" placeholder="Сообщение в эфир..." maxlength="150">
-      <button class="btn" style="width:auto;min-width:56px;" onclick="sendGlobalMsg()">→</button>
+    <div class="slbl" data-i18n="global-chat">📡 GLOBAL RADIO</div>
+    <div class="chat-box" id="gchat"></div>
+    <div class="chat-ir">
+      <input class="inp" id="gmsg" type="text" maxlength="150" data-i18n-ph="msg_ph">
+      <button class="btn" style="width:auto;min-width:48px" onclick="sendGlobal()">→</button>
     </div>
   </div>
 
-  <!-- MESSAGES: ЛС -->
-  <div class="view" id="view-messages">
-    <h2 class="view-title">⚡ Личные Частоты</h2>
-    <div style="font-size:10px; color:var(--gray); margin-bottom:6px; letter-spacing:1px;">
-      ДИАЛОГ С: <span id="pm-target-label" style="color:var(--g);">— Выберите собеседника —</span>
+  <!-- TASKS -->
+  <div class="view" id="v-tasks">
+    <h2 class="vtitle" data-i18n="tasks">🎯 MISSIONS</h2>
+    <div id="task-daily"></div>
+    <div class="slbl" data-i18n="social-tasks">📲 SOCIAL MISSIONS</div>
+    <div id="task-social"></div>
+    <div class="slbl" data-i18n="special-tasks">⭐ SPECIAL MISSIONS</div>
+    <div id="task-special"></div>
+  </div>
+
+  <!-- MESSAGES -->
+  <div class="view" id="v-messages">
+    <h2 class="vtitle" data-i18n="messages">⚡ PRIVATE FREQ</h2>
+    <div style="font-size:9px;color:var(--gray);margin-bottom:5px;letter-spacing:1px">
+      <span data-i18n="chat-with">CHAT WITH:</span> <span id="pm-target" style="color:var(--g)">— select user —</span>
     </div>
     <div class="pm-box" id="pm-box">
-      <div style="text-align:center;color:var(--gray);font-size:11px;padding:30px 0;align-self:center;">
-        Нажмите на ник любого жителя в чате,<br>чтобы открыть приватную беседу.
+      <div style="text-align:center;color:var(--gray);font-size:10px;padding:25px 0;align-self:center" data-i18n="click-nick">
+        Click any username in chat to open private conversation.
       </div>
     </div>
-    <div class="chat-input-row" style="margin-top:6px;">
-      <input class="inp" id="pm-inp" type="text" placeholder="Написать лично..." maxlength="300" disabled>
-      <button class="btn" id="pm-send-btn" style="width:auto;min-width:56px;" onclick="sendPM()" disabled>→</button>
+    <div class="chat-ir" style="margin-top:5px">
+      <input class="inp" id="pm-inp" type="text" maxlength="300" disabled data-i18n-ph="pm_ph">
+      <button class="btn" id="pm-send" style="width:auto;min-width:48px" onclick="sendPM()" disabled>→</button>
     </div>
   </div>
 
   <!-- CHANNELS -->
-  <div class="view" id="view-channels">
-    <h2 class="view-title">📡 Информационные Вышки</h2>
-
-    <div class="create-channel-box">
-      <div class="admin-block-title">⊕ Создать свой канал</div>
-      <input class="inp" id="ch-title-inp" type="text" placeholder="Название канала" maxlength="40">
-      <input class="inp" id="ch-user-inp" type="text" placeholder="Юзернейм: @my_channel" maxlength="25">
-      <button class="btn" onclick="createChannel()">ЗАПУСТИТЬ ТРАНСЛЯЦИЮ</button>
+  <div class="view" id="v-channels">
+    <h2 class="vtitle" data-i18n="channels">📡 INFO TOWERS</h2>
+    <div class="create-ch">
+      <div class="admin-title" data-i18n="create-channel">⊕ CREATE YOUR CHANNEL</div>
+      <input class="inp" id="ch-title" type="text" maxlength="40" data-i18n-ph="ch_title_ph">
+      <input class="inp" id="ch-uname" type="text" maxlength="25" data-i18n-ph="ch_uname_ph">
+      <textarea class="inp" id="ch-desc" maxlength="150" rows="2" data-i18n-ph="ch_desc_ph" style="resize:none"></textarea>
+      <button class="btn" onclick="createChannel()" data-i18n="launch-channel">LAUNCH BROADCAST</button>
     </div>
-
-    <div class="section-label">📶 Все активные каналы сети</div>
-    <div id="channels-list"></div>
+    <div id="ch-inner-wrap" style="display:none">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div style="font-family:var(--fh);font-size:12px;color:var(--g)" id="ch-inner-name"></div>
+        <button class="btn btn-sm btn-o" onclick="closeChannel()" data-i18n="back">← BACK</button>
+      </div>
+      <div class="slbl" data-i18n="ch-post-input">POST TO CHANNEL</div>
+      <div id="ch-post-area" style="display:none;gap:5px;flex-direction:column;margin-bottom:8px">
+        <textarea class="inp" id="ch-post-inp" rows="3" maxlength="500" style="resize:none" data-i18n-ph="ch_post_ph"></textarea>
+        <button class="btn btn-sm" onclick="postToChannel()" data-i18n="send-post">BROADCAST</button>
+      </div>
+      <div id="ch-posts"></div>
+    </div>
+    <div id="ch-list" style="display:block"></div>
   </div>
 
   <!-- MARKET -->
-  <div class="view" id="view-market">
-    <h2 class="view-title">💠 Торговая Палата</h2>
-
-    <div style="font-size:11px; color:var(--gray); margin-bottom:10px; text-align:center; letter-spacing:1px;">
-      ОБМЕНИВАЙТЕ $TAPGRAM НА СТАТУСЫ И НИКУ
+  <div class="view" id="v-market">
+    <h2 class="vtitle" data-i18n="market">💠 TRADE HALL</h2>
+    <div style="font-size:10px;color:var(--gray);margin-bottom:10px;text-align:center" data-i18n="market-sub">EXCHANGE $TAPGRAM FOR STATUS & ITEMS</div>
+    <div class="mkt-item">
+      <div class="mkt-info-title">🎖 @ton</div>
+      <div class="mkt-info-price" data-i18n="rare-nick">Rare 3-letter nick</div>
+      <button class="btn btn-sm" onclick="buyUsername('@ton',400000)">400K $TAP</button>
     </div>
-
-    <div class="market-item">
-      <div class="market-item-info">
-        <div class="market-item-title">@ton</div>
-        <div class="market-item-price">Редкий 3-буквенный ник</div>
-      </div>
-      <button class="btn btn-sm" onclick="buyUsername('@ton', 400000)">400K $TAP</button>
-    </div>
-
-    <div class="market-item">
-      <div class="market-item-info">
-        <div class="market-item-title">👑 Корона Смотрителя</div>
-        <div class="market-item-price">Золотой бейдж навсегда</div>
+    <div class="mkt-item">
+      <div>
+        <div class="mkt-info-title">👑 Crown of Overseer</div>
+        <div class="mkt-info-price" data-i18n="crown-desc">Gold badge forever</div>
       </div>
       <button class="btn btn-sm" onclick="buyCrown(50000)">50K $TAP</button>
     </div>
-
-    <div class="market-item">
-      <div class="market-item-info">
-        <div class="market-item-title">⚡ Сверхзаряд</div>
-        <div class="market-item-price">+500 к максимуму энергии (разово)</div>
+    <div class="mkt-item">
+      <div>
+        <div class="mkt-info-title">⚡ Supercharge</div>
+        <div class="mkt-info-price" data-i18n="supercharge-desc">+500 max energy (once)</div>
       </div>
       <button class="btn btn-sm" onclick="buySupercharge(10000)">10K $TAP</button>
+    </div>
+    <div class="mkt-item">
+      <div>
+        <div class="mkt-info-title">🔥 Boost x2</div>
+        <div class="mkt-info-price" data-i18n="boost-desc">2× tap income for 1 hour</div>
+      </div>
+      <button class="btn btn-sm" onclick="buyBoost(25000)">25K $TAP</button>
+    </div>
+    <div class="mkt-item">
+      <div>
+        <div class="mkt-info-title">💎 TON Listing</div>
+        <div class="mkt-info-price" data-i18n="listing-desc">Buy $PULSE via Blum — earn bonus</div>
+      </div>
+      <button class="btn btn-sm btn-blue" onclick="openBlum()">BUY ON BLUM</button>
+    </div>
+    <div class="transfer-box">
+      <div class="transfer-lbl">↗ TRANSFER $TAPGRAM</div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <input class="inp" id="tr-user" type="text" placeholder="@recipient" maxlength="22" data-i18n-ph="transfer_to_ph">
+        <input class="inp" id="tr-amount" type="number" placeholder="Amount" min="1" data-i18n-ph="amount_ph">
+        <button class="btn" onclick="transferCoins()" data-i18n="transfer">TRANSFER</button>
+      </div>
     </div>
   </div>
 
   <!-- SEARCH -->
-  <div class="view" id="view-search">
-    <h2 class="view-title">🔍 Глобальный Радар</h2>
-    <input class="inp" id="search-inp" type="text" placeholder="Поиск жителей и каналов..." oninput="runSearch()">
-    <div id="search-results" style="margin-top:8px;"></div>
+  <div class="view" id="v-search">
+    <h2 class="vtitle" data-i18n="search">🔍 GLOBAL RADAR</h2>
+    <input class="inp" id="search-inp" type="text" data-i18n-ph="search_ph" oninput="runSearch()">
+    <div id="search-res" style="margin-top:7px"></div>
+  </div>
+
+  <!-- PROFILE -->
+  <div class="view" id="v-profile">
+    <div id="pf-avatar" class="pf-avatar" onclick="openAvatarPicker()">
+      <span id="pf-av-emoji">👤</span>
+      <div class="pf-avatar-edit" data-i18n="edit">EDIT</div>
+    </div>
+    <div class="pf-name" id="pf-uname">@user</div>
+    <div class="pf-bio" id="pf-bio" onclick="editBio()" data-i18n="bio-placeholder">✏ Tap to add bio...</div>
+    <div class="pf-stats">
+      <div class="pf-stat"><div class="pf-stat-val" id="pf-bal">0</div><div class="pf-stat-lbl">$TAPGRAM</div></div>
+      <div class="pf-stat"><div class="pf-stat-val" id="pf-taps">0</div><div class="pf-stat-lbl">TAPS</div></div>
+      <div class="pf-stat"><div class="pf-stat-val" id="pf-streak">0</div><div class="pf-stat-lbl" data-i18n="days">DAYS</div></div>
+    </div>
+    <div id="pf-rows"></div>
+    <div style="display:flex;flex-direction:column;gap:6px;margin-top:10px">
+      <button class="btn btn-o" onclick="editUsername()" data-i18n="change-nick">CHANGE USERNAME</button>
+      <button class="btn btn-o" onclick="switchView('settings')" data-i18n="settings">⚙ SETTINGS</button>
+      <button class="btn btn-d btn-o" onclick="logout()" data-i18n="logout">LOGOUT</button>
+    </div>
+  </div>
+
+  <!-- SETTINGS -->
+  <div class="view" id="v-settings">
+    <h2 class="vtitle" data-i18n="settings">⚙ SETTINGS</h2>
+    <div class="settings-block">
+      <div class="settings-title" data-i18n="language">LANGUAGE</div>
+      <select class="inp" id="lang-sel" onchange="setLang(this.value)" style="margin-bottom:6px">
+        <option value="en">🇬🇧 English</option>
+        <option value="ru">🇷🇺 Русский</option>
+        <option value="uk">🇺🇦 Українська</option>
+        <option value="de">🇩🇪 Deutsch</option>
+        <option value="fr">🇫🇷 Français</option>
+        <option value="es">🇪🇸 Español</option>
+        <option value="pt">🇧🇷 Português</option>
+        <option value="it">🇮🇹 Italiano</option>
+        <option value="pl">🇵🇱 Polski</option>
+        <option value="tr">🇹🇷 Türkçe</option>
+        <option value="ar">🇸🇦 العربية</option>
+        <option value="zh">🇨🇳 中文</option>
+        <option value="ja">🇯🇵 日本語</option>
+        <option value="ko">🇰🇷 한국어</option>
+        <option value="hi">🇮🇳 हिन्दी</option>
+        <option value="bn">🇧🇩 বাংলা</option>
+        <option value="id">🇮🇩 Indonesia</option>
+        <option value="vi">🇻🇳 Tiếng Việt</option>
+        <option value="th">🇹🇭 ไทย</option>
+        <option value="nl">🇳🇱 Nederlands</option>
+        <option value="sv">🇸🇪 Svenska</option>
+        <option value="no">🇳🇴 Norsk</option>
+        <option value="da">🇩🇰 Dansk</option>
+        <option value="fi">🇫🇮 Suomi</option>
+        <option value="cs">🇨🇿 Čeština</option>
+        <option value="ro">🇷🇴 Română</option>
+        <option value="hu">🇭🇺 Magyar</option>
+        <option value="el">🇬🇷 Ελληνικά</option>
+        <option value="he">🇮🇱 עברית</option>
+        <option value="fa">🇮🇷 فارسی</option>
+        <option value="ms">🇲🇾 Melayu</option>
+      </select>
+    </div>
+    <div class="settings-block">
+      <div class="settings-title" data-i18n="notifications">NOTIFICATIONS</div>
+      <div class="toggle-row">
+        <span class="lbl" data-i18n="chat-notifs">Chat notifications</span>
+        <div class="toggle on" id="tog-chat" onclick="toggleSetting('chat')"></div>
+      </div>
+      <div class="toggle-row">
+        <span class="lbl" data-i18n="task-notifs">Task reminders</span>
+        <div class="toggle on" id="tog-task" onclick="toggleSetting('task')"></div>
+      </div>
+    </div>
+    <div class="settings-block">
+      <div class="settings-title" data-i18n="referral">REFERRAL SYSTEM</div>
+      <div style="font-size:10px;color:var(--gray);margin-bottom:6px" data-i18n="ref-desc">Share your code — earn 500 $TAP per friend!</div>
+      <div style="display:flex;gap:5px">
+        <input class="inp" id="ref-code-display" readonly style="font-size:11px">
+        <button class="btn btn-sm btn-o" onclick="copyRef()" data-i18n="copy">COPY</button>
+      </div>
+      <div style="font-size:9px;color:var(--g2);margin-top:5px" id="ref-count"></div>
+    </div>
+    <div class="settings-block">
+      <div class="settings-title">TON CONNECT</div>
+      <div id="settings-wallet-info" style="font-size:10px;color:var(--gray);margin-bottom:6px"></div>
+      <button class="btn" id="settings-wallet-btn" onclick="toggleTon()">CONNECT WALLET</button>
+    </div>
+    <button class="btn btn-o" onclick="switchView('profile')" style="margin-top:4px" data-i18n="back">← BACK</button>
   </div>
 
   <!-- ADMIN -->
-  <div class="view" id="view-admin">
-    <h2 class="view-title" style="color:var(--red); text-shadow:0 0 10px var(--red);">☢ ПАНЕЛЬ БОГА</h2>
-
+  <div class="view" id="v-admin">
+    <h2 class="vtitle" style="color:var(--red);text-shadow:0 0 10px var(--red)">☢ GOD PANEL</h2>
     <div class="admin-block danger">
-      <div class="admin-block-title" style="color:rgba(255,51,85,0.7);">🚀 Начисление поинтов</div>
-      <select class="inp" id="admin-sel-user" style="margin-bottom:6px;"></select>
-      <input class="inp" id="admin-points-inp" type="number" placeholder="Количество $TAPGRAM">
-      <button class="btn btn-danger" style="margin-top:6px;" onclick="adminAddPoints()">ПРИМЕНИТЬ К БД</button>
+      <div class="admin-title" style="color:rgba(255,51,85,.7)">🚀 ADD POINTS</div>
+      <select class="inp" id="admin-sel" style="margin-bottom:5px"></select>
+      <input class="inp" id="admin-pts" type="number" placeholder="Amount $TAPGRAM">
+      <button class="btn btn-d" style="margin-top:5px" onclick="adminAddPts()">APPLY TO DB</button>
     </div>
-
     <div class="admin-block normal">
-      <div class="admin-block-title">⚙ Глобальная конфигурация</div>
-      <label style="font-size:10px; color:var(--gray); letter-spacing:1px;">Название проекта:</label>
-      <input class="inp" id="admin-title-inp" value="TAPGRAM NETWORK" style="margin-bottom:6px;">
-      <label style="font-size:10px; color:var(--gray); letter-spacing:1px;">Порядок меню:</label>
-      <select class="inp" id="admin-nav-sel" style="margin-bottom:6px;">
-        <option value="normal">Стандартный</option>
-        <option value="reversed">Реверсивный</option>
-      </select>
-      <button class="btn" onclick="adminApplyConfig()">ОБНОВИТЬ ДЛЯ ВСЕХ</button>
+      <div class="admin-title">⚙ GLOBAL CONFIG</div>
+      <input class="inp" id="admin-title-i" value="TAPGRAM NETWORK" style="margin-bottom:5px">
+      <textarea class="inp" id="admin-announce" placeholder="Global announcement..." rows="2" style="resize:none;margin-bottom:5px"></textarea>
+      <button class="btn" onclick="adminApply()">UPDATE FOR ALL</button>
     </div>
-
     <div class="admin-block normal">
-      <div class="admin-block-title">👥 Зарегистрированные жители</div>
-      <div id="admin-users-list"></div>
+      <div class="admin-title">👥 REGISTERED USERS</div>
+      <div id="admin-users"></div>
     </div>
   </div>
 
-  <!-- НИЖНЯЯ НАВИГАЦИЯ -->
-  <div id="nav-bar">
+  <!-- NAV -->
+  <div id="nav">
     <div class="nav-inner" id="nav-inner">
       <button class="nav-btn active" id="btn-main" onclick="switchView('main')">
-        <span class="nav-icon">⚛</span>Реактор
+        <span class="nav-icon">⚛</span><span data-i18n="reactor">REACTOR</span>
+      </button>
+      <button class="nav-btn" id="btn-tasks" onclick="switchView('tasks')">
+        <span class="nav-icon">🎯</span><span data-i18n="tasks-nav">TASKS</span>
       </button>
       <button class="nav-btn" id="btn-messages" onclick="switchView('messages')">
-        <span class="nav-icon">💬</span>ЛС
+        <span class="nav-icon">💬</span><span data-i18n="messages-nav">DM</span>
       </button>
       <button class="nav-btn" id="btn-channels" onclick="switchView('channels')">
-        <span class="nav-icon">📡</span>Каналы
+        <span class="nav-icon">📡</span><span data-i18n="channels-nav">CHANNELS</span>
       </button>
       <button class="nav-btn" id="btn-market" onclick="switchView('market')">
-        <span class="nav-icon">💠</span>Биржа
+        <span class="nav-icon">💠</span><span data-i18n="market-nav">MARKET</span>
       </button>
       <button class="nav-btn" id="btn-search" onclick="switchView('search')">
-        <span class="nav-icon">🔍</span>Поиск
+        <span class="nav-icon">🔍</span><span data-i18n="search-nav">SEARCH</span>
       </button>
-      <button class="nav-btn god-btn" id="btn-admin" onclick="switchView('admin')" style="display:none;">
-        <span class="nav-icon">☢</span>БОГ
+      <button class="nav-btn god-btn" id="btn-admin" onclick="switchView('admin')" style="display:none">
+        <span class="nav-icon">☢</span>GOD
       </button>
     </div>
   </div>
-
 </div>
 
-<!-- ============================================================
-     ПРОФИЛЬ МОДАЛ
-     ============================================================ -->
-<div class="modal-overlay" id="profile-modal">
+<!-- PROFILE MODAL (other users) -->
+<div class="modal-ov" id="profile-modal">
   <div class="modal-card">
-    <div class="modal-avatar" id="modal-avatar">👤</div>
-    <div class="modal-username" id="modal-uname">@username</div>
-    <div class="modal-info-row">
-      <span class="label">Статус</span>
-      <span class="value" id="modal-status">Житель</span>
-    </div>
-    <div class="modal-info-row">
-      <span class="label">Баланс</span>
-      <span class="value" id="modal-balance">0 $TAP</span>
-    </div>
-    <div class="modal-wallet" id="modal-wallet">Кошелёк не привязан</div>
-    <div class="modal-actions">
-      <button class="btn" id="modal-pm-btn" onclick="">💬 НАПИСАТЬ В ЛС</button>
-      <button class="btn btn-outline" onclick="closeModal()">ЗАКРЫТЬ</button>
+    <div class="modal-avatar" id="modal-av">👤</div>
+    <div class="modal-uname" id="modal-un">@user</div>
+    <div class="modal-irow"><span class="lbl" data-i18n="status">Status</span><span id="modal-st"></span></div>
+    <div class="modal-irow"><span class="lbl" data-i18n="balance">Balance</span><span id="modal-bl"></span></div>
+    <div class="modal-wallet" id="modal-wl">No wallet</div>
+    <div class="modal-acts">
+      <button class="btn" id="modal-pm-btn">💬 PRIVATE MESSAGE</button>
+      <button class="btn btn-o" onclick="closeModal('profile-modal')" data-i18n="close">CLOSE</button>
     </div>
   </div>
 </div>
 
-<!-- Toast контейнер -->
-<div id="toast-container"></div>
+<!-- AVATAR PICKER MODAL -->
+<div class="modal-ov" id="avatar-modal">
+  <div class="modal-card">
+    <div style="font-family:var(--fh);font-size:11px;color:var(--g);margin-bottom:8px;letter-spacing:2px" data-i18n="choose-avatar">CHOOSE AVATAR</div>
+    <div class="avatar-grid" id="avatar-grid"></div>
+    <button class="btn btn-o" onclick="closeModal('avatar-modal')" data-i18n="close">CLOSE</button>
+  </div>
+</div>
+
+<!-- GRAMBOT -->
+<div id="grambot-bubble" onclick="toggleBot()">
+  <div class="bot-icon">🤖</div>
+  <div class="bot-lbl">GRAMBOT</div>
+</div>
+<div id="grambot-panel">
+  <div class="bot-header">
+    <div class="bot-avatar">🤖</div>
+    <div>
+      <div class="bot-name">GRAMBOT</div>
+      <div class="bot-status">● Online</div>
+    </div>
+    <button class="bot-close" onclick="toggleBot()">✕</button>
+  </div>
+  <div class="bot-msgs" id="bot-msgs"></div>
+  <div class="bot-suggest" id="bot-suggest"></div>
+  <div class="bot-ir">
+    <input type="text" id="bot-inp" placeholder="Ask Grambot..." onkeydown="if(event.key==='Enter')sendBotMsg()">
+    <button onclick="sendBotMsg()">→</button>
+  </div>
+</div>
+
+<div id="toast-c"></div>
 
 <script>
-/* ============================================================
-   ⚙ КОНФИГУРАЦИЯ — ВСТАВЬТЕ СВОИ ДАННЫЕ ЗДЕСЬ
-   ============================================================ */
-
-// 1. FIREBASE — Зайдите на console.firebase.google.com
-//    Создайте проект → Firestore Database → Project Settings → Your apps
+/* ===========================================================
+   CONFIG
+   =========================================================== */
 const FIREBASE_CONFIG = {
   apiKey:            "AIzaSyCu-Wx23P4OpxUbSBywpdiETZHbOe08z9c",
   authDomain:        "refer-c9d1b.firebaseapp.com",
-  databaseURL:       "https://refer-c9d1b-default-rtdb.europe-west1.firebasedatabase.app",
   projectId:         "refer-c9d1b",
   storageBucket:     "refer-c9d1b.firebasestorage.app",
   messagingSenderId: "552445924289",
-  appId:             "1:552445924289:web:5d143815ec7c5ad6659540",
-  measurementId:     "G-EJQQ1KBTX9"
+  appId:             "1:552445924289:web:5d143815ec7c5ad6659540"
 };
-
-// 2. TON CONNECT — Зайдите на https://dev.tonconnect.org/
-//    Создайте приложение и получите URL манифеста
-//    Создайте файл tonconnect-manifest.json на вашем хостинге (пример ниже в комментарии)
-/*
-  tonconnect-manifest.json должен содержать:
-  {
-    "url": "https://ВАШ_ДОМЕН.com",
-    "name": "TAPGRAM NET",
-    "iconUrl": "https://ВАШ_ДОМЕН.com/icon.png"
-  }
-*/
-const TON_MANIFEST_URL = "https://ВАШ_ДОМЕН.com/tonconnect-manifest.json";
-
-// 3. СУПЕРАДМИН — Не меняйте без необходимости
+const TON_MANIFEST_URL = "https://raw.githubusercontent.com/ton-community/tutorials/main/03-client/test/public/tonconnect-manifest.json";
+const BLUM_URL = "https://t.me/blum/app?startapp=memepadjetton_PULSE_PM2Gy-ref_UJGIADDsuv";
 const SUPERADMIN_USER = "tapgram";
 const SUPERADMIN_PASS = "Bodicxer2541";
+const CLAUDE_API_KEY  = "35a28a4e38b5b4285c6292c30c2e66d8ke56e0827e25adb1c4f1554e2e48618bd";
 
-/* ============================================================
-   ИНИЦИАЛИЗАЦИЯ
-   ============================================================ */
 firebase.initializeApp(FIREBASE_CONFIG);
 const db = firebase.firestore();
 
-// Состояние приложения
-const state = {
-  user: {
-    username: "guest",
-    balance: 0,
-    energy: 1000,
-    maxEnergy: 1000,
-    wallet: null,
-    crown: false,
-    isGod: false,
-    supercharge: false
+/* ===========================================================
+   I18N — 30+ LANGUAGES
+   =========================================================== */
+const LANGS = {
+  en:{
+    login:"LOGIN",register:"REGISTER",connect:"▶ CONNECT",username_ph:"Username (no @)",
+    password_ph:"Password",ref_ph:"Referral code (optional)",
+    "auth-hint":"New users earn 1000 $TAPGRAM bonus!","select-lang":"LANGUAGE",
+    streak:"🔥 Daily Streak",multiplier:"⚡ Multiplier","total-taps":"🎯 Taps",
+    "global-chat":"📡 GLOBAL RADIO","connect-wallet":"CONNECT",msg_ph:"Broadcast message...",
+    tasks:"🎯 MISSIONS","social-tasks":"📲 SOCIAL MISSIONS","special-tasks":"⭐ SPECIAL MISSIONS",
+    messages:"⚡ PRIVATE FREQ","chat-with":"CHAT WITH:","click-nick":"Click any username to open private conversation.",
+    pm_ph:"Private message...",channels:"📡 INFO TOWERS","create-channel":"⊕ CREATE YOUR CHANNEL",
+    ch_title_ph:"Channel name",ch_uname_ph:"Username: @mychannel",ch_desc_ph:"Description...",
+    "launch-channel":"LAUNCH BROADCAST","ch-post-input":"POST TO CHANNEL",ch_post_ph:"Your broadcast...",
+    "send-post":"BROADCAST",back:"← BACK",
+    market:"💠 TRADE HALL","market-sub":"EXCHANGE $TAPGRAM FOR STATUS & ITEMS",
+    "rare-nick":"Rare 3-letter nick","crown-desc":"Gold badge forever",
+    "supercharge-desc":"+500 max energy (once)","boost-desc":"2× tap income 1 hour",
+    "listing-desc":"Buy $PULSE via Blum — earn bonus",
+    transfer_to_ph:"@recipient",amount_ph:"Amount",transfer:"TRANSFER",
+    search:"🔍 GLOBAL RADAR",search_ph:"Search users and channels...",
+    settings:"⚙ SETTINGS",language:"LANGUAGE",notifications:"NOTIFICATIONS",
+    "chat-notifs":"Chat notifications","task-notifs":"Task reminders",
+    referral:"REFERRAL SYSTEM","ref-desc":"Share your code — earn 500 $TAP per friend!",copy:"COPY",
+    edit:"EDIT",bio_placeholder:"✏ Tap to add bio...","change-nick":"CHANGE USERNAME",
+    logout:"LOGOUT",days:"DAYS",status:"Status",balance:"Balance",close:"CLOSE",
+    "choose-avatar":"CHOOSE AVATAR","reactor":"REACTOR","tasks-nav":"TASKS",
+    "messages-nav":"DM","channels-nav":"CHANNELS","market-nav":"MARKET","search-nav":"SEARCH",
+    "daily-tasks":"DAILY","daily-done":"✅ Done","claim":"CLAIM"
   },
-  activePmUser: null,
-  pmUnsub: null,
-  tonConnector: null,
-  tonAddress: null
+  ru:{
+    login:"ВОЙТИ",register:"РЕГИСТРАЦИЯ",connect:"▶ ПОДКЛЮЧИТЬСЯ",username_ph:"Логин (без @)",
+    password_ph:"Пароль",ref_ph:"Реферальный код (необязательно)",
+    "auth-hint":"Новые пользователи получают 1000 $TAPGRAM бонус!","select-lang":"ЯЗЫК",
+    streak:"🔥 Серия дней",multiplier:"⚡ Множитель","total-taps":"🎯 Тапы",
+    "global-chat":"📡 ГЛОБАЛЬНОЕ РАДИО","connect-wallet":"СВЯЗАТЬ",msg_ph:"Сообщение в эфир...",
+    tasks:"🎯 ЗАДАНИЯ","social-tasks":"📲 СОЦИАЛЬНЫЕ ЗАДАНИЯ","special-tasks":"⭐ ОСОБЫЕ ЗАДАНИЯ",
+    messages:"⚡ ЛИЧНЫЕ ЧАСТОТЫ","chat-with":"ЧАТ С:","click-nick":"Нажмите на ник, чтобы открыть личку.",
+    pm_ph:"Личное сообщение...",channels:"📡 ИНФОРМАЦИОННЫЕ ВЫШКИ","create-channel":"⊕ СОЗДАТЬ КАНАЛ",
+    ch_title_ph:"Название канала",ch_uname_ph:"Юзернейм: @мой_канал",ch_desc_ph:"Описание...",
+    "launch-channel":"ЗАПУСТИТЬ ТРАНСЛЯЦИЮ","ch-post-input":"ОПУБЛИКОВАТЬ",ch_post_ph:"Текст публикации...",
+    "send-post":"ТРАНСЛИРОВАТЬ",back:"← НАЗАД",
+    market:"💠 ТОРГОВАЯ ПАЛАТА","market-sub":"ОБМЕНИВАЙТЕ $TAPGRAM НА СТАТУСЫ И ПРЕДМЕТЫ",
+    "rare-nick":"Редкий 3-буквенный ник","crown-desc":"Золотой бейдж навсегда",
+    "supercharge-desc":"+500 к максимуму энергии (разово)","boost-desc":"×2 доход с тапа на 1 час",
+    "listing-desc":"Купите $PULSE через Blum — получите бонус",
+    transfer_to_ph:"@получатель",amount_ph:"Количество",transfer:"ПЕРЕВЕСТИ",
+    search:"🔍 ГЛОБАЛЬНЫЙ РАДАР",search_ph:"Поиск жителей и каналов...",
+    settings:"⚙ НАСТРОЙКИ",language:"ЯЗЫК",notifications:"УВЕДОМЛЕНИЯ",
+    "chat-notifs":"Уведомления чата","task-notifs":"Напоминания о заданиях",
+    referral:"РЕФЕРАЛЬНАЯ СИСТЕМА","ref-desc":"Поделитесь кодом — получите 500 $TAP за друга!",copy:"КОПИРОВАТЬ",
+    edit:"ИЗМЕНИТЬ",bio_placeholder:"✏ Нажмите чтобы добавить биографию...","change-nick":"ИЗМЕНИТЬ НИК",
+    logout:"ВЫЙТИ",days:"ДНЕЙ",status:"Статус",balance:"Баланс",close:"ЗАКРЫТЬ",
+    "choose-avatar":"ВЫБОР АВАТАРА","reactor":"РЕАКТОР","tasks-nav":"ЗАДАНИЯ",
+    "messages-nav":"ЛС","channels-nav":"КАНАЛЫ","market-nav":"БИРЖА","search-nav":"ПОИСК",
+    "daily-tasks":"ЕЖЕДНЕВНЫЕ","daily-done":"✅ Выполнено","claim":"ПОЛУЧИТЬ"
+  },
+  uk:{
+    login:"УВІЙТИ",register:"РЕЄСТРАЦІЯ",connect:"▶ ПІДКЛЮЧИТИСЬ",username_ph:"Логін (без @)",
+    password_ph:"Пароль",ref_ph:"Реферальний код (необов'язково)",
+    "auth-hint":"Нові користувачі отримують 1000 $TAPGRAM бонус!","select-lang":"МОВА",
+    streak:"🔥 Серія днів",multiplier:"⚡ Множник","total-taps":"🎯 Тапи",
+    "global-chat":"📡 ГЛОБАЛЬНЕ РАДІО","connect-wallet":"ПОВ'ЯЗАТИ",msg_ph:"Повідомлення в ефір...",
+    tasks:"🎯 ЗАВДАННЯ","social-tasks":"📲 СОЦІАЛЬНІ ЗАВДАННЯ","special-tasks":"⭐ ОСОБЛИВІ ЗАВДАННЯ",
+    messages:"⚡ ОСОБИСТІ ЧАСТОТИ","chat-with":"ЧАТ З:","click-nick":"Натисніть на нік, щоб відкрити особисте.",
+    pm_ph:"Особисте повідомлення...",channels:"📡 ІНФОРМАЦІЙНІ ВИШКИ","create-channel":"⊕ СТВОРИТИ КАНАЛ",
+    ch_title_ph:"Назва каналу",ch_uname_ph:"Юзернейм: @мій_канал",ch_desc_ph:"Опис...",
+    "launch-channel":"ЗАПУСТИТИ ТРАНСЛЯЦІЮ","ch-post-input":"ОПУБЛІКУВАТИ",ch_post_ph:"Текст публікації...",
+    "send-post":"ТРАНСЛЮВАТИ",back:"← НАЗАД",
+    market:"💠 ТОРГОВА ПАЛАТА","market-sub":"ОБМІНЮЙТЕ $TAPGRAM НА СТАТУСИ ТА ПРЕДМЕТИ",
+    "rare-nick":"Рідкісний 3-літерний нік","crown-desc":"Золотий значок назавжди",
+    "supercharge-desc":"+500 до максимуму енергії (разово)","boost-desc":"×2 дохід від тапу на 1 годину",
+    "listing-desc":"Купіть $PULSE через Blum — отримайте бонус",
+    transfer_to_ph:"@отримувач",amount_ph:"Кількість",transfer:"ПЕРЕВЕСТИ",
+    search:"🔍 ГЛОБАЛЬНИЙ РАДАР",search_ph:"Пошук жителів та каналів...",
+    settings:"⚙ НАЛАШТУВАННЯ",language:"МОВА",notifications:"СПОВІЩЕННЯ",
+    "chat-notifs":"Сповіщення чату","task-notifs":"Нагадування про завдання",
+    referral:"РЕФЕРАЛЬНА СИСТЕМА","ref-desc":"Поділіться кодом — отримайте 500 $TAP за друга!",copy:"КОПІЮВАТИ",
+    edit:"ЗМІНИТИ",bio_placeholder:"✏ Натисніть щоб додати біографію...","change-nick":"ЗМІНИТИ НІК",
+    logout:"ВИЙТИ",days:"ДНІВ",status:"Статус",balance:"Баланс",close:"ЗАКРИТИ",
+    "choose-avatar":"ВИБІР АВАТАРА","reactor":"РЕАКТОР","tasks-nav":"ЗАВДАННЯ",
+    "messages-nav":"ОС","channels-nav":"КАНАЛИ","market-nav":"РИНОК","search-nav":"ПОШУК",
+    "daily-tasks":"ЩОДЕННІ","daily-done":"✅ Виконано","claim":"ОТРИМАТИ"
+  }
+};
+// Fallback: generate minimal translations from english for other langs
+["de","fr","es","pt","it","pl","tr","ar","zh","ja","ko","hi","bn","id","vi","th","nl","sv","no","da","fi","cs","ro","hu","el","he","fa","ms"].forEach(l => {
+  LANGS[l] = Object.assign({}, LANGS.en);
+});
+// Few key overrides for major languages
+Object.assign(LANGS.de, {login:"EINLOGGEN",register:"REGISTRIEREN",connect:"▶ VERBINDEN",settings:"⚙ EINSTELLUNGEN",logout:"ABMELDEN",search:"🔍 SUCHE",back:"← ZURÜCK",transfer:"ÜBERTRAGEN",copy:"KOPIEREN"});
+Object.assign(LANGS.fr, {login:"CONNEXION",register:"INSCRIPTION",connect:"▶ CONNECTER",settings:"⚙ PARAMÈTRES",logout:"DÉCONNEXION",search:"🔍 RECHERCHE",back:"← RETOUR",transfer:"TRANSFÉRER",copy:"COPIER"});
+Object.assign(LANGS.es, {login:"INICIAR",register:"REGISTRAR",connect:"▶ CONECTAR",settings:"⚙ AJUSTES",logout:"SALIR",search:"🔍 BUSCAR",back:"← ATRÁS",transfer:"TRANSFERIR",copy:"COPIAR"});
+Object.assign(LANGS.zh, {login:"登录",register:"注册",connect:"▶ 连接",settings:"⚙ 设置",logout:"退出",search:"🔍 搜索",back:"← 返回",transfer:"转账",copy:"复制"});
+Object.assign(LANGS.ja, {login:"ログイン",register:"登録",connect:"▶ 接続",settings:"⚙ 設定",logout:"ログアウト",search:"🔍 検索",back:"← 戻る",transfer:"転送",copy:"コピー"});
+Object.assign(LANGS.ko, {login:"로그인",register:"가입",connect:"▶ 연결",settings:"⚙ 설정",logout:"로그아웃",search:"🔍 검색",back:"← 뒤로",transfer:"전송",copy:"복사"});
+Object.assign(LANGS.ar, {login:"دخول",register:"تسجيل",connect:"▶ اتصال",settings:"⚙ الإعدادات",logout:"خروج",search:"🔍 بحث",back:"← رجوع",transfer:"تحويل",copy:"نسخ"});
+Object.assign(LANGS.tr, {login:"GİRİŞ",register:"KAYIT",connect:"▶ BAĞLAN",settings:"⚙ AYARLAR",logout:"ÇIKIŞ",search:"🔍 ARA",back:"← GERİ",transfer:"TRANSFER",copy:"KOPYALA"});
+
+let currentLang = "en";
+function setLang(l) {
+  if (!LANGS[l]) return;
+  currentLang = l;
+  localStorage.setItem("tg_lang", l);
+  const t = LANGS[l];
+  document.querySelectorAll("[data-i18n]").forEach(el => {
+    const k = el.getAttribute("data-i18n");
+    if (t[k]) el.textContent = t[k];
+  });
+  document.querySelectorAll("[data-i18n-ph]").forEach(el => {
+    const k = el.getAttribute("data-i18n-ph");
+    if (t[k]) el.placeholder = t[k];
+  });
+  document.querySelectorAll("#lang-sel, #lang-sel-auth").forEach(s => s.value = l);
+}
+function T(k) { return (LANGS[currentLang] && LANGS[currentLang][k]) || LANGS.en[k] || k; }
+
+/* ===========================================================
+   STATE
+   =========================================================== */
+const S = {
+  user: {
+    username:"guest",balance:0,energy:1000,maxEnergy:1000,
+    wallet:null,crown:false,isGod:false,supercharge:false,
+    avatar:"👤",bio:"",taps:0,streak:0,boostUntil:0,refs:[]
+  },
+  activePmUser:null,pmUnsub:null,ton:null,tonAddress:null,
+  activeChannel:null,authMode:"login",tasks:{},
+  settings:{chatNotif:true,taskNotif:true}
 };
 
-/* ============================================================
-   BOOT SCREEN
-   ============================================================ */
-const bootMessages = [
-  "Инициализация ядра...",
-  "Подключение к сети...",
-  "Загрузка модулей...",
-  "Синхронизация с облаком...",
-  "Проверка целостности БД...",
-  "Запуск терминала..."
-];
+/* ===========================================================
+   BOOT
+   =========================================================== */
+const BOOT_MSGS_EN = ["Initializing core...","Connecting to network...","Loading modules...","Syncing blockchain...","Verifying DB integrity...","Starting terminal..."];
+const BOOT_MSGS_RU = ["Инициализация ядра...","Подключение к сети...","Загрузка модулей...","Синхронизация...","Проверка целостности...","Запуск терминала..."];
+const BOOT_MSGS_UK = ["Ініціалізація ядра...","Підключення до мережі...","Завантаження модулів...","Синхронізація...","Перевірка цілісності...","Запуск терміналу..."];
 
 function bootSequence() {
-  // Создаём частицы
-  const pc = document.getElementById('particles');
+  // detect lang
+  const saved = localStorage.getItem("tg_lang");
+  const nav = navigator.language || "en";
+  const detected = saved || nav.split("-")[0];
+  if (LANGS[detected]) currentLang = detected;
+  setLang(currentLang);
+
+  // particles
+  const pc = document.getElementById("particles");
   for (let i = 0; i < 18; i++) {
-    const p = document.createElement('div');
-    p.className = 'particle';
-    p.style.left = Math.random() * 100 + '%';
-    p.style.animationDuration = (6 + Math.random() * 8) + 's';
-    p.style.animationDelay = (Math.random() * 6) + 's';
-    p.style.width = p.style.height = (Math.random() * 2 + 1) + 'px';
+    const p = document.createElement("div");
+    p.className = "particle";
+    p.style.left = Math.random()*100+"%";
+    p.style.animationDuration = (6+Math.random()*8)+"s";
+    p.style.animationDelay = (Math.random()*5)+"s";
     pc.appendChild(p);
   }
-
-  const bar  = document.getElementById('boot-bar');
-  const log  = document.getElementById('boot-log');
-  let  step  = 0;
-  const total = bootMessages.length;
-
+  const msgs = currentLang==="ru" ? BOOT_MSGS_RU : currentLang==="uk" ? BOOT_MSGS_UK : BOOT_MSGS_EN;
+  const bar = document.getElementById("boot-bar");
+  const log = document.getElementById("boot-log");
+  let step = 0;
   const iv = setInterval(() => {
-    if (step >= total) {
-      clearInterval(iv);
-      setTimeout(() => {
-        document.getElementById('boot-screen').classList.add('hide');
-      }, 300);
-      return;
-    }
-    const pct = Math.round((step / total) * 100);
-    bar.style.width = pct + '%';
-    log.innerText   = bootMessages[step];
-    step++;
-  }, 380);
+    if (step >= msgs.length) { clearInterval(iv); setTimeout(() => document.getElementById("boot").classList.add("hide"), 300); return; }
+    bar.style.width = Math.round((step/msgs.length)*100)+"%";
+    log.textContent = msgs[step++];
+  }, 360);
 }
 
-/* ============================================================
+/* ===========================================================
    AUTH
-   ============================================================ */
+   =========================================================== */
+function setAuthMode(mode) {
+  S.authMode = mode;
+  document.getElementById("tab-login").classList.toggle("active", mode==="login");
+  document.getElementById("tab-reg").classList.toggle("active", mode==="register");
+  document.getElementById("auth-ref").style.display = mode==="register" ? "block" : "none";
+}
+
 async function handleAuth() {
-  const uRaw = document.getElementById('auth-user').value.trim();
-  const pass  = document.getElementById('auth-pass').value.trim();
-  const btn   = document.querySelector('#view-auth .btn');
+  const uRaw = document.getElementById("auth-user").value.trim();
+  const pass  = document.getElementById("auth-pass").value.trim();
+  const refCode = document.getElementById("auth-ref").value.trim();
+  if (uRaw.length < 2 || pass.length < 3) { showToast(T("error_short")||"Login and password too short", true); return; }
 
-  if (uRaw.length < 2 || pass.length < 3) {
-    showToast("ОШИБКА: Логин и пароль слишком короткие", true);
-    return;
-  }
-
-  btn.innerText = '⏳ ПОДКЛЮЧЕНИЕ...';
-  btn.disabled  = true;
+  const btn = document.getElementById("auth-btn");
+  btn.textContent = "⏳..."; btn.disabled = true;
 
   try {
     const isGod = (uRaw.toLowerCase() === SUPERADMIN_USER && pass === SUPERADMIN_PASS);
-    const username = (uRaw.startsWith('@') ? uRaw : '@' + uRaw).toLowerCase();
+    const username = (uRaw.startsWith("@") ? uRaw : "@"+uRaw).toLowerCase();
+    S.user.isGod = isGod;
+    S.user.username = isGod ? "@tapgram" : username;
 
-    state.user.isGod    = isGod;
-    state.user.username = isGod ? "@tapgram" : username;
+    const ref = db.collection("users").doc(S.user.username);
+    const snap = await ref.get();
 
-    const ref = db.collection("users").doc(state.user.username);
-    const doc = await ref.get();
-
-    if (!doc.exists) {
+    if (!snap.exists) {
+      if (S.authMode === "login") { showToast("User not found. Register first!", true); btn.textContent = T("connect"); btn.disabled = false; return; }
+      const bonus = 1000 + (refCode ? 500 : 0);
       await ref.set({
-        username: state.user.username,
-        balance:  isGod ? 9999999 : 0,
-        wallet:   null,
-        crown:    false,
-        isGod:    isGod,
-        supercharge: false,
+        username: S.user.username, balance: isGod?9999999:bonus,
+        wallet:null, crown:false, isGod, supercharge:false,
+        avatar:"👤", bio:"", taps:0, streak:0, lastLogin:0, boostUntil:0,
+        refs:[], refBy: refCode||null,
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
       });
-      state.user.balance = isGod ? 9999999 : 0;
+      S.user.balance = isGod ? 9999999 : bonus;
+      if (refCode) {
+        const refDoc = await db.collection("users").doc(refCode).get();
+        if (refDoc.exists) {
+          const rd = refDoc.data();
+          const newBal = (rd.balance||0)+500;
+          const newRefs = [...(rd.refs||[]), S.user.username];
+          await db.collection("users").doc(refCode).update({balance:newBal, refs:newRefs});
+        }
+      }
     } else {
-      const d = doc.data();
-      state.user.balance     = d.balance     || 0;
-      state.user.wallet      = d.wallet      || null;
-      state.user.crown       = d.crown       || false;
-      state.user.supercharge = d.supercharge || false;
-      if (state.user.supercharge) state.user.maxEnergy = 1500;
-    }
-
-    // Обновляем HUD
-    document.getElementById('hud-username').innerText = state.user.username;
-    if (state.user.crown) document.getElementById('hud-badge').style.display = 'inline';
-    updateBalance();
-    updateEnergy();
-
-    // Показываем интерфейс
-    document.getElementById('view-auth').classList.remove('active');
-    document.getElementById('hud-header').style.display = 'block';
-    document.getElementById('nav-bar').style.display    = 'block';
-    if (isGod) {
-      document.getElementById('btn-admin').style.display = 'flex';
-      showToast("☢ РЕЖИМ БОГА АКТИВИРОВАН");
-    } else {
-      showToast("✅ ДОБРО ПОЖАЛОВАТЬ, " + state.user.username.toUpperCase());
-    }
-
-    switchView('main');
-
-    listenGlobalChat();
-    listenChannels();
-    listenAppConfig();
-    if (isGod) listenAdminUsers();
-
-    db.collection("users").doc(state.user.username).onSnapshot(snap => {
-      if (!snap.exists) return;
       const d = snap.data();
-      state.user.balance = d.balance || 0;
-      state.user.crown   = d.crown   || false;
-      if (state.user.crown) document.getElementById('hud-badge').style.display = 'inline';
-      updateBalance();
-    });
+      S.user.balance     = d.balance     || 0;
+      S.user.wallet      = d.wallet      || null;
+      S.user.crown       = d.crown       || false;
+      S.user.supercharge = d.supercharge || false;
+      S.user.avatar      = d.avatar      || "👤";
+      S.user.bio         = d.bio         || "";
+      S.user.taps        = d.taps        || 0;
+      S.user.streak      = d.streak      || 0;
+      S.user.boostUntil  = d.boostUntil  || 0;
+      S.user.refs        = d.refs        || [];
+      if (S.user.supercharge) S.user.maxEnergy = 1500;
+    }
+    // Daily streak logic
+    const now = Date.now();
+    const dayMs = 86400000;
+    const lastLogin = snap.exists ? (snap.data().lastLogin||0) : 0;
+    const daysSince = Math.floor((now-lastLogin)/dayMs);
+    if (daysSince === 1) S.user.streak++;
+    else if (daysSince > 1) S.user.streak = 1;
+    const streakBonus = Math.min(S.user.streak, 30) * 50;
+    S.user.balance += streakBonus;
+    await ref.update({lastLogin:now, streak:S.user.streak, balance:S.user.balance});
 
-    initTonConnect();
+    showInterface();
+    if (isGod) showToast("☢ GOD MODE ACTIVATED"); else showToast("✅ "+S.user.username.toUpperCase());
+    if (streakBonus > 0) setTimeout(() => showToast("🔥 Streak bonus: +"+streakBonus+" $TAP"), 1000);
 
-  } catch(err) {
-    console.error("AUTH ERROR:", err);
-    showToast("ОШИБКА ПОДКЛЮЧЕНИЯ: " + err.message, true);
-    btn.innerText = '▶ СИНХРОНИЗАЦИЯ';
-    btn.disabled  = false;
+  } catch(e) {
+    console.error(e);
+    showToast("Connection error: "+e.message, true);
+    btn.textContent = T("connect"); btn.disabled = false;
   }
 }
 
-/* ============================================================
-   HUD HELPERS
-   ============================================================ */
+function showInterface() {
+  document.getElementById("v-auth").classList.remove("active");
+  document.getElementById("hud").style.display = "block";
+  document.getElementById("nav").style.display = "block";
+  document.getElementById("grambot-bubble").style.display = "flex";
+  if (S.user.isGod) document.getElementById("btn-admin").style.display = "flex";
+
+  document.getElementById("hud-uname").textContent = S.user.username;
+  document.getElementById("ref-code-display").value = S.user.username;
+  document.getElementById("ref-count").textContent = S.user.refs.length+" referrals";
+  if (S.user.crown) document.getElementById("hud-badge").style.display = "inline";
+
+  updateBalance(); updateEnergy();
+  updateProfileView();
+  switchView("main");
+  listenGlobalChat();
+  listenChannels();
+  listenAppConfig();
+  if (S.user.isGod) listenAdminUsers();
+  loadTasks();
+  initTon();
+
+  db.collection("users").doc(S.user.username).onSnapshot(snap => {
+    if (!snap.exists) return;
+    const d = snap.data();
+    S.user.balance = d.balance || 0;
+    S.user.crown   = d.crown   || false;
+    if (S.user.crown) document.getElementById("hud-badge").style.display = "inline";
+    updateBalance(); updateProfileView();
+  });
+  // init bot greeting
+  setTimeout(() => addBotMsg("👋 Hi! I'm Grambot — your guide in the TAPGRAM network. Ask me anything! Try: 'How to earn more?' or 'What is Blum?'", "bot"), 800);
+}
+
+function logout() {
+  location.reload();
+}
+
+/* ===========================================================
+   HUD
+   =========================================================== */
 function updateBalance() {
-  document.getElementById('hud-balance').innerText =
-    state.user.balance.toLocaleString('ru');
+  document.getElementById("hud-bal").textContent = S.user.balance.toLocaleString();
+  document.getElementById("pf-bal").textContent = S.user.balance.toLocaleString();
 }
-
 function updateEnergy() {
-  const pct = (state.user.energy / state.user.maxEnergy) * 100;
-  document.getElementById('hud-energy').innerText = state.user.energy;
-  document.getElementById('energy-fill').style.width = pct + '%';
+  const pct = (S.user.energy / S.user.maxEnergy) * 100;
+  document.getElementById("hud-en").textContent = S.user.energy;
+  document.getElementById("efill").style.width = pct+"%";
+}
+function getMultiplier() {
+  let m = 1;
+  if (S.user.streak >= 7) m++;
+  if (S.user.streak >= 14) m++;
+  if (S.user.streak >= 30) m++;
+  if (Date.now() < S.user.boostUntil) m *= 2;
+  return m;
 }
 
-/* ============================================================
-   НАВИГАЦИЯ
-   ============================================================ */
+/* ===========================================================
+   NAV
+   =========================================================== */
 function switchView(name) {
-  if (name === 'admin' && !state.user.isGod) return;
-  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('view-' + name).classList.add('active');
-  document.getElementById('btn-' + name).classList.add('active');
+  if (name==="admin" && !S.user.isGod) return;
+  document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
+  document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
+  document.getElementById("v-"+name).classList.add("active");
+  const btn = document.getElementById("btn-"+name);
+  if (btn) btn.classList.add("active");
+  if (name==="tasks") renderTasks();
+  if (name==="profile") updateProfileView();
+  if (name==="settings") updateSettingsView();
 }
 
-/* ============================================================
-   РЕАКТОР — ТАП
-   ============================================================ */
+/* ===========================================================
+   REACTOR TAP
+   =========================================================== */
 function handleTap(e) {
   e.preventDefault();
-  if (state.user.energy < 5) {
-    showToast("⚡ Заряд на исходе! Ждите восстановления.", true);
-    return;
-  }
-  state.user.balance += 10;
-  state.user.energy  -= 5;
-  updateBalance();
-  updateEnergy();
+  if (S.user.energy < 5) { showToast("⚡ Energy depleted! Wait for recharge.", true); return; }
+  const mult = getMultiplier();
+  const earned = 10 * mult;
+  S.user.balance += earned;
+  S.user.energy  -= 5;
+  S.user.taps    += 1;
+  updateBalance(); updateEnergy();
+  document.getElementById("reactor-multi").textContent = "×"+mult;
+  document.getElementById("mult-val").textContent = "×"+mult;
+  document.getElementById("taps-val").textContent = S.user.taps.toLocaleString();
+  document.getElementById("pf-taps").textContent = S.user.taps.toLocaleString();
 
-  db.collection("users").doc(state.user.username).update({
-    balance: state.user.balance
-  });
+  db.collection("users").doc(S.user.username).update({balance:S.user.balance, taps:S.user.taps});
 
-  // Попап +10
-  const pop = document.createElement('div');
-  pop.className = 'tap-popup';
-  pop.innerText = '+10 $TAP';
+  const pop = document.createElement("div");
+  pop.className = "tap-popup";
+  pop.textContent = "+" + earned + " $TAP" + (mult>1 ? " ×"+mult : "");
   const touch = e.touches ? e.touches[0] : e;
-  pop.style.left = touch.clientX + 'px';
-  pop.style.top  = touch.clientY + 'px';
+  pop.style.left = touch.clientX+"px";
+  pop.style.top  = touch.clientY+"px";
   document.body.appendChild(pop);
   setTimeout(() => pop.remove(), 700);
 }
 
-// Регенерация энергии
+// Energy regen
 setInterval(() => {
-  if (state.user.energy < state.user.maxEnergy) {
-    state.user.energy = Math.min(state.user.maxEnergy, state.user.energy + 3);
+  if (S.user.energy < S.user.maxEnergy) {
+    S.user.energy = Math.min(S.user.maxEnergy, S.user.energy+3);
     updateEnergy();
   }
+  // Streak display
+  const sd = document.getElementById("streak-val");
+  if (sd) sd.textContent = (S.user.streak||0)+" "+(T("days")||"days");
 }, 1000);
 
-/* ============================================================
-   ГЛОБАЛЬНЫЙ ЧАТ
-   ============================================================ */
-function listenGlobalChat() {
-  db.collection("global_messages")
-    .orderBy("timestamp", "asc")
-    .limitToLast(50)
-    .onSnapshot(snap => {
-      const box = document.getElementById('global-chat-box');
-      box.innerHTML = '';
-      snap.forEach(doc => {
-        const m   = doc.data();
-        const div = document.createElement('div');
-        div.className = 'chat-msg';
-        div.innerHTML =
-          `<span class="chat-sender" onclick="openProfile('${m.sender}')">${m.sender}</span>: ` +
-          `<span class="chat-text">${escHtml(m.text)}</span>`;
-        box.appendChild(div);
-      });
-      box.scrollTop = box.scrollHeight;
-    });
+/* ===========================================================
+   TASKS
+   =========================================================== */
+const TASK_DEFS = [
+  {id:"daily_login",   type:"daily",   icon:"🌅", title:"Daily Login",   reward:200,  desc:"Log in today"},
+  {id:"tap_100",       type:"daily",   icon:"⚡", title:"100 Taps Today", reward:500,  desc:"Tap the reactor 100 times in a day"},
+  {id:"send_message",  type:"daily",   icon:"💬", title:"Say Something",  reward:150,  desc:"Send a message in global chat"},
+  {id:"blum_visit",    type:"social",  icon:"💎", title:"Visit Blum",     reward:1000, desc:"Visit Blum app to buy $PULSE — earn bonus", link: BLUM_URL},
+  {id:"join_channel",  type:"social",  icon:"📡", title:"Join a Channel", reward:300,  desc:"Enter any channel in the network"},
+  {id:"invite_friend", type:"social",  icon:"👥", title:"Invite Friend",  reward:500,  desc:"Share your referral code with a friend"},
+  {id:"buy_crown",     type:"special", icon:"👑", title:"Crown Holder",   reward:2000, desc:"Purchase the Crown of Overseer"},
+  {id:"wallet_connect",type:"special", icon:"🔗", title:"Link Wallet",    reward:500,  desc:"Connect your TON wallet"},
+  {id:"streak_7",      type:"special", icon:"🔥", title:"7-Day Warrior",  reward:2500, desc:"Maintain a 7-day login streak"},
+];
+
+async function loadTasks() {
+  const snap = await db.collection("users").doc(S.user.username).collection("tasks").get();
+  S.tasks = {};
+  snap.forEach(d => S.tasks[d.id] = d.data());
+  // auto-complete daily login
+  if (!S.tasks["daily_login"] || !isToday(S.tasks["daily_login"].completedAt)) {
+    await claimTask("daily_login", false);
+  }
 }
 
-function sendGlobalMsg() {
-  const inp = document.getElementById('global-msg-inp');
+function isToday(ts) {
+  if (!ts) return false;
+  const d = ts.toDate ? ts.toDate() : new Date(ts);
+  const now = new Date();
+  return d.toDateString() === now.toDateString();
+}
+
+function renderTasks() {
+  ["daily","social","special"].forEach(type => {
+    const el = document.getElementById("task-"+type);
+    if (!el) return;
+    el.innerHTML = "";
+    TASK_DEFS.filter(t => t.type===type).forEach(task => {
+      const done = S.tasks[task.id] && (type==="daily" ? isToday(S.tasks[task.id].completedAt) : S.tasks[task.id].done);
+      const card = document.createElement("div");
+      card.className = "task-card" + (done?" done":"");
+      card.innerHTML = `
+        <div class="task-info">
+          <div class="task-title">${task.icon} ${task.title}</div>
+          <div class="task-desc">${task.desc}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+          <div class="task-reward">+${task.reward.toLocaleString()} $TAP</div>
+          ${done ? `<span style="font-size:8px;color:var(--g2)">${T("daily-done")}</span>` :
+            `<button class="btn btn-sm" onclick="handleTaskClaim('${task.id}'${task.link?`,'${task.link}'`:""})">${T("claim")}</button>`}
+        </div>`;
+      el.appendChild(card);
+    });
+  });
+}
+
+async function handleTaskClaim(id, link) {
+  if (link) { window.open(link, "_blank"); }
+  await claimTask(id);
+}
+
+async function claimTask(id, notify=true) {
+  const def = TASK_DEFS.find(t => t.id===id);
+  if (!def) return;
+  if (S.tasks[id]) {
+    if (def.type==="daily" && isToday(S.tasks[id].completedAt)) { if(notify)showToast("Already done today!",true); return; }
+    if (def.type!=="daily" && S.tasks[id].done) { if(notify)showToast("Already completed!",true); return; }
+  }
+  S.user.balance += def.reward;
+  S.tasks[id] = {done:true, completedAt: firebase.firestore.FieldValue.serverTimestamp()};
+  await db.collection("users").doc(S.user.username).collection("tasks").doc(id).set(S.tasks[id]);
+  await db.collection("users").doc(S.user.username).update({balance:S.user.balance});
+  updateBalance();
+  if (notify) { showToast("🎯 "+def.title+" — +"+def.reward.toLocaleString()+" $TAP"); renderTasks(); }
+}
+
+/* ===========================================================
+   GLOBAL CHAT
+   =========================================================== */
+function listenGlobalChat() {
+  db.collection("global_messages").orderBy("timestamp","asc").limitToLast(50).onSnapshot(snap => {
+    const box = document.getElementById("gchat");
+    box.innerHTML = "";
+    if (snap.empty) { box.innerHTML = `<div style="text-align:center;color:var(--gray);font-size:10px;padding:18px">Connecting...</div>`; return; }
+    snap.forEach(d => {
+      const m = d.data();
+      const div = document.createElement("div");
+      div.className = "chat-msg";
+      div.innerHTML = `<span class="chat-sender" onclick="openProfileModal('${m.sender}')">${esc(m.sender)}</span>${m.crown?"👑":""}: <span class="chat-text">${esc(m.text)}</span>`;
+      box.appendChild(div);
+    });
+    box.scrollTop = box.scrollHeight;
+  });
+}
+function sendGlobal() {
+  const inp = document.getElementById("gmsg");
   const txt = inp.value.trim();
   if (!txt) return;
   db.collection("global_messages").add({
-    sender: state.user.username,
-    text:   txt,
-    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    sender:S.user.username, text:txt, crown:S.user.crown||false,
+    timestamp:firebase.firestore.FieldValue.serverTimestamp()
   });
-  inp.value = '';
+  inp.value = "";
+  claimTask("send_message", false);
 }
-document.addEventListener('keydown', e => {
-  if (e.key === 'Enter') {
-    const v = document.getElementById('view-main');
-    if (v && v.classList.contains('active')) sendGlobalMsg();
-    const vp = document.getElementById('view-messages');
-    if (vp && vp.classList.contains('active')) sendPM();
-  }
+document.addEventListener("keydown", e => {
+  if (e.key!=="Enter") return;
+  if (document.getElementById("v-main").classList.contains("active")) sendGlobal();
+  if (document.getElementById("v-messages").classList.contains("active")) sendPM();
+  if (document.getElementById("bot-inp") === document.activeElement) sendBotMsg();
 });
 
-/* ============================================================
-   ЛИЧНЫЕ СООБЩЕНИЯ
-   ============================================================ */
-function openPM(targetUser) {
-  state.activePmUser = targetUser;
-  document.getElementById('pm-target-label').innerText = targetUser;
-  document.getElementById('pm-inp').disabled = false;
-  document.getElementById('pm-send-btn').disabled = false;
-  switchView('messages');
-
-  if (state.pmUnsub) state.pmUnsub();
-
-  const pairId = [state.user.username, targetUser].sort().join('||');
-  state.pmUnsub = db.collection("private_messages").doc(pairId)
-    .collection("chats")
-    .orderBy("timestamp", "asc")
-    .onSnapshot(snap => {
-      const box = document.getElementById('pm-box');
-      box.innerHTML = '';
-      if (snap.empty) {
-        box.innerHTML = `<div style="text-align:center;color:var(--gray);font-size:11px;padding:30px 0;align-self:center;">Напишите первое сообщение</div>`;
-        return;
-      }
-      snap.forEach(doc => {
-        const m   = doc.data();
-        const div = document.createElement('div');
-        const isMe = m.sender === state.user.username;
-        div.className = 'pm-msg ' + (isMe ? 'me' : 'you');
-        div.innerHTML =
-          `<div class="pm-sender-label">${m.sender}</div>` +
-          `<div class="pm-bubble">${escHtml(m.text)}</div>`;
+/* ===========================================================
+   PRIVATE MESSAGES
+   =========================================================== */
+function openPM(target) {
+  S.activePmUser = target;
+  document.getElementById("pm-target").textContent = target;
+  document.getElementById("pm-inp").disabled = false;
+  document.getElementById("pm-send").disabled = false;
+  switchView("messages");
+  if (S.pmUnsub) S.pmUnsub();
+  const pairId = [S.user.username, target].sort().join("||");
+  S.pmUnsub = db.collection("private_messages").doc(pairId).collection("chats")
+    .orderBy("timestamp","asc").onSnapshot(snap => {
+      const box = document.getElementById("pm-box");
+      box.innerHTML = "";
+      if (snap.empty) { box.innerHTML = `<div style="text-align:center;color:var(--gray);font-size:10px;padding:25px 0;align-self:center">Send the first message!</div>`; return; }
+      snap.forEach(d => {
+        const m = d.data();
+        const isMe = m.sender===S.user.username;
+        const div = document.createElement("div");
+        div.className = "pm-msg "+(isMe?"me":"you");
+        div.innerHTML = `<div class="pm-slbl">${m.sender}</div><div class="pm-bubble">${esc(m.text)}</div>`;
         box.appendChild(div);
       });
       box.scrollTop = box.scrollHeight;
     });
 }
-
 function sendPM() {
-  const inp = document.getElementById('pm-inp');
+  const inp = document.getElementById("pm-inp");
   const txt = inp.value.trim();
-  if (!txt || !state.activePmUser) return;
-
-  const pairId = [state.user.username, state.activePmUser].sort().join('||');
+  if (!txt || !S.activePmUser) return;
+  const pairId = [S.user.username, S.activePmUser].sort().join("||");
   db.collection("private_messages").doc(pairId).collection("chats").add({
-    sender: state.user.username,
-    text:   txt,
-    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    sender:S.user.username, text:txt,
+    timestamp:firebase.firestore.FieldValue.serverTimestamp()
   });
-  inp.value = '';
+  inp.value = "";
 }
 
-/* ============================================================
-   ПРОФИЛЬ МОДАЛ
-   ============================================================ */
-async function openProfile(username) {
-  const modal = document.getElementById('profile-modal');
-  modal.classList.add('open');
-  document.getElementById('modal-uname').innerText   = username;
-  document.getElementById('modal-avatar').innerText  = '👤';
-  document.getElementById('modal-status').innerText  = '...';
-  document.getElementById('modal-balance').innerText = '...';
-  document.getElementById('modal-wallet').innerText  = '...';
-
-  const doc = await db.collection("users").doc(username).get();
-  if (doc.exists) {
-    const d = doc.data();
-    document.getElementById('modal-avatar').innerText  = d.crown ? '👑' : '👤';
-    document.getElementById('modal-status').innerText  =
-      d.isGod ? '☢ БОГ' : (d.crown ? 'Смотритель 👑' : 'Житель');
-    document.getElementById('modal-balance').innerText =
-      (d.balance || 0).toLocaleString('ru') + ' $TAP';
-    document.getElementById('modal-wallet').innerText  =
-      d.wallet || 'Кошелёк не привязан';
-  } else {
-    document.getElementById('modal-status').innerText  = 'Неизвестный странник';
-    document.getElementById('modal-balance').innerText = '0 $TAP';
-    document.getElementById('modal-wallet').innerText  = 'Не зарегистрирован';
+/* ===========================================================
+   PROFILE MODAL
+   =========================================================== */
+async function openProfileModal(username) {
+  const modal = document.getElementById("profile-modal");
+  modal.classList.add("open");
+  document.getElementById("modal-un").textContent = username;
+  document.getElementById("modal-av").textContent = "👤";
+  document.getElementById("modal-st").textContent = "...";
+  document.getElementById("modal-bl").textContent = "...";
+  document.getElementById("modal-wl").textContent = "...";
+  const snap = await db.collection("users").doc(username).get();
+  if (snap.exists) {
+    const d = snap.data();
+    document.getElementById("modal-av").textContent  = d.avatar||"👤";
+    document.getElementById("modal-st").textContent  = d.isGod?"☢ GOD":(d.crown?"Overseer 👑":"Resident");
+    document.getElementById("modal-bl").textContent  = (d.balance||0).toLocaleString()+" $TAP";
+    document.getElementById("modal-wl").textContent  = d.wallet||(T("no-wallet")||"No wallet connected");
   }
-
-  const pmBtn = document.getElementById('modal-pm-btn');
-  if (username === state.user.username) {
-    pmBtn.style.display = 'none';
-  } else {
-    pmBtn.style.display = 'block';
-    pmBtn.onclick = () => { closeModal(); openPM(username); };
-  }
+  const pmBtn = document.getElementById("modal-pm-btn");
+  if (username === S.user.username) pmBtn.style.display="none";
+  else { pmBtn.style.display="block"; pmBtn.onclick = () => { closeModal("profile-modal"); openPM(username); }; }
 }
-
-function closeModal() {
-  document.getElementById('profile-modal').classList.remove('open');
+function closeModal(id) {
+  document.getElementById(id).classList.remove("open");
 }
-document.getElementById('profile-modal').addEventListener('click', function(e) {
-  if (e.target === this) closeModal();
-});
+document.querySelectorAll(".modal-ov").forEach(m => m.addEventListener("click", function(e) { if(e.target===this) this.classList.remove("open"); }));
 
-/* ============================================================
-   КАНАЛЫ
-   ============================================================ */
+/* ===========================================================
+   CHANNELS
+   =========================================================== */
 function listenChannels() {
   db.collection("channels").onSnapshot(snap => {
-    const list = document.getElementById('channels-list');
-    list.innerHTML = '';
-    snap.forEach(doc => {
-      const ch  = doc.data();
-      const div = document.createElement('div');
-      div.className = 'channel-card';
-      div.innerHTML =
-        `<div class="channel-name">${escHtml(ch.title)} <span style="color:var(--gray)">${escHtml(ch.username)}</span></div>` +
-        `<div class="channel-meta">Создатель: ${escHtml(ch.owner)} · 👥 ${ch.subs || 0} читателей</div>`;
+    const list = document.getElementById("ch-list");
+    list.innerHTML = "";
+    snap.forEach(d => {
+      const ch = d.data();
+      const div = document.createElement("div");
+      div.className = "ch-card";
+      div.onclick = () => openChannel(ch);
+      div.innerHTML = `<div class="ch-name">${esc(ch.title)} <span style="color:var(--gray)">${esc(ch.username)}</span></div><div class="ch-meta">${T("creator")||"Creator"}: ${esc(ch.owner)} · 👥 ${ch.subs||0}</div>${ch.desc?`<div style="font-size:9px;color:rgba(0,255,136,.5);margin-top:3px">${esc(ch.desc)}</div>`:""}`;
       list.appendChild(div);
     });
   });
 }
-
 function createChannel() {
-  let title = document.getElementById('ch-title-inp').value.trim();
-  let uname = document.getElementById('ch-user-inp').value.trim();
-  if (!title || !uname) { showToast("Заполните все поля!", true); return; }
-  if (!uname.startsWith('@')) uname = '@' + uname;
-
-  db.collection("channels").doc(uname).set({
-    title, username: uname,
-    owner: state.user.username,
-    subs:  0,
-    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  let title = document.getElementById("ch-title").value.trim();
+  let uname = document.getElementById("ch-uname").value.trim();
+  let desc  = document.getElementById("ch-desc").value.trim();
+  if (!title||!uname) { showToast("Fill all fields!",true); return; }
+  if (!uname.startsWith("@")) uname="@"+uname;
+  db.collection("channels").doc(uname).set({title,username:uname,owner:S.user.username,subs:0,desc,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+  document.getElementById("ch-title").value="";
+  document.getElementById("ch-uname").value="";
+  document.getElementById("ch-desc").value="";
+  showToast("Channel launched!");
+}
+function openChannel(ch) {
+  S.activeChannel = ch;
+  document.getElementById("ch-list").style.display="none";
+  document.getElementById("ch-inner-wrap").style.display="block";
+  document.getElementById("ch-inner-name").textContent = ch.title+" "+ch.username;
+  if (ch.owner===S.user.username || S.user.isGod) document.getElementById("ch-post-area").style.display="flex";
+  else document.getElementById("ch-post-area").style.display="none";
+  const posts = document.getElementById("ch-posts");
+  posts.innerHTML = "";
+  db.collection("channels").doc(ch.username).collection("posts").orderBy("timestamp","desc").limit(20).onSnapshot(snap => {
+    posts.innerHTML = "";
+    if (snap.empty) { posts.innerHTML = `<div style="text-align:center;color:var(--gray);font-size:10px;padding:16px">No posts yet</div>`; return; }
+    snap.forEach(d => {
+      const p = d.data();
+      const div = document.createElement("div");
+      div.className = "ch-post";
+      const ts = p.timestamp ? new Date(p.timestamp.seconds*1000).toLocaleString() : "";
+      div.innerHTML = `<div class="ch-post-hd"><span>${esc(p.author)}</span><span>${ts}</span></div>${esc(p.text)}`;
+      posts.appendChild(div);
+    });
   });
-
-  document.getElementById('ch-title-inp').value = '';
-  document.getElementById('ch-user-inp').value  = '';
-  showToast("Канал запущен в глобальную сеть!");
+  claimTask("join_channel", false);
+  // sub count
+  db.collection("channels").doc(ch.username).update({subs: firebase.firestore.FieldValue.increment(1)}).catch(()=>{});
+}
+function closeChannel() {
+  S.activeChannel=null;
+  document.getElementById("ch-list").style.display="block";
+  document.getElementById("ch-inner-wrap").style.display="none";
+}
+function postToChannel() {
+  const txt = document.getElementById("ch-post-inp").value.trim();
+  if (!txt||!S.activeChannel) return;
+  db.collection("channels").doc(S.activeChannel.username).collection("posts").add({
+    author:S.user.username, text:txt,
+    timestamp:firebase.firestore.FieldValue.serverTimestamp()
+  });
+  document.getElementById("ch-post-inp").value="";
+  showToast("Broadcast sent!");
 }
 
-/* ============================================================
-   МАРКЕТ
-   ============================================================ */
+/* ===========================================================
+   MARKET / TRANSFER
+   =========================================================== */
 async function buyUsername(newName, price) {
-  if (state.user.balance < price) { showToast("Недостаточно $TAPGRAM!", true); return; }
-  if (!confirm(`Купить ник ${newName} за ${price} $TAP?`)) return;
-
-  await db.collection("users").doc(newName).set({
-    username: newName,
-    balance:  state.user.balance - price,
-    wallet:   state.user.wallet,
-    crown:    state.user.crown,
-    isGod:    state.user.isGod,
-    supercharge: state.user.supercharge
-  });
-  await db.collection("users").doc(state.user.username).delete();
-  state.user.username = newName;
-  state.user.balance -= price;
-  document.getElementById('hud-username').innerText = newName;
-  updateBalance();
-  showToast(`Ник изменён на ${newName}!`);
+  if (S.user.balance<price) { showToast("Insufficient $TAPGRAM!",true); return; }
+  if (!confirm("Buy nick "+newName+" for "+price+" $TAP?")) return;
+  await db.collection("users").doc(newName).set({username:newName,balance:S.user.balance-price,wallet:S.user.wallet,crown:S.user.crown,isGod:S.user.isGod,supercharge:S.user.supercharge,avatar:S.user.avatar,bio:S.user.bio,taps:S.user.taps,streak:S.user.streak});
+  await db.collection("users").doc(S.user.username).delete();
+  S.user.username=newName; S.user.balance-=price;
+  document.getElementById("hud-uname").textContent=newName;
+  updateBalance(); showToast("Nick changed to "+newName+"!");
 }
-
 async function buyCrown(price) {
-  if (state.user.balance < price) { showToast("Недостаточно $TAPGRAM!", true); return; }
-  state.user.balance -= price;
-  state.user.crown    = true;
-  await db.collection("users").doc(state.user.username).update({
-    balance: state.user.balance, crown: true
-  });
-  document.getElementById('hud-badge').style.display = 'inline';
-  updateBalance();
-  showToast("👑 Статус Смотрителя получен!");
+  if (S.user.balance<price) { showToast("Insufficient $TAPGRAM!",true); return; }
+  S.user.balance-=price; S.user.crown=true;
+  await db.collection("users").doc(S.user.username).update({balance:S.user.balance,crown:true});
+  document.getElementById("hud-badge").style.display="inline";
+  updateBalance(); showToast("👑 Overseer status granted!");
+  claimTask("buy_crown",false);
 }
-
 async function buySupercharge(price) {
-  if (state.user.balance < price) { showToast("Недостаточно $TAPGRAM!", true); return; }
-  state.user.balance -= price;
-  state.user.supercharge = true;
-  state.user.maxEnergy   = 1500;
-  await db.collection("users").doc(state.user.username).update({
-    balance: state.user.balance, supercharge: true
-  });
+  if (S.user.balance<price) { showToast("Insufficient $TAPGRAM!",true); return; }
+  S.user.balance-=price; S.user.supercharge=true; S.user.maxEnergy=1500;
+  await db.collection("users").doc(S.user.username).update({balance:S.user.balance,supercharge:true});
+  updateBalance(); showToast("⚡ Max energy increased to 1500!");
+}
+async function buyBoost(price) {
+  if (S.user.balance<price) { showToast("Insufficient $TAPGRAM!",true); return; }
+  S.user.balance-=price; S.user.boostUntil=Date.now()+3600000;
+  await db.collection("users").doc(S.user.username).update({balance:S.user.balance,boostUntil:S.user.boostUntil});
+  updateBalance(); showToast("🔥 Boost x2 active for 1 hour!");
+}
+function openBlum() {
+  window.open(BLUM_URL,"_blank");
+  claimTask("blum_visit",false);
+}
+async function transferCoins() {
+  const target = document.getElementById("tr-user").value.trim();
+  const amount = parseInt(document.getElementById("tr-amount").value);
+  if (!target || isNaN(amount)||amount<1) { showToast("Enter recipient and amount",true); return; }
+  const uname = target.startsWith("@")?target:"@"+target;
+  if (uname===S.user.username) { showToast("Cannot send to yourself",true); return; }
+  if (S.user.balance<amount) { showToast("Insufficient balance",true); return; }
+  const snap = await db.collection("users").doc(uname).get();
+  if (!snap.exists) { showToast("User not found",true); return; }
+  S.user.balance-=amount;
+  await db.collection("users").doc(S.user.username).update({balance:S.user.balance});
+  await db.collection("users").doc(uname).update({balance:firebase.firestore.FieldValue.increment(amount)});
   updateBalance();
-  showToast("⚡ Максимум энергии увеличен до 1500!");
+  document.getElementById("tr-user").value="";
+  document.getElementById("tr-amount").value="";
+  showToast("✅ Sent "+amount.toLocaleString()+" $TAP → "+uname);
 }
 
-/* ============================================================
-   ПОИСК
-   ============================================================ */
+/* ===========================================================
+   SEARCH
+   =========================================================== */
 async function runSearch() {
-  const q   = document.getElementById('search-inp').value.toLowerCase().trim();
-  const box = document.getElementById('search-results');
-  box.innerHTML = '';
+  const q = document.getElementById("search-inp").value.toLowerCase().trim();
+  const box = document.getElementById("search-res");
+  box.innerHTML = "";
   if (!q) return;
-
-  const uSnap = await db.collection("users").get();
-  uSnap.forEach(doc => {
-    const u = doc.data();
+  const [uSnap,cSnap] = await Promise.all([db.collection("users").get(), db.collection("channels").get()]);
+  let found = 0;
+  uSnap.forEach(d => {
+    const u = d.data();
     if (u.username.toLowerCase().includes(q)) {
-      const div = document.createElement('div');
-      div.className = 'search-result';
-      div.onclick   = () => openProfile(u.username);
-      div.innerHTML =
-        `<span>${u.username} ${u.crown ? '👑' : ''}</span>` +
-        `<span class="search-tag">ЖИТЕЛЬ</span>`;
-      box.appendChild(div);
+      const div = document.createElement("div");
+      div.className = "search-res";
+      div.onclick = () => openProfileModal(u.username);
+      div.innerHTML = `<span>${u.username}${u.crown?"👑":""}</span><span class="stag">USER</span>`;
+      box.appendChild(div); found++;
     }
   });
-
-  const cSnap = await db.collection("channels").get();
-  cSnap.forEach(doc => {
-    const ch = doc.data();
-    if (ch.title.toLowerCase().includes(q) || ch.username.toLowerCase().includes(q)) {
-      const div = document.createElement('div');
-      div.className = 'search-result';
-      div.innerHTML =
-        `<span>${escHtml(ch.title)} ${escHtml(ch.username)}</span>` +
-        `<span class="search-tag">КАНАЛ</span>`;
-      box.appendChild(div);
+  cSnap.forEach(d => {
+    const c = d.data();
+    if ((c.title||"").toLowerCase().includes(q)||(c.username||"").toLowerCase().includes(q)) {
+      const div = document.createElement("div");
+      div.className = "search-res";
+      div.onclick = () => openChannel(c);
+      div.innerHTML = `<span>${esc(c.title)} ${esc(c.username)}</span><span class="stag">CHANNEL</span>`;
+      box.appendChild(div); found++;
     }
   });
+  if (!found) box.innerHTML = `<div style="text-align:center;color:var(--gray);font-size:10px;padding:16px">Nothing found</div>`;
+}
 
-  if (!box.children.length) {
-    box.innerHTML = `<div style="text-align:center;color:var(--gray);font-size:11px;padding:20px 0;">Ничего не найдено</div>`;
+/* ===========================================================
+   PROFILE VIEW (own)
+   =========================================================== */
+function updateProfileView() {
+  document.getElementById("pf-av-emoji").textContent = S.user.avatar||"👤";
+  document.getElementById("pf-uname").textContent = S.user.username;
+  document.getElementById("pf-bio").textContent = S.user.bio || (T("bio_placeholder")||"✏ Tap to add bio...");
+  document.getElementById("pf-bal").textContent = S.user.balance.toLocaleString();
+  document.getElementById("pf-taps").textContent = (S.user.taps||0).toLocaleString();
+  document.getElementById("pf-streak").textContent = S.user.streak||0;
+  const rows = document.getElementById("pf-rows");
+  rows.innerHTML = `
+    <div class="pf-row"><span class="lbl">Status</span><span class="val">${S.user.isGod?"☢ GOD":(S.user.crown?"Overseer 👑":"Resident")}</span></div>
+    <div class="pf-row"><span class="lbl">Max Energy</span><span class="val">${S.user.maxEnergy}</span></div>
+    <div class="pf-row"><span class="lbl">Boost</span><span class="val">${Date.now()<S.user.boostUntil?"🔥 Active":"—"}</span></div>
+    <div class="pf-row"><span class="lbl">Multiplier</span><span class="val">×${getMultiplier()}</span></div>
+    <div class="pf-row"><span class="lbl">TON Wallet</span><span class="val" style="font-size:9px">${S.user.wallet?(S.user.wallet.slice(0,8)+"..."+S.user.wallet.slice(-4)):"Not connected"}</span></div>
+    <div class="pf-row"><span class="lbl">Referrals</span><span class="val">${(S.user.refs||[]).length}</span></div>`;
+}
+
+const AVATARS = ["👤","🐉","🦊","🐺","🦁","🐻","🦝","🐼","🦅","🐸","👾","🤖","👽","💀","🔥","⚡","🌙","🌟","💎","🎭","🧬","🔮","🎯","🛸","⚛","🏴‍☠️","🧙","🦄","🐧","🎮","🌊","🍄"];
+function openAvatarPicker() {
+  const grid = document.getElementById("avatar-grid");
+  grid.innerHTML = "";
+  AVATARS.forEach(av => {
+    const span = document.createElement("span");
+    span.className = "av-opt"+(av===S.user.avatar?" selected":"");
+    span.textContent = av;
+    span.onclick = async () => {
+      S.user.avatar = av;
+      await db.collection("users").doc(S.user.username).update({avatar:av});
+      updateProfileView();
+      closeModal("avatar-modal");
+      showToast("Avatar updated!");
+    };
+    grid.appendChild(span);
+  });
+  document.getElementById("avatar-modal").classList.add("open");
+}
+
+function editBio() {
+  const newBio = prompt("Edit bio (max 120 chars):", S.user.bio||"");
+  if (newBio === null) return;
+  S.user.bio = newBio.slice(0,120);
+  db.collection("users").doc(S.user.username).update({bio:S.user.bio});
+  updateProfileView();
+}
+
+function editUsername() {
+  showToast("Buy a custom username in the Market!", false);
+  switchView("market");
+}
+
+function copyRef() {
+  navigator.clipboard.writeText(S.user.username).then(()=>showToast("Referral code copied!")).catch(()=>{
+    document.getElementById("ref-code-display").select();
+    showToast("Copy the code manually");
+  });
+}
+
+/* ===========================================================
+   SETTINGS
+   =========================================================== */
+function updateSettingsView() {
+  document.getElementById("lang-sel").value = currentLang;
+  document.getElementById("ref-code-display").value = S.user.username;
+  document.getElementById("ref-count").textContent = (S.user.refs||[]).length+" referrals";
+  const w = document.getElementById("settings-wallet-info");
+  const wb = document.getElementById("settings-wallet-btn");
+  if (S.tonAddress) {
+    w.textContent = "Connected: "+S.tonAddress.slice(0,10)+"...";
+    wb.textContent = "DISCONNECT";
+  } else {
+    w.textContent = "No wallet connected";
+    wb.textContent = "CONNECT WALLET";
   }
 }
+function toggleSetting(key) {
+  S.settings[key+"Notif"] = !S.settings[key+"Notif"];
+  document.getElementById("tog-"+key).classList.toggle("on", S.settings[key+"Notif"]);
+}
 
-/* ============================================================
+/* ===========================================================
    TON CONNECT
-   ============================================================ */
-function initTonConnect() {
+   =========================================================== */
+function initTon() {
   try {
-    state.tonConnector = new TON_CONNECT_UI.TonConnectUI({
-      manifestUrl: TON_MANIFEST_URL,
-      buttonRootId: null
-    });
-
-    state.tonConnector.onStatusChange(wallet => {
+    S.ton = new TON_CONNECT_UI.TonConnectUI({manifestUrl:TON_MANIFEST_URL, buttonRootId:null});
+    S.ton.onStatusChange(wallet => {
       if (wallet) {
         const addr = wallet.account.address;
-        const short = addr.slice(0, 6) + '...' + addr.slice(-4);
-        state.tonAddress = addr;
-        state.user.wallet = addr;
-
-        document.getElementById('ton-chip').innerText     = '💎 ' + short;
-        document.getElementById('ton-chip').className     = 'wallet-chip connected';
-        document.getElementById('ton-address-display').innerText = short;
-        document.getElementById('ton-connect-btn').innerText = 'ОТВЯЗАТЬ';
-
-        db.collection("users").doc(state.user.username).update({ wallet: addr });
+        const short = addr.slice(0,6)+"..."+addr.slice(-4);
+        S.tonAddress = addr; S.user.wallet = addr;
+        document.getElementById("ton-chip").textContent="💎 "+short;
+        document.getElementById("ton-chip").className="wallet-chip cn";
+        document.getElementById("ton-addr").textContent=short;
+        document.getElementById("ton-btn").textContent="DISCONNECT";
+        db.collection("users").doc(S.user.username).update({wallet:addr});
+        claimTask("wallet_connect", false);
       } else {
-        state.tonAddress = null;
-        state.user.wallet = null;
-        document.getElementById('ton-chip').innerText     = '💎 ПОДКЛЮЧИТЬ';
-        document.getElementById('ton-chip').className     = 'wallet-chip disconnected';
-        document.getElementById('ton-address-display').innerText = 'Не подключён';
-        document.getElementById('ton-connect-btn').innerText = 'СВЯЗАТЬ';
-        db.collection("users").doc(state.user.username).update({ wallet: null });
+        S.tonAddress=null; S.user.wallet=null;
+        document.getElementById("ton-chip").textContent="💎 TON";
+        document.getElementById("ton-chip").className="wallet-chip dc";
+        document.getElementById("ton-addr").textContent="Not connected";
+        document.getElementById("ton-btn").textContent="CONNECT";
+        db.collection("users").doc(S.user.username).update({wallet:null});
       }
+      updateProfileView();
     });
-  } catch (e) {
-    console.warn("TON Connect init failed:", e);
-  }
+  } catch(e) { console.warn("TON init fail:", e); }
+}
+async function toggleTon() {
+  if (!S.ton) { showToast("TON Connect not initialized",true); return; }
+  if (S.tonAddress) await S.ton.disconnect();
+  else await S.ton.openModal();
 }
 
-async function toggleTonWallet() {
-  if (!state.tonConnector) { showToast("TON Connect не инициализирован. Проверьте манифест URL.", true); return; }
-  if (state.tonAddress) {
-    await state.tonConnector.disconnect();
-  } else {
-    await state.tonConnector.openModal();
-  }
-}
-
-/* ============================================================
-   КОНФИГ ПРИЛОЖЕНИЯ (реальное время)
-   ============================================================ */
+/* ===========================================================
+   APP CONFIG LISTENER
+   =========================================================== */
 function listenAppConfig() {
-  db.collection("app_config").doc("main").onSnapshot(doc => {
-    if (!doc.exists) return;
-    const c = doc.data();
-    if (c.title) {
-      document.title = c.title;
-      document.getElementById('auth-subtitle').innerText = c.title;
-    }
+  db.collection("app_config").doc("main").onSnapshot(d => {
+    if (!d.exists) return;
+    const c = d.data();
+    if (c.title) { document.title=c.title; document.getElementById("auth-sub").textContent=c.title; }
+    if (c.announcement) showToast("📢 "+c.announcement);
   });
 }
 
-/* ============================================================
-   SUPERADMIN ПАНЕЛЬ
-   ============================================================ */
+/* ===========================================================
+   ADMIN
+   =========================================================== */
 function listenAdminUsers() {
   db.collection("users").onSnapshot(snap => {
-    const sel  = document.getElementById('admin-sel-user');
-    const list = document.getElementById('admin-users-list');
-    sel.innerHTML  = '<option value="SELF">СЕБЕ (Суперадмин)</option>';
-    list.innerHTML = '';
-
-    snap.forEach(doc => {
-      const u = doc.data();
-      if (u.username === state.user.username) return;
-
-      const opt = document.createElement('option');
-      opt.value     = u.username;
-      opt.innerText = `${u.username} (${(u.balance || 0).toLocaleString('ru')} $TAP)`;
+    const sel = document.getElementById("admin-sel");
+    const list = document.getElementById("admin-users");
+    sel.innerHTML="<option value='SELF'>SELF (SuperAdmin)</option>";
+    list.innerHTML="";
+    snap.forEach(d => {
+      const u=d.data();
+      if (u.username===S.user.username) return;
+      const opt=document.createElement("option");
+      opt.value=u.username; opt.textContent=`${u.username} (${(u.balance||0).toLocaleString()} $TAP)`;
       sel.appendChild(opt);
-
-      const row = document.createElement('div');
-      row.className = 'admin-user-row';
-      row.innerHTML =
-        `<span>${u.username} <span style="color:var(--gray)">${(u.balance || 0).toLocaleString('ru')} $TAP</span></span>` +
-        `<button class="btn btn-danger btn-sm" onclick="adminDelUser('${u.username}')">СТЕРЕТЬ</button>`;
+      const row=document.createElement("div");
+      row.className="admin-urow";
+      row.innerHTML=`<span>${u.username} <span style="color:var(--gray)">${(u.balance||0).toLocaleString()} $TAP</span></span><button class="btn btn-d btn-sm" onclick="adminDel('${u.username}')">DELETE</button>`;
       list.appendChild(row);
     });
   });
 }
-
-async function adminAddPoints() {
-  const target = document.getElementById('admin-sel-user').value;
-  const amount = parseInt(document.getElementById('admin-points-inp').value);
-  if (isNaN(amount) || amount <= 0) { showToast("Введите корректную сумму", true); return; }
-
-  if (target === "SELF") {
-    state.user.balance += amount;
-    await db.collection("users").doc(state.user.username).update({ balance: state.user.balance });
+async function adminAddPts() {
+  const target=document.getElementById("admin-sel").value;
+  const amount=parseInt(document.getElementById("admin-pts").value);
+  if (isNaN(amount)||amount<=0) { showToast("Enter valid amount",true); return; }
+  if (target==="SELF") {
+    S.user.balance+=amount;
+    await db.collection("users").doc(S.user.username).update({balance:S.user.balance});
     updateBalance();
   } else {
-    const ref = db.collection("users").doc(target);
-    const doc = await ref.get();
-    if (doc.exists) {
-      await ref.update({ balance: (doc.data().balance || 0) + amount });
-      showToast(`+${amount.toLocaleString('ru')} $TAP → ${target}`);
-    }
+    const d=await db.collection("users").doc(target).get();
+    if(d.exists) { await db.collection("users").doc(target).update({balance:(d.data().balance||0)+amount}); showToast("+"+amount+" $TAP → "+target); }
   }
-  document.getElementById('admin-points-inp').value = '';
+  document.getElementById("admin-pts").value="";
+}
+function adminDel(u) {
+  if (!confirm("Delete "+u+"?")) return;
+  db.collection("users").doc(u).delete();
+  showToast("User "+u+" deleted");
+}
+async function adminApply() {
+  const title=document.getElementById("admin-title-i").value;
+  const announcement=document.getElementById("admin-announce").value.trim();
+  await db.collection("app_config").doc("main").set({title,announcement},{ merge:true });
+  showToast("Config updated for all users!");
 }
 
-function adminDelUser(username) {
-  if (!confirm(`Удалить аккаунт ${username}?`)) return;
-  db.collection("users").doc(username).delete();
-  showToast(`Аккаунт ${username} удалён`);
+/* ===========================================================
+   GRAMBOT — AI assistant using Claude API
+   =========================================================== */
+let botOpen = false;
+let botHistory = [];
+const BOT_SYSTEM = `You are Grambot — the official AI assistant of the TAPGRAM network, a Telegram-based tap-to-earn crypto game app.
+
+ABOUT TAPGRAM:
+- Users tap the Reactor button to mine $TAPGRAM tokens (10 per tap, ×multiplier)
+- Energy starts at 1000 (max), depletes 5 per tap, regenerates 3/sec
+- Daily streak multiplier: 7 days=×2, 14 days=×3, 30 days=×4
+- Tasks/Missions earn bonus $TAP: daily login, 100 taps/day, send chat message, visit Blum, join channel, invite friends, buy crown, connect wallet, 7-day streak
+- Global Chat: users broadcast messages to all
+- Private Messages (DM): click any username to open private conversation
+- Channels: anyone can create a channel, post to it. Subscribers can read posts.
+- Market/Trade Hall: buy Crown (👑50K $TAP), Supercharge (+500 energy, 10K), Boost x2 (25K, 1hr), rare usernames
+- TON Wallet: connect via TON Connect to link blockchain wallet, earn tasks
+- Transfer: send $TAPGRAM to any user directly in the app
+- Referral System: share your username as referral code — you get 500 $TAP per friend who joins
+- Blum Integration: users can buy $PULSE token on Blum app (link available in Market), which earns a 1000 $TAP bonus in TAPGRAM
+- Language: app supports 30+ languages, set in Settings
+- Profile: change avatar (from emoji grid), edit bio, view stats
+- Planned future updates: NFT avatars, DAO governance, weekly leaderboard, team battles, airdrop for top miners
+- The app will launch on Telegram as a Mini App
+
+Respond in the same language the user writes in. Be friendly, concise, informative. Focus only on TAPGRAM app features. Use emojis. Max 3 sentences per reply unless asked for details.`;
+
+function toggleBot() {
+  botOpen = !botOpen;
+  document.getElementById("grambot-panel").style.display = botOpen ? "flex" : "none";
+  if (botOpen) document.getElementById("bot-inp").focus();
 }
 
-async function adminApplyConfig() {
-  const title    = document.getElementById('admin-title-inp').value;
-  const navOrder = document.getElementById('admin-nav-sel').value;
-  await db.collection("app_config").doc("main").set({ title, navOrder }, { merge: true });
-  showToast("Конфигурация обновлена для всех пользователей!");
+function addBotMsg(text, role) {
+  const msgs = document.getElementById("bot-msgs");
+  const el = document.createElement("div");
+  el.className = "bot-msg "+role;
+  el.textContent = text;
+  msgs.appendChild(el);
+  msgs.scrollTop = msgs.scrollHeight;
+  if (role==="bot") showBotSuggestions();
 }
 
-/* ============================================================
-   УТИЛИТЫ
-   ============================================================ */
-function escHtml(str) {
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
+function showBotTyping() {
+  const msgs = document.getElementById("bot-msgs");
+  const el = document.createElement("div");
+  el.className = "bot-typing";
+  el.id = "bot-typing";
+  el.innerHTML = "<span></span><span></span><span></span>";
+  msgs.appendChild(el);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+function hideBotTyping() {
+  const t = document.getElementById("bot-typing");
+  if (t) t.remove();
 }
 
-function showToast(msg, isError = false) {
-  const container = document.getElementById('toast-container');
-  const t = document.createElement('div');
-  t.className = 'toast' + (isError ? ' error' : '');
-  t.innerText = msg;
-  container.appendChild(t);
+const BOT_SUGGESTIONS = {
+  en:["How to earn more?","What is Blum?","How does streak work?","Future updates?","Transfer tokens?"],
+  ru:["Как зарабатывать больше?","Что такое Blum?","Как работает серия?","Будущие обновления?","Перевести монеты?"],
+  uk:["Як заробляти більше?","Що таке Blum?","Як працює серія?","Майбутні оновлення?","Переказати монети?"]
+};
+
+function showBotSuggestions() {
+  const wrap = document.getElementById("bot-suggest");
+  wrap.innerHTML = "";
+  const sugs = (BOT_SUGGESTIONS[currentLang] || BOT_SUGGESTIONS.en);
+  sugs.slice(0,3).forEach(s => {
+    const btn = document.createElement("button");
+    btn.className = "bot-sug-btn";
+    btn.textContent = s;
+    btn.onclick = () => {
+      document.getElementById("bot-inp").value = s;
+      sendBotMsg();
+    };
+    wrap.appendChild(btn);
+  });
+}
+
+async function sendBotMsg() {
+  const inp = document.getElementById("bot-inp");
+  const txt = inp.value.trim();
+  if (!txt) return;
+  inp.value = "";
+  addBotMsg(txt, "user");
+  botHistory.push({role:"user", content:txt});
+  showBotTyping();
+
+  try {
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method:"POST",
+      headers:{"Content-Type":"application/json","x-api-key":CLAUDE_API_KEY,"anthropic-version":"2023-06-01"},
+      body:JSON.stringify({
+        model:"claude-sonnet-4-6",
+        max_tokens:400,
+        system:BOT_SYSTEM,
+        messages:botHistory.slice(-10)
+      })
+    });
+    const data = await res.json();
+    hideBotTyping();
+    if (data.content && data.content[0]) {
+      const reply = data.content[0].text;
+      botHistory.push({role:"assistant", content:reply});
+      addBotMsg(reply, "bot");
+    } else {
+      addBotMsg("Hmm, I can't respond right now. Try again!", "bot");
+    }
+  } catch(e) {
+    hideBotTyping();
+    addBotMsg("Connection error. Please try again.", "bot");
+  }
+}
+
+/* ===========================================================
+   UTILITIES
+   =========================================================== */
+function esc(s) {
+  return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+function showToast(msg, isErr=false) {
+  const c = document.getElementById("toast-c");
+  const t = document.createElement("div");
+  t.className = "toast"+(isErr?" err":"");
+  t.textContent = msg;
+  c.appendChild(t);
   setTimeout(() => t.remove(), 3200);
 }
 
-/* ============================================================
-   ЗАПУСК
-   ============================================================ */
-window.addEventListener('load', bootSequence);
+/* ===========================================================
+   START
+   =========================================================== */
+window.addEventListener("load", bootSequence);
 </script>
-
 </body>
 </html>
