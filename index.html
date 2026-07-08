@@ -561,12 +561,12 @@
     const BOT_USERNAME = "masontokenbot/app"; 
 
     window.copyRefLink = function() {
-        navigator.clipboard.writeText(`https://t.me/${masontokenbot}/app?startapp=${tgUserId}`);
+        navigator.clipboard.writeText(`https://t.me/${BOT_USERNAME}/app?startapp=${tgUserId}`);
         showToast("copied");
     };
     
     window.shareToTelegram = function() {
-        const refLink = `https://t.me/${masontokenbot}/app?startapp=${tgUserId}`;
+        const refLink = `https://t.me/${BOT_USERNAME}/app?startapp=${tgUserId}`;
         window.open(`https://t.me/share/url?url=${refLink}&text=Sign up for the $MASON game pre-registration!`, '_blank');
     };
 
