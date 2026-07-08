@@ -8,7 +8,7 @@
     <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
     
     <style>
-        :root { --neon: #39ff14; --neon-glow: 0 0 15px rgba(57, 255, 20, 0.5); --bg-dark: #050505; --glass: rgba(10, 10, 10, 0.75); }
+        :root { --neon: #39ff14; --neon-glow: 0 0 15px rgba(57, 255, 20, 0.5); --bg-dark: #050505; --glass: rgba(10, 10, 10, 0.85); }
         body, html { margin: 0; padding: 0; background-color: var(--bg-dark); color: #fff; font-family: 'Courier New', Courier, monospace; overflow-x: hidden; text-align: center; min-height: 100vh; }
         
         #preloader { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: var(--bg-dark); z-index: 999999; display: flex; justify-content: center; align-items: center; transition: opacity 0.6s ease, visibility 0.6s ease; }
@@ -17,36 +17,36 @@
         #toast { visibility: hidden; min-width: 250px; background-color: var(--glass); border: 1px solid var(--neon); color: var(--neon); text-align: center; border-radius: 10px; padding: 12px; position: fixed; z-index: 100000; left: 50%; bottom: 30px; transform: translateX(-50%); font-size: 14px; font-weight: bold; box-shadow: var(--neon-glow); opacity: 0; transition: opacity 0.4s, bottom 0.4s, visibility 0.4s; }
         #toast.show { visibility: visible; opacity: 1; bottom: 50px; }
 
-        /* ОБЪЕМНЫЙ ПАРАЛЛАКС */
+        /* ОБЪЕМНЫЙ ПАРАЛЛАКС С ПРИВЯЗКОЙ К ЦЕНТРУ */
         .parallax-bg { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1; pointer-events: none; overflow: hidden; }
-        .parallax-fg { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 2000; pointer-events: none; overflow: hidden; }
+        .parallax-fg { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9999; pointer-events: none; overflow: hidden; }
         
         .token-layer { position: absolute; will-change: transform; pointer-events: none; }
         
         /* Задний план (размытый фон) */
-        .t-bg-1 { top: 10%; left: -8%; filter: blur(12px); opacity: 0.18; animation: floatSlow 15s infinite ease-in-out alternate; }
-        .t-bg-1 img { width: 280px; }
-        .t-bg-2 { bottom: 5%; right: -10%; filter: blur(15px); opacity: 0.15; animation: floatMedium 12s infinite ease-in-out alternate-reverse; }
-        .t-bg-2 img { width: 320px; }
+        .t-bg-1 { top: 10%; left: calc(50% - 450px); filter: blur(10px); opacity: 0.15; animation: floatSlow 15s infinite ease-in-out alternate; }
+        .t-bg-1 img { width: 250px; }
+        .t-bg-2 { bottom: 5%; left: calc(50% + 200px); filter: blur(12px); opacity: 0.15; animation: floatMedium 12s infinite ease-in-out alternate-reverse; }
+        .t-bg-2 img { width: 280px; }
 
-        /* Передний план (пролетают ПЕРЕД глазами над ячейками) */
-        .t-fg-1 { top: 30%; right: 3%; filter: blur(1px); opacity: 0.65; animation: floatMedium 9s infinite ease-in-out alternate; }
-        .t-fg-1 img { width: 110px; }
-        .t-fg-2 { bottom: 20%; left: 4%; filter: blur(2px); opacity: 0.55; animation: floatFast 7s infinite ease-in-out alternate-reverse; }
-        .t-fg-2 img { width: 95px; }
-        .t-fg-3 { top: -5%; left: 20%; filter: blur(3px); opacity: 0.4; animation: floatSlow 13s infinite ease-in-out alternate; }
-        .t-fg-3 img { width: 130px; }
+        /* Передний план —ПРОЛЕТАЮТ ПРЯМО ПОВЕРХ ВСЕХ ОКОН КАРТОЧКИ— */
+        .t-fg-1 { top: 25%; left: calc(50% + 110px); filter: drop-shadow(0 0 15px rgba(57,255,20,0.6)); opacity: 0.85; animation: floatMedium 8s infinite ease-in-out alternate; }
+        .t-fg-1 img { width: 130px; }
+        .t-fg-2 { bottom: 30%; left: calc(50% - 240px); filter: drop-shadow(0 0 10px rgba(57,255,20,0.4)); opacity: 0.75; animation: floatFast 6s infinite ease-in-out alternate-reverse; }
+        .t-fg-2 img { width: 105px; }
+        .t-fg-3 { top: 5%; left: calc(50% - 120px); filter: blur(2px); opacity: 0.35; animation: floatSlow 11s infinite ease-in-out alternate; }
+        .t-fg-3 img { width: 90px; }
 
-        @keyframes floatSlow { 0% { transform: translate(0px, 0px) rotate(0deg); } 100% { transform: translate(40px, 40px) rotate(15deg); } }
-        @keyframes floatMedium { 0% { transform: translate(0px, 0px) rotate(0deg); } 100% { transform: translate(-30px, 50px) rotate(-20deg); } }
-        @keyframes floatFast { 0% { transform: translate(0px, 0px) rotate(-5deg); } 100% { transform: translate(35px, -35px) rotate(25deg); } }
+        @keyframes floatSlow { 0% { transform: translate(0px, 0px) rotate(0deg); } 100% { transform: translate(30px, 30px) rotate(15deg); } }
+        @keyframes floatMedium { 0% { transform: translate(0px, 0px) rotate(0deg); } 100% { transform: translate(-25px, 40px) rotate(-20deg); } }
+        @keyframes floatFast { 0% { transform: translate(0px, 0px) rotate(-5deg); } 100% { transform: translate(30px, -30px) rotate(25deg); } }
 
         /* КОНТЕНТ */
-        .container { max-width: 600px; margin: 20px auto; padding: 20px; background: var(--glass); backdrop-filter: blur(15px); border: 1px solid rgba(57, 255, 20, 0.2); border-radius: 15px; box-shadow: 0 0 40px rgba(0, 0, 0, 0.9); position: relative; z-index: 10; }
+        .container { max-width: 600px; margin: 20px auto; padding: 20px; background: var(--glass); backdrop-filter: blur(20px); border: 1px solid rgba(57, 255, 20, 0.25); border-radius: 15px; box-shadow: 0 0 50px rgba(0, 0, 0, 0.95); position: relative; z-index: 10; }
         
-        .lang-switcher { display: flex; justify-content: center; align-items: center; gap: 10px; background: rgba(0, 0, 0, 0.5); padding: 8px 15px; border-radius: 20px; border: 1px solid var(--neon); width: fit-content; margin: 0 auto 20px auto; }
+        .lang-switcher { display: flex; justify-content: center; align-items: center; gap: 10px; background: rgba(0, 0, 0, 0.6); padding: 8px 15px; border-radius: 20px; border: 1px solid var(--neon); width: fit-content; margin: 0 auto 20px auto; }
         .lang-switcher select { background: transparent; color: var(--neon); border: none; font-family: inherit; font-weight: bold; outline: none; cursor: pointer; }
-        .lang-switcher select option { background: var(--bg-dark); }
+        .lang-switcher select option { background: var(--bg-dark); color: #fff; }
 
         .hero-img { width: 100%; border-radius: 10px; border: 1px solid rgba(57, 255, 20, 0.3); box-shadow: var(--neon-glow); margin-bottom: 20px; }
         h1 { color: var(--neon); text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 10px var(--neon); font-size: 22px; margin-top: 0; }
@@ -62,7 +62,7 @@
         body[dir="rtl"] .profile-header { flex-direction: row-reverse; }
         .user-info { display: flex; align-items: center; gap: 10px; }
         body[dir="rtl"] .user-info { flex-direction: row-reverse; }
-        .user-avatar { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--neon); object-fit: cover; }
+        .user-avatar { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--neon); object-fit: cover; background: #111; }
         .tg-name { font-size: 16px; font-weight: bold; color: #fff; }
         .tg-id { font-size: 10px; color: #888; display: block; }
         .mason-balance { font-size: 14px; color: var(--neon); font-weight: bold; text-shadow: 0 0 5px var(--neon); text-align: right; }
@@ -93,9 +93,9 @@
         .lb-rank { width: 30px; color: #888; font-weight: bold; }
         .lb-user { flex-grow: 1; display: flex; align-items: center; gap: 8px; overflow: hidden; }
         body[dir="rtl"] .lb-user { flex-direction: row-reverse; }
-        .lb-avatar { width: 24px; height: 24px; border-radius: 50%; border: 1px solid #444; }
+        .lb-avatar { width: 24px; height: 24px; border-radius: 50%; border: 1px solid #444; background: #222; }
         .lb-name { color: #ddd; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .lb-moves { width: 75px; color: var(--neon); font-weight: bold; text-align: right; }
+        .lb-moves { width: 85px; color: var(--neon); font-weight: bold; text-align: right; }
         body[dir="rtl"] .lb-moves { text-align: left; }
         .lb-prize { width: 65px; color: #ffd700; font-weight: bold; text-align: right; }
         body[dir="rtl"] .lb-prize { text-align: left; }
@@ -113,17 +113,17 @@
 
 <div id="toast">Уведомление</div>
 
-<!-- ЗАДНИЙ ПЛАН (ГЛУБОКИЙ ФОН) -->
+<!-- ЗАДНИЙ ПЛАН -->
 <div class="parallax-bg">
     <div class="token-layer t-bg-1" data-speed="0.1"><img src="https://i.postimg.cc/yY0wJM0S/photo-2026-07-08-11-05-40-removebg-preview.png" alt=""></div>
     <div class="token-layer t-bg-2" data-speed="-0.15"><img src="https://i.postimg.cc/yY0wJM0S/photo-2026-07-08-11-05-40-removebg-preview.png" alt=""></div>
 </div>
 
-<!-- ПЕРЕДНИЙ ПЛАН (ПРОЛЕТАЮТ ПЕРЕД ГЛАЗАМИ НАД ЯЧЕЙКАМИ) -->
+<!-- ПЕРЕДНИЙ ПЛАН (ПРОЛЕТАЮТ НАД ВСЕМИ ОКНАМИ) -->
 <div class="parallax-fg">
-    <div class="token-layer t-fg-1" data-speed="0.35"><img src="https://i.postimg.cc/yY0wJM0S/photo-2026-07-08-11-05-40-removebg-preview.png" alt=""></div>
-    <div class="token-layer t-fg-2" data-speed="-0.4"><img src="https://i.postimg.cc/yY0wJM0S/photo-2026-07-08-11-05-40-removebg-preview.png" alt=""></div>
-    <div class="token-layer t-fg-3" data-speed="0.2"><img src="https://i.postimg.cc/yY0wJM0S/photo-2026-07-08-11-05-40-removebg-preview.png" alt=""></div>
+    <div class="token-layer t-fg-1" data-speed="0.4"><img src="https://i.postimg.cc/yY0wJM0S/photo-2026-07-08-11-05-40-removebg-preview.png" alt=""></div>
+    <div class="token-layer t-fg-2" data-speed="-0.45"><img src="https://i.postimg.cc/yY0wJM0S/photo-2026-07-08-11-05-40-removebg-preview.png" alt=""></div>
+    <div class="token-layer t-fg-3" data-speed="0.25"><img src="https://i.postimg.cc/yY0wJM0S/photo-2026-07-08-11-05-40-removebg-preview.png" alt=""></div>
 </div>
 
 <div class="container">
@@ -156,9 +156,9 @@
     <div class="profile-box" id="profileBox">
         <div class="profile-header">
             <div class="user-info">
-                <img id="userAvatar" src="https://i.postimg.cc/DwbQ1YgK/default-avatar.png" class="user-avatar" alt="Avatar">
+                <img id="userAvatar" src="https://i.postimg.cc/yY0wJM0S/photo-2026-07-08-11-05-40-removebg-preview.png" class="user-avatar" alt="Avatar">
                 <div>
-                    <div class="tg-name" id="userName">User</div>
+                    <div class="tg-name" id="userName">...</div>
                     <span class="tg-id" id="userIdDisplay">ID: 000000</span>
                 </div>
             </div>
@@ -216,7 +216,7 @@
             "top_title": "ТОП ИЗБРАННЫХ", "loading": "Загрузка данных...",
             "rules_title": "ПРАВИЛА ИГРЫ:", "rule_1": "1. На твоем кошельке должен быть $MASON.", "rule_2": "2. 1 приглашенный холдер = +1 шаг на доске.", "rule_3": "ИСКЛЮЧЕНИЕ: Если продашь токены до старта игры, заявка аннулируется.",
             "moves_word": "ходов", "empty_top": "Пока никого нет. Стань первым!", "status_in_game": "ВЫ В ИГРЕ", "status_check": "ОБРАБОТКА...", "copied": "Ссылка скопирована!", "your_rank": "Ваша позиция:", "your_prize": "Приз:",
-            "wallet_taken": "Этот кошелек уже привязан к другому аккаунту!"
+            "wallet_taken": "Этот кошелек уже привязан к другому аккаунту!", "holder": "Холдер"
         },
         "en": {
             "title": "The Elite Standard", "subtitle": "The great game begins at zero. Holding $MASON is your only pass. 1 friend = +1 move.",
@@ -226,17 +226,17 @@
             "top_title": "TOP CHOSEN", "loading": "Loading data...",
             "rules_title": "GAME RULES:", "rule_1": "1. You must hold $MASON in your wallet.", "rule_2": "2. 1 invited holder = +1 step on the board.", "rule_3": "ELIMINATION: If you sell tokens before the game starts, your entry is void.",
             "moves_word": "moves", "empty_top": "No one here yet. Be the first!", "status_in_game": "YOU ARE IN", "status_check": "PROCESSING...", "copied": "Link copied!", "your_rank": "Your Rank:", "your_prize": "Prize:",
-            "wallet_taken": "This wallet is already linked to another account!"
+            "wallet_taken": "This wallet is already linked to another account!", "holder": "Holder"
         },
         "uk": {
             "title": "Елітний Стандарт", "subtitle": "Велика гра почнеться на нулі. Холд $MASON — твій єдиний пропуск. 1 друг = +1 хід.",
             "days": "Днів", "hours": "Годин", "minutes": "Хвилин", "seconds": "Секунд",
             "req_mason": "Для реєстрації потрібен мінімум 1 $MASON.", "btn_buy": "КУПИТИ $MASON", "btn_reg": "ПЕРЕДРЕЄСТРАЦІЯ",
             "lbl_moves": "Ходів", "lbl_friends": "Друзів", "btn_copy": "🔗 Копіювати", "btn_share": "Покликати в ТГ",
-            "top_title": "ТОП ОБРАНИХ", "loading": "Завантаження даних...",
+            "top_title": "ТОП ОБРАНИХ", "loading": "Завантаження данных...",
             "rules_title": "ПРАВИЛА ГРИ:", "rule_1": "1. На твоєму гаманці має бути $MASON.", "rule_2": "2. 1 запрошений холдер = +1 крок на дошці.", "rule_3": "ВИНЯТОК: Якщо продаси токени до старту гри, заявка анулюється.",
             "moves_word": "ходів", "empty_top": "Поки нікого немає. Стань першим!", "status_in_game": "ВИ В ГРІ", "status_check": "ОБРОБКА...", "copied": "Посилання скопійовано!", "your_rank": "Ваша позиція:", "your_prize": "Приз:",
-            "wallet_taken": "Цей гаманець вже прив'язаний до іншого акаунту!"
+            "wallet_taken": "Цей гаманець вже прив'язаний до іншого акаунту!", "holder": "Холдер"
         },
         "fr": {
             "title": "Le Standard Élite", "subtitle": "Le grand jeu commence à zéro. Détenir $MASON est votre unique pass. 1 ami = +1 coup.",
@@ -246,7 +246,7 @@
             "top_title": "TOP DES ÉLUS", "loading": "Chargement...",
             "rules_title": "RÈGLES DU JEU:", "rule_1": "1. Vous devez détenir du $MASON.", "rule_2": "2. 1 ami titulaire = +1 pas sur le plateau.", "rule_3": "ÉLIMINATION: Si vous vendez vos jetons avant le début, l'inscription est annulée.",
             "moves_word": "coups", "empty_top": "Personne pour l'instant. Soyez le premier !", "status_in_game": "DANS LE JEU", "status_check": "TRAITEMENT...", "copied": "Lien copié !", "your_rank": "Votre rang:", "your_prize": "Prix:",
-            "wallet_taken": "Ce portefeuille est déjà lié à un autre compte !"
+            "wallet_taken": "Ce portefeuille est déjà lié à un autre compte !", "holder": "Détenteur"
         },
         "ar": {
             "title": "المعيار النخبي", "subtitle": "اللعبة الكبرى تبدأ من الصفر. الاحتفاظ بـ $MASON هو بطاقتك الوحيدة. صديق واحد = +1 خطوة.",
@@ -256,7 +256,7 @@
             "top_title": "قائمة المختارين", "loading": "جاري التحميل...",
             "rules_title": "قواعد اللعبة:", "rule_1": "1. يجب أن تحتفظ بـ $MASON في محفظتك.", "rule_2": "2. كل صديق يحمل العملة = +1 خطوة.", "rule_3": "إقصاء: إذا قمت ببيع العملات قبل بدء اللعبة، فسيتم إلغاء تسجيلك.",
             "moves_word": "خطوات", "empty_top": "لا يوجد أحد هنا بعد.", "status_in_game": "أنت في اللعبة", "status_check": "جاري المعالجة...", "copied": "تم نسخ الرابط!", "your_rank": "ترتيبك:", "your_prize": "الجائزة:",
-            "wallet_taken": "هذه المحفظة مرتبطة بالفعل بحساب آخر!"
+            "wallet_taken": "هذه المحفظة مرتبطة بالفعل بحساب آخر!", "holder": "حامل"
         },
         "hi": {
             "title": "एलीट स्टैंडर्ड", "subtitle": "महान खेल शून्य से शुरू होता है। $MASON रखना आपका एकमात्र पास है। 1 मित्र = +1 चाल।",
@@ -266,26 +266,26 @@
             "top_title": "शीर्ष चुने गए", "loading": "लोड हो रहा है...",
             "rules_title": "खेल के नियम:", "rule_1": "1. आपके वॉलेट में $MASON होना चाहिए।", "rule_2": "2. 1 आमंत्रित होल्डर = +1 कदम।", "rule_3": "निष्कासन: यदि आप खेल शुरू होने से पहले टोकन बेचते हैं, तो आपकी प्रविष्टि अमान्य हो जाएगी।",
             "moves_word": "चालें", "empty_top": "अभी तक कोई नहीं है। पहले बनें!", "status_in_game": "आप खेल में हैं", "status_check": "प्रसंस्करण...", "copied": "लिंक कॉपी हो गया!", "your_rank": "आपकी रैंक:", "your_prize": "पुरस्कार:",
-            "wallet_taken": "यह वॉलेट पहले से ही किसी अन्य खाते से लिंक है!"
+            "wallet_taken": "यह वॉलेट पहले से ही किसी अन्य खाते से लिंक है!", "holder": "होल्डर"
         },
         "zh": {
             "title": "精英标准", "subtitle": "伟大的游戏从零开始。持有 $MASON 是你唯一的入场券。1位朋友 = +1步。",
-            "days": "天", hours: "小时", "minutes": "分钟", "seconds": "秒",
+            "days": "天", "hours": "小时", "minutes": "分钟", "seconds": "秒",
             "req_mason": "注册至少需要 1 $MASON。", "btn_buy": "购买 $MASON", "btn_reg": "预注册",
             "lbl_moves": "步数", "lbl_friends": "好友", "btn_copy": "🔗 复制链接", "btn_share": "分享到 TG",
             "top_title": "入选者榜单", "loading": "加载中...",
             "rules_title": "游戏规则:", "rule_1": "1. 您的钱包中必须持有 $MASON。", "rule_2": "2. 1位受邀持有者 = 在棋盘上前进 +1步。", "rule_3": "淘汰：如果您在游戏开始前出售代币，您的参赛资格将被取消。",
             "moves_word": "步", "empty_top": "目前空空如也。成为第一位！", "status_in_game": "已在游戏中", "status_check": "处理中...", "copied": "链接已复制！", "your_rank": "您的排名:", "your_prize": "奖金:",
-            "wallet_taken": "此钱包已绑定到其他账户！"
+            "wallet_taken": "此钱包已绑定到其他账户！", "holder": "持有者"
         }
     };
 
     let currentLang = 'ru';
+    let savedDbName = null; 
     const PRIZES = ["5000$", "2500$", "1500$", "1000$", "900$", "800$", "700$", "600$", "500$", "400$"];
 
     window.changeLanguage = function(lang) {
         currentLang = lang;
-        // Переключаем направление страницы для арабского языка
         document.body.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr');
         
         document.querySelectorAll('[data-i18n]').forEach(el => {
@@ -294,6 +294,13 @@
                 el.innerText = translations[lang][key];
             }
         });
+
+        // Динамический перевод имени в профиле, если оно не уникальное
+        const nameEl = document.getElementById('userName');
+        if (nameEl && (savedDbName === "holder" || savedDbName === "Холдер" || nameEl.innerText === "..." || !savedDbName)) {
+            nameEl.innerText = translations[currentLang]["holder"];
+        }
+        
         loadLeaderboard();
     };
 
@@ -329,8 +336,13 @@
     }
     
     const tgUserId = tg.initDataUnsafe?.user?.id || sessionStorage.getItem('local_tg_id');
-    const tgFirstName = tg.initDataUnsafe?.user?.first_name || "Холдер";
-    const tgAvatar = tg.initDataUnsafe?.user?.photo_url || "https://i.postimg.cc/DwbQ1YgK/default-avatar.png";
+    
+    // Получаем реальный Telegram Username или имя
+    const tgUsername = tg.initDataUnsafe?.user?.username;
+    const tgFirstName = tg.initDataUnsafe?.user?.first_name;
+    const finalTgName = tgUsername ? `@${tgUsername}` : (tgFirstName || "holder");
+
+    const tgAvatar = tg.initDataUnsafe?.user?.photo_url || "https://i.postimg.cc/yY0wJM0S/photo-2026-07-08-11-05-40-removebg-preview.png";
     const inviterId = tg.initDataUnsafe?.start_param || null;
 
     const MASON_CONTRACT = "EQAxZDmj7YuzTfc7Ho5GdsDuL0K-tAWz5_ysdeAJYACeCOMF";
@@ -350,7 +362,13 @@
         if (wallet) {
             currentWalletAddress = wallet.account.address;
             profileBox.style.display = 'block';
-            document.getElementById('userName').innerText = tgFirstName;
+            
+            if (finalTgName === "holder") {
+                document.getElementById('userName').innerText = translations[currentLang]["holder"];
+            } else {
+                document.getElementById('userName').innerText = finalTgName;
+            }
+            
             document.getElementById('userIdDisplay').innerText = `ID: ${tgUserId}`;
             document.getElementById('userAvatar').src = tgAvatar;
             document.getElementById('masonBalance').innerText = "...";
@@ -394,6 +412,13 @@
                 }
 
                 if (uData) {
+                    savedDbName = uData.name;
+                    if (savedDbName === "holder" || savedDbName === "Холдер") {
+                        document.getElementById('userName').innerText = translations[currentLang]["holder"];
+                    } else {
+                        document.getElementById('userName').innerText = savedDbName;
+                    }
+                    
                     document.getElementById('myMoves').innerText = uData.moves || 0;
                     document.getElementById('myFriends').innerText = uData.friends || 0;
                     document.getElementById('userIdDisplay').innerText = `ID: ${activeId}`;
@@ -453,7 +478,7 @@
             await setDoc(userRef, {
                 wallet: currentWalletAddress,
                 tg_id: tgUserId.toString(),
-                name: tgFirstName,
+                name: finalTgName,
                 avatar: tgAvatar,
                 moves: 1, 
                 friends: 0,
@@ -469,6 +494,7 @@
                 }
             }
 
+            savedDbName = finalTgName;
             btn.innerText = translations[currentLang]["status_in_game"];
             document.getElementById('myMoves').innerText = "1";
             document.getElementById('myRankBox').style.display = 'block';
@@ -508,14 +534,20 @@
             querySnapshot.forEach((doc) => {
                 const data = doc.data();
                 const prize = PRIZES[rank - 1] || "0$";
-                const userAv = data.avatar || "https://i.postimg.cc/DwbQ1YgK/default-avatar.png";
+                const userAv = data.avatar || "https://i.postimg.cc/yY0wJM0S/photo-2026-07-08-11-05-40-removebg-preview.png";
+                
+                // Проверяем имя на системную заглушку и переводим динамически
+                let finalName = data.name;
+                if (finalName === "holder" || finalName === "Холдер") {
+                    finalName = translations[currentLang]["holder"];
+                }
                 
                 lbList.innerHTML += `
                     <div class="lb-row">
                         <div class="lb-rank">#${rank}</div>
                         <div class="lb-user">
                             <img src="${userAv}" class="lb-avatar" alt="">
-                            <div class="lb-name">${data.name}</div>
+                            <div class="lb-name">${finalName}</div>
                         </div>
                         <div class="lb-moves">${data.moves} ${movesWord}</div>
                         <div class="lb-prize">${prize}</div>
