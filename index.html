@@ -9,27 +9,23 @@
     
     <style>
         :root { --neon: #39ff14; --neon-glow: 0 0 15px rgba(57, 255, 20, 0.5); --bg-dark: #050505; --glass: rgba(10, 10, 10, 0.85); }
-        body, html { margin: 0; padding: 0; background-color: var(--bg-dark); color: #fff; font-family: 'Courier New', Courier, monospace; overflow-x: hidden; text-align: center; min-height: 100vh; }
+        body, html { margin: 0; padding: 0; background-color: var(--bg-dark); color: #fff; font-family: 'Courier New', Courier, monospace; overflow-x: hidden; text-align: center; min-height: 100vh; padding-bottom: 70px; }
         
         #preloader { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: var(--bg-dark); z-index: 999999; display: flex; justify-content: center; align-items: center; transition: opacity 0.6s ease, visibility 0.6s ease; }
         .glitch-logo { width: 200px; filter: drop-shadow(0 0 10px var(--neon)); }
         
-        #toast { visibility: hidden; min-width: 250px; background-color: var(--glass); border: 1px solid var(--neon); color: var(--neon); text-align: center; border-radius: 10px; padding: 12px; position: fixed; z-index: 100000; left: 50%; bottom: 30px; transform: translateX(-50%); font-size: 14px; font-weight: bold; box-shadow: var(--neon-glow); opacity: 0; transition: opacity 0.4s, bottom 0.4s, visibility 0.4s; }
-        #toast.show { visibility: visible; opacity: 1; bottom: 50px; }
+        #toast { visibility: hidden; min-width: 250px; background-color: var(--glass); border: 1px solid var(--neon); color: var(--neon); text-align: center; border-radius: 10px; padding: 12px; position: fixed; z-index: 100000; left: 50%; bottom: 90px; transform: translateX(-50%); font-size: 14px; font-weight: bold; box-shadow: var(--neon-glow); opacity: 0; transition: opacity 0.4s, bottom 0.4s, visibility 0.4s; }
+        #toast.show { visibility: visible; opacity: 1; bottom: 100px; }
 
         /* ОБЪЕМНЫЙ ПАРАЛЛАКС С ПРИВЯЗКОЙ К ЦЕНТРУ */
         .parallax-bg { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1; pointer-events: none; overflow: hidden; }
         .parallax-fg { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9999; pointer-events: none; overflow: hidden; }
-        
         .token-layer { position: absolute; will-change: transform; pointer-events: none; }
         
-        /* Задний план (размытый фон) */
         .t-bg-1 { top: 10%; left: calc(50% - 450px); filter: blur(10px); opacity: 0.15; animation: floatSlow 15s infinite ease-in-out alternate; }
         .t-bg-1 img { width: 250px; }
         .t-bg-2 { bottom: 5%; left: calc(50% + 200px); filter: blur(12px); opacity: 0.15; animation: floatMedium 12s infinite ease-in-out alternate-reverse; }
         .t-bg-2 img { width: 280px; }
-
-        /* Передний план —ПРОЛЕТАЮТ ПРЯМО ПОВЕРХ ВСЕХ ОКОН КАРТОЧКИ— */
         .t-fg-1 { top: 25%; left: calc(50% + 110px); filter: drop-shadow(0 0 15px rgba(57,255,20,0.6)); opacity: 0.85; animation: floatMedium 8s infinite ease-in-out alternate; }
         .t-fg-1 img { width: 130px; }
         .t-fg-2 { bottom: 30%; left: calc(50% - 240px); filter: drop-shadow(0 0 10px rgba(57,255,20,0.4)); opacity: 0.75; animation: floatFast 6s infinite ease-in-out alternate-reverse; }
@@ -41,9 +37,17 @@
         @keyframes floatMedium { 0% { transform: translate(0px, 0px) rotate(0deg); } 100% { transform: translate(-25px, 40px) rotate(-20deg); } }
         @keyframes floatFast { 0% { transform: translate(0px, 0px) rotate(-5deg); } 100% { transform: translate(30px, -30px) rotate(25deg); } }
 
-        /* КОНТЕНТ */
+        /* НАВИГАЦИЯ */
+        .nav-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--glass); border-top: 1px solid var(--neon); display: flex; justify-content: space-around; padding: 15px 0; z-index: 10000; backdrop-filter: blur(10px); }
+        .nav-btn { background: transparent; border: none; color: #888; font-family: inherit; font-size: 14px; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: color 0.3s, text-shadow 0.3s; }
+        .nav-btn.active { color: var(--neon); text-shadow: var(--neon-glow); }
+
         .container { max-width: 600px; margin: 20px auto; padding: 20px; background: var(--glass); backdrop-filter: blur(20px); border: 1px solid rgba(57, 255, 20, 0.25); border-radius: 15px; box-shadow: 0 0 50px rgba(0, 0, 0, 0.95); position: relative; z-index: 10; }
         
+        .tab-content { display: none; animation: fadeIn 0.4s ease; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
         .lang-switcher { display: flex; justify-content: center; align-items: center; gap: 10px; background: rgba(0, 0, 0, 0.6); padding: 8px 15px; border-radius: 20px; border: 1px solid var(--neon); width: fit-content; margin: 0 auto 20px auto; }
         .lang-switcher select { background: transparent; color: var(--neon); border: none; font-family: inherit; font-weight: bold; outline: none; cursor: pointer; }
         .lang-switcher select option { background: var(--bg-dark); color: #fff; }
@@ -56,26 +60,22 @@
         .time-box span { display: block; font-size: 22px; font-weight: bold; color: var(--neon); }
         .time-box div { font-size: 9px; text-transform: uppercase; color: #888; margin-top: 5px; }
 
-        .profile-box { background: rgba(57, 255, 20, 0.05); border: 1px solid var(--neon); border-radius: 10px; padding: 15px; margin: 20px 0; display: none; text-align: left; position: relative; z-index: 15; }
+        .profile-box { background: rgba(57, 255, 20, 0.05); border: 1px solid var(--neon); border-radius: 10px; padding: 15px; margin: 20px 0; text-align: left; position: relative; z-index: 15; }
         body[dir="rtl"] .profile-box { text-align: right; }
         .profile-header { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 10px; }
         body[dir="rtl"] .profile-header { flex-direction: row-reverse; }
         .user-info { display: flex; align-items: center; gap: 10px; }
         body[dir="rtl"] .user-info { flex-direction: row-reverse; }
-        .user-avatar { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--neon); object-fit: cover; background: #111; }
+        .user-avatar { width: 45px; height: 45px; border-radius: 50%; border: 1px solid var(--neon); object-fit: cover; background: #111; }
         .tg-name { font-size: 16px; font-weight: bold; color: #fff; }
         .tg-id { font-size: 10px; color: #888; display: block; }
-        .mason-balance { font-size: 14px; color: var(--neon); font-weight: bold; text-shadow: 0 0 5px var(--neon); text-align: right; }
-        body[dir="rtl"] .mason-balance { text-align: left; }
         
-        .my-rank-box { background: rgba(0,0,0,0.6); border: 1px dashed var(--neon); padding: 8px; border-radius: 8px; text-align: center; margin-top: 10px; color: #ddd; font-size: 12px; }
-        .my-rank-box span { font-weight: bold; color: #ffd700; }
-
-        .ref-stats { display: flex; justify-content: space-around; background: rgba(0,0,0,0.6); padding: 10px; border-radius: 8px; text-align: center; margin-top: 15px; }
-        body[dir="rtl"] .ref-stats { flex-direction: row-reverse; }
-        .ref-stats span { display: block; }
-        .stat-val { font-size: 20px; font-weight: bold; color: #fff; }
-        .stat-lbl { font-size: 10px; color: var(--neon); text-transform: uppercase; }
+        .mason-balances { text-align: right; }
+        body[dir="rtl"] .mason-balances { text-align: left; }
+        .mason-balance-main { font-size: 15px; color: var(--neon); font-weight: bold; text-shadow: 0 0 5px var(--neon); }
+        .mason-balance-usd { font-size: 12px; color: #fff; background: rgba(0,0,0,0.5); padding: 2px 6px; border-radius: 4px; margin-top: 3px; display: inline-block; border: 1px solid #444; }
+        .mason-balance-bonus { font-size: 12px; color: #ffd700; margin-top: 5px; }
+        .bonus-notice { font-size: 9px; color: #aaa; }
 
         .btn-group { display: flex; flex-direction: column; gap: 12px; margin-top: 15px; }
         .btn { background: rgba(0,0,0,0.5); color: var(--neon); border: 1px solid var(--neon); padding: 15px; font-size: 14px; font-weight: bold; text-transform: uppercase; cursor: pointer; border-radius: 8px; width: 100%; transition: all 0.3s; font-family: inherit; }
@@ -95,11 +95,24 @@
         body[dir="rtl"] .lb-user { flex-direction: row-reverse; }
         .lb-avatar { width: 24px; height: 24px; border-radius: 50%; border: 1px solid #444; background: #222; }
         .lb-name { color: #ddd; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .lb-moves { width: 85px; color: var(--neon); font-weight: bold; text-align: right; }
-        body[dir="rtl"] .lb-moves { text-align: left; }
-        .lb-prize { width: 65px; color: #ffd700; font-weight: bold; text-align: right; }
-        body[dir="rtl"] .lb-prize { text-align: left; }
+        .lb-balance { color: var(--neon); font-weight: bold; text-align: right; }
+        body[dir="rtl"] .lb-balance { text-align: left; }
         
+        .task-item { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.05); border: 1px solid #333; border-radius: 8px; padding: 12px; margin-bottom: 10px; text-align: left; }
+        .task-info h4 { margin: 0 0 5px 0; color: #fff; font-size: 14px; }
+        .task-info p { margin: 0; font-size: 11px; color: var(--neon); }
+        .task-actions { display: flex; flex-direction: column; gap: 5px; width: 95px; }
+        .task-btn { padding: 8px; font-size: 10px; border: 1px solid var(--neon); background: transparent; color: var(--neon); cursor: pointer; border-radius: 4px; font-family: inherit; font-weight: bold; text-align: center; }
+        .task-btn:hover:not(:disabled) { background: var(--neon); color: #000; }
+        .task-btn:disabled { border-color: #444; color: #666; cursor: not-allowed; }
+
+        .feed-input-box { background: rgba(0,0,0,0.6); padding: 15px; border-radius: 8px; border: 1px dashed var(--neon); margin-bottom: 20px; }
+        .feed-input { width: 90%; background: transparent; border: 1px solid #555; color: #fff; padding: 10px; margin-bottom: 10px; border-radius: 4px; font-family: inherit; outline: none; }
+        .feed-input:focus { border-color: var(--neon); }
+        .feed-message { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px; border-left: 3px solid var(--neon); margin-bottom: 10px; text-align: left; word-break: break-all; }
+        .feed-author { font-size: 11px; color: #888; margin-bottom: 5px; font-weight: bold; }
+        .feed-text { font-size: 14px; color: #ddd; }
+
         .rules { text-align: left; margin-top: 25px; font-size: 12px; line-height: 1.5; color: #bbb; border-left: 2px solid var(--neon); padding-left: 10px; }
         body[dir="rtl"] .rules { text-align: right; border-left: none; border-right: 2px solid var(--neon); padding-left: 0; padding-right: 10px; }
         #ton-connect { display: flex; justify-content: center; margin-top: 20px; position: relative; z-index: 15; }
@@ -113,13 +126,10 @@
 
 <div id="toast">Уведомление</div>
 
-<!-- ЗАДНИЙ ПЛАН -->
 <div class="parallax-bg">
     <div class="token-layer t-bg-1" data-speed="0.1"><img src="https://i.postimg.cc/yY0wJM0S/photo-2026-07-08-11-05-40-removebg-preview.png" alt=""></div>
     <div class="token-layer t-bg-2" data-speed="-0.15"><img src="https://i.postimg.cc/yY0wJM0S/photo-2026-07-08-11-05-40-removebg-preview.png" alt=""></div>
 </div>
-
-<!-- ПЕРЕДНИЙ ПЛАН (ПРОЛЕТАЮТ НАД ВСЕМИ ОКНАМИ) -->
 <div class="parallax-fg">
     <div class="token-layer t-fg-1" data-speed="0.4"><img src="https://i.postimg.cc/yY0wJM0S/photo-2026-07-08-11-05-40-removebg-preview.png" alt=""></div>
     <div class="token-layer t-fg-2" data-speed="-0.45"><img src="https://i.postimg.cc/yY0wJM0S/photo-2026-07-08-11-05-40-removebg-preview.png" alt=""></div>
@@ -140,219 +150,248 @@
         </select>
     </div>
 
-    <img src="https://i.postimg.cc/FzkzNWSv/1000011348.gif" alt="MASON" class="hero-img">
-    <h1 data-i18n="title">Элитный Стандарт</h1>
-    <p style="font-size: 12px; color: #aaa; padding: 0 10px;" data-i18n="subtitle">Великая игра начнется на нулю. Холд $MASON — твой единственный пропуск. 1 друг = +1 ход.</p>
+    <!-- ТАБ: ГЛАВНАЯ -->
+    <div id="tab-home" class="tab-content active">
+        <img src="https://i.postimg.cc/FzkzNWSv/1000011348.gif" alt="MASON" class="hero-img">
+        <h1 data-i18n="title">Элитный Стандарт</h1>
+        
+        <div id="countdown">
+            <div class="time-box"><span id="days">00</span><div data-i18n="days">Дней</div></div>
+            <div class="time-box"><span id="hours">00</span><div data-i18n="hours">Часов</div></div>
+            <div class="time-box"><span id="minutes">00</span><div data-i18n="minutes">Минут</div></div>
+            <div class="time-box"><span id="seconds">00</span><div data-i18n="seconds">Секунд</div></div>
+        </div>
 
-    <div id="countdown">
-        <div class="time-box"><span id="days">00</span><div data-i18n="days">Дней</div></div>
-        <div class="time-box"><span id="hours">00</span><div data-i18n="hours">Часов</div></div>
-        <div class="time-box"><span id="minutes">00</span><div data-i18n="minutes">Минут</div></div>
-        <div class="time-box"><span id="seconds">00</span><div data-i18n="seconds">Секунд</div></div>
-    </div>
+        <div id="ton-connect"></div>
 
-    <div id="ton-connect"></div>
-
-    <div class="profile-box" id="profileBox">
-        <div class="profile-header">
-            <div class="user-info">
-                <img id="userAvatar" src="https://i.postimg.cc/yY0wJM0S/photo-2026-07-08-11-05-40-removebg-preview.png" class="user-avatar" alt="Avatar">
-                <div>
-                    <div class="tg-name" id="userName">...</div>
-                    <span class="tg-id" id="userIdDisplay">ID: 000000</span>
+        <div class="profile-box" id="profileBox" style="display: none;">
+            <div class="profile-header">
+                <div class="user-info">
+                    <img id="userAvatar" src="" class="user-avatar" alt="Avatar">
+                    <div>
+                        <div class="tg-name" id="userName">...</div>
+                        <span class="tg-id" id="userIdDisplay">ID: 000000</span>
+                    </div>
+                </div>
+                <div class="mason-balances">
+                    <div class="mason-balance-main" id="masonBalance">0 $MASON</div>
+                    <div class="mason-balance-usd" id="usdBalance">≈ $0.00 USD</div>
+                    <div class="mason-balance-bonus" id="bonusBalance" data-i18n="bonus_lbl">Бонус: 0 $MASON</div>
+                    <div class="bonus-notice" data-i18n="bonus_note">(Доступно после таймера)</div>
                 </div>
             </div>
-            <div class="mason-balance" id="masonBalance">0 $MASON</div>
-        </div>
-        
-        <div class="my-rank-box" id="myRankBox" style="display: none;">
-            <span data-i18n="your_rank">Ваша позиция:</span> <span id="myRankValue">...</span> | 
-            <span data-i18n="your_prize">Приз:</span> <span id="myPrizeValue">0$</span>
-        </div>
-        
-        <div style="font-size: 11px; color: #888; margin-top: 10px; margin-bottom: 10px;" data-i18n="req_mason">Для регистрации нужен минимум 1 $MASON.</div>
-        
-        <div class="btn-group">
-            <button class="btn btn-buy" id="btnBuy" onclick="window.open('https://t.me/blum/app?startapp=memepadjetton_MASON_ViVlg-ref_UJGIADDsuv', '_blank')" data-i18n="btn_buy">КУПИТЬ $MASON</button>
-            <button class="btn" id="btnRegister" disabled data-i18n="btn_reg">ПРЕДРЕГИСТРАЦИЯ</button>
+            
+            <div class="btn-group">
+                <button class="btn btn-buy" id="btnBuy" onclick="window.open('https://t.me/blum/app?startapp=memepadjetton_MASON_ViVlg-ref_UJGIADDsuv', '_blank')" data-i18n="btn_buy">КУПИТЬ $MASON</button>
+                <button class="btn" id="btnRegister" disabled data-i18n="btn_reg">ПРЕДРЕГИСТРАЦИЯ</button>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 15px;">
+                <button class="btn" style="padding: 10px; font-size: 12px; flex: 1;" onclick="copyRefLink()" data-i18n="btn_copy">🔗 Копировать</button>
+                <button class="btn" style="padding: 10px; font-size: 12px; background: rgba(57,255,20,0.1); flex: 1;" onclick="shareToTelegram()" data-i18n="btn_share">Позвать в ТГ</button>
+            </div>
         </div>
 
-        <div class="ref-stats">
-            <div><span class="stat-val" id="myMoves">0</span><span class="stat-lbl" data-i18n="lbl_moves">Ходов</span></div>
-            <div><span class="stat-val" id="myFriends">0</span><span class="stat-lbl" data-i18n="lbl_friends">Друзей</span></div>
+        <div class="leaderboard">
+            <h2 data-i18n="top_title">ТОП ДЕРЖАТЕЛЕЙ</h2>
+            <div id="leaderboardList">
+                <div class="lb-row" style="color: #888; justify-content: center;" data-i18n="loading">Загрузка данных...</div>
+            </div>
         </div>
         
-        <div style="display: flex; gap: 10px; margin-top: 15px;">
-            <button class="btn" style="padding: 10px; font-size: 12px; flex: 1;" onclick="copyRefLink()" data-i18n="btn_copy">🔗 Копировать</button>
-            <button class="btn" style="padding: 10px; font-size: 12px; background: rgba(57,255,20,0.1); flex: 1;" onclick="shareToTelegram()" data-i18n="btn_share">Позвать в ТГ</button>
+        <div class="rules">
+            <strong style="color: var(--neon);" data-i18n="rules_title">ПРАВИЛА ИГРЫ:</strong><br>
+            <span data-i18n="rule_1">1. Итоги и распределение наград после окончания таймера.</span><br>
+            <span data-i18n="rule_2">2. Чем больше рефералов-холдеров и $MASON на счету, тем ближе к главной награде.</span><br>
+            <span data-i18n="rule_3">3. Пригласил друга (холдера) = +5000 $MASON.</span><br>
+            <strong style="color: #ff3333;" data-i18n="rule_4">Доп. Эирдроп: Все проигранные $MASON составят общий пул для раздачи!</strong>
         </div>
     </div>
 
-    <div class="leaderboard">
-        <h2 data-i18n="top_title">ТОП ИЗБРАННЫХ</h2>
-        <div id="leaderboardList">
-            <div class="lb-row" style="color: #888; justify-content: center;" data-i18n="loading">Загрузка данных...</div>
+    <!-- ТАБ: ЗАДАНИЯ -->
+    <div id="tab-tasks" class="tab-content">
+        <h2 style="color: var(--neon); text-transform: uppercase;" data-i18n="tab_tasks">Задания</h2>
+        <p style="font-size: 12px; color: #aaa;" data-i18n="tasks_desc">Выполняй задания и получай $MASON на бонусный счет.</p>
+        <div id="tasks-container"></div>
+    </div>
+
+    <!-- ТАБ: СТЕНА -->
+    <div id="tab-feed" class="tab-content">
+        <h2 style="color: var(--neon); text-transform: uppercase;" data-i18n="tab_wall">Элитная Стена</h2>
+        <p style="font-size: 12px; color: #aaa;" data-i18n="wall_desc">Опубликуй свое послание в топ списка навсегда. Цена: 25 TON.</p>
+        
+        <div class="feed-input-box">
+            <textarea id="feedInput" class="feed-input" rows="3" placeholder="..." maxlength="100"></textarea>
+            <button class="btn" onclick="payAndPost()" data-i18n="btn_publish">ОПЛАТИТЬ 25 TON</button>
         </div>
+        <div id="feedList"></div>
     </div>
-    
-    <div class="rules">
-        <strong style="color: var(--neon);" data-i18n="rules_title">ПРАВИЛА ИГРЫ:</strong><br>
-        <span data-i18n="rule_1">1. На твоем кошельке должен быть $MASON.</span><br>
-        <span data-i18n="rule_2">2. 1 приглашенный холдер = +1 шаг на доске.</span><br>
-        <strong style="color: #ff3333;" data-i18n="rule_3">ИСКЛЮЧЕНИЕ: Если продашь токены до старта игры, заявка аннулируется.</strong>
-    </div>
+</div>
+
+<div class="nav-bar">
+    <button class="nav-btn active" onclick="switchTab('home')" data-i18n="tab_home">Главная</button>
+    <button class="nav-btn" onclick="switchTab('tasks')" data-i18n="tab_tasks">Задания</button>
+    <button class="nav-btn" onclick="switchTab('feed')" data-i18n="tab_wall">Стена (25 TON)</button>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getFirestore, doc, setDoc, getDoc, updateDoc, increment, collection, query, orderBy, limit, getDocs, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { getFirestore, doc, setDoc, getDoc, updateDoc, increment, collection, query, orderBy, limit, getDocs, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+    // СЛОВАРЬ ПЕРЕВОДОВ (Полностью восстановлен)
     const translations = {
         "ru": {
-            "title": "Элитный Стандарт", "subtitle": "Великая игра начнется на нулю. Холд $MASON — твой единственный пропуск. 1 друг = +1 ход.",
-            "days": "Дней", "hours": "Часов", "minutes": "Минут", "seconds": "Секунд",
-            "req_mason": "Для регистрации нужен минимум 1 $MASON.", "btn_buy": "КУПИТЬ $MASON", "btn_reg": "ПРЕДРЕГИСТРАЦИЯ",
-            "lbl_moves": "Ходов", "lbl_friends": "Друзей", "btn_copy": "🔗 Копировать", "btn_share": "Позвать в ТГ",
-            "top_title": "ТОП ИЗБРАННЫХ", "loading": "Загрузка данных...",
-            "rules_title": "ПРАВИЛА ИГРЫ:", "rule_1": "1. На твоем кошельке должен быть $MASON.", "rule_2": "2. 1 приглашенный холдер = +1 шаг на доске.", "rule_3": "ИСКЛЮЧЕНИЕ: Если продашь токены до старта игры, заявка аннулируется.",
-            "moves_word": "ходов", "empty_top": "Пока никого нет. Стань первым!", "status_in_game": "ВЫ В ИГРЕ", "status_check": "ОБРАБОТКА...", "copied": "Ссылка скопирована!", "your_rank": "Ваша позиция:", "your_prize": "Приз:",
-            "wallet_taken": "Этот кошелек уже привязан к другому аккаунту!", "holder": "Холдер"
+            "title": "Элитный Стандарт", "days": "Дней", "hours": "Часов", "minutes": "Минут", "seconds": "Секунд",
+            "btn_buy": "КУПИТЬ $MASON", "btn_reg": "ПРЕДРЕГИСТРАЦИЯ", "btn_copy": "🔗 Копировать", "btn_share": "Позвать в ТГ",
+            "top_title": "ТОП ДЕРЖАТЕЛЕЙ", "loading": "Загрузка данных...",
+            "rules_title": "ПРАВИЛА ИГРЫ:", "rule_1": "1. Итоги и распределение наград после окончания таймера.", "rule_2": "2. Чем больше рефералов и $MASON, тем ближе к главной награде.", "rule_3": "3. Пригласил друга (холдера) = +5000 $MASON.", "rule_4": "Доп. Эирдроп: Все проигранные $MASON составят общий пул для раздачи!",
+            "status_in_game": "ВЫ В ИГРЕ", "status_check": "ОБРАБОТКА...", "holder": "Холдер", "bonus_lbl": "Бонус:", "bonus_note": "(Доступно после таймера)",
+            "tab_home": "Главная", "tab_tasks": "Задания", "tab_wall": "Стена (25 TON)", "tasks_desc": "Выполняй задания и получай $MASON на бонусный счет.", "wall_desc": "Опубликуй свое послание в топ списка навсегда. Цена: 25 TON.", "btn_publish": "ОПЛАТИТЬ 25 TON И ОПУБЛИКОВАТЬ", "btn_verify": "ПРОВЕРИТЬ", "btn_done": "ВЫПОЛНЕНО", "btn_go": "ПЕРЕЙТИ"
         },
         "en": {
-            "title": "The Elite Standard", "subtitle": "The great game begins at zero. Holding $MASON is your only pass. 1 friend = +1 move.",
-            "days": "Days", "hours": "Hours", "minutes": "Mins", "seconds": "Secs",
-            "req_mason": "Minimum 1 $MASON required to register.", "btn_buy": "BUY $MASON", "btn_reg": "PRE-REGISTER",
-            "lbl_moves": "Moves", "lbl_friends": "Friends", "btn_copy": "🔗 Copy Link", "btn_share": "Share to TG",
-            "top_title": "TOP CHOSEN", "loading": "Loading data...",
-            "rules_title": "GAME RULES:", "rule_1": "1. You must hold $MASON in your wallet.", "rule_2": "2. 1 invited holder = +1 step on the board.", "rule_3": "ELIMINATION: If you sell tokens before the game starts, your entry is void.",
-            "moves_word": "moves", "empty_top": "No one here yet. Be the first!", "status_in_game": "YOU ARE IN", "status_check": "PROCESSING...", "copied": "Link copied!", "your_rank": "Your Rank:", "your_prize": "Prize:",
-            "wallet_taken": "This wallet is already linked to another account!", "holder": "Holder"
+            "title": "The Elite Standard", "days": "Days", "hours": "Hours", "minutes": "Mins", "seconds": "Secs",
+            "btn_buy": "BUY $MASON", "btn_reg": "PRE-REGISTER", "btn_copy": "🔗 Copy Link", "btn_share": "Share to TG",
+            "top_title": "TOP HOLDERS", "loading": "Loading...",
+            "rules_title": "GAME RULES:", "rule_1": "1. Results and rewards after the timer ends.", "rule_2": "2. More referrals and $MASON = closer to main prizes.", "rule_3": "3. Invite a holder friend = +5000 $MASON.", "rule_4": "Airdrop: All lost $MASON will form a global pool for distribution!",
+            "status_in_game": "YOU ARE IN", "status_check": "PROCESSING...", "holder": "Holder", "bonus_lbl": "Bonus:", "bonus_note": "(Available after timer)",
+            "tab_home": "Home", "tab_tasks": "Tasks", "tab_wall": "Wall (25 TON)", "tasks_desc": "Complete tasks to earn $MASON to your bonus balance.", "wall_desc": "Post your message to the top permanently. Price: 25 TON.", "btn_publish": "PAY 25 TON & POST", "btn_verify": "VERIFY", "btn_done": "DONE", "btn_go": "GO"
         },
         "uk": {
-            "title": "Елітний Стандарт", "subtitle": "Велика гра почнеться на нулі. Холд $MASON — твій єдиний пропуск. 1 друг = +1 хід.",
-            "days": "Днів", "hours": "Годин", "minutes": "Хвилин", "seconds": "Секунд",
-            "req_mason": "Для реєстрації потрібен мінімум 1 $MASON.", "btn_buy": "КУПИТИ $MASON", "btn_reg": "ПЕРЕДРЕЄСТРАЦІЯ",
-            "lbl_moves": "Ходів", "lbl_friends": "Друзів", "btn_copy": "🔗 Копіювати", "btn_share": "Покликати в ТГ",
-            "top_title": "ТОП ОБРАНИХ", "loading": "Завантаження данных...",
-            "rules_title": "ПРАВИЛА ГРИ:", "rule_1": "1. На твоєму гаманці має бути $MASON.", "rule_2": "2. 1 запрошений холдер = +1 крок на дошці.", "rule_3": "ВИНЯТОК: Якщо продаси токени до старту гри, заявка анулюється.",
-            "moves_word": "ходів", "empty_top": "Поки нікого немає. Стань першим!", "status_in_game": "ВИ В ГРІ", "status_check": "ОБРОБКА...", "copied": "Посилання скопійовано!", "your_rank": "Ваша позиція:", "your_prize": "Приз:",
-            "wallet_taken": "Цей гаманець вже прив'язаний до іншого акаунту!", "holder": "Холдер"
+            "title": "Елітний Стандарт", "days": "Днів", "hours": "Годин", "minutes": "Хвилин", "seconds": "Секунд",
+            "btn_buy": "КУПИТИ $MASON", "btn_reg": "ПЕРЕДРЕЄСТРАЦІЯ", "btn_copy": "🔗 Копіювати", "btn_share": "Покликати в ТГ",
+            "top_title": "ТОП ХОЛДЕРІВ", "loading": "Завантаження...",
+            "rules_title": "ПРАВИЛА ГРИ:", "rule_1": "1. Підсумки та нагороди після закінчення таймера.", "rule_2": "2. Більше рефералів і $MASON = ближче до головного призу.", "rule_3": "3. Запросив друга (холдера) = +5000 $MASON.", "rule_4": "Доп. Еірдроп: Всі програні $MASON складуть загальний пул!",
+            "status_in_game": "ВИ В ГРІ", "status_check": "ОБРОБКА...", "holder": "Холдер", "bonus_lbl": "Бонус:", "bonus_note": "(Доступно після таймера)",
+            "tab_home": "Головна", "tab_tasks": "Завдання", "tab_wall": "Стіна (25 TON)", "tasks_desc": "Виконуй завдання та отримуй $MASON на бонусний рахунок.", "wall_desc": "Опублікуй своє послання в топ назавжди. Ціна: 25 TON.", "btn_publish": "ОПЛАТИТИ 25 TON", "btn_verify": "ПЕРЕВІРИТИ", "btn_done": "ВИКОНАНО", "btn_go": "ПЕРЕЙТИ"
         },
         "fr": {
-            "title": "Le Standard Élite", "subtitle": "Le grand jeu commence à zéro. Détenir $MASON est votre unique pass. 1 ami = +1 coup.",
-            "days": "Jours", "hours": "Heures", "minutes": "Min", "seconds": "Sec",
-            "req_mason": "Un minimum de 1 $MASON est requis pour s'inscrire.", "btn_buy": "ACHETER $MASON", "btn_reg": "PRÉ-INSCRIPTION",
-            "lbl_moves": "Coups", "lbl_friends": "Amis", "btn_copy": "🔗 Copier", "btn_share": "Partager",
-            "top_title": "TOP DES ÉLUS", "loading": "Chargement...",
-            "rules_title": "RÈGLES DU JEU:", "rule_1": "1. Vous devez détenir du $MASON.", "rule_2": "2. 1 ami titulaire = +1 pas sur le plateau.", "rule_3": "ÉLIMINATION: Si vous vendez vos jetons avant le début, l'inscription est annulée.",
-            "moves_word": "coups", "empty_top": "Personne pour l'instant. Soyez le premier !", "status_in_game": "DANS LE JEU", "status_check": "TRAITEMENT...", "copied": "Lien copié !", "your_rank": "Votre rang:", "your_prize": "Prix:",
-            "wallet_taken": "Ce portefeuille est déjà lié à un autre compte !", "holder": "Détenteur"
+            "title": "Le Standard Élite", "days": "Jours", "hours": "Heures", "minutes": "Min", "seconds": "Sec",
+            "btn_buy": "ACHETER $MASON", "btn_reg": "PRÉ-INSCRIPTION", "btn_copy": "🔗 Copier", "btn_share": "Partager",
+            "top_title": "TOP DÉTENTEURS", "loading": "Chargement...",
+            "rules_title": "RÈGLES DU JEU:", "rule_1": "1. Résultats après la fin du minuteur.", "rule_2": "2. Plus de filleuls et de $MASON = plus proche des prix.", "rule_3": "3. Inviter un ami détenteur = +5000 $MASON.", "rule_4": "Airdrop: Tous les $MASON perdus formeront un pool global!",
+            "status_in_game": "DANS LE JEU", "status_check": "TRAITEMENT...", "holder": "Détenteur", "bonus_lbl": "Bonus:", "bonus_note": "(Dispo après timer)",
+            "tab_home": "Accueil", "tab_tasks": "Tâches", "tab_wall": "Mur (25 TON)", "tasks_desc": "Terminez les tâches pour gagner des bonus.", "wall_desc": "Affichez votre message en haut. Prix: 25 TON.", "btn_publish": "PAYER 25 TON", "btn_verify": "VÉRIFIER", "btn_done": "FAIT", "btn_go": "ALLER"
         },
         "ar": {
-            "title": "المعيار النخبي", "subtitle": "اللعبة الكبرى تبدأ من الصفر. الاحتفاظ بـ $MASON هو بطاقتك الوحيدة. صديق واحد = +1 خطوة.",
-            "days": "أيام", "hours": "ساعات", "minutes": "دقائق", "seconds": "ثواني",
-            "req_mason": "مطلوب حد أدنى 1 $MASON للتسجيل.", "btn_buy": "شراء $MASON", "btn_reg": "التسجيل المسبق",
-            "lbl_moves": "خطوات", "lbl_friends": "أصدقاء", "btn_copy": "🔗 نسخ الرابط", "btn_share": "مشاركة",
-            "top_title": "قائمة المختارين", "loading": "جاري التحميل...",
-            "rules_title": "قواعد اللعبة:", "rule_1": "1. يجب أن تحتفظ بـ $MASON في محفظتك.", "rule_2": "2. كل صديق يحمل العملة = +1 خطوة.", "rule_3": "إقصاء: إذا قمت ببيع العملات قبل بدء اللعبة، فسيتم إلغاء تسجيلك.",
-            "moves_word": "خطوات", "empty_top": "لا يوجد أحد هنا بعد.", "status_in_game": "أنت في اللعبة", "status_check": "جاري المعالجة...", "copied": "تم نسخ الرابط!", "your_rank": "ترتيبك:", "your_prize": "الجائزة:",
-            "wallet_taken": "هذه المحفظة مرتبطة بالفعل بحساب آخر!", "holder": "حامل"
+            "title": "المعيار النخبي", "days": "أيام", "hours": "ساعات", "minutes": "دقائق", "seconds": "ثواني",
+            "btn_buy": "شراء $MASON", "btn_reg": "التسجيل المسبق", "btn_copy": "🔗 نسخ الرابط", "btn_share": "مشاركة",
+            "top_title": "أعلى حاملي العملة", "loading": "جاري التحميل...",
+            "rules_title": "قواعد اللعبة:", "rule_1": "1. النتائج بعد انتهاء الوقت.", "rule_2": "2. المزيد من الإحالات = جوائز أكبر.", "rule_3": "3. دعوة صديق يحمل العملة = +5000 $MASON.", "rule_4": "سيتم توزيع جميع العملات المفقودة!",
+            "status_in_game": "أنت في اللعبة", "status_check": "جاري المعالجة...", "holder": "حامل", "bonus_lbl": "مكافأة:", "bonus_note": "(متاح بعد الوقت)",
+            "tab_home": "الرئيسية", "tab_tasks": "المهام", "tab_wall": "الحائط (25 TON)", "tasks_desc": "أكمل المهام لكسب المكافآت.", "wall_desc": "انشر رسالتك في الأعلى. السعر: 25 TON.", "btn_publish": "دفع ونشر", "btn_verify": "تحقق", "btn_done": "منجز", "btn_go": "اذهب"
         },
         "hi": {
-            "title": "एलीट स्टैंडर्ड", "subtitle": "महान खेल शून्य से शुरू होता है। $MASON रखना आपका एकमात्र पास है। 1 मित्र = +1 चाल।",
-            "days": "दिन", "hours": "घंटे", "minutes": "मिनट", "seconds": "सेकंड",
-            "req_mason": "पंजीकरण के लिए न्यूनतम 1 $MASON आवश्यक है।", "btn_buy": "$MASON खरीदें", "btn_reg": "प्री-रजिस्टर",
-            "lbl_moves": "चालें", "lbl_friends": "मित्र", "btn_copy": "🔗 कॉपी लिंक", "btn_share": "साझा करें",
-            "top_title": "शीर्ष चुने गए", "loading": "लोड हो रहा है...",
-            "rules_title": "खेल के नियम:", "rule_1": "1. आपके वॉलेट में $MASON होना चाहिए।", "rule_2": "2. 1 आमंत्रित होल्डर = +1 कदम।", "rule_3": "निष्कासन: यदि आप खेल शुरू होने से पहले टोकन बेचते हैं, तो आपकी प्रविष्टि अमान्य हो जाएगी।",
-            "moves_word": "चालें", "empty_top": "अभी तक कोई नहीं है। पहले बनें!", "status_in_game": "आप खेल में हैं", "status_check": "प्रसंस्करण...", "copied": "लिंक कॉपी हो गया!", "your_rank": "आपकी रैंक:", "your_prize": "पुरस्कार:",
-            "wallet_taken": "यह वॉलेट पहले से ही किसी अन्य खाते से लिंक है!", "holder": "होल्डर"
+            "title": "एलीट स्टैंडर्ड", "days": "दिन", "hours": "घंटे", "minutes": "मिनट", "seconds": "सेकंड",
+            "btn_buy": "$MASON खरीदें", "btn_reg": "प्री-रजिस्टर", "btn_copy": "🔗 कॉपी लिंक", "btn_share": "साझा करें",
+            "top_title": "शीर्ष होल्डर्स", "loading": "लोड हो रहा है...",
+            "rules_title": "नियम:", "rule_1": "1. टाइमर के बाद परिणाम।", "rule_2": "2. अधिक रेफ़रल = बड़े पुरस्कार।", "rule_3": "3. होल्डर मित्र को आमंत्रित करें = +5000 $MASON।", "rule_4": "हारे हुए सिक्के बांटे जाएंगे!",
+            "status_in_game": "आप खेल में हैं", "status_check": "प्रसंस्करण...", "holder": "होल्डर", "bonus_lbl": "बोनस:", "bonus_note": "(टाइमर के बाद उपलब्ध)",
+            "tab_home": "मुख्य", "tab_tasks": "कार्य", "tab_wall": "दीवार (25 TON)", "tasks_desc": "बोनस कमाने के लिए कार्य पूरे करें।", "wall_desc": "शीर्ष पर पोस्ट करें। मूल्य: 25 TON।", "btn_publish": "भुगतान करें", "btn_verify": "सत्यापित करें", "btn_done": "हो गया", "btn_go": "जाओ"
         },
         "zh": {
-            "title": "精英标准", "subtitle": "伟大的游戏从零开始。持有 $MASON 是你唯一的入场券。1位朋友 = +1步。",
-            "days": "天", "hours": "小时", "minutes": "分钟", "seconds": "秒",
-            "req_mason": "注册至少需要 1 $MASON。", "btn_buy": "购买 $MASON", "btn_reg": "预注册",
-            "lbl_moves": "步数", "lbl_friends": "好友", "btn_copy": "🔗 复制链接", "btn_share": "分享到 TG",
-            "top_title": "入选者榜单", "loading": "加载中...",
-            "rules_title": "游戏规则:", "rule_1": "1. 您的钱包中必须持有 $MASON。", "rule_2": "2. 1位受邀持有者 = 在棋盘上前进 +1步。", "rule_3": "淘汰：如果您在游戏开始前出售代币，您的参赛资格将被取消。",
-            "moves_word": "步", "empty_top": "目前空空如也。成为第一位！", "status_in_game": "已在游戏中", "status_check": "处理中...", "copied": "链接已复制！", "your_rank": "您的排名:", "your_prize": "奖金:",
-            "wallet_taken": "此钱包已绑定到其他账户！", "holder": "持有者"
+            "title": "精英标准", "days": "天", "hours": "小时", "minutes": "分钟", "seconds": "秒",
+            "btn_buy": "购买 $MASON", "btn_reg": "预注册", "btn_copy": "🔗 复制链接", "btn_share": "分享",
+            "top_title": "顶级持有者", "loading": "加载中...",
+            "rules_title": "规则:", "rule_1": "1. 倒计时结束后公布结果。", "rule_2": "2. 推荐越多，奖励越大。", "rule_3": "3. 邀请持有者朋友 = +5000 $MASON。", "rule_4": "空投池准备就绪！",
+            "status_in_game": "已在游戏中", "status_check": "处理中...", "holder": "持有者", "bonus_lbl": "奖金:", "bonus_note": "(倒计时后可用)",
+            "tab_home": "首页", "tab_tasks": "任务", "tab_wall": "留言板 (25 TON)", "tasks_desc": "完成任务赚取奖金。", "wall_desc": "置顶你的留言。价格: 25 TON。", "btn_publish": "支付 25 TON", "btn_verify": "验证", "btn_done": "完成", "btn_go": "前往"
         }
     };
 
     let currentLang = 'ru';
-    let savedDbName = null; 
-    const PRIZES = ["5000$", "2500$", "1500$", "1000$", "900$", "800$", "700$", "600$", "500$", "400$"];
-
     window.changeLanguage = function(lang) {
         currentLang = lang;
         document.body.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr');
-        
         document.querySelectorAll('[data-i18n]').forEach(el => {
             const key = el.getAttribute('data-i18n');
-            if (translations[lang] && translations[lang][key]) {
-                el.innerText = translations[lang][key];
-            }
+            if (translations[lang] && translations[lang][key]) el.innerText = translations[lang][key];
         });
-
-        // Динамический перевод имени в профиле, если оно не уникальное
         const nameEl = document.getElementById('userName');
-        if (nameEl && (savedDbName === "holder" || savedDbName === "Холдер" || nameEl.innerText === "..." || !savedDbName)) {
-            nameEl.innerText = translations[currentLang]["holder"];
+        if (nameEl && (nameEl.innerText === translations['ru']["holder"] || nameEl.innerText === "..." || nameEl.innerText === "Holder")) {
+            nameEl.innerText = translations[lang]["holder"];
         }
-        
-        loadLeaderboard();
+        renderTasks();
     };
 
-    function showToast(messageKey) {
-        const toast = document.getElementById("toast");
-        const msg = translations[currentLang][messageKey] || messageKey;
-        toast.innerText = msg;
-        toast.classList.add("show");
-        setTimeout(() => { toast.classList.remove("show"); }, 2500);
-    }
-
+    // --- КОНФИГУРАЦИЯ ---
+    const RECEIVER_WALLET_ADDRESS = "UQAGpJWn-FJd3wjB-aiChuiYH-9tdXAOhqu887uBtS1Ce4_7"; // ТВОЙ КОШЕЛЕК
+    const MASON_CONTRACT = "EQAxZDmj7YuzTfc7Ho5GdsDuL0K-tAWz5_ysdeAJYACeCOMF";
+    const BOT_USERNAME = "masontokenbot/app"; 
+    
     const firebaseConfig = {
       apiKey: "AIzaSyCu-Wx23P4OpxUbSBywpdiETZHbOe08z9c",
       authDomain: "refer-c9d1b.firebaseapp.com",
-      databaseURL: "https://refer-c9d1b-default-rtdb.europe-west1.firebasedatabase.app",
-      projectId: "refer-c9d1b",
-      storageBucket: "refer-c9d1b.firebasestorage.app",
-      messagingSenderId: "552445924289",
-      appId: "1:552445924289:web:5d143815ec7c5ad6659540",
-      measurementId: "G-EJQQ1KBTX9"
+      projectId: "refer-c9d1b"
     };
-
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
     const tg = window.Telegram.WebApp;
     tg.expand();
-    
-    const isRealTelegram = !!tg.initDataUnsafe?.user?.id;
-    
-    if(!sessionStorage.getItem('local_tg_id')) {
-        sessionStorage.setItem('local_tg_id', Math.floor(Math.random() * 1000000).toString());
-    }
-    
-    const tgUserId = tg.initDataUnsafe?.user?.id || sessionStorage.getItem('local_tg_id');
-    
-    // Получаем реальный Telegram Username или имя
+    const tgUserId = tg.initDataUnsafe?.user?.id || sessionStorage.getItem('local_tg_id') || Math.floor(Math.random() * 1000000).toString();
+    if(!sessionStorage.getItem('local_tg_id')) sessionStorage.setItem('local_tg_id', tgUserId);
     const tgUsername = tg.initDataUnsafe?.user?.username;
-    const tgFirstName = tg.initDataUnsafe?.user?.first_name;
-    const finalTgName = tgUsername ? `@${tgUsername}` : (tgFirstName || "holder");
-
+    const finalTgName = tgUsername ? `@${tgUsername}` : (tg.initDataUnsafe?.user?.first_name || translations['ru']["holder"]);
     const tgAvatar = tg.initDataUnsafe?.user?.photo_url || "https://i.postimg.cc/yY0wJM0S/photo-2026-07-08-11-05-40-removebg-preview.png";
     const inviterId = tg.initDataUnsafe?.start_param || null;
 
-    const MASON_CONTRACT = "EQAxZDmj7YuzTfc7Ho5GdsDuL0K-tAWz5_ysdeAJYACeCOMF";
     let currentWalletAddress = null;
-    let userHasMason = false;
+    let mainBalance = 0;
+    let bonusBalance = 0;
+    let uData = null; 
+    let currentTokenPriceUsd = 0; // Для хранения цены из API
 
     const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
         manifestUrl: 'https://recksach.github.io/chronogram-infinity/tonconnect-manifest.json',
         buttonRootId: 'ton-connect'
     });
+
+    window.switchTab = function(tabName) {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+        document.getElementById(`tab-${tabName}`).classList.add('active');
+        event.currentTarget.classList.add('active');
+        if(tabName === 'feed') loadFeed();
+    }
+
+    function showToast(msgKey) {
+        const toast = document.getElementById("toast");
+        toast.innerText = translations[currentLang][msgKey] || msgKey;
+        toast.classList.add("show");
+        setTimeout(() => toast.classList.remove("show"), 2500);
+    }
+
+    window.copyRefLink = function() {
+        navigator.clipboard.writeText(`https://t.me/${BOT_USERNAME}/app?startapp=${tgUserId}`);
+        showToast("🔗 Ссылка скопирована!");
+    };
+    window.shareToTelegram = function() {
+        window.open(`https://t.me/share/url?url=https://t.me/${BOT_USERNAME}/app?startapp=${tgUserId}&text=Join the Elite MASON game!`, '_blank');
+    };
+
+    // ФУНКЦИЯ: Получение актуальной цены в реальном времени с API (TonAPI)
+    async function fetchLivePrice() {
+        try {
+            // Запрашиваем курс $MASON к USD
+            const response = await fetch(`https://tonapi.io/v2/rates?tokens=${MASON_CONTRACT}&currencies=usd`);
+            const data = await response.json();
+            if (data && data.rates && data.rates[MASON_CONTRACT]) {
+                currentTokenPriceUsd = data.rates[MASON_CONTRACT].prices.USD;
+                updateUsdDisplay();
+            }
+        } catch (e) {
+            console.log("Ошибка получения цены:", e);
+        }
+    }
+
+    // Обновление отображения суммы в USD на экране
+    function updateUsdDisplay() {
+        if(currentTokenPriceUsd > 0) {
+            const totalCoins = mainBalance + bonusBalance;
+            const usdVal = (totalCoins * currentTokenPriceUsd).toFixed(2);
+            document.getElementById('usdBalance').innerText = `≈ $${usdVal} USD`;
+        }
+    }
 
     tonConnectUI.onStatusChange(async wallet => {
         const profileBox = document.getElementById('profileBox');
@@ -362,76 +401,38 @@
         if (wallet) {
             currentWalletAddress = wallet.account.address;
             profileBox.style.display = 'block';
-            
-            if (finalTgName === "holder") {
-                document.getElementById('userName').innerText = translations[currentLang]["holder"];
-            } else {
-                document.getElementById('userName').innerText = finalTgName;
-            }
-            
+            document.getElementById('userName').innerText = finalTgName;
             document.getElementById('userIdDisplay').innerText = `ID: ${tgUserId}`;
             document.getElementById('userAvatar').src = tgAvatar;
             document.getElementById('masonBalance').innerText = "...";
+
+            // 1. Получаем баланс монет
+            mainBalance = await checkMasonBalance(currentWalletAddress);
+            document.getElementById('masonBalance').innerText = mainBalance + " $MASON";
             
-            const balance = await checkMasonBalance(currentWalletAddress);
-            document.getElementById('masonBalance').innerText = balance + " $MASON";
+            // 2. Получаем актуальную цену STON.fi/TonAPI
+            await fetchLivePrice();
+
+            btnBuy.style.display = mainBalance > 0 ? 'none' : 'block';
+            btnReg.disabled = mainBalance === 0;
+
+            const userRef = doc(db, "users", tgUserId.toString());
+            const userSnap = await getDoc(userRef);
             
-            if (balance > 0) {
-                userHasMason = true;
-                btnBuy.style.display = 'none'; 
-            } else {
-                userHasMason = false;
-                btnBuy.style.display = 'block';
+            if (userSnap.exists()) {
+                uData = userSnap.data();
+                bonusBalance = uData.bonusBalance || 0;
+                document.getElementById('bonusBalance').innerText = `${translations[currentLang]["bonus_lbl"]} ${bonusBalance} $MASON`;
+                btnReg.innerText = translations[currentLang]["status_in_game"];
+                btnReg.disabled = true;
+                
+                if(uData.masonBalance !== mainBalance) {
+                    await updateDoc(userRef, { masonBalance: mainBalance });
+                    loadLeaderboard(); 
+                }
             }
-
-            try {
-                let uData = null;
-                let activeId = tgUserId.toString();
-
-                if (isRealTelegram) {
-                    const userRef = doc(db, "users", tgUserId.toString());
-                    const userSnap = await getDoc(userRef);
-                    if (userSnap.exists()) {
-                        uData = userSnap.data();
-                    }
-                } else {
-                    const qWallet = query(collection(db, "users"), where("wallet", "==", currentWalletAddress));
-                    const walletSnap = await getDocs(qWallet);
-                    if (!walletSnap.empty) {
-                        walletSnap.forEach((docSnap) => {
-                            uData = docSnap.data();
-                            activeId = docSnap.id; 
-                        });
-                    } else {
-                        const userRef = doc(db, "users", tgUserId.toString());
-                        const userSnap = await getDoc(userRef);
-                        if (userSnap.exists()) {
-                            uData = userSnap.data();
-                        }
-                    }
-                }
-
-                if (uData) {
-                    savedDbName = uData.name;
-                    if (savedDbName === "holder" || savedDbName === "Холдер") {
-                        document.getElementById('userName').innerText = translations[currentLang]["holder"];
-                    } else {
-                        document.getElementById('userName').innerText = savedDbName;
-                    }
-                    
-                    document.getElementById('myMoves').innerText = uData.moves || 0;
-                    document.getElementById('myFriends').innerText = uData.friends || 0;
-                    document.getElementById('userIdDisplay').innerText = `ID: ${activeId}`;
-                    btnReg.innerText = translations[currentLang]["status_in_game"];
-                    btnReg.disabled = true;
-                    document.getElementById('myRankBox').style.display = 'block';
-                    updateMyRank(uData.moves, activeId);
-                } else {
-                    btnReg.innerText = translations[currentLang]["btn_reg"];
-                    btnReg.disabled = !userHasMason;
-                    document.getElementById('myRankBox').style.display = 'none';
-                }
-            } catch (e) { console.error("Ошибка БД:", e); }
+            updateUsdDisplay(); // Обновляем пересчет с учетом бонусов
+            renderTasks();
         } else {
             profileBox.style.display = 'none';
             currentWalletAddress = null;
@@ -443,132 +444,189 @@
             const response = await fetch(`https://tonapi.io/v2/accounts/${walletAddress}/jettons/${MASON_CONTRACT}`);
             if (!response.ok) return 0;
             const data = await response.json();
-            const readableBalance = (data.balance / 1000000000).toFixed(2);
-            return parseFloat(readableBalance) > 0 ? parseFloat(readableBalance) : 0;
-        } catch (error) { return 0; }
+            return parseFloat((data.balance / 1000000000).toFixed(2)) || 0;
+        } catch (e) { return 0; }
     }
 
     document.getElementById('btnRegister').onclick = async () => {
-        if (!userHasMason || !currentWalletAddress) return;
+        if (mainBalance === 0 || !currentWalletAddress) return;
         const btn = document.getElementById('btnRegister');
         btn.innerText = translations[currentLang]["status_check"];
         btn.disabled = true;
 
         try {
-            const qWallet = query(collection(db, "users"), where("wallet", "==", currentWalletAddress));
-            const walletSnap = await getDocs(qWallet);
-            
-            if (!walletSnap.empty) {
-                let isTakenByOther = false;
-                walletSnap.forEach((docSnap) => {
-                    if (docSnap.id !== tgUserId.toString()) {
-                        isTakenByOther = true;
-                    }
-                });
-                
-                if (isTakenByOther) {
-                    showToast("wallet_taken");
-                    btn.innerText = translations[currentLang]["btn_reg"];
-                    btn.disabled = false;
-                    return;
-                }
-            }
-
             const userRef = doc(db, "users", tgUserId.toString());
             await setDoc(userRef, {
                 wallet: currentWalletAddress,
                 tg_id: tgUserId.toString(),
                 name: finalTgName,
                 avatar: tgAvatar,
-                moves: 1, 
-                friends: 0,
-                invitedBy: inviterId || "none",
-                registrationDate: new Date()
+                masonBalance: mainBalance, 
+                bonusBalance: 0,
+                completedTasks: [],
+                invitedBy: inviterId || "none"
             });
 
-            if (inviterId && inviterId !== tgUserId.toString()) {
+            if (inviterId && inviterId !== tgUserId.toString() && mainBalance > 0) {
                 const inviterRef = doc(db, "users", inviterId);
                 const inviterSnap = await getDoc(inviterRef);
                 if (inviterSnap.exists()) {
-                    await updateDoc(inviterRef, { moves: increment(1), friends: increment(1) });
+                    await updateDoc(inviterRef, { bonusBalance: increment(5000) });
                 }
             }
 
-            savedDbName = finalTgName;
+            uData = { bonusBalance: 0, completedTasks: [] };
             btn.innerText = translations[currentLang]["status_in_game"];
-            document.getElementById('myMoves').innerText = "1";
-            document.getElementById('myRankBox').style.display = 'block';
-            loadLeaderboard(); 
-            updateMyRank(1, tgUserId.toString());
-            showToast("Вы успешно зарегистрированы!");
-        } catch (error) {
-            btn.innerText = "ОШИБКА БД";
+            showToast("Успешная регистрация!");
+            loadLeaderboard();
+            renderTasks();
+        } catch (e) {
+            btn.innerText = translations[currentLang]["btn_reg"];
             btn.disabled = false;
         }
     };
 
-    async function updateMyRank(myMoves, activeId) {
-        try {
-            const q = query(collection(db, "users"), orderBy("moves", "desc"));
-            const snapshot = await getDocs(q);
-            let rank = 1;
-            snapshot.forEach((doc) => {
-                if(doc.id === activeId.toString()) return; 
-                if(doc.data().moves > myMoves) rank++;
-            });
-            document.getElementById('myRankValue').innerText = `#${rank}`;
-            document.getElementById('myPrizeValue').innerText = PRIZES[rank - 1] || "0$";
-        } catch (e) {}
-    }
-
     async function loadLeaderboard() {
         const lbList = document.getElementById('leaderboardList');
-        const movesWord = translations[currentLang]["moves_word"] || "ходов";
-        
         try {
-            const q = query(collection(db, "users"), orderBy("moves", "desc"), limit(10));
+            const q = query(collection(db, "users"), orderBy("masonBalance", "desc"), limit(10));
             const querySnapshot = await getDocs(q);
             lbList.innerHTML = "";
             let rank = 1;
-            
             querySnapshot.forEach((doc) => {
                 const data = doc.data();
-                const prize = PRIZES[rank - 1] || "0$";
-                const userAv = data.avatar || "https://i.postimg.cc/yY0wJM0S/photo-2026-07-08-11-05-40-removebg-preview.png";
-                
-                // Проверяем имя на системную заглушку и переводим динамически
-                let finalName = data.name;
-                if (finalName === "holder" || finalName === "Холдер") {
-                    finalName = translations[currentLang]["holder"];
-                }
-                
                 lbList.innerHTML += `
                     <div class="lb-row">
                         <div class="lb-rank">#${rank}</div>
                         <div class="lb-user">
-                            <img src="${userAv}" class="lb-avatar" alt="">
-                            <div class="lb-name">${finalName}</div>
+                            <img src="${data.avatar || tgAvatar}" class="lb-avatar" alt="">
+                            <div class="lb-name">${data.name}</div>
                         </div>
-                        <div class="lb-moves">${data.moves} ${movesWord}</div>
-                        <div class="lb-prize">${prize}</div>
+                        <div class="lb-balance">${data.masonBalance || 0} $MASON</div>
                     </div>
                 `;
                 rank++;
             });
-        } catch (error) {}
+            if(lbList.innerHTML === "") lbList.innerHTML = `<div class="lb-row">${translations[currentLang]["loading"]}</div>`;
+        } catch (e) {}
     }
 
-    const BOT_USERNAME = "masontokenbot/app"; 
+    const tasksData = [
+        { id: "sub_channel", title: "Подписка на Канал", reward: 2500, link: "https://t.me/MASON_TOKEN" },
+        { id: "sub_x", title: "Подписка на X (Twitter)", reward: 2500, link: "https://x.com/Worshipful_Mast" },
+        { id: "sub_chat", title: "Торговый Чат", reward: 2500, link: "https://t.me/masontoken_chat" },
+        { id: "buy_pre", title: "Купить 100к MASON перед листингом (От 50 TON)", reward: 100000, link: "https://t.me/blum/app?startapp=memepadjetton_MASON_ViVlg-ref_UJGIADDsuv" }
+    ];
 
-    window.copyRefLink = function() {
-        navigator.clipboard.writeText(`https://t.me/${BOT_USERNAME}/app?startapp=${tgUserId}`);
-        showToast("copied");
-    };
-    
-    window.shareToTelegram = function() {
-        const refLink = `https://t.me/${BOT_USERNAME}/app?startapp=${tgUserId}`;
-        window.open(`https://t.me/share/url?url=${refLink}&text=Sign up for the $MASON game pre-registration!`, '_blank');
-    };
+    function renderTasks() {
+        const tContainer = document.getElementById('tasks-container');
+        tContainer.innerHTML = "";
+        const completed = uData?.completedTasks || [];
+        
+        tasksData.forEach(task => {
+            const isDone = completed.includes(task.id);
+            tContainer.innerHTML += `
+                <div class="task-item">
+                    <div class="task-info">
+                        <h4>${task.title}</h4>
+                        <p>+${task.reward} $MASON</p>
+                    </div>
+                    <div class="task-actions">
+                        <button class="task-btn" onclick="window.open('${task.link}', '_blank')">${translations[currentLang]["btn_go"]}</button>
+                        <button class="task-btn" id="btn_verify_${task.id}" ${isDone ? 'disabled' : ''} onclick="verifyTask('${task.id}', ${task.reward})">
+                            ${isDone ? translations[currentLang]["btn_done"] : translations[currentLang]["btn_verify"]}
+                        </button>
+                    </div>
+                </div>
+            `;
+        });
+    }
+
+    window.verifyTask = async function(taskId, rewardAmount) {
+        if(!uData) return showToast("Сначала зарегистрируйтесь!");
+        
+        const btn = document.getElementById(`btn_verify_${taskId}`);
+        btn.innerText = "...";
+        btn.disabled = true;
+
+        setTimeout(async () => {
+            try {
+                const userRef = doc(db, "users", tgUserId.toString());
+                const completed = uData.completedTasks || [];
+                completed.push(taskId);
+                
+                await updateDoc(userRef, {
+                    bonusBalance: increment(rewardAmount),
+                    completedTasks: completed
+                });
+                
+                uData.bonusBalance = (uData.bonusBalance || 0) + rewardAmount;
+                uData.completedTasks = completed;
+                bonusBalance = uData.bonusBalance;
+                
+                document.getElementById('bonusBalance').innerText = `${translations[currentLang]["bonus_lbl"]} ${uData.bonusBalance} $MASON`;
+                updateUsdDisplay(); // Обновляем пересчет при получении награды
+                btn.innerText = translations[currentLang]["btn_done"];
+                showToast(`+${rewardAmount} $MASON`);
+            } catch (e) {
+                btn.innerText = translations[currentLang]["btn_verify"];
+                btn.disabled = false;
+            }
+        }, 3000);
+    }
+
+    async function loadFeed() {
+        const feedList = document.getElementById('feedList');
+        try {
+            const q = query(collection(db, "feed"), orderBy("timestamp", "desc"), limit(20));
+            const snap = await getDocs(q);
+            feedList.innerHTML = "";
+            snap.forEach(doc => {
+                const data = doc.data();
+                feedList.innerHTML += `
+                    <div class="feed-message">
+                        <div class="feed-author">${data.authorName}</div>
+                        <div class="feed-text">${data.text}</div>
+                    </div>
+                `;
+            });
+        } catch (e) {}
+    }
+
+    window.payAndPost = async function() {
+        const text = document.getElementById('feedInput').value.trim();
+        if(!text) return showToast("Введите текст!");
+        if(!currentWalletAddress) return showToast("Подключите кошелек!");
+        
+        try {
+            const transaction = {
+                validUntil: Math.floor(Date.now() / 1000) + 120, 
+                messages: [
+                    {
+                        address: RECEIVER_WALLET_ADDRESS, // Твой кошелек берется отсюда
+                        amount: "25000000000" // 25 TON (в nanoTON)
+                    }
+                ]
+            };
+            
+            showToast("Подтвердите в кошельке...");
+            await tonConnectUI.sendTransaction(transaction);
+            
+            await addDoc(collection(db, "feed"), {
+                text: text,
+                authorName: finalTgName,
+                userId: tgUserId.toString(),
+                timestamp: serverTimestamp()
+            });
+            
+            document.getElementById('feedInput').value = "";
+            showToast("Опубликовано!");
+            loadFeed();
+            
+        } catch (e) {
+            showToast("Отмена или ошибка.");
+        }
+    }
 
     window.addEventListener('scroll', () => {
         const scrolled = window.scrollY;
@@ -587,7 +645,10 @@
         document.getElementById("minutes").innerText = Math.floor((distance % 3600000) / 60000).toString().padStart(2, '0');
         document.getElementById("seconds").innerText = Math.floor((distance % 60000) / 1000).toString().padStart(2, '0');
     }, 1000);
-    
+
+    // Периодически обновляем цену (раз в 1 минуту)
+    setInterval(fetchLivePrice, 60000);
+
     window.onload = () => {
         setTimeout(() => {
             const preloader = document.getElementById('preloader');
@@ -595,6 +656,7 @@
             preloader.style.visibility = 'hidden';
         }, 1200);
         changeLanguage('ru');
+        loadLeaderboard();
     };
 </script>
 
