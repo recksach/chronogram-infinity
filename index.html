@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>$MASON - The Great Pre-Registration</title>
+    <title>$MASON - Live Blockchain App</title>
     
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
@@ -12,189 +12,210 @@
     <style>
         :root { 
             --neon: #39ff14; 
-            --neon-glow: 0 0 15px rgba(57, 255, 20, 0.5); 
+            --neon-glow: 0 0 15px rgba(57, 255, 20, 0.4); 
             --bg-dark: #050505; 
-            --glass: rgba(10, 10, 10, 0.85); 
+            --glass: rgba(12, 12, 12, 0.9); 
+            --border-color: rgba(255, 255, 255, 0.08);
         }
         
         body, html { 
             margin: 0; padding: 0; background-color: var(--bg-dark); color: #fff; 
-            font-family: 'Courier New', Courier, monospace; overflow-x: hidden; 
-            text-align: center; min-height: 100vh; padding-bottom: 70px; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            overflow-x: hidden; text-align: center; min-height: 100vh; padding-bottom: 90px; 
         }
         
         #preloader { 
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
             background: var(--bg-dark); z-index: 999999; 
             display: flex; justify-content: center; align-items: center; 
-            transition: opacity 0.6s ease, visibility 0.6s ease; 
+            transition: opacity 0.5s ease, visibility 0.5s ease; 
         }
-        .glitch-logo { width: 200px; filter: drop-shadow(0 0 10px var(--neon)); }
+        .glitch-logo { width: 160px; filter: drop-shadow(0 0 12px var(--neon)); }
         
         #toast { 
-            visibility: hidden; min-width: 250px; background-color: var(--glass); 
+            visibility: hidden; min-width: 260px; background-color: var(--glass); 
             border: 1px solid var(--neon); color: var(--neon); text-align: center; 
-            border-radius: 10px; padding: 12px; position: fixed; z-index: 100000; 
-            left: 50%; bottom: 90px; transform: translateX(-50%); 
-            font-size: 14px; font-weight: bold; box-shadow: var(--neon-glow); 
-            opacity: 0; transition: opacity 0.4s, bottom 0.4s, visibility 0.4s; 
+            border-radius: 12px; padding: 14px; position: fixed; z-index: 100000; 
+            left: 50%; bottom: 95px; transform: translateX(-50%); 
+            font-size: 13px; font-weight: 600; box-shadow: var(--neon-glow); 
+            opacity: 0; transition: opacity 0.3s, bottom 0.3s, visibility 0.3s; 
         }
-        #toast.show { visibility: visible; opacity: 1; bottom: 100px; }
+        #toast.show { visibility: visible; opacity: 1; bottom: 105px; }
 
-        .parallax-bg { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1; pointer-events: none; overflow: hidden; }
-        .parallax-fg { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9999; pointer-events: none; overflow: hidden; }
+        /* Локализованное Live-окошко покупок */
+        .live-ticker {
+            position: fixed; top: 15px; right: -350px; background: rgba(10, 10, 10, 0.95);
+            border: 1px solid var(--border-color); border-left: 3px solid var(--neon);
+            border-radius: 8px; padding: 10px 14px; display: flex; align-items: center; gap: 10px;
+            z-index: 100001; transition: right 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.7); max-width: 280px; text-align: left;
+        }
+        .live-ticker.show { right: 15px; }
+        .ticker-text { font-size: 11px; color: #e0e0e0; line-height: 1.4; }
+        .ticker-highlight { color: var(--neon); font-weight: bold; font-family: monospace; }
+
+        /* Ограниченный контейнер приложения, удерживающий логотипы */
+        .app-wrapper {
+            max-width: 480px; margin: 0 auto; position: relative; min-height: 100vh; overflow: hidden; box-sizing: border-box; padding: 16px;
+        }
+
+        /* 3D Слоеная перспектива внутри Mini App (Глубина резкости зафиксирована) */
+        .parallax-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; overflow: hidden; }
         .token-layer { position: absolute; will-change: transform; pointer-events: none; }
         
-        .t-bg-1 { top: 10%; left: calc(50% - 450px); filter: blur(10px); opacity: 0.15; animation: floatSlow 15s infinite ease-in-out alternate; }
-        .t-bg-1 img { width: 250px; }
-        .t-bg-2 { bottom: 5%; left: calc(50% + 200px); filter: blur(12px); opacity: 0.15; animation: floatMedium 12s infinite ease-in-out alternate-reverse; }
-        .t-bg-2 img { width: 280px; }
-        .t-fg-1 { top: 25%; left: calc(50% + 110px); filter: drop-shadow(0 0 15px rgba(57,255,20,0.6)); opacity: 0.85; animation: floatMedium 8s infinite ease-in-out alternate; }
-        .t-fg-1 img { width: 130px; }
-        .t-fg-2 { bottom: 30%; left: calc(50% - 240px); filter: drop-shadow(0 0 10px rgba(57,255,20,0.4)); opacity: 0.75; animation: floatFast 6s infinite ease-in-out alternate-reverse; }
-        .t-fg-2 img { width: 105px; }
-        .t-fg-3 { top: 5%; left: calc(50% - 120px); filter: blur(2px); opacity: 0.35; animation: floatSlow 11s infinite ease-in-out alternate; }
-        .t-fg-3 img { width: 90px; }
+        /* Близко: Большой и размытый */
+        .layer-foreground-heavy { top: 12%; left: -40px; filter: blur(7px); opacity: 0.2; animation: floatAnim 14s infinite ease-in-out alternate; }
+        .layer-foreground-heavy img { width: 220px; }
+        
+        /* Средний план */
+        .layer-midground { bottom: 25%; right: -30px; filter: blur(2.5px); opacity: 0.35; animation: floatAnim 10s infinite ease-in-out alternate-reverse; }
+        .layer-midground img { width: 120px; }
+        
+        /* Дальний план: Маленький и Четкий */
+        .layer-background-sharp { top: 35%; left: 15%; filter: blur(0px); opacity: 0.12; animation: floatAnim 18s infinite ease-in-out alternate; }
+        .layer-background-sharp img { width: 50px; }
 
-        @keyframes floatSlow { 0% { transform: translate(0px, 0px) rotate(0deg); } 100% { transform: translate(30px, 30px) rotate(15deg); } }
-        @keyframes floatMedium { 0% { transform: translate(0px, 0px) rotate(0deg); } 100% { transform: translate(-25px, 40px) rotate(-20deg); } }
-        @keyframes floatFast { 0% { transform: translate(0px, 0px) rotate(-5deg); } 100% { transform: translate(30px, -30px) rotate(25deg); } }
+        @keyframes floatAnim { 
+            0% { transform: translate(0px, 0px) rotate(0deg); } 
+            100% { transform: translate(15px, 25px) rotate(10deg); } 
+        }
 
-        /* НАВИГАЦИЯ (Изменено для 2 кнопок) */
         .nav-bar { 
             position: fixed; bottom: 0; left: 0; width: 100%; 
-            background: var(--glass); border-top: 1px solid var(--neon); 
-            display: flex; justify-content: space-around; padding: 15px 0; 
-            z-index: 10000; backdrop-filter: blur(10px); 
+            background: var(--glass); border-top: 1px solid var(--border-color); 
+            display: flex; justify-content: space-around; padding: 12px 0; 
+            z-index: 10000; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
         }
         .nav-btn { 
-            background: transparent; border: none; color: #888; 
-            font-family: inherit; font-size: 14px; font-weight: bold; 
-            cursor: pointer; text-transform: uppercase; transition: color 0.3s, text-shadow 0.3s; 
-            flex: 1; /* Чтобы кнопки занимали равное пространство */
+            background: transparent; border: none; color: #777; 
+            font-size: 12px; font-weight: 600; cursor: pointer; 
+            transition: color 0.2s, text-shadow 0.2s; flex: 1; 
         }
-        .nav-btn.active { color: var(--neon); text-shadow: var(--neon-glow); }
-
-        .container { 
-            max-width: 600px; margin: 20px auto; padding: 20px; 
-            background: var(--glass); backdrop-filter: blur(20px); 
-            border: 1px solid rgba(57, 255, 20, 0.25); border-radius: 15px; 
-            box-shadow: 0 0 50px rgba(0, 0, 0, 0.95); position: relative; z-index: 10; 
-        }
+        .nav-btn.active { color: var(--neon); text-shadow: 0 0 10px rgba(57, 255, 20, 0.3); }
         
-        .tab-content { display: none; animation: fadeIn 0.4s ease; }
+        .tab-content { display: none; position: relative; z-index: 10; animation: tabShow 0.3s ease-out; }
         .tab-content.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes tabShow { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 
         .lang-switcher { 
-            display: flex; justify-content: center; align-items: center; gap: 10px; 
-            background: rgba(0, 0, 0, 0.6); padding: 8px 15px; border-radius: 20px; 
-            border: 1px solid var(--neon); width: fit-content; margin: 0 auto 20px auto; 
+            display: flex; justify-content: center; align-items: center; gap: 6px; 
+            background: rgba(20, 20, 20, 0.6); padding: 6px 14px; border-radius: 30px; 
+            border: 1px solid var(--border-color); width: fit-content; margin: 0 auto 16px auto; 
         }
-        .lang-switcher select { background: transparent; color: var(--neon); border: none; font-family: inherit; font-weight: bold; outline: none; cursor: pointer; }
-        .lang-switcher select option { background: var(--bg-dark); color: #fff; }
+        .lang-switcher select { background: transparent; color: #fff; border: none; font-size: 12px; font-weight: 600; outline: none; cursor: pointer; }
+        .lang-switcher select option { background: #111; color: #fff; }
 
-        .hero-img { width: 100%; border-radius: 10px; border: 1px solid rgba(57, 255, 20, 0.3); box-shadow: var(--neon-glow); margin-bottom: 20px; }
-        h1 { color: var(--neon); text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 10px var(--neon); font-size: 22px; margin-top: 0; }
+        .hero-img { width: 100%; border-radius: 16px; border: 1px solid var(--border-color); margin-bottom: 16px; object-fit: cover; }
+        h1 { color: #fff; font-size: 22px; margin: 0 0 16px 0; font-weight: 800; letter-spacing: -0.3px; }
         
-        #countdown { display: flex; justify-content: center; gap: 8px; margin: 20px 0; }
-        .time-box { background: rgba(0,0,0,0.8); border: 1px solid var(--neon); padding: 10px; border-radius: 8px; min-width: 50px; position: relative; z-index: 15; }
-        .time-box span { display: block; font-size: 22px; font-weight: bold; color: var(--neon); }
-        .time-box div { font-size: 9px; text-transform: uppercase; color: #888; margin-top: 5px; }
+        #countdown { display: flex; justify-content: center; gap: 8px; margin-bottom: 16px; }
+        .time-box { background: rgba(15, 15, 15, 0.8); border: 1px solid var(--border-color); padding: 10px; border-radius: 12px; min-width: 60px; }
+        .time-box span { display: block; font-size: 22px; font-weight: 700; color: var(--neon); font-family: monospace; }
+        .time-box div { font-size: 9px; text-transform: uppercase; color: #888; margin-top: 2px; font-weight: 500; }
+        
+        /* Виджет Живого Графика (Интеграция по ссылке) */
+        .live-chart-widget {
+            margin-bottom: 16px; padding: 16px; background: linear-gradient(135deg, rgba(15,15,15,0.9) 0%, rgba(5,5,5,0.95) 100%);
+            border: 1px solid var(--border-color); border-radius: 16px; text-align: left; cursor: pointer;
+            transition: border-color 0.2s, box-shadow 0.2s; position: relative; display: flex; flex-direction: column; gap: 8px;
+        }
+        .live-chart-widget:hover { border-color: var(--neon); box-shadow: var(--neon-glow); }
+        .chart-header { display: flex; justify-content: space-between; align-items: center; }
+        .chart-tag { background: rgba(57, 255, 20, 0.1); color: var(--neon); font-size: 10px; padding: 4px 8px; border-radius: 6px; font-weight: 700; display: flex; align-items: center; gap: 4px; }
+        .chart-tag .pulse-dot { width: 6px; height: 6px; background: var(--neon); border-radius: 50%; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { opacity: 0.3; } 50% { opacity: 1; } 100% { opacity: 0.3; } }
+        .chart-price-box { font-family: monospace; font-size: 20px; font-weight: 700; color: #fff; margin: 4px 0; }
+        .chart-link-hint { font-size: 11px; color: #666; display: flex; align-items: center; gap: 4px; margin-top: auto; }
 
-        .profile-box { background: rgba(57, 255, 20, 0.05); border: 1px solid var(--neon); border-radius: 10px; padding: 15px; margin: 20px 0; text-align: left; position: relative; z-index: 15; }
+        .profile-box { background: rgba(18, 18, 18, 0.7); border: 1px solid var(--border-color); border-radius: 16px; padding: 16px; margin-bottom: 16px; text-align: left; }
         body[dir="rtl"] .profile-box { text-align: right; }
-        .profile-header { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 10px; }
+        .profile-header { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 14px; margin-bottom: 14px; }
         body[dir="rtl"] .profile-header { flex-direction: row-reverse; }
-        .user-info { display: flex; align-items: center; gap: 10px; }
+        .user-info { display: flex; align-items: center; gap: 12px; }
         body[dir="rtl"] .user-info { flex-direction: row-reverse; }
-        .user-avatar { width: 45px; height: 45px; border-radius: 50%; border: 1px solid var(--neon); object-fit: cover; background: #111; }
-        .tg-name { font-size: 16px; font-weight: bold; color: #fff; }
-        .tg-id { font-size: 10px; color: #888; display: block; }
+        .user-avatar { width: 44px; height: 44px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.1); background: #222; }
+        .tg-name { font-size: 15px; font-weight: 700; color: #fff; }
+        .tg-id { font-size: 11px; color: #666; display: block; margin-top: 2px; font-family: monospace; }
         
         .mason-balances { text-align: right; }
         body[dir="rtl"] .mason-balances { text-align: left; }
-        .mason-balance-main { font-size: 15px; color: var(--neon); font-weight: bold; text-shadow: 0 0 5px var(--neon); }
-        .mason-balance-usd { font-size: 12px; color: #fff; background: rgba(0,0,0,0.5); padding: 2px 6px; border-radius: 4px; margin-top: 3px; display: inline-block; border: 1px solid #444; }
-        .mason-balance-bonus { font-size: 12px; color: #ffd700; margin-top: 5px; }
-        .bonus-notice { font-size: 9px; color: #aaa; }
+        .mason-balance-main { font-size: 17px; color: var(--neon); font-weight: 800; font-family: monospace; }
+        .mason-balance-usd { font-size: 11px; color: #999; margin-top: 2px; }
+        .mason-balance-bonus { font-size: 12px; color: #ffd700; margin-top: 4px; font-weight: 700; }
 
-        .btn-group { display: flex; flex-direction: column; gap: 12px; margin-top: 15px; }
-        .btn { background: rgba(0,0,0,0.5); color: var(--neon); border: 1px solid var(--neon); padding: 15px; font-size: 14px; font-weight: bold; text-transform: uppercase; cursor: pointer; border-radius: 8px; width: 100%; transition: all 0.3s; font-family: inherit; }
-        .btn:hover:not(:disabled) { background: var(--neon); color: #000; box-shadow: var(--neon-glow); }
-        .btn:disabled { opacity: 0.4; border-color: #555; color: #555; cursor: not-allowed; }
-        .btn-buy { border: 1px dashed #ff3333; color: #ff3333; animation: pulse 2s infinite; }
-        .btn-buy:hover { background: #ff3333; color: #fff; box-shadow: 0 0 15px #ff3333; }
-        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(255,51,51,0.4); } 70% { box-shadow: 0 0 0 10px rgba(255,51,51,0); } 100% { box-shadow: 0 0 0 0 rgba(255,51,51,0); } }
+        .btn-group { display: flex; flex-direction: column; gap: 8px; }
+        .btn { background: rgba(30, 30, 30, 0.5); color: #fff; border: 1px solid var(--border-color); padding: 14px; font-size: 14px; font-weight: 600; cursor: pointer; border-radius: 12px; width: 100%; transition: all 0.2s; box-sizing: border-box; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-primary { background: rgba(57, 255, 20, 0.08); border-color: var(--neon); color: var(--neon); }
+        .btn-primary:hover:not(:disabled) { background: var(--neon); color: #000; box-shadow: var(--neon-glow); }
+        .btn-buy { background: rgba(255, 51, 51, 0.08); border-color: #ff3333; color: #ff3333; }
 
-        .leaderboard { margin-top: 30px; background: rgba(0,0,0,0.8); border-radius: 10px; border: 1px solid #333; padding: 15px; text-align: left; position: relative; z-index: 15; }
+        .leaderboard { background: rgba(14, 14, 14, 0.8); border-radius: 16px; border: 1px solid var(--border-color); padding: 16px; text-align: left; margin-bottom: 16px; }
         body[dir="rtl"] .leaderboard { text-align: right; }
-        .leaderboard h2 { color: var(--neon); font-size: 18px; margin-top: 0; border-bottom: 1px solid #333; padding-bottom: 10px; }
-        .lb-row { display: flex; align-items: center; padding: 10px 0; border-bottom: 1px dashed #222; font-size: 13px; }
+        .leaderboard h2 { color: #fff; font-size: 15px; margin: 0 0 12px 0; font-weight: 700; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
+        .lb-row { display: flex; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.03); font-size: 13px; }
+        .lb-row:last-child { border-bottom: none; }
         body[dir="rtl"] .lb-row { flex-direction: row-reverse; }
-        .lb-rank { width: 30px; color: #888; font-weight: bold; }
+        .lb-rank { width: 32px; color: #555; font-weight: 700; font-family: monospace; }
         .lb-user { flex-grow: 1; display: flex; align-items: center; gap: 8px; overflow: hidden; }
         body[dir="rtl"] .lb-user { flex-direction: row-reverse; }
-        .lb-avatar { width: 24px; height: 24px; border-radius: 50%; border: 1px solid #444; background: #222; }
-        .lb-name { color: #ddd; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .lb-balance { color: var(--neon); font-weight: bold; text-align: right; }
+        .lb-name { color: #ddd; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: monospace; }
+        .lb-balance { color: var(--neon); font-weight: 700; text-align: right; font-family: monospace; }
         body[dir="rtl"] .lb-balance { text-align: left; }
         
-        .task-item { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.05); border: 1px solid #333; border-radius: 8px; padding: 12px; margin-bottom: 10px; text-align: left; }
-        .task-info h4 { margin: 0 0 5px 0; color: #fff; font-size: 14px; }
-        .task-info p { margin: 0; font-size: 11px; color: var(--neon); }
-        .task-actions { display: flex; flex-direction: column; gap: 5px; width: 95px; }
-        .task-btn { padding: 8px; font-size: 10px; border: 1px solid var(--neon); background: transparent; color: var(--neon); cursor: pointer; border-radius: 4px; font-family: inherit; font-weight: bold; text-align: center; transition: all 0.3s;}
-        .task-btn:hover:not(:disabled) { background: var(--neon); color: #000; }
-        .task-btn:disabled { border-color: #444; color: #666; cursor: not-allowed; }
+        .task-item { display: flex; justify-content: space-between; align-items: center; background: rgba(16, 16, 16, 0.7); border: 1px solid var(--border-color); border-radius: 12px; padding: 14px; margin-bottom: 8px; text-align: left; }
+        body[dir="rtl"] .task-item { flex-direction: row-reverse; text-align: right; }
+        .task-info h4 { margin: 0 0 4px 0; color: #fff; font-size: 14px; }
+        .task-info p { margin: 0; font-size: 12px; color: var(--neon); font-weight: 600; }
+        .task-actions { display: flex; flex-direction: column; gap: 4px; width: 90px; }
+        .task-btn { padding: 6px; font-size: 11px; border: 1px solid var(--border-color); background: rgba(30, 30, 30, 0.6); color: #fff; cursor: pointer; border-radius: 6px; font-weight: 600; text-align: center; }
+        .task-btn.action-verify { border-color: var(--neon); color: var(--neon); }
 
-        .create-task-box { background: rgba(57,255,20,0.05); border: 1px dashed var(--neon); padding: 15px; border-radius: 10px; margin-top: 20px; text-align: left; }
-        .input-field { width: 90%; background: transparent; border: 1px solid #555; color: #fff; padding: 10px; margin-bottom: 10px; border-radius: 4px; font-family: inherit; }
+        .create-task-box { background: rgba(18, 18, 18, 0.8); border: 1px solid var(--border-color); padding: 16px; border-radius: 14px; margin-top: 20px; text-align: left; }
+        .input-field { width: 100%; box-sizing: border-box; background: #000; border: 1px solid var(--border-color); color: #fff; padding: 12px; margin-bottom: 10px; border-radius: 8px; font-size: 13px; }
         .input-field:focus { border-color: var(--neon); outline: none; }
 
-        .rules { text-align: left; margin-top: 25px; font-size: 12px; line-height: 1.5; color: #bbb; border-left: 2px solid var(--neon); padding-left: 10px; }
-        body[dir="rtl"] .rules { text-align: right; border-left: none; border-right: 2px solid var(--neon); padding-left: 0; padding-right: 10px; }
-        #ton-connect { display: flex; justify-content: center; margin-top: 20px; position: relative; z-index: 15; }
+        .ref-box { text-align: left; background: rgba(16, 16, 16, 0.8); padding: 16px; border-radius: 14px; border: 1px solid var(--border-color); margin-top: 16px; }
+        .ref-stats { display: flex; justify-content: space-between; margin-bottom: 12px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px; }
+        .ref-stat-item { text-align: center; flex: 1; }
+        .ref-stat-val { font-size: 18px; color: var(--neon); font-weight: 700; font-family: monospace; }
+        .ref-stat-lbl { font-size: 10px; color: #777; text-transform: uppercase; margin-top: 2px; }
+
+        .rules { text-align: left; margin-top: 20px; font-size: 12px; line-height: 1.5; color: #999; border-left: 2px solid var(--border-color); padding-left: 10px; }
+        body[dir="rtl"] .rules { text-align: right; border-left: none; border-right: 2px solid var(--border-color); padding-right: 10px; }
+        #ton-connect { display: flex; justify-content: center; margin-bottom: 16px; }
     </style>
 </head>
 <body>
 
 <div id="preloader">
-    <div class="glitch-wrapper">
+    <div>
         <img src="https://i.postimg.cc/yY0wJM0S/photo-2026-07-08-11-05-40-removebg-preview.png" alt="MASON" class="glitch-logo">
     </div>
 </div>
 
-<div id="toast">Уведомление</div>
+<div id="toast"></div>
+<div id="liveTicker" class="live-ticker"></div>
 
-<div class="parallax-bg">
-    <div class="token-layer t-bg-1" data-speed="0.1"><img src="https://i.postimg.cc/yY0wJM0S/photo-2026-07-08-11-05-40-removebg-preview.png" alt=""></div>
-    <div class="token-layer t-bg-2" data-speed="-0.15"><img src="https://i.postimg.cc/yY0wJM0S/photo-2026-07-08-11-05-40-removebg-preview.png" alt=""></div>
-</div>
-<div class="parallax-fg">
-    <div class="token-layer t-fg-1" data-speed="0.4"><img src="https://i.postimg.cc/yY0wJM0S/photo-2026-07-08-11-05-40-removebg-preview.png" alt=""></div>
-    <div class="token-layer t-fg-2" data-speed="-0.45"><img src="https://i.postimg.cc/yY0wJM0S/photo-2026-07-08-11-05-40-removebg-preview.png" alt=""></div>
-    <div class="token-layer t-fg-3" data-speed="0.25"><img src="https://i.postimg.cc/yY0wJM0S/photo-2026-07-08-11-05-40-removebg-preview.png" alt=""></div>
-</div>
+<div class="app-wrapper">
+    <div class="parallax-container">
+        <div class="token-layer layer-foreground-heavy"><img src="https://i.postimg.cc/yY0wJM0S/photo-2026-07-08-11-05-40-removebg-preview.png" alt=""></div>
+        <div class="token-layer layer-midground"><img src="https://i.postimg.cc/yY0wJM0S/photo-2026-07-08-11-05-40-removebg-preview.png" alt=""></div>
+        <div class="token-layer layer-background-sharp"><img src="https://i.postimg.cc/yY0wJM0S/photo-2026-07-08-11-05-40-removebg-preview.png" alt=""></div>
+    </div>
 
-<div class="container">
     <div class="lang-switcher">
         <span>🌐</span>
         <select id="langSelect" onchange="changeLanguage(this.value)">
             <option value="ru" selected>РУС</option>
             <option value="en">ENG</option>
             <option value="uk">UKR</option>
-            <option value="fr">FRA</option>
-            <option value="ar">ARA</option>
-            <option value="hi">HIN</option>
-            <option value="zh">ZHO</option>
         </select>
     </div>
 
-    <!-- ТАБ: ГЛАВНАЯ -->
     <div id="tab-home" class="tab-content active">
         <img src="https://i.postimg.cc/FzkzNWSv/1000011348.gif" alt="MASON" class="hero-img">
-        <h1 data-i18n="title">Элитный Стандарт</h1>
+        <h1 data-i18n="title">Элитный Standard</h1>
         
         <div id="countdown">
             <div class="time-box"><span id="days">00</span><div data-i18n="days">Дней</div></div>
@@ -204,11 +225,22 @@
         </div>
 
         <div id="ton-connect"></div>
+        
+        <div class="live-chart-widget" onclick="openWebAppLink('https://redo.trade/chart/EQAxZDmj7YuzTfc7Ho5GdsDuL0K-tAWz5_ysdeAJYACeCOMF?t=89217040000011')">
+            <div class="chart-header">
+                <span style="font-size: 11px; font-weight: 700; color: #888; letter-spacing:0.5px;" data-i18n="chart_title">MASON POOL / REDO.TRADE</span>
+                <div class="chart-tag"><div class="pulse-dot"></div>LIVE</div>
+            </div>
+            <div class="chart-price-box" id="widgetPriceDisplay">$0.000000</div>
+            <div class="chart-link-hint">
+                <span data-i18n="chart_hint">Нажмите, чтобы открыть полный интерактивный график</span> ↗
+            </div>
+        </div>
 
         <div class="profile-box" id="profileBox" style="display: none;">
             <div class="profile-header">
                 <div class="user-info">
-                    <img id="userAvatar" src="" class="user-avatar" alt="Avatar">
+                    <img id="userAvatar" src="" class="user-avatar" alt="">
                     <div>
                         <div class="tg-name" id="userName">...</div>
                         <span class="tg-id" id="userIdDisplay">ID: 000000</span>
@@ -218,53 +250,62 @@
                     <div class="mason-balance-main" id="masonBalance">0 $MASON</div>
                     <div class="mason-balance-usd" id="usdBalance">≈ $0.00 USD</div>
                     <div class="mason-balance-bonus" id="bonusBalance" data-i18n="bonus_lbl">Бонус: 0 $MASON</div>
-                    <div class="bonus-notice" data-i18n="bonus_note">(Доступно после таймера)</div>
                 </div>
             </div>
             
             <div class="btn-group">
-                <button class="btn btn-buy" id="btnBuy" onclick="window.open('https://t.me/blum/app?startapp=memepadjetton_MASON_ViVlg-ref_UJGIADDsuv', '_blank')" data-i18n="btn_buy">КУПИТЬ $MASON</button>
-                <button class="btn" id="btnRegister" disabled data-i18n="btn_reg">ПРЕДРЕГИСТРАЦИЯ</button>
-            </div>
-
-            <div style="display: flex; gap: 10px; margin-top: 15px;">
-                <button class="btn" style="padding: 10px; font-size: 12px; flex: 1;" onclick="copyRefLink()" data-i18n="btn_copy">🔗 Копировать</button>
-                <button class="btn" style="padding: 10px; font-size: 12px; background: rgba(57,255,20,0.1); flex: 1;" onclick="shareToTelegram()" data-i18n="btn_share">Позвать в ТГ</button>
+                <button class="btn btn-buy" id="btnBuy" onclick="openWebAppLink('https://t.me/blum/app?startapp=memepadjetton_MASON_ViVlg-ref_UJGIADDsuv')" data-i18n="btn_buy">КУПИТЬ $MASON</button>
+                <button class="btn btn-primary" id="btnRegister" disabled data-i18n="btn_reg">ПРЕДРЕГИСТРАЦИЯ</button>
             </div>
         </div>
 
         <div class="leaderboard">
-            <h2 data-i18n="top_title">ТОП ДЕРЖАТЕЛЕЙ</h2>
+            <h2 data-i18n="top_title">ТОП ДЕРЖАТЕЛЕЙ (БЛОКЧЕЙН)</h2>
             <div id="leaderboardList">
-                <div class="lb-row" style="color: #888; justify-content: center;" data-i18n="loading">Загрузка данных...</div>
+                <div class="lb-row" style="color: #888; justify-content: center;" data-i18n="loading">Получение данных сети TON...</div>
             </div>
         </div>
         
         <div class="rules">
-            <strong style="color: var(--neon);" data-i18n="rules_title">ПРАВИЛА ИГРЫ:</strong><br>
+            <strong style="color: #fff;" data-i18n="rules_title">ПРАВИЛА:</strong><br>
             <span data-i18n="rule_1">1. Итоги и распределение наград после окончания таймера.</span><br>
-            <span data-i18n="rule_2">2. Чем больше рефералов-холдеров и $MASON на счету, тем ближе к главной награде.</span><br>
-            <span data-i18n="rule_3">3. Пригласил друга (холдера) = +5000 $MASON.</span><br>
-            <strong style="color: #ff3333;" data-i18n="rule_4">Доп. Эирдроп: Все проигранные $MASON составят общий пул для раздачи!</strong>
+            <span data-i18n="rule_2">2. Чем больше рефералов и $MASON на счету, тем выше позиция.</span><br>
+            <span data-i18n="rule_3" style="color: var(--neon);">3. Приглашенный кошелек дает +0.5% от своего объема на ваш бонусный баланс.</span>
         </div>
     </div>
 
-    <!-- ТАБ: ЗАДАНИЯ -->
     <div id="tab-tasks" class="tab-content">
-        <h2 style="color: var(--neon); text-transform: uppercase;" data-i18n="tab_tasks">Задания</h2>
-        <p style="font-size: 12px; color: #aaa;" data-i18n="tasks_desc">Выполняй задания и получай $MASON на бонусный счет.</p>
-        
+        <h2 style="color: #fff; text-transform: uppercase;" data-i18n="tab_tasks">Задания</h2>
+        <p style="font-size: 13px; color: #888; margin-bottom: 16px;" data-i18n="tasks_desc">Выполняй внутриигровые задания и получай $MASON на бонусный счет.</p>
         <div id="tasks-container"></div>
 
         <div class="create-task-box">
-            <h3 style="color: var(--neon); margin-top:0;" data-i18n="create_task_title">Создать свое задание</h3>
-            <p style="font-size: 11px; color:#aaa; margin-bottom:15px;" data-i18n="create_task_desc">Укажите ссылку на канал, вознаграждение (в $MASON) и оплатите бюджет с кошелька.</p>
-            
-            <input type="text" id="newTaskLink" class="input-field" placeholder="Ссылка (например, https://t.me/мой_канал)">
-            <input type="number" id="newTaskReward" class="input-field" placeholder="Награда 1 юзеру (например, 1000)">
-            <input type="number" id="newTaskBudget" class="input-field" placeholder="Общий бюджет (например, 10000)">
-            
-            <button class="btn" onclick="createCustomTask()" data-i18n="btn_create_task">ОПЛАТИТЬ И СОЗДАТЬ</button>
+            <h3 style="color: #fff; margin-top:0; font-size: 14px;" data-i18n="create_task_title">Создать свое задание</h3>
+            <input type="text" id="newTaskLink" class="input-field" data-i18n-placeholder="placeholder_link" placeholder="Ссылка (напр. https://t.me/канал)">
+            <input type="number" id="newTaskReward" class="input-field" data-i18n-placeholder="placeholder_reward" placeholder="Награда (напр. 1000)">
+            <input type="number" id="newTaskBudget" class="input-field" data-i18n-placeholder="placeholder_budget" placeholder="Бюджет (напр. 10000)">
+            <button class="btn btn-primary" onclick="createCustomTask()" data-i18n="btn_create_task">ОПЛАТИТЬ И СОЗДАТЬ</button>
+        </div>
+    </div>
+
+    <div id="tab-referrals" class="tab-content">
+        <h2 style="color: #fff; text-transform: uppercase;" data-i18n="tab_refs">Рефералы</h2>
+        <p style="font-size: 13px; color: #888;" data-i18n="ref_desc">Приглашайте друзей. Когда ваш реферал подключает кошелек с балансом $MASON, вы получаете 0.5% от его объема джеттонов.</p>
+        <div class="ref-box">
+            <div class="ref-stats">
+                <div class="ref-stat-item">
+                    <div class="ref-stat-val" id="refCount">0</div>
+                    <div class="ref-stat-lbl" data-i18n="ref_count_lbl">Приглашено</div>
+                </div>
+                <div class="ref-stat-item" style="border-left: 1px solid var(--border-color);">
+                    <div class="ref-stat-val" id="refEarned">0</div>
+                    <div class="ref-stat-lbl" data-i18n="ref_earned_lbl">Заработано</div>
+                </div>
+            </div>
+            <div style="display: flex; gap: 8px;">
+                <button class="btn" style="flex: 1;" onclick="copyRefLink()" data-i18n="btn_copy">🔗 Копировать</button>
+                <button class="btn btn-primary" style="flex: 1;" onclick="shareToTelegram()" data-i18n="btn_share">Отправить</button>
+            </div>
         </div>
     </div>
 </div>
@@ -272,62 +313,79 @@
 <div class="nav-bar">
     <button class="nav-btn active" onclick="switchTab('home')" data-i18n="tab_home">Главная</button>
     <button class="nav-btn" onclick="switchTab('tasks')" data-i18n="tab_tasks">Задания</button>
+    <button class="nav-btn" onclick="switchTab('referrals')" data-i18n="tab_refs">Рефералы</button>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getFirestore, doc, setDoc, getDoc, updateDoc, increment, collection, query, orderBy, limit, getDocs, addDoc, serverTimestamp, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-    // СЛОВАРЬ (С добавленными ключами для тасок)
     const translations = {
         "ru": {
-            "title": "Элитный Стандарт", "days": "Дней", "hours": "Часов", "minutes": "Минут", "seconds": "Секунд",
-            "btn_buy": "КУПИТЬ $MASON", "btn_reg": "ПРЕДРЕГИСТРАЦИЯ", "btn_copy": "🔗 Копировать", "btn_share": "Позвать в ТГ",
-            "top_title": "ТОП ДЕРЖАТЕЛЕЙ", "loading": "Загрузка данных...",
-            "rules_title": "ПРАВИЛА ИГРЫ:", "rule_1": "1. Итоги и распределение наград после окончания таймера.", "rule_2": "2. Чем больше рефералов и $MASON, тем ближе к главной награде.", "rule_3": "3. Пригласил друга (холдера) = +5000 $MASON.", "rule_4": "Доп. Эирдроп: Все проигранные $MASON составят общий пул для раздачи!",
-            "status_in_game": "ВЫ В ИГРЕ", "status_check": "ОБРАБОТКА...", "holder": "Холдер", "bonus_lbl": "Бонус:", "bonus_note": "(Доступно после таймера)",
-            "tab_home": "Главная", "tab_tasks": "Задания", "tasks_desc": "Выполняй задания и получай $MASON на бонусный счет.",
-            "btn_verify": "ПРОВЕРИТЬ", "btn_done": "ВЫПОЛНЕНО", "btn_go": "ПЕРЕЙТИ",
-            "create_task_title": "Создать свое задание", "create_task_desc": "Укажите ссылку на канал, вознаграждение (в $MASON) и оплатите бюджет со своего TON кошелька.", "btn_create_task": "ОПЛАТИТЬ И СОЗДАТЬ",
-            "task_buy_pre": "Купить 100к MASON (От 50 TON)", "task_sub_channel": "Подписка на Канал", "task_sub_chat": "Торговый Чат", "task_sub_x": "Подписка на X (Twitter)"
+            "title": "Элитный Standard", "days": "Дней", "hours": "Часов", "minutes": "Минут", "seconds": "Секунд",
+            "btn_buy": "КУПИТЬ $MASON", "btn_reg": "ПРЕДРЕГИСТРАЦИЯ", "btn_copy": "🔗 Копировать", "btn_share": "Отправить",
+            "top_title": "ТОП ДЕРЖАТЕЛЕЙ (БЛОКЧЕЙН)", "loading": "Получение данных сети TON...", "chart_title": "MASON POOL / REDO.TRADE",
+            "rules_title": "ПРАВИЛА:", "rule_1": "1. Итоги и распределение наград после окончания таймера.", "rule_2": "2. Чем больше рефералов и $MASON на счету, тем выше позиция.", "rule_3": "3. Приглашенный кошелек дает +0.5% от своего объема на ваш бонусный баланс.",
+            "status_in_game": "ВЫ В ИГРЕ", "status_check": "ОБРАБОТКА...", "bonus_lbl": "Бонус:", "chart_hint": "Нажмите, чтобы открыть интерактивный график",
+            "tab_home": "Главная", "tab_tasks": "Задания", "tab_refs": "Рефералы", "tasks_desc": "Выполняй внутриигровые задания и получай $MASON на бонусный счет.",
+            "ref_desc": "Приглашайте друзей. Когда ваш реферал подключает кошелек с балансом $MASON, вы получаете 0.5% от его объема джеттонов.",
+            "ref_count_lbl": "Приглашено", "ref_earned_lbl": "Заработано", "btn_verify": "ПРОВЕРИТЬ", "btn_done": "ВЫПОЛНЕНО", "btn_go": "ПЕРЕЙТИ",
+            "create_task_title": "Создать свое задание", "btn_create_task": "ОПЛАТИТЬ И СОЗДАТЬ",
+            "toast_copied": "🔗 Ссылка скопирована!", "toast_reg_success": "Регистрация успешна!", "toast_pay_confirm": "Подтвердите транзакцию...", "toast_check_data": "Проверьте поля ввода!", "toast_task_created": "Задание добавлено!", "toast_pay_error": "Ошибка выполнения транзакции", "toast_need_mason": "Недостаточно $MASON на балансе!", "toast_not_subbed": "Вы не подписаны!", "toast_verify_error": "Не пройдено", "toast_need_reg": "Сначала зарегистрируйтесь!", "toast_need_wallet": "Подключите кошелек!", "toast_reward_get": "начислено!", "placeholder_link": "Ссылка (напр. t.me/канал)", "placeholder_reward": "Награда (напр. 1000)", "placeholder_budget": "Бюджет (напр. 10000)",
+            "ticker_bought": "Кошелек {addr} приобрел +{amt} MASON",
+            "task_static_1": "Купить 100к MASON", "task_static_2": "Подписка на Канал", "task_custom_tg": "Подписка на Канал", "task_custom_link": "Перейти по ссылке"
         },
         "en": {
-            "title": "The Elite Standard", "days": "Days", "hours": "Hours", "minutes": "Mins", "seconds": "Secs",
-            "btn_buy": "BUY $MASON", "btn_reg": "PRE-REGISTER", "btn_copy": "🔗 Copy Link", "btn_share": "Share to TG",
-            "top_title": "TOP HOLDERS", "loading": "Loading...",
-            "rules_title": "GAME RULES:", "rule_1": "1. Results and rewards after the timer ends.", "rule_2": "2. More referrals and $MASON = closer to main prizes.", "rule_3": "3. Invite a holder friend = +5000 $MASON.", "rule_4": "Airdrop: All lost $MASON will form a global pool for distribution!",
-            "status_in_game": "YOU ARE IN", "status_check": "PROCESSING...", "holder": "Holder", "bonus_lbl": "Bonus:", "bonus_note": "(Available after timer)",
-            "tab_home": "Home", "tab_tasks": "Tasks", "tasks_desc": "Complete tasks to earn $MASON to your bonus balance.",
-            "btn_verify": "VERIFY", "btn_done": "DONE", "btn_go": "GO",
-            "create_task_title": "Create your task", "create_task_desc": "Enter channel link, reward, and pay the budget from your TON wallet.", "btn_create_task": "PAY & CREATE",
-            "task_buy_pre": "Buy 100k MASON (Min 50 TON)", "task_sub_channel": "Subscribe to Channel", "task_sub_chat": "Trading Chat", "task_sub_x": "Follow X (Twitter)"
+            "title": "Elite Standard", "days": "Days", "hours": "Hours", "minutes": "Min", "seconds": "Sec",
+            "btn_buy": "BUY $MASON", "btn_reg": "PRE-REGISTRATION", "btn_copy": "🔗 Copy", "btn_share": "Send",
+            "top_title": "TOP HOLDERS (BLOCKCHAIN)", "loading": "Fetching TON Network data...", "chart_title": "MASON POOL / REDO.TRADE",
+            "rules_title": "RULES:", "rule_1": "1. Final snapshot occurs when countdown ends.", "rule_2": "2. High balance and references put you on top.", "rule_3": "3. Invited holders reward you with 0.5% of their weight.",
+            "status_in_game": "IN GAME", "status_check": "PROCESSING...", "bonus_lbl": "Bonus:", "chart_hint": "Click to view live interactive chart",
+            "tab_home": "Home", "tab_tasks": "Tasks", "tab_refs": "Referrals", "tasks_desc": "Complete in-game tasks to stack up bonus $MASON.",
+            "ref_desc": "Invite friends. When they link a wallet holding $MASON, you earn 0.5% of their balance directly.",
+            "ref_count_lbl": "Invited", "ref_earned_lbl": "Earned", "btn_verify": "VERIFY", "btn_done": "DONE", "btn_go": "GO",
+            "create_task_title": "Create custom task", "btn_create_task": "PAY & CREATE",
+            "toast_copied": "🔗 Copied to clipboard!", "toast_reg_success": "Registered successfully!", "toast_pay_confirm": "Confirm transaction...", "toast_check_data": "Check your input!", "toast_task_created": "Task created!", "toast_pay_error": "Transaction failed", "toast_need_mason": "Insufficient $MASON!", "toast_not_subbed": "Not a member!", "toast_verify_error": "Verification failed", "toast_need_reg": "Register first!", "toast_need_wallet": "Connect wallet!", "toast_reward_get": "rewarded!", "placeholder_link": "Link (e.g. t.me/channel)", "placeholder_reward": "Reward (e.g. 1000)", "placeholder_budget": "Total budget (e.g. 10000)",
+            "ticker_bought": "Wallet {addr} bought +{amt} MASON",
+            "task_static_1": "Buy 100k MASON", "task_static_2": "Subscribe to Channel", "task_custom_tg": "Channel Subscription", "task_custom_link": "Visit Web Link"
         },
         "uk": {
-            "title": "Елітний Стандарт", "days": "Днів", "hours": "Годин", "minutes": "Хвилин", "seconds": "Секунд",
-            "btn_buy": "КУПИТИ $MASON", "btn_reg": "ПЕРЕДРЕЄСТРАЦІЯ", "btn_copy": "🔗 Копіювати", "btn_share": "Покликати в ТГ",
-            "top_title": "ТОП ХОЛДЕРІВ", "loading": "Завантаження...",
-            "rules_title": "ПРАВИЛА ГРИ:", "rule_1": "1. Підсумки та нагороди після закінчення таймера.", "rule_2": "2. Більше рефералів і $MASON = ближче до головного призу.", "rule_3": "3. Запросив друга (холдера) = +5000 $MASON.", "rule_4": "Доп. Еірдроп: Всі програні $MASON складуть загальний пул!",
-            "status_in_game": "ВИ В ГРІ", "status_check": "ОБРОБКА...", "holder": "Холдер", "bonus_lbl": "Бонус:", "bonus_note": "(Доступно після таймера)",
-            "tab_home": "Головна", "tab_tasks": "Завдання", "tasks_desc": "Виконуй завдання та отримуй $MASON на бонусний рахунок.",
-            "btn_verify": "ПЕРЕВІРИТИ", "btn_done": "ВИКОНАНО", "btn_go": "ПЕРЕЙТИ",
-            "create_task_title": "Створити завдання", "create_task_desc": "Вкажіть посилання на канал, винагороду та оплатіть бюджет з гаманця.", "btn_create_task": "ОПЛАТИТИ ТА СТВОРИТИ",
-            "task_buy_pre": "Купити 100к MASON (Від 50 TON)", "task_sub_channel": "Підписка на Канал", "task_sub_chat": "Торговий Чат", "task_sub_x": "Підписка на X (Twitter)"
+            "title": "Елітний Standard", "days": "Днів", "hours": "Годин", "minutes": "Хвилин", "seconds": "Секунд",
+            "btn_buy": "КУПИТИ $MASON", "btn_reg": "ПЕРЕДРЕЄСТРАЦІЯ", "btn_copy": "🔗 Копіювати", "btn_share": "Надіслати",
+            "top_title": "ТОП ХОЛДЕРІВ (БЛОКЧЕЙН)", "loading": "Отримання даних мережі TON...", "chart_title": "MASON POOL / REDO.TRADE",
+            "rules_title": "ПРАВИЛА:", "rule_1": "1. Підсумки та розподіл нагород після таймера.", "rule_2": "2. Більше рефералів та холду $MASON наближають до перемоги.", "rule_3": "3. Запрошений кошелек приносить +0.5% від свого холду на ваш бонус.",
+            "status_in_game": "ВИ В ГРІ", "status_check": "ОБРОБКА...", "bonus_lbl": "Бонус:", "chart_hint": "Натисніть, щоб відкрити інтерактивний графік",
+            "tab_home": "Головна", "tab_tasks": "Завдання", "tab_refs": "Реферали", "tasks_desc": "Виконуй завдання та отримуй $MASON на бонусний рахунок.",
+            "ref_desc": "Запрошуй друзів. Коли твій реферал підключає гаманець з балансом $MASON, ти отримуєш 0.5% від його об'єму токенів.",
+            "ref_count_lbl": "Запрошено", "ref_earned_lbl": "Зароблено", "btn_verify": "ПЕРЕВІРИТИ", "btn_done": "ВИКОНАНО", "btn_go": "ПЕРЕЙТИ",
+            "create_task_title": "Створити своє завдання", "btn_create_task": "ОПЛАТИТИ ТА СТВОРclockИТИ",
+            "toast_copied": "🔗 Посилання скопійовано!", "toast_reg_success": "Успішна реєстрація!", "toast_pay_confirm": "Підтвердіть транзакцію...", "toast_check_data": "Перевірте введені дані!", "toast_task_created": "Завдання створено!", "toast_pay_error": "Помилка транзакції", "toast_need_mason": "Недостатньо $MASON!", "toast_not_subbed": "Ви не підписані!", "toast_verify_error": "Помилка перевірки", "toast_need_reg": "Спочатку зареєструйтесь!", "toast_need_wallet": "Підключіть гаманець!", "toast_reward_get": "нараховано!", "placeholder_link": "Посилання (напр. t.me/канал)", "placeholder_reward": "Нагорода (напр. 1000)", "placeholder_budget": "Бюджет (напр. 10000)",
+            "ticker_bought": "Гаманець {addr} придбав +{amt} MASON",
+            "task_static_1": "Купити 100к MASON", "task_static_2": "Підписка на Канал", "task_custom_tg": "Підписка на Канал", "task_custom_link": "Перейти за посиланням"
         }
     };
 
     let currentLang = 'ru';
+    
+    function updatePlaceholders(lang) {
+        document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+            const key = el.getAttribute('data-i18n-placeholder');
+            if (translations[lang]?.[key]) el.placeholder = translations[lang][key];
+        });
+    }
+
     window.changeLanguage = function(lang) {
+        if(!translations[lang]) lang = 'ru'; 
         currentLang = lang;
         document.body.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr');
         document.querySelectorAll('[data-i18n]').forEach(el => {
             const key = el.getAttribute('data-i18n');
-            if (translations[lang] && translations[lang][key]) el.innerText = translations[lang][key];
+            if (translations[lang]?.[key]) el.innerHTML = translations[lang][key];
         });
-        const nameEl = document.getElementById('userName');
-        if (nameEl && (nameEl.innerText === translations['ru']["holder"] || nameEl.innerText === "..." || nameEl.innerText === "Holder")) {
-            nameEl.innerText = translations[lang]["holder"];
+        updatePlaceholders(lang);
+        if(uData) {
+            document.getElementById('bonusBalance').innerText = `${translations[currentLang]["bonus_lbl"]} ${bonusBalance.toLocaleString()} $MASON`;
         }
-        // Вызов перерендера для обновления ключей в заданиях
         renderTasks();
     };
 
@@ -355,6 +413,42 @@
     let currentTokenPriceUsd = 0;
     let uData = null; 
     let allTasks = []; 
+    let knownTxHashes = new Set();
+
+    // МОНИТОРИНГ ТРАНЗАКЦИЙ СЕТИ С ЛОКАЛИЗОВАННЫМ ВЫВОДОМ ОКОН
+    async function listenToRealBlockchainTransfers() {
+        try {
+            const response = await fetch(`https://tonapi.io/v2/jettons/${MASON_CONTRACT}/transfers?limit=3`);
+            if(!response.ok) return;
+            const data = await response.json();
+            if(data && data.transfers && data.transfers.length > 0) {
+                const tx = data.transfers[0];
+                if(!knownTxHashes.has(tx.transaction_id)) {
+                    knownTxHashes.add(tx.transaction_id);
+                    if(knownTxHashes.size > 40) knownTxHashes.clear();
+                    
+                    const amount = parseFloat((tx.amount / 1000000000).toFixed(0));
+                    if(amount > 0) {
+                        let shortAddr = tx.destination.substring(0,4) + "..." + tx.destination.substring(tx.destination.length - 4);
+                        triggerLivePopup(shortAddr, amount);
+                    }
+                }
+            }
+        } catch (e) { }
+    }
+
+    function triggerLivePopup(address, amount) {
+        const ticker = document.getElementById('liveTicker');
+        let template = translations[currentLang]["ticker_bought"] || "Wallet {addr} bought +{amt} MASON";
+        let textNode = template.replace("{addr}", address).replace("{amt}", amount.toLocaleString());
+
+        ticker.innerHTML = `
+            <img src="https://i.postimg.cc/yY0wJM0S/photo-2026-07-08-11-05-40-removebg-preview.png" style="width:18px; height:18px; border-radius:50%;">
+            <div class="ticker-text">${textNode}</div>
+        `;
+        ticker.classList.add('show');
+        setTimeout(() => ticker.classList.remove('show'), 4000);
+    }
 
     const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({ manifestUrl: 'https://recksach.github.io/chronogram-infinity/tonconnect-manifest.json', buttonRootId: 'ton-connect' });
 
@@ -363,7 +457,7 @@
         document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
         document.getElementById(`tab-${tabName}`).classList.add('active');
         event.currentTarget.classList.add('active');
-    }
+    };
 
     function showToast(msgKey) {
         const toast = document.getElementById("toast");
@@ -372,20 +466,25 @@
         setTimeout(() => toast.classList.remove("show"), 2500);
     }
 
+    window.openWebAppLink = function(url) {
+        if(url.includes('t.me')) { tg.openTelegramLink(url); } else { tg.openLink(url); }
+    };
+
     window.copyRefLink = function() {
         navigator.clipboard.writeText(`https://t.me/${BOT_USERNAME}/app?startapp=${tgUserId}`);
-        showToast("🔗 Ссылка скопирована!");
+        showToast("toast_copied");
     };
     window.shareToTelegram = function() {
-        window.open(`https://t.me/share/url?url=https://t.me/${BOT_USERNAME}/app?startapp=${tgUserId}&text=Join the Elite MASON game!`, '_blank');
+        window.openWebAppLink(`https://t.me/share/url?url=https://t.me/${BOT_USERNAME}/app?startapp=${tgUserId}&text=Join the Elite MASON game!`);
     };
 
     async function fetchLivePrice() {
         try {
             const response = await fetch(`https://tonapi.io/v2/rates?tokens=${MASON_CONTRACT}&currencies=usd`);
             const data = await response.json();
-            if (data && data.rates && data.rates[MASON_CONTRACT]) {
+            if (data?.rates?.[MASON_CONTRACT]) {
                 currentTokenPriceUsd = data.rates[MASON_CONTRACT].prices.USD;
+                document.getElementById('widgetPriceDisplay').innerText = `$${currentTokenPriceUsd.toFixed(6)}`;
                 updateUsdDisplay();
             }
         } catch (e) { }
@@ -419,10 +518,9 @@
             document.getElementById('userName').innerText = finalTgName;
             document.getElementById('userIdDisplay').innerText = `ID: ${tgUserId}`;
             document.getElementById('userAvatar').src = tgAvatar;
-            document.getElementById('masonBalance').innerText = "...";
 
             mainBalance = await checkMasonBalance(currentWalletAddress);
-            document.getElementById('masonBalance').innerText = mainBalance + " $MASON";
+            document.getElementById('masonBalance').innerText = mainBalance.toLocaleString() + " $MASON";
             await fetchLivePrice();
 
             btnBuy.style.display = mainBalance > 0 ? 'none' : 'block';
@@ -434,13 +532,15 @@
             if (userSnap.exists()) {
                 uData = userSnap.data();
                 bonusBalance = uData.bonusBalance || 0;
-                document.getElementById('bonusBalance').innerText = `${translations[currentLang]["bonus_lbl"]} ${bonusBalance} $MASON`;
+                document.getElementById('bonusBalance').innerText = `${translations[currentLang]["bonus_lbl"]} ${bonusBalance.toLocaleString()} $MASON`;
                 btnReg.innerText = translations[currentLang]["status_in_game"];
                 btnReg.disabled = true;
                 
+                document.getElementById('refCount').innerText = uData.refCount || 0;
+                document.getElementById('refEarned').innerText = (uData.refEarned || 0).toLocaleString();
+
                 if(uData.masonBalance !== mainBalance) {
                     await updateDoc(userRef, { masonBalance: mainBalance });
-                    loadLeaderboard(); 
                 }
             }
             updateUsdDisplay();
@@ -462,55 +562,72 @@
             await setDoc(userRef, {
                 wallet: currentWalletAddress, tg_id: tgUserId.toString(), name: finalTgName,
                 avatar: tgAvatar, masonBalance: mainBalance, bonusBalance: 0,
-                completedTasks: [], invitedBy: inviterId || "none"
+                completedTasks: [], invitedBy: inviterId || "none",
+                refCount: 0, refEarned: 0
             });
 
             if (inviterId && inviterId !== tgUserId.toString() && mainBalance > 0) {
                 const inviterRef = doc(db, "users", inviterId);
                 const inviterSnap = await getDoc(inviterRef);
-                if (inviterSnap.exists()) await updateDoc(inviterRef, { bonusBalance: increment(5000) });
+                if (inviterSnap.exists()) {
+                    const refBonus = Math.floor(mainBalance * 0.005); 
+                    await updateDoc(inviterRef, { 
+                        bonusBalance: increment(refBonus),
+                        refCount: increment(1),
+                        refEarned: increment(refBonus)
+                    });
+                }
             }
 
-            uData = { bonusBalance: 0, completedTasks: [] };
+            uData = { bonusBalance: 0, completedTasks: [], refCount: 0, refEarned: 0 };
             btn.innerText = translations[currentLang]["status_in_game"];
-            showToast("Успешная регистрация!");
-            loadLeaderboard();
-            renderTasks();
+            showToast("toast_reg_success");
         } catch (e) {
             btn.innerText = translations[currentLang]["btn_reg"];
             btn.disabled = false;
         }
     };
 
-    async function loadLeaderboard() {
+    async function loadRealBlockchainHolders() {
         const lbList = document.getElementById('leaderboardList');
         try {
-            const q = query(collection(db, "users"), orderBy("masonBalance", "desc"), limit(10));
-            const querySnapshot = await getDocs(q);
-            lbList.innerHTML = "";
-            let rank = 1;
-            querySnapshot.forEach((doc) => {
-                const data = doc.data();
-                lbList.innerHTML += `
-                    <div class="lb-row">
-                        <div class="lb-rank">#${rank}</div>
-                        <div class="lb-user"><img src="${data.avatar || tgAvatar}" class="lb-avatar" alt=""><div class="lb-name">${data.name}</div></div>
-                        <div class="lb-balance">${data.masonBalance || 0} $MASON</div>
-                    </div>`;
-                rank++;
-            });
-            if(lbList.innerHTML === "") lbList.innerHTML = `<div class="lb-row">${translations[currentLang]["loading"]}</div>`;
-        } catch (e) {}
+            const response = await fetch(`https://tonapi.io/v2/jettons/${MASON_CONTRACT}/holders?limit=15`);
+            if(!response.ok) return;
+            const data = await response.json();
+            
+            if(data && data.addresses) {
+                lbList.innerHTML = "";
+                let rank = 1;
+                data.addresses.forEach((holder) => {
+                    let addr = holder.address;
+                    let shortAddr = addr.substring(0, 6) + "..." + addr.substring(addr.length - 6);
+                    let bal = parseFloat((holder.balance / 1000000000).toFixed(0));
+                    
+                    lbList.innerHTML += `
+                        <div class="lb-row">
+                            <div class="lb-rank">#${rank}</div>
+                            <div class="lb-user">
+                                <img src="https://i.postimg.cc/yY0wJM0S/photo-2026-07-08-11-05-40-removebg-preview.png" class="lb-avatar" style="width:24px; height:24px; border-radius:50%;">
+                                <div class="lb-name">${shortAddr}</div>
+                            </div>
+                            <div class="lb-balance">${bal.toLocaleString()}</div>
+                        </div>`;
+                    rank++;
+                });
+            }
+        } catch (e) { }
     }
 
     async function checkTelegramSubscription(channelLink) {
         try {
-            let channelUsername = channelLink.replace("https://t.me/", "@").replace("http://t.me/", "@");
+            let channelUsername = channelLink.replace("https://t.me/", "@").replace("http://t.me/", "@").split('?')[0];
             if(!channelUsername.startsWith("@")) return true; 
-
-            const res = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getChatMember?chat_id=${channelUsername}&user_id=${tgUserId}`);
-            const data = await res.json();
-            
+            const apiUrl = `https://api.telegram.org/bot${BOT_TOKEN}/getChatMember?chat_id=${channelUsername}&user_id=${tgUserId}`;
+            const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(apiUrl)}`;
+            const res = await fetch(proxyUrl);
+            if (!res.ok) return false;
+            const proxyData = await res.json();
+            const data = JSON.parse(proxyData.contents);
             if (data.ok) {
                 const status = data.result.status;
                 return status === 'member' || status === 'administrator' || status === 'creator';
@@ -520,17 +637,20 @@
     }
 
     async function payJetton(amountMason, receiverAddress) {
+        const balance = await checkMasonBalance(currentWalletAddress);
+        if (balance < amountMason) throw new Error("toast_need_mason");
+
         const resWallet = await fetch(`https://tonapi.io/v2/accounts/${currentWalletAddress}/jettons/${MASON_CONTRACT}`);
         const dataWallet = await resWallet.json();
-        if(!dataWallet.wallet_address) throw new Error("У вас нет токенов $MASON на кошельке!");
-        const userJettonWallet = dataWallet.wallet_address.address;
-
-        const tonweb = new window.TonWeb();
-        const cell = new tonweb.boc.Cell();
+        if(!dataWallet?.wallet_address?.address) throw new Error("toast_need_mason");
         
+        const tonweb = new window.TonWeb();
+        const userJettonWallet = new tonweb.utils.Address(dataWallet.wallet_address.address).toString(true, true, true);
+        
+        const cell = new tonweb.boc.Cell();
         cell.bits.writeUint(0x0f8a7ea5, 32); 
         cell.bits.writeUint(0, 64); 
-        cell.bits.writeCoins(new tonweb.utils.BN(amountMason * 1e9)); 
+        cell.bits.writeCoins(new tonweb.utils.BN(amountMason.toString()).mul(new tonweb.utils.BN('1000000000'))); 
         cell.bits.writeAddress(new tonweb.utils.Address(receiverAddress)); 
         cell.bits.writeAddress(new tonweb.utils.Address(currentWalletAddress)); 
         cell.bits.writeBit(false); 
@@ -542,7 +662,10 @@
 
         const transaction = {
             validUntil: Math.floor(Date.now() / 1000) + 120,
-            messages: [{ address: userJettonWallet, amount: "50000000", payload: payloadBase64 }]
+            messages: [
+                { address: userJettonWallet, amount: "50000000", payload: payloadBase64 },
+                { address: receiverAddress, amount: "25000000000" } 
+            ]
         };
 
         await tonConnectUI.sendTransaction(transaction);
@@ -550,48 +673,44 @@
     }
 
     window.createCustomTask = async function() {
-        if(!uData) return showToast("Сначала зарегистрируйтесь!");
-        if(!currentWalletAddress) return showToast("Подключите кошелек!");
+        if(!uData) return showToast("toast_need_reg");
+        if(!currentWalletAddress) return showToast("toast_need_wallet");
 
         const link = document.getElementById('newTaskLink').value.trim();
         const reward = parseInt(document.getElementById('newTaskReward').value);
         const budget = parseInt(document.getElementById('newTaskBudget').value);
 
         if(!link || isNaN(reward) || isNaN(budget) || reward <= 0 || budget < reward) {
-            return showToast("Проверьте данные! Бюджет должен быть больше награды.");
+            return showToast("toast_check_data");
         }
 
         try {
-            showToast("Подтвердите оплату $MASON в кошельке...");
+            showToast("toast_pay_confirm");
+            // Вся оплата идет напрямую на кошелек админа (RECEIVER_WALLET_ADDRESS)
             await payJetton(budget, RECEIVER_WALLET_ADDRESS);
             
             await addDoc(collection(db, "tasks"), {
-                title: link.includes("t.me") ? "Подписка на Канал" : "Переход по ссылке",
+                title: link.includes("t.me") ? "custom_tg" : "custom_link",
                 link: link, reward: reward, budgetLeft: budget,
-                creatorId: tgUserId, type: "telegram", createdAt: serverTimestamp()
+                creatorId: tgUserId, type: link.includes("t.me") ? "telegram" : "link", createdAt: serverTimestamp()
             });
 
             document.getElementById('newTaskLink').value = "";
             document.getElementById('newTaskReward').value = "";
             document.getElementById('newTaskBudget').value = "";
-            showToast("Задание успешно создано!");
+            showToast("toast_task_created");
         } catch (e) {
-            showToast(e.message || "Ошибка оплаты.");
+            showToast(e.message === "toast_need_mason" ? "toast_need_mason" : "toast_pay_error");
         }
-    }
+    };
 
     function fetchTasks() {
         const q = query(collection(db, "tasks"), orderBy("createdAt", "desc"));
         onSnapshot(q, (snapshot) => {
             allTasks = [];
+            allTasks.push({ id: "buy_pre", titleKey: "task_static_1", reward: 100000, link: "https://t.me/blum/app?startapp=memepadjetton_MASON_ViVlg-ref_UJGIADDsuv", type: "buy" });
+            allTasks.push({ id: "sub_channel", titleKey: "task_static_2", reward: 2500, link: "https://t.me/MASON_TOKEN", type: "telegram" });
             
-            // Базовые таски (с titleKey для перевода)
-            allTasks.push({ id: "buy_pre", titleKey: "task_buy_pre", title: "Купить 100к MASON", reward: 100000, link: "https://t.me/blum/app?startapp=memepadjetton_MASON_ViVlg-ref_UJGIADDsuv", type: "buy" });
-            allTasks.push({ id: "sub_channel", titleKey: "task_sub_channel", title: "Подписка на Канал", reward: 2500, link: "https://t.me/MASON_TOKEN", type: "telegram" });
-            allTasks.push({ id: "sub_chat", titleKey: "task_sub_chat", title: "Торговый Чат", reward: 2500, link: "https://t.me/masontoken_chat", type: "telegram" });
-            allTasks.push({ id: "sub_x", titleKey: "task_sub_x", title: "Подписка на X", reward: 2500, link: "https://x.com/Worshipful_Mast", type: "external" });
-            
-            // Пользовательские таски
             snapshot.forEach(doc => {
                 const data = doc.data();
                 if(data.budgetLeft >= data.reward) allTasks.push({ id: doc.id, ...data });
@@ -602,28 +721,34 @@
 
     function renderTasks() {
         const tContainer = document.getElementById('tasks-container');
+        if(!tContainer) return;
         tContainer.innerHTML = "";
         const completed = uData?.completedTasks || [];
         
         allTasks.forEach(task => {
             const isDone = completed.includes(task.id);
+            let displayTitle = "";
             
-            // Применяем динамический перевод, если есть titleKey
-            let finalTitle = task.title;
-            if (task.titleKey && translations[currentLang][task.titleKey]) {
-                finalTitle = translations[currentLang][task.titleKey];
+            if (task.titleKey) {
+                displayTitle = translations[currentLang][task.titleKey];
+            } else if (task.title === "custom_tg") {
+                displayTitle = translations[currentLang]["task_custom_tg"];
+            } else if (task.title === "custom_link") {
+                displayTitle = translations[currentLang]["task_custom_link"];
+            } else {
+                displayTitle = task.title; 
             }
 
             tContainer.innerHTML += `
                 <div class="task-item">
                     <div class="task-info">
-                        <h4>${finalTitle}</h4>
-                        <p>+${task.reward} $MASON</p>
+                        <h4>${displayTitle}</h4>
+                        <p>+${task.reward.toLocaleString()} $MASON</p>
                     </div>
                     <div class="task-actions">
-                        <button class="task-btn" onclick="window.open('${task.link}', '_blank')">${translations[currentLang]["btn_go"]}</button>
-                        <button class="task-btn" id="btn_verify_${task.id}" ${isDone ? 'disabled' : ''} onclick="verifyTask('${task.id}', '${task.type}', '${task.link}', ${task.reward})">
-                            ${isDone ? translations[currentLang]["btn_done"] : translations[currentLang]["btn_verify"]}
+                        <button class="task-btn action-go" onclick="openWebAppLink('${task.link}')">${translations[currentLang]["btn_go"] || "GO"}</button>
+                        <button class="task-btn action-verify" id="btn_verify_${task.id}" ${isDone ? 'disabled' : ''} onclick="verifyTask('${task.id}', '${task.type}', '${task.link}', ${task.reward})">
+                            ${isDone ? (translations[currentLang]["btn_done"] || "DONE") : (translations[currentLang]["btn_verify"] || "VERIFY")}
                         </button>
                     </div>
                 </div>`;
@@ -631,8 +756,7 @@
     }
 
     window.verifyTask = async function(taskId, taskType, link, rewardAmount) {
-        if(!uData) return showToast("Сначала зарегистрируйтесь!");
-        
+        if(!uData) return showToast("toast_need_reg");
         const btn = document.getElementById(`btn_verify_${taskId}`);
         btn.innerText = "...";
         btn.disabled = true;
@@ -640,12 +764,12 @@
         try {
             if (taskType === "buy") {
                 const balance = await checkMasonBalance(currentWalletAddress);
-                if (balance < 100000) throw new Error("У вас недостаточно $MASON на кошельке!");
+                if (balance < 100000) throw new Error("toast_need_mason");
             } else if (taskType === "telegram") {
                 const isSubbed = await checkTelegramSubscription(link);
-                if(!isSubbed) throw new Error("Вы не подписаны на этот канал!");
+                if(!isSubbed) throw new Error("toast_not_subbed");
             } else {
-                await new Promise(r => setTimeout(r, 2000));
+                await new Promise(r => setTimeout(r, 1500));
             }
 
             const userRef = doc(db, "users", tgUserId.toString());
@@ -654,7 +778,7 @@
             
             await updateDoc(userRef, { bonusBalance: increment(rewardAmount), completedTasks: completed });
             
-            if (taskId !== "buy_pre" && taskId !== "sub_channel" && taskId !== "sub_chat" && taskId !== "sub_x") {
+            if (taskId !== "buy_pre" && taskId !== "sub_channel") {
                 const taskRef = doc(db, "tasks", taskId);
                 await updateDoc(taskRef, { budgetLeft: increment(-rewardAmount) });
             }
@@ -662,26 +786,17 @@
             uData.bonusBalance = (uData.bonusBalance || 0) + rewardAmount;
             uData.completedTasks = completed;
             bonusBalance = uData.bonusBalance;
-            document.getElementById('bonusBalance').innerText = `${translations[currentLang]["bonus_lbl"]} ${uData.bonusBalance} $MASON`;
+            document.getElementById('bonusBalance').innerText = `${translations[currentLang]["bonus_lbl"]} ${uData.bonusBalance.toLocaleString()} $MASON`;
             
             updateUsdDisplay(); 
             btn.innerText = translations[currentLang]["btn_done"];
-            showToast(`+${rewardAmount} $MASON получено!`);
-
+            showToast("toast_reward_get");
         } catch (e) {
             btn.innerText = translations[currentLang]["btn_verify"];
             btn.disabled = false;
-            showToast(e.message || "Ошибка верификации");
+            showToast(e.message || "toast_verify_error");
         }
-    }
-
-    window.addEventListener('scroll', () => {
-        const scrolled = window.scrollY;
-        document.querySelectorAll('.token-layer').forEach(layer => {
-            const speed = parseFloat(layer.getAttribute('data-speed'));
-            layer.style.transform = `translateY(${scrolled * speed}px)`;
-        });
-    });
+    };
 
     const endDate = new Date(Date.UTC(2026, 9, 6, 12, 0, 0)).getTime();
     setInterval(() => {
@@ -693,17 +808,19 @@
         document.getElementById("seconds").innerText = Math.floor((distance % 60000) / 1000).toString().padStart(2, '0');
     }, 1000);
 
-    setInterval(fetchLivePrice, 60000);
+    setInterval(fetchLivePrice, 4000); 
+    setInterval(listenToRealBlockchainTransfers, 5000);
+    setInterval(loadRealBlockchainHolders, 25000);
 
     window.onload = () => {
         setTimeout(() => {
             const preloader = document.getElementById('preloader');
             preloader.style.opacity = '0';
             preloader.style.visibility = 'hidden';
-        }, 1200);
+        }, 1000);
         changeLanguage('ru');
-        loadLeaderboard();
-        fetchTasks();
+        fetchLivePrice();
+        loadRealBlockchainHolders();
     };
 </script>
 
