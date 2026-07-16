@@ -8,7 +8,7 @@
     <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
     <script src="https://unpkg.com/tonweb@0.0.66/dist/tonweb.js"></script>
     <style>
-:root{--neon:#39ff14;--neon-rgb:57,255,20;--bg:#040406;--glass:rgba(12,12,16,0.88);--border:rgba(255,255,255,0.06);--gold:#ffd700;--silver:#b8b8c0;--r:14px;--rs:10px}
+:root{--neon:#39ff14;--neon-rgb:57,255,20;--bg:#040406;--glass:rgba(12,12,16,0.88);--border:rgba(255,255,255,0.06);--gold:#ffd700;--r:14px;--rs:10px}
 .theme-ape{--neon:#ff6b35;--neon-rgb:255,107,53}
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:#fff;max-width:480px;margin:0 auto;overflow-x:hidden;padding-bottom:90px;min-height:100vh}
@@ -20,20 +20,25 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-100px);z-index:10000;background:var(--glass);backdrop-filter:blur(16px);border:1px solid var(--border);border-radius:var(--r);padding:12px 20px;font-size:13px;max-width:90%;text-align:center;transition:transform .3s;pointer-events:none}
 .toast.show{transform:translateX(-50%) translateY(0)}
 .ticker{position:fixed;top:0;left:50%;transform:translateX(-50%);max-width:480px;width:100%;z-index:100;background:rgba(4,4,6,0.9);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:8px 16px;display:flex;align-items:center;gap:8px;font-size:12px;overflow:hidden;height:36px}
-.ticker .tl{color:rgba(255,255,255,0.4);white-space:nowrap;animation:tickerScroll 20s linear infinite}
+.ticker .tl{color:rgba(255,255,255,0.4);white-space:nowrap;animation:tickerScroll 25s linear infinite}
 @keyframes tickerScroll{0%{transform:translateX(100%)}100%{transform:translateX(-100%)}}
-.ticker .dot{width:6px;height:6px;border-radius:50%;background:#39ff14;animation:blink 1.5s infinite}
+.ticker .dot{width:6px;height:6px;border-radius:50%;background:var(--neon);animation:blink 1.5s infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
 #bgImage{position:fixed;inset:0;z-index:0;pointer-events:none;background-size:cover;background-position:center;filter:blur(40px) brightness(0.3);opacity:0;transition:opacity 1s}
-.parallax-layer{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
-.pf-close{position:absolute;top:8%;left:-30px;width:180px;filter:blur(12px);opacity:0.12;animation:floatA 16s ease-in-out infinite}
-.pf-mid{position:absolute;bottom:18%;right:-20px;width:90px;filter:blur(4px);opacity:0.2;animation:floatB 12s ease-in-out infinite}
-.pf-far{position:absolute;top:40%;left:18%;width:40px;filter:blur(0);opacity:0.1;animation:floatC 20s ease-in-out infinite}
-.pf-x{position:absolute;top:65%;right:12%;width:28px;filter:blur(0);opacity:0.07;animation:floatD 26s ease-in-out infinite}
-@keyframes floatA{0%,100%{transform:translate(0,0) rotate(0deg)}33%{transform:translate(20px,-30px) rotate(5deg)}66%{transform:translate(-15px,20px) rotate(-3deg)}}
-@keyframes floatB{0%,100%{transform:translate(0,0) rotate(0deg)}50%{transform:translate(-25px,-20px) rotate(-6deg)}}
-@keyframes floatC{0%,100%{transform:translate(0,0)}33%{transform:translate(15px,25px)}66%{transform:translate(-10px,-15px)}}
-@keyframes floatD{0%,100%{transform:translate(0,0) rotate(0deg)}50%{transform:translate(20px,15px) rotate(10deg)}}
+.parallax-layer{position:fixed;left:0;right:0;bottom:60px;height:calc(100vh - 100px);z-index:0;pointer-events:none;overflow:hidden}
+.pf-token{position:absolute;border-radius:50%;will-change:transform}
+.pf-t1{width:160px;top:8%;left:50%;transform:translateX(-50%);filter:blur(16px);opacity:0.08;animation:pfFloat1 18s ease-in-out infinite}
+.pf-t2{width:100px;top:25%;left:15%;filter:blur(8px);opacity:0.12;animation:pfFloat2 14s ease-in-out infinite}
+.pf-t3{width:70px;top:20%;right:10%;filter:blur(4px);opacity:0.15;animation:pfFloat3 16s ease-in-out infinite}
+.pf-t4{width:50px;top:50%;left:30%;filter:blur(2px);opacity:0.1;animation:pfFloat4 20s ease-in-out infinite}
+.pf-t5{width:40px;top:45%;right:20%;filter:blur(0);opacity:0.08;animation:pfFloat5 22s ease-in-out infinite}
+.pf-t6{width:32px;top:60%;left:50%;filter:blur(0);opacity:0.06;animation:pfFloat6 24s ease-in-out infinite}
+@keyframes pfFloat1{0%,100%{transform:translateX(-50%) translateY(0) rotate(0deg)}33%{transform:translateX(-50%) translateY(-20px) rotate(5deg)}66%{transform:translateX(-50%) translateY(15px) rotate(-3deg)}}
+@keyframes pfFloat2{0%,100%{transform:translate(0,0) rotate(0deg)}50%{transform:translate(15px,-25px) rotate(-8deg)}}
+@keyframes pfFloat3{0%,100%{transform:translate(0,0) rotate(0deg)}33%{transform:translate(-12px,20px) rotate(6deg)}66%{transform:translate(10px,-10px) rotate(-4deg)}}
+@keyframes pfFloat4{0%,100%{transform:translate(0,0)}50%{transform:translate(-20px,15px)}}
+@keyframes pfFloat5{0%,100%{transform:translate(0,0) rotate(0deg)}33%{transform:translate(10px,-15px) rotate(-5deg)}66%{transform:translate(-8px,12px) rotate(3deg)}}
+@keyframes pfFloat6{0%,100%{transform:translate(0,0)}50%{transform:translate(12px,-18px)}}
 .app{position:relative;z-index:1;padding:44px 16px 0}
 .gc{background:var(--glass);backdrop-filter:blur(16px);border:1px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:12px}
 .lang-switcher{display:flex;gap:4px;margin-bottom:12px;overflow-x:auto;padding:4px 0;scrollbar-width:none}
@@ -47,8 +52,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .tt-track.ape{background:rgba(255,107,53,0.2)}
 .tt-knob{width:22px;height:22px;border-radius:50%;background:var(--neon);position:absolute;top:2px;left:2px;transition:transform .4s cubic-bezier(0.34,1.56,0.64,1),background .3s}
 .tt-track.ape .tt-knob{transform:translateX(26px);background:#ff6b35}
-.tab-content{display:none}
-.tab-content.active{display:block}
+.tab-content{display:none}.tab-content.active{display:block}
 .hero{width:100%;aspect-ratio:16/9;border-radius:var(--r);overflow:hidden;margin-bottom:12px;position:relative}
 .hero img{width:100%;height:100%;object-fit:cover}
 .hero .overlay{position:absolute;inset:0;background:linear-gradient(transparent 60%,rgba(4,4,6,0.9));display:flex;flex-direction:column;justify-content:flex-end;padding:16px}
@@ -56,25 +60,23 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .hero .hsub{font-size:12px;color:rgba(255,255,255,0.5);margin-top:4px}
 .rate-box{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
 .rate-box .rl{font-size:12px;color:rgba(255,255,255,0.5)}
-.rate-box .rv{font-size:24px;font-weight:700;color:var(--neon)}
-.countdown{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
-.cd-item{text-align:center;padding:10px 0;border-radius:var(--rs);background:rgba(var(--neon-rgb),0.06)}
-.cd-item .num{font-size:22px;font-weight:700;color:var(--neon)}
-.cd-item .lbl{font-size:10px;color:rgba(255,255,255,0.4);margin-top:2px}
+.rate-box .rv{font-size:18px;font-weight:700;color:var(--neon);white-space:nowrap}
 .liq-bar{margin-top:8px}
 .liq-bar .lbl{font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:6px;display:flex;justify-content:space-between}
 .liq-track{height:6px;border-radius:3px;background:rgba(255,255,255,0.06);overflow:hidden}
 .liq-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--neon),rgba(var(--neon-rgb),0.5));width:0%;transition:width 1s;position:relative}
 .liq-fill::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.3),transparent);animation:shimmer 2s infinite}
 @keyframes shimmer{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
-.tc-connect{width:100%;margin-top:12px}
-.tc-connect button{width:100%;padding:14px;border-radius:var(--r);border:1px solid var(--neon);background:rgba(var(--neon-rgb),0.1);color:var(--neon);font-size:14px;font-weight:600;cursor:pointer;transition:all .2s}
-.tc-connect button:active{transform:scale(0.97)}
-.chart-wrap{position:relative;margin-top:12px}
-.chart-wrap canvas{width:100%!important;height:180px!important}
-.chart-pulse{position:absolute;top:8px;right:8px;width:8px;height:8px;border-radius:50%;background:var(--neon);animation:blink 1.5s infinite}
-.profile{display:none;margin-top:12px}
-.profile.show{display:block}
+.btn-row-wallet{display:flex;gap:8px;margin-top:12px}
+.btn-wallet{flex:1;padding:14px;border-radius:var(--r);border:1px solid var(--neon);font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;text-align:center}
+.btn-wallet:active{transform:scale(0.97)}
+.btn-wallet.outline{background:rgba(var(--neon-rgb),0.1);color:var(--neon)}
+.btn-wallet.solid{background:var(--neon);color:#000;border-color:var(--neon)}
+.social-links{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+.social-btn{display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:var(--rs);background:rgba(255,255,255,0.04);border:1px solid var(--border);color:rgba(255,255,255,0.7);font-size:12px;cursor:pointer;transition:all .2s;text-decoration:none}
+.social-btn:active{transform:scale(0.97);background:rgba(255,255,255,0.08)}
+.social-btn svg{width:16px;height:16px;fill:currentColor}
+.profile{display:none;margin-top:12px}.profile.show{display:block}
 .pf-header{display:flex;align-items:center;gap:12px;margin-bottom:12px}
 .pf-avatar{width:48px;height:48px;border-radius:50%;border:2px solid var(--neon);object-fit:cover}
 .pf-name{font-size:16px;font-weight:600}
@@ -89,28 +91,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .rules-list li{padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;color:rgba(255,255,255,0.7);display:flex;gap:8px}
 .rules-list li:last-child{border-bottom:none}
 .rules-list .rn{color:var(--neon);font-weight:700;min-width:20px}
-.admin-section{display:none}
-.admin-section.show{display:block}
+.admin-section{display:none}.admin-section.show{display:block}
 .admin-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px}
 .admin-stat{padding:10px;border-radius:var(--rs);background:rgba(var(--neon-rgb),0.06);text-align:center}
 .admin-stat .sv{font-size:16px;font-weight:700;color:var(--neon)}
 .admin-stat .sl{font-size:10px;color:rgba(255,255,255,0.4);margin-top:2px}
-.admin-filters{display:flex;gap:6px;margin-bottom:12px;overflow-x:auto}
-.filter-btn{padding:6px 12px;border-radius:20px;background:rgba(255,255,255,0.06);border:1px solid transparent;color:rgba(255,255,255,0.5);font-size:11px;cursor:pointer;white-space:nowrap}
-.filter-btn.active{background:rgba(var(--neon-rgb),0.15);border-color:var(--neon);color:var(--neon)}
-.ap-item{padding:12px;border-radius:var(--rs);background:rgba(255,255,255,0.03);border:1px solid var(--border);margin-bottom:8px}
-.ap-item .ap-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
-.ap-item .ap-user{font-size:13px;font-weight:600}
-.ap-item .ap-amt{font-size:13px;color:var(--neon);font-weight:600}
-.ap-item .ap-info{font-size:11px;color:rgba(255,255,255,0.4)}
-.ap-item .ap-status{display:inline-block;padding:3px 8px;border-radius:10px;font-size:10px;font-weight:600;margin-top:6px}
-.ap-status.pending{background:rgba(255,215,0,0.15);color:#ffd700}
-.ap-status.completed{background:rgba(var(--neon-rgb),0.15);color:var(--neon)}
-.ap-status.rejected{background:rgba(255,80,80,0.15);color:#ff5050}
-.ap-actions{display:flex;gap:6px;margin-top:8px}
-.ap-actions button{flex:1;padding:8px;border-radius:var(--rs);border:none;font-size:12px;font-weight:600;cursor:pointer}
-.ap-actions .confirm{background:rgba(var(--neon-rgb),0.2);color:var(--neon)}
-.ap-actions .reject{background:rgba(255,80,80,0.15);color:#ff5050}
 .task-item{padding:12px;border-radius:var(--rs);background:rgba(255,255,255,0.03);border:1px solid var(--border);margin-bottom:8px;display:flex;align-items:center;gap:12px}
 .task-item .task-icon{width:40px;height:40px;border-radius:10px;background:rgba(var(--neon-rgb),0.1);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
 .task-item .task-info{flex:1;min-width:0}
@@ -151,16 +136,32 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .modal .preview{padding:10px;border-radius:var(--rs);background:rgba(var(--neon-rgb),0.06);margin-bottom:12px;font-size:12px}
 .modal .btn-row{display:flex;gap:8px}
 .modal .btn-row .btn{flex:1}
-.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);max-width:480px;width:100%;z-index:100;background:rgba(4,4,6,0.95);backdrop-filter:blur(16px);border-top:1px solid var(--border);display:flex;padding:8px 16px;padding-bottom:max(8px,env(safe-area-inset-bottom))}
-.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 0;cursor:pointer;border-radius:var(--rs);transition:all .2s}
-.nav-item.active{background:rgba(var(--neon-rgb),0.08)}
-.nav-item .ni-icon{font-size:18px;opacity:0.4;transition:opacity .2s}
-.nav-item.active .ni-icon{opacity:1}
-.nav-item .ni-lbl{font-size:10px;color:rgba(255,255,255,0.4);transition:color .2s}
-.nav-item.active .ni-lbl{color:var(--neon)}
+
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);max-width:480px;width:100%;z-index:100;padding:10px 16px 14px;display:flex;gap:8px;padding-bottom:max(10px,env(safe-area-inset-bottom))}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 0;cursor:pointer;border-radius:16px;transition:all .3s;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);box-shadow:0 4px 20px rgba(0,0,0,0.3),inset 0 1px 0 rgba(255,255,255,0.05)}
+.nav-item.active{background:rgba(var(--neon-rgb),0.12);border-color:rgba(var(--neon-rgb),0.3);box-shadow:0 4px 20px rgba(var(--neon-rgb),0.15),inset 0 1px 0 rgba(255,255,255,0.08)}
+.nav-item .ni-icon{font-size:20px;opacity:0.5;transition:all .2s;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.3))}
+.nav-item.active .ni-icon{opacity:1;transform:scale(1.1);filter:drop-shadow(0 2px 8px rgba(var(--neon-rgb),0.4))}
+.nav-item .ni-lbl{font-size:10px;color:rgba(255,255,255,0.35);transition:color .2s;font-weight:500}
+.nav-item.active .ni-lbl{color:var(--neon);font-weight:600}
+.nav-item:active{transform:scale(0.95)}
+
 input::placeholder,textarea::placeholder{color:rgba(255,255,255,0.25)}
-::-webkit-scrollbar{width:4px}
-::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:2px}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:2px}
+.news-card{border-radius:var(--rs);background:rgba(255,255,255,0.03);border:1px solid var(--border);margin-bottom:10px;overflow:hidden;animation:fadeSlide .4s}
+.news-card img{width:100%;aspect-ratio:16/9;object-fit:cover;display:block}
+.news-card .nc-body{padding:12px}
+.news-card .nc-title{font-size:14px;font-weight:600;margin-bottom:4px}
+.news-card .nc-text{font-size:12px;color:rgba(255,255,255,0.6);line-height:1.5}
+.news-card .nc-time{font-size:10px;color:rgba(255,255,255,0.3);margin-top:8px}
+.news-card .nc-del{padding:4px 10px;border-radius:var(--rs);background:rgba(255,80,80,0.15);border:none;color:#ff5050;font-size:10px;cursor:pointer;float:right;margin-top:-4px}
+.support-row{display:flex;align-items:center;gap:10px;padding:10px;border-radius:var(--rs);background:rgba(var(--neon-rgb),0.06);border:1px solid var(--border);cursor:pointer;transition:all .2s;text-decoration:none}
+.support-row:active{transform:scale(0.97);background:rgba(var(--neon-rgb),0.12)}
+.support-row .sr-icon{width:36px;height:36px;border-radius:50%;background:rgba(var(--neon-rgb),0.15);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.support-row .sr-text{flex:1}
+.support-row .sr-name{font-size:13px;font-weight:600}
+.support-row .sr-sub{font-size:11px;color:rgba(255,255,255,0.4)}
+.support-row .sr-arrow{color:rgba(255,255,255,0.3);font-size:16px}
     </style>
 </head>
 <body>
@@ -168,23 +169,17 @@ input::placeholder,textarea::placeholder{color:rgba(255,255,255,0.25)}
         <img class="logo" id="preloaderLogo" src="https://i.postimg.cc/P5WdHpbh/file-000000007db8720a83a00abbd6e8e608.png" alt="Logo">
         <div class="txt" id="preloaderText">Loading...</div>
     </div>
-
     <div class="toast" id="toast"></div>
-
-    <div class="ticker">
-        <div class="dot"></div>
-        <div class="tl" id="tickerText">Connecting to blockchain...</div>
-    </div>
-
+    <div class="ticker"><div class="dot"></div><div class="tl" id="tickerText">Connecting to blockchain...</div></div>
     <div id="bgImage"></div>
-
     <div class="parallax-layer">
-        <img class="pf-close" id="pfClose" src="https://i.postimg.cc/P5WdHpbh/file-000000007db8720a83a00abbd6e8e608.png" alt="">
-        <img class="pf-mid" id="pfMid" src="https://i.postimg.cc/P5WdHpbh/file-000000007db8720a83a00abbd6e8e608.png" alt="">
-        <img class="pf-far" id="pfFar" src="https://i.postimg.cc/P5WdHpbh/file-000000007db8720a83a00abbd6e8e608.png" alt="">
-        <img class="pf-x" id="pfX" src="https://i.postimg.cc/P5WdHpbh/file-000000007db8720a83a00abbd6e8e608.png" alt="">
+        <img class="pf-token pf-t1" src="https://i.postimg.cc/yY0wJM0S/photo-2026-07-08-11-05-40-removebg-preview.png" alt="">
+        <img class="pf-token pf-t2" src="https://i.postimg.cc/yY0wJM0S/photo-2026-07-08-11-05-40-removebg-preview.png" alt="">
+        <img class="pf-token pf-t3" src="https://i.postimg.cc/yY0wJM0S/photo-2026-07-08-11-05-40-removebg-preview.png" alt="">
+        <img class="pf-token pf-t4" src="https://i.postimg.cc/yY0wJM0S/photo-2026-07-08-11-05-40-removebg-preview.png" alt="">
+        <img class="pf-token pf-t5" src="https://i.postimg.cc/yY0wJM0S/photo-2026-07-08-11-05-40-removebg-preview.png" alt="">
+        <img class="pf-token pf-t6" src="https://i.postimg.cc/yY0wJM0S/photo-2026-07-08-11-05-40-removebg-preview.png" alt="">
     </div>
-
     <div class="app" id="app">
         <div class="lang-switcher" id="langSwitcher">
             <button class="lang-btn active" data-lang="ru">RU</button>
@@ -195,15 +190,11 @@ input::placeholder,textarea::placeholder{color:rgba(255,255,255,0.25)}
             <button class="lang-btn" data-lang="zh">ZH</button>
             <button class="lang-btn" data-lang="hi">HI</button>
         </div>
-
         <div class="token-toggle">
             <span class="tlbl active" id="lblMason">$MASON</span>
-            <div class="tt-track" id="tokenTrack">
-                <div class="tt-knob"></div>
-            </div>
+            <div class="tt-track" id="tokenTrack"><div class="tt-knob"></div></div>
             <span class="tlbl" id="lblApe">$APE</span>
         </div>
-
         <div class="tab-content active" id="tabHome">
             <div class="hero">
                 <img id="heroImg" src="https://i.postimg.cc/FzkzNWSv/1000011348.gif" alt="Hero">
@@ -212,47 +203,37 @@ input::placeholder,textarea::placeholder{color:rgba(255,255,255,0.25)}
                     <div class="hsub" id="heroSub">The future of meme tokens</div>
                 </div>
             </div>
-
             <div class="gc">
                 <div class="rate-box">
-                    <span class="rl" id="rateLabel">Current Rate</span>
-                    <span class="rv" id="rateValue">$0.006</span>
+                    <span class="rl" id="rateLabel">$MASON Rate</span>
+                    <span class="rv" id="rateValue">1 TON = 6 $MASON</span>
                 </div>
             </div>
-
-            <div class="gc">
-                <div class="countdown" id="countdown">
-                    <div class="cd-item"><div class="num" id="cdDays">00</div><div class="lbl" id="cdDaysL">Days</div></div>
-                    <div class="cd-item"><div class="num" id="cdHours">00</div><div class="lbl" id="cdHoursL">Hours</div></div>
-                    <div class="cd-item"><div class="num" id="cdMins">00</div><div class="lbl" id="cdMinsL">Minutes</div></div>
-                    <div class="cd-item"><div class="num" id="cdSecs">00</div><div class="lbl" id="cdSecsL">Seconds</div></div>
+            <div class="gc" id="newsFeedSection">
+                <div style="font-size:14px;font-weight:600;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center">
+                    <span id="newsTitle">News & Updates</span>
+                    <button class="btn btn-p" id="btnCreateNews" onclick="showCreateNewsModal()" style="padding:6px 12px;font-size:11px;display:none">+ Post</button>
+                </div>
+                <div id="newsFeedList">
+                    <div style="text-align:center;padding:20px;font-size:12px;color:rgba(255,255,255,0.3)" id="newsEmpty">No news yet</div>
                 </div>
             </div>
-
             <div class="gc">
                 <div class="liq-bar">
-                    <div class="lbl"><span id="liqTitle">Liquidity Collected</span><span id="liqVal">0 / 500 TON</span></div>
+                    <div class="lbl"><span id="liqTitle">Liquidity Collected</span><span id="liqVal">0 / 7000 TON</span></div>
                     <div class="liq-track"><div class="liq-fill" id="liqFill"></div></div>
                 </div>
             </div>
-
-            <div class="gc tc-connect">
-                <button id="tcBtn" onclick="connectWallet()">Connect Wallet</button>
+            <div class="gc">
+                <div class="btn-row-wallet">
+                    <button class="btn-wallet outline" id="tcBtn" onclick="connectWallet()">Connect Wallet</button>
+                    <button class="btn-wallet solid" onclick="showSendModal()">Buy</button>
+                </div>
             </div>
-
-            <div class="gc chart-wrap">
-                <div class="chart-pulse"></div>
-                <canvas id="chartCanvas"></canvas>
-                <div style="font-size:12px;color:rgba(255,255,255,0.4);margin-top:8px" id="chartHint">Price updates every 4s</div>
-            </div>
-
             <div class="gc profile" id="profileSection">
                 <div class="pf-header">
                     <img class="pf-avatar" id="pfAvatar" src="" alt="">
-                    <div>
-                        <div class="pf-name" id="pfName">-</div>
-                        <div class="pf-id" id="pfId">-</div>
-                    </div>
+                    <div><div class="pf-name" id="pfName">-</div><div class="pf-id" id="pfId">-</div></div>
                 </div>
                 <div class="pf-balances">
                     <div class="pf-bal"><div class="val" id="balTon">0</div><div class="lbl">TON</div></div>
@@ -260,19 +241,31 @@ input::placeholder,textarea::placeholder{color:rgba(255,255,255,0.25)}
                 </div>
                 <div class="status-badge in" id="statusBadge">In Game</div>
             </div>
-
+            <div class="gc" id="socialSection">
+                <div style="font-size:14px;font-weight:600;margin-bottom:10px" id="socialTitle">Follow Us</div>
+                <div class="social-links" id="socialLinks"></div>
+            </div>
+            <div class="gc" id="supportSection">
+                <div style="font-size:14px;font-weight:600;margin-bottom:10px" id="supportTitle">Support</div>
+                <a class="support-row" onclick="event.preventDefault();openLink('https://t.me/Superadminist')">
+                    <div class="sr-icon">💬</div>
+                    <div class="sr-text">
+                        <div class="sr-name">Superadminist</div>
+                        <div class="sr-sub" id="supportSub">Contact support</div>
+                    </div>
+                    <div class="sr-arrow">›</div>
+                </a>
+            </div>
             <div class="gc">
-                <div style="font-size:14px;font-weight:600;margin-bottom:10px" id="leaderTitle">🏆 Top Holders</div>
+                <div style="font-size:14px;font-weight:600;margin-bottom:10px" id="leaderTitle">Top Holders</div>
                 <div id="leaderboard"></div>
             </div>
-
             <div class="gc">
                 <div style="font-size:14px;font-weight:600;margin-bottom:10px" id="feedTitle">Live Activity</div>
                 <div class="feed-list" id="feedList">
                     <div style="text-align:center;padding:20px;font-size:12px;color:rgba(255,255,255,0.3)" id="feedEmpty">No activity yet</div>
                 </div>
             </div>
-
             <div class="gc">
                 <div style="font-size:14px;font-weight:600;margin-bottom:10px" id="rulesTitle">Rules</div>
                 <ul class="rules-list" id="rulesList">
@@ -283,24 +276,15 @@ input::placeholder,textarea::placeholder{color:rgba(255,255,255,0.25)}
                     <li><span class="rn">5</span><span id="rule5">Complete tasks to earn bonus tokens</span></li>
                 </ul>
             </div>
-
             <div class="gc admin-section" id="adminSection">
                 <div style="font-size:14px;font-weight:600;margin-bottom:10px" id="adminTitle">Admin Panel</div>
                 <div class="admin-stats">
-                    <div class="admin-stat"><div class="sv" id="adminPending">0</div><div class="sl" id="adminPendingLbl">Pending</div></div>
-                    <div class="admin-stat"><div class="sv" id="adminDoneCount">0</div><div class="sl" id="adminDoneLbl">Completed</div></div>
-                    <div class="admin-stat"><div class="sv" id="adminPurchases">0 TON</div><div class="sl" id="adminPurchasesLbl">Total Purchases</div></div>
+                    <div class="admin-stat"><div class="sv" id="adminTotalTon">0</div><div class="sl" id="adminTotalTonLbl">TON Balance</div></div>
+                    <div class="admin-stat"><div class="sv" id="adminTotalNews">0</div><div class="sl" id="adminTotalNewsLbl">News Posts</div></div>
+                    <div class="admin-stat"><div class="sv" id="adminTotalTasks">0</div><div class="sl" id="adminTotalTasksLbl">Tasks</div></div>
                 </div>
-                <div class="admin-filters">
-                    <button class="filter-btn active" data-filter="all" id="filterAll">All</button>
-                    <button class="filter-btn" data-filter="pending" id="filterPending">Pending</button>
-                    <button class="filter-btn" data-filter="completed" id="filterCompleted">Completed</button>
-                </div>
-                <div id="adminPurchasesList"></div>
-                <div id="adminNoPurchases" style="text-align:center;padding:20px;font-size:12px;color:rgba(255,255,255,0.3)">No purchases yet</div>
             </div>
         </div>
-
         <div class="tab-content" id="tabTasks">
             <div class="gc">
                 <div style="font-size:14px;font-weight:600;margin-bottom:4px" id="tasksTitle">Tasks</div>
@@ -313,7 +297,6 @@ input::placeholder,textarea::placeholder{color:rgba(255,255,255,0.25)}
                 <button class="btn btn-p" id="btnCreateTask" onclick="showCreateTaskModal()">Create Task</button>
             </div>
         </div>
-
         <div class="tab-content" id="tabRefs">
             <div class="gc">
                 <div style="font-size:14px;font-weight:600;margin-bottom:4px" id="refTitle">Referrals</div>
@@ -322,9 +305,7 @@ input::placeholder,textarea::placeholder{color:rgba(255,255,255,0.25)}
                     <div class="ref-stat"><div class="rv" id="refCount">0</div><div class="rl" id="refCountLbl">Referrals</div></div>
                     <div class="ref-stat"><div class="rv" id="refEarned">0</div><div class="rl" id="refEarnedLbl">Earned</div></div>
                 </div>
-                <div class="ref-link">
-                    <input id="refLinkInput" readonly>
-                </div>
+                <div class="ref-link"><input id="refLinkInput" readonly></div>
                 <div class="ref-actions">
                     <button class="btn btn-p" style="flex:1" id="btnCopy" onclick="copyRefLink()">Copy</button>
                     <button class="btn btn-p" style="flex:1" id="btnShare" onclick="shareToTelegram()">Share</button>
@@ -332,20 +313,18 @@ input::placeholder,textarea::placeholder{color:rgba(255,255,255,0.25)}
             </div>
         </div>
     </div>
-
-    <div class="modal-overlay" id="buyModal">
+    <div class="modal-overlay" id="sendModal">
         <div class="modal">
-            <h3 id="buyModalTitle">Buy Tokens</h3>
-            <p id="buyModalDesc">Enter the amount you want to purchase</p>
-            <input type="number" id="buyAmountInput" placeholder="Amount in TON" oninput="updateBuyPreview()">
-            <div class="preview" id="buyPreview">You will receive: 0 tokens</div>
+            <h3 id="sendModalTitle">Buy Tokens</h3>
+            <p id="sendModalDesc">Send TON to this address</p>
+            <div style="padding:12px;border-radius:var(--rs);background:rgba(255,255,255,0.06);border:1px solid var(--border);word-break:break-all;font-size:12px;font-family:monospace;margin-bottom:12px;text-align:center;color:var(--neon)" id="sendWalletAddr">EQDDKb3KIYcjA0FmGndThAO3thpkLoD4hHhQq7ToywPiMgLM</div>
+            <div class="preview" id="sendRatePreview">1 TON = 6 $MASON</div>
             <div class="btn-row">
-                <button class="btn btn-p" id="btnCancelBuy" onclick="closeBuyModal()">Cancel</button>
-                <button class="btn btn-b" id="btnSubmitBuy" onclick="submitBuyRequest()">Buy</button>
+                <button class="btn btn-p" id="btnCopyAddr" onclick="copySendAddr()">Copy Address</button>
+                <button class="btn btn-b" id="btnCloseSend" onclick="closeSendModal()">OK</button>
             </div>
         </div>
     </div>
-
     <div class="modal-overlay" id="createTaskModal">
         <div class="modal">
             <h3 id="createTaskModalTitle">Create Custom Task</h3>
@@ -359,7 +338,20 @@ input::placeholder,textarea::placeholder{color:rgba(255,255,255,0.25)}
             </div>
         </div>
     </div>
-
+    <div class="modal-overlay" id="createNewsModal">
+        <div class="modal">
+            <h3 id="createNewsModalTitle">Create News Post</h3>
+            <p id="createNewsModalDesc">Share news with your community</p>
+            <input type="text" id="newsTitleInput" placeholder="Title">
+            <textarea id="newsTextInput" placeholder="Text (optional)"></textarea>
+            <input type="text" id="newsImageUrlInput" placeholder="Image URL (optional)">
+            <div class="preview" id="newsPreview">Post will be visible to all users</div>
+            <div class="btn-row">
+                <button class="btn btn-p" onclick="closeCreateNewsModal()">Cancel</button>
+                <button class="btn btn-b" onclick="submitNewsPost()">Post</button>
+            </div>
+        </div>
+    </div>
     <nav class="nav" id="navbar">
         <div class="nav-item active" onclick="switchTab('home')" id="navHome">
             <span class="ni-icon">🏠</span>
@@ -377,24 +369,24 @@ input::placeholder,textarea::placeholder{color:rgba(255,255,255,0.25)}
 
     <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, query, where, getDocs, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, query, where, getDocs, getDoc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
-    apiKey: "AIzaSyBxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-    authDomain: "mason-premarket.firebaseapp.com",
-    projectId: "mason-premarket",
-    storageBucket: "mason-premarket.appspot.com",
+    apiKey: "AIzaSyCu-Wx23P4OpxUbSBywpdiETZHbOe08z9c",
+    authDomain: "refer-c9d1b.firebaseapp.com",
+    projectId: "refer-c9d1b",
+    storageBucket: "refer-c9d1b.appspot.com",
     messagingSenderId: "000000000000",
     appId: "1:000000000000:web:0000000000000000"
 };
-
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 const ADMIN_WALLET = "UQAGpJWn-FJd3wjB-aiChuiYH-9tdXAOhqu887uBtS1Ce4_7";
-const BOT_TOKEN = "";
+const BOT_TOKEN = "8936099898:AAFkumE2jBpKBI6Ol8fsKrO4IZbERFSc4TQ";
 const BOT_USERNAME = "masontokenbot/app";
 const CUSTOM_TASK_COST = 25;
+const LIQ_TARGET = 7000;
 
 const TOKENS = {
     mason: {
@@ -403,271 +395,40 @@ const TOKENS = {
         icon: "https://i.postimg.cc/P5WdHpbh/file-000000007db8720a83a00abbd6e8e608.png",
         heroGif: "https://i.postimg.cc/FzkzNWSv/1000011348.gif",
         bgImg: "https://i.postimg.cc/7PgPq2Gk/photo-2026-07-08-11-05-36.jpg",
-        taskReward: 5
+        parallax: "https://i.postimg.cc/yY0wJM0S/photo-2026-07-08-11-05-40-removebg-preview.png",
+        taskReward: 5,
+        symbol: "$MASON",
+        socials: {
+            twitter: "https://x.com/Worshipful_Mast",
+            telegram: "https://t.me/MASON_TOKEN",
+            website: "https://www.instagram.com/worshipful_mast?igsh=MXI1cDVtNmV3eXN4Mg=="
+        }
     },
     ape: {
         contract: "EQBjoywW-EZyePew5wwnwFtjWsW1OAySB-3Pt71huH20bzUD",
         rate: 15674,
         icon: "https://i.postimg.cc/DzgZ49yy/Chat-GPT-Image-14-lip-2026-r-14-06-46.png",
-        heroGif: "https://i.postimg.cc/0NfLcf9R/Chat-GPT-Image-14-lip-2026-r-14-10-23.png",
+        heroGif: "https://i.postimg.cc/jdSQ74F0/video-2026-07-16-13-37-35-(1)-(2).gif",
         bgImg: "https://i.postimg.cc/0NfLcf9R/Chat-GPT-Image-14-lip-2026-r-14-10-23.png",
-        taskReward: 250
+        parallax: "https://i.postimg.cc/yY0wJM0S/photo-2026-07-08-11-05-40-removebg-preview.png",
+        taskReward: 250,
+        symbol: "$APE",
+        socials: {
+            twitter: "https://x.com/Ambasador_APE",
+            telegram: "https://t.me/Ambasador_APE",
+            website: "https://www.instagram.com/worshipful_mast?igsh=MXI1cDVtNmV3eXN4Mg=="
+        }
     }
 };
 
 const T = {
-    ru: {
-        subtitle: "Pre-Market Токены",
-        days: "Дней", hours: "Часов", minutes: "Минут", seconds: "Секунд",
-        btn_buy: "Купить", btn_reg: "Регистрация", btn_copy: "Копировать", btn_share: "Поделиться",
-        top_title: "🏆 Топ Холдеры", loading: "Загрузка...",
-        chart_title: "График цены", chart_hint: "Обновление каждые 4с",
-        rules_title: "Правила", rule_1: "Покупайте токены по фиксированной цене", rule_2: "Подключите TON кошелёк для участия",
-        rule_3: "Токены распределяются после листинга", rule_4: "Все продажи окончательны", rule_5: "Выполняйте задания для бонусов",
-        status_in_game: "В Игре", status_check: "Проверка...", bonus_lbl: "Бонус",
-        liq_title: "Ликвидность собрана", liq_target: "цель",
-        tab_home: "Главная", tab_tasks: "Задания", tab_tasks_nav: "Задания", tab_refs: "Рефералы", tab_refs_nav: "Рефералы",
-        tasks_desc: "Выполняйте задания и получайте бонусные токены", ref_desc: "Приглашайте друзей и получайте награды",
-        ref_count_lbl: "Рефералы", ref_earned_lbl: "Заработано",
-        btn_verify: "Проверить", btn_done: "Готово", btn_go: "Перейти",
-        create_task_title: "Создать Задание", btn_create_task: "Создать Задание",
-        toast_buy_ok: "Заявка на покупку отправлена!", toast_wallet: "Кошелёк подключён!",
-        toast_copy: "Ссылка скопирована!", toast_share: "Поделиться в Telegram",
-        toast_task_done: "Задание выполнено!", toast_task_verify: "Проверьте задание",
-        toast_error: "Ошибка", toast_ref_ok: "Реферальная ссылка готова!",
-        placeholder_amount: "Сумма в TON", placeholder_task_name: "Название задания", placeholder_task_link: "Ссылка на задание",
-        ticker_bought: "купил", ticker_just: "только что",
-        task_static_1: "Подпишитесь на канал", task_static_2: "Сделайте репост поста",
-        task_custom_tg: "Задание Telegram", task_custom_link: "Задание по ссылке",
-        admin_title: "Админ Панель", admin_pending: "Ожидают", admin_done_count: "Выполнено", admin_purchases: "Покупки",
-        admin_no_purchases: "Покупок пока нет",
-        filter_all: "Все", filter_pending: "Ожидают", filter_completed: "Выполнены",
-        btn_confirm_send: "Подтвердить", btn_reject: "Отклонить",
-        status_pending: "Ожидает", status_completed: "Выполнено", status_rejected: "Отклонено",
-        toast_confirm_ok: "Покупка подтверждена!", toast_reject_ok: "Покупка отклонена!",
-        toast_purchase_created: "Заявка создана!", toast_purchase_error: "Ошибка создания заявки",
-        feed_title: "Активность", feed_empty: "Пока нет активности",
-        feed_bought: "купил токены", feed_just_now: "только что", feed_min_ago: "мин назад",
-        activity_buy: "Покупка", activity_holder: "Холдер",
-        buy_modal_title: "Купить Токены", buy_modal_desc: "Введите сумму покупки",
-        btn_submit_buy: "Купить", btn_cancel: "Отмена"
-    },
-    en: {
-        subtitle: "Pre-Market Tokens",
-        days: "Days", hours: "Hours", minutes: "Minutes", seconds: "Seconds",
-        btn_buy: "Buy", btn_reg: "Register", btn_copy: "Copy", btn_share: "Share",
-        top_title: "🏆 Top Holders", loading: "Loading...",
-        chart_title: "Price Chart", chart_hint: "Updates every 4s",
-        rules_title: "Rules", rule_1: "Buy tokens at fixed pre-market rate", rule_2: "Connect TON wallet to participate",
-        rule_3: "Tokens distributed after listing", rule_4: "All sales are final", rule_5: "Complete tasks for bonus tokens",
-        status_in_game: "In Game", status_check: "Checking...", bonus_lbl: "Bonus",
-        liq_title: "Liquidity Collected", liq_target: "target",
-        tab_home: "Home", tab_tasks: "Tasks", tab_tasks_nav: "Tasks", tab_refs: "Refs", tab_refs_nav: "Refs",
-        tasks_desc: "Complete tasks to earn bonus tokens", ref_desc: "Invite friends and earn rewards",
-        ref_count_lbl: "Referrals", ref_earned_lbl: "Earned",
-        btn_verify: "Verify", btn_done: "Done", btn_go: "Go",
-        create_task_title: "Create Task", btn_create_task: "Create Task",
-        toast_buy_ok: "Purchase request sent!", toast_wallet: "Wallet connected!",
-        toast_copy: "Link copied!", toast_share: "Share on Telegram",
-        toast_task_done: "Task completed!", toast_task_verify: "Verify the task",
-        toast_error: "Error", toast_ref_ok: "Referral link ready!",
-        placeholder_amount: "Amount in TON", placeholder_task_name: "Task name", placeholder_task_link: "Task link",
-        ticker_bought: "bought", ticker_just: "just now",
-        task_static_1: "Subscribe to channel", task_static_2: "Repost the post",
-        task_custom_tg: "Telegram Task", task_custom_link: "Link Task",
-        admin_title: "Admin Panel", admin_pending: "Pending", admin_done_count: "Completed", admin_purchases: "Purchases",
-        admin_no_purchases: "No purchases yet",
-        filter_all: "All", filter_pending: "Pending", filter_completed: "Completed",
-        btn_confirm_send: "Confirm", btn_reject: "Reject",
-        status_pending: "Pending", status_completed: "Completed", status_rejected: "Rejected",
-        toast_confirm_ok: "Purchase confirmed!", toast_reject_ok: "Purchase rejected!",
-        toast_purchase_created: "Purchase created!", toast_purchase_error: "Error creating purchase",
-        feed_title: "Activity", feed_empty: "No activity yet",
-        feed_bought: "bought tokens", feed_just_now: "just now", feed_min_ago: "min ago",
-        activity_buy: "Purchase", activity_holder: "Holder",
-        buy_modal_title: "Buy Tokens", buy_modal_desc: "Enter purchase amount",
-        btn_submit_buy: "Buy", btn_cancel: "Cancel"
-    },
-    uk: {
-        subtitle: "Pre-Market Токени",
-        days: "Днів", hours: "Годин", minutes: "Хвилин", seconds: "Секунд",
-        btn_buy: "Купити", btn_reg: "Реєстрація", btn_copy: "Копіювати", btn_share: "Поділитися",
-        top_title: "🏆 Топ Холдерів", loading: "Завантаження...",
-        chart_title: "Графік ціни", chart_hint: "Оновлення кожні 4с",
-        rules_title: "Правила", rule_1: "Купуйте токени за фіксованою ціною", rule_2: "Підключіть TON гаманець для участі",
-        rule_3: "Токени розподіляються після лістингу", rule_4: "Всі продажі остаточні", rule_5: "Виконуйте завдання для бонусів",
-        status_in_game: "У Грі", status_check: "Перевірка...", bonus_lbl: "Бонус",
-        liq_title: "Ліквідність зібрана", liq_target: "ціль",
-        tab_home: "Головна", tab_tasks: "Завдання", tab_tasks_nav: "Завдання", tab_refs: "Реферали", tab_refs_nav: "Реферали",
-        tasks_desc: "Виконуйте завдання та отримуйте бонусні токени", ref_desc: "Запрошуйте друзів та отримуйте нагороди",
-        ref_count_lbl: "Реферали", ref_earned_lbl: "Зароблено",
-        btn_verify: "Перевірити", btn_done: "Готово", btn_go: "Перейти",
-        create_task_title: "Створити Завдання", btn_create_task: "Створити Завдання",
-        toast_buy_ok: "Заявку на купівлю надіслано!", toast_wallet: "Гаманець підключено!",
-        toast_copy: "Посилання скопійовано!", toast_share: "Поділитися в Telegram",
-        toast_task_done: "Завдання виконано!", toast_task_verify: "Перевірте завдання",
-        toast_error: "Помилка", toast_ref_ok: "Реферальне посилання готове!",
-        placeholder_amount: "Сума в TON", placeholder_task_name: "Назва завдання", placeholder_task_link: "Посилання на завдання",
-        ticker_bought: " придбав", ticker_just: "щойно",
-        task_static_1: "Підпишіться на канал", task_static_2: "Зробіть репост посту",
-        task_custom_tg: "Завдання Telegram", task_custom_link: "Завдання за посиланням",
-        admin_title: "Адмін Панель", admin_pending: "Очікують", admin_done_count: "Виконано", admin_purchases: "Покупки",
-        admin_no_purchases: "Покупок поки немає",
-        filter_all: "Всі", filter_pending: "Очікують", filter_completed: "Виконані",
-        btn_confirm_send: "Підтвердити", btn_reject: "Відхилити",
-        status_pending: "Очікує", status_completed: "Виконано", status_rejected: "Відхилено",
-        toast_confirm_ok: "Покупку підтверджено!", toast_reject_ok: "Покупку відхилено!",
-        toast_purchase_created: "Заявку створено!", toast_purchase_error: "Помилка створення заявки",
-        feed_title: "Активність", feed_empty: "Поки немає активності",
-        feed_bought: "придбав токени", feed_just_now: "щойно", feed_min_ago: "хв назад",
-        activity_buy: "Покупка", activity_holder: "Холдер",
-        buy_modal_title: "Купити Токени", buy_modal_desc: "Введіть суму покупки",
-        btn_submit_buy: "Купити", btn_cancel: "Скасувати"
-    },
-    tr: {
-        subtitle: "Pre-Market Tokenlar",
-        days: "Gün", hours: "Saat", minutes: "Dakika", seconds: "Saniye",
-        btn_buy: "Satın Al", btn_reg: "Kayıt", btn_copy: "Kopyala", btn_share: "Paylaş",
-        top_title: "🏆 En İyi Holders", loading: "Yükleniyor...",
-        chart_title: "Fiyat Grafiği", chart_hint: "Her 4sn'de güncellenir",
-        rules_title: "Kurallar", rule_1: "Tokenları sabit fiyattan satın alın", rule_2: "Katılmak için TON cüzdanınızı bağlayın",
-        rule_3: "Tokenlar listeleme sonrasında dağıtılır", rule_4: "Tüm satışlar kesindir", rule_5: "Bonus tokenlar için görevleri tamamlayın",
-        status_in_game: "Oyunda", status_check: "Kontrol...", bonus_lbl: "Bonus",
-        liq_title: "Toplanan Likidite", liq_target: "hedef",
-        tab_home: "Ana Sayfa", tab_tasks: "Görevler", tab_tasks_nav: "Görevler", tab_refs: "Referanslar", tab_refs_nav: "Referanslar",
-        tasks_desc: "Görevleri tamamlayarak bonus token kazanın", ref_desc: "Arkadaşlarınızı davet edin ve ödül kazanın",
-        ref_count_lbl: "Referanslar", ref_earned_lbl: "Kazanılan",
-        btn_verify: "Doğrula", btn_done: "Tamamlandı", btn_go: "Git",
-        create_task_title: "Görev Oluştur", btn_create_task: "Görev Oluştur",
-        toast_buy_ok: "Satın alma isteği gönderildi!", toast_wallet: "Cüzdan bağlandı!",
-        toast_copy: "Bağlantı kopyalandı!", toast_share: "Telegram'da paylaş",
-        toast_task_done: "Görev tamamlandı!", toast_task_verify: "Görevi doğrulayın",
-        toast_error: "Hata", toast_ref_ok: "Referans bağlantısı hazır!",
-        placeholder_amount: "TON cinsinden miktar", placeholder_task_name: "Görev adı", placeholder_task_link: "Görev bağlantısı",
-        ticker_bought: "satın aldı", ticker_just: "az önce",
-        task_static_1: "Kanala abone olun", task_static_2: "Gönderiyi yeniden paylaşın",
-        task_custom_tg: "Telegram Görevi", task_custom_link: "Bağlantı Görevi",
-        admin_title: "Admin Paneli", admin_pending: "Bekleyen", admin_done_count: "Tamamlanan", admin_purchases: "Satın Alımlar",
-        admin_no_purchases: "Henüz satın alma yok",
-        filter_all: "Tümü", filter_pending: "Bekleyen", filter_completed: "Tamamlanan",
-        btn_confirm_send: "Onayla", btn_reject: "Reddet",
-        status_pending: "Bekliyor", status_completed: "Tamamlandı", status_rejected: "Reddedildi",
-        toast_confirm_ok: "Satın alma onaylandı!", toast_reject_ok: "Satın alma reddedildi!",
-        toast_purchase_created: "Satın alma oluşturuldu!", toast_purchase_error: "Satın alma oluşturma hatası",
-        feed_title: "Aktivite", feed_empty: "Henüz aktivite yok",
-        feed_bought: "token satın aldı", feed_just_now: "az önce", feed_min_ago: "dk önce",
-        activity_buy: "Satın Alma", activity_holder: "Holder",
-        buy_modal_title: "Token Satın Al", buy_modal_desc: "Satın alma miktarını girin",
-        btn_submit_buy: "Satın Al", btn_cancel: "İptal"
-    },
-    ar: {
-        subtitle: "arket الم pré-market",
-        days: "يوم", hours: "ساعة", minutes: "دقيقة", seconds: "ثانية",
-        btn_buy: "شراء", btn_reg: "تسجيل", btn_copy: "نسخ", btn_share: "مشاركة",
-        top_title: "🏆 أفضل HOLDERS", loading: "جاري التحميل...",
-        chart_title: "رسم بياني للسعر", chart_hint: "يتحدث كل 4 ثوانٍ",
-        rules_title: "القواعد", rule_1: "اشترِ الرموز بسعر ثابت", rule_2: "قم بتوصيل محفظة TON للمشاركة",
-        rule_3: "تُوزع الرموز بعد الإدراج", rule_4: "جميع المبيعات نهائية", rule_5: "أكمل المهام للحصول على مكافآت",
-        status_in_game: "في اللعبة", status_check: "جاري التحقق...", bonus_lbl: "مكافأة",
-        liq_title: "السيولة المحصلة", liq_target: "الهدف",
-        tab_home: "الرئيسية", tab_tasks: "المهام", tab_tasks_nav: "المهام", tab_refs: "الإحالات", tab_refs_nav: "الإحالات",
-        tasks_desc: "أكمل المهام لكسب رموز إضافية", ref_desc: "ادعُ أصدقاءك واحصل على مكافآت",
-        ref_count_lbl: "الإحالات", ref_earned_lbl: "المكتسب",
-        btn_verify: "تحقق", btn_done: "تم", btn_go: "اذهب",
-        create_task_title: "إنشاء مهمة", btn_create_task: "إنشاء مهمة",
-        toast_buy_ok: "تم إرسال طلب الشراء!", toast_wallet: "تم توصيل المحفظة!",
-        toast_copy: "تم نسخ الرابط!", toast_share: "مشاركة على تيليجرام",
-        toast_task_done: "تم إكمال المهمة!", toast_task_verify: "تحقق من المهمة",
-        toast_error: "خطأ", toast_ref_ok: "رابط الإحالة جاهز!",
-        placeholder_amount: "المبلغ بالـ TON", placeholder_task_name: "اسم المهمة", placeholder_task_link: "رابط المهمة",
-        ticker_bought: "اشترى", ticker_just: "للتو",
-        task_static_1: "اشترك في القناة", task_static_2: "أعد نشر المنشور",
-        task_custom_tg: "مهمة تيليجرام", task_custom_link: "مهمة رابط",
-        admin_title: "لوحة الإدارة", admin_pending: "قيد الانتظار", admin_done_count: "مكتمل", admin_purchases: "المشتريات",
-        admin_no_purchases: "لا توجد مشتريات بعد",
-        filter_all: "الكل", filter_pending: "قيد الانتظار", filter_completed: "مكتمل",
-        btn_confirm_send: "تأكيد", btn_reject: "رفض",
-        status_pending: "قيد الانتظار", status_completed: "مكتمل", status_rejected: "مرفوض",
-        toast_confirm_ok: "تم تأكيد الشراء!", toast_reject_ok: "تم رفض الشراء!",
-        toast_purchase_created: "تم إنشاء الشراء!", toast_purchase_error: "خطأ في إنشاء الشراء",
-        feed_title: "النشاط", feed_empty: "لا يوجد نشاط بعد",
-        feed_bought: "اشترى رموزاً", feed_just_now: "للتو", feed_min_ago: "دقيقة مضت",
-        activity_buy: "شراء", activity_holder: "حامل",
-        buy_modal_title: "شراء الرموز", buy_modal_desc: "أدخل مبلغ الشراء",
-        btn_submit_buy: "شراء", btn_cancel: "إلغاء"
-    },
-    zh: {
-        subtitle: "Pre-Market 代币",
-        days: "天", hours: "小时", minutes: "分钟", seconds: "秒",
-        btn_buy: "购买", btn_reg: "注册", btn_copy: "复制", btn_share: "分享",
-        top_title: "🏆 持有者排行榜", loading: "加载中...",
-        chart_title: "价格图表", chart_hint: "每4秒更新",
-        rules_title: "规则", rule_1: "以固定价格购买代币", rule_2: "连接 TON 钱包参与",
-        rule_3: "代币在上线后分发", rule_4: "所有销售最终确认", rule_5: "完成任务获得奖励",
-        status_in_game: "游戏中", status_check: "检查中...", bonus_lbl: "奖励",
-        liq_title: "已收集流动性", liq_target: "目标",
-        tab_home: "首页", tab_tasks: "任务", tab_tasks_nav: "任务", tab_refs: "推荐", tab_refs_nav: "推荐",
-        tasks_desc: "完成任务赚取奖励代币", ref_desc: "邀请朋友获得奖励",
-        ref_count_lbl: "推荐数", ref_earned_lbl: "已赚取",
-        btn_verify: "验证", btn_done: "完成", btn_go: "前往",
-        create_task_title: "创建任务", btn_create_task: "创建任务",
-        toast_buy_ok: "购买请求已发送!", toast_wallet: "钱包已连接!",
-        toast_copy: "链接已复制!", toast_share: "分享到 Telegram",
-        toast_task_done: "任务已完成!", toast_task_verify: "请验证任务",
-        toast_error: "错误", toast_ref_ok: "推荐链接已准备好!",
-        placeholder_amount: "金额 (TON)", placeholder_task_name: "任务名称", placeholder_task_link: "任务链接",
-        ticker_bought: "购买了", ticker_just: "刚刚",
-        task_static_1: "订阅频道", task_static_2: "转发帖子",
-        task_custom_tg: "Telegram 任务", task_custom_link: "链接任务",
-        admin_title: "管理面板", admin_pending: "待处理", admin_done_count: "已完成", admin_purchases: "购买记录",
-        admin_no_purchases: "暂无购买记录",
-        filter_all: "全部", filter_pending: "待处理", filter_completed: "已完成",
-        btn_confirm_send: "确认", btn_reject: "拒绝",
-        status_pending: "待处理", status_completed: "已完成", status_rejected: "已拒绝",
-        toast_confirm_ok: "购买已确认!", toast_reject_ok: "购买已拒绝!",
-        toast_purchase_created: "购买已创建!", toast_purchase_error: "创建购买失败",
-        feed_title: "动态", feed_empty: "暂无动态",
-        feed_bought: "购买了代币", feed_just_now: "刚刚", feed_min_ago: "分钟前",
-        activity_buy: "购买", activity_holder: "持有者",
-        buy_modal_title: "购买代币", buy_modal_desc: "输入购买金额",
-        btn_submit_buy: "购买", btn_cancel: "取消"
-    },
-    hi: {
-        subtitle: "Pre-Market टोकन",
-        days: "दिन", hours: "घंटे", minutes: "मिनट", seconds: "सेकंड",
-        btn_buy: "खरीदें", btn_reg: "रजिस्टर", btn_copy: "कॉपी", btn_share: "शेयर",
-        top_title: "🏆 टॉप होल्डर्स", loading: "लोड हो रहा है...",
-        chart_title: "मूल्य चार्ट", chart_hint: "हर 4से अपडेट",
-        rules_title: "नियम", rule_1: "तय दर पर टोकन खरीदें", rule_2: "भाग लेने के लिए TON वॉलेट कनेक्ट करें",
-        rule_3: "लिस्टिंग के बाद टोकन वितरित", rule_4: "सभी बिक्री अंतिम हैं", rule_5: "बोनस के लिए कार्य पूरे करें",
-        status_in_game: "खेल में", status_check: "जांच...", bonus_lbl: "बोनस",
-        liq_title: "एकत्र तरलता", liq_target: "लक्ष्य",
-        tab_home: "होम", tab_tasks: "कार्य", tab_tasks_nav: "कार्य", tab_refs: "रेफरल", tab_refs_nav: "रेफरल",
-        tasks_desc: "बोनस टोकन कमाने के लिए कार्य पूरे करें", ref_desc: "दोस्तों को आमंत्रित करें और पुरस्कार पाएं",
-        ref_count_lbl: "रेफरल", ref_earned_lbl: "कमाया",
-        btn_verify: "सत्यापित", btn_done: "हो गया", btn_go: "जाएं",
-        create_task_title: "कार्य बनाएं", btn_create_task: "कार्य बनाएं",
-        toast_buy_ok: "खरीद अनुरोध भेजा गया!", toast_wallet: "वॉलेट कनेक्ट हुआ!",
-        toast_copy: "लिंक कॉपी हुआ!", toast_share: "Telegram पर शेयर करें",
-        toast_task_done: "कार्य पूरा हुआ!", toast_task_verify: "कार्य सत्यापित करें",
-        toast_error: "त्रुटि", toast_ref_ok: "रेफरल लिंक तैयार!",
-        placeholder_amount: "राशि (TON)", placeholder_task_name: "कार्य का नाम", placeholder_task_link: "कार्य लिंक",
-        ticker_bought: "ने खरीदा", ticker_just: "अभी",
-        task_static_1: "चैनल सब्सक्राइब करें", task_static_2: "पोस्ट रीपोस्ट करें",
-        task_custom_tg: "Telegram कार्य", task_custom_link: "लिंक कार्य",
-        admin_title: "एडमिन पैनल", admin_pending: "लंबित", admin_done_count: "पूर्ण", admin_purchases: "खरीद",
-        admin_no_purchases: "अभी कोई खरीद नहीं",
-        filter_all: "सभी", filter_pending: "लंबित", filter_completed: "पूर्ण",
-        btn_confirm_send: "पुष्टि करें", btn_reject: "अस्वीकार",
-        status_pending: "लंबित", status_completed: "पूर्ण", status_rejected: "अस्वीकृत",
-        toast_confirm_ok: "खरीद पुष्टि हुई!", toast_reject_ok: "खरीद अस्वीकृत!",
-        toast_purchase_created: "खरीद बनाई गई!", toast_purchase_error: "खरीद बनाने में त्रुटि",
-        feed_title: "गतिविधि", feed_empty: "अभी कोई गतिविधि नहीं",
-        feed_bought: "ने टोकन खरीदे", feed_just_now: "अभी", feed_min_ago: "मिनट पहले",
-        activity_buy: "खरीद", activity_holder: "होल्डर",
-        buy_modal_title: "टोकन खरीदें", buy_modal_desc: "खरीद राशि दर्ज करें",
-        btn_submit_buy: "खरीदें", btn_cancel: "रद्द"
-    }
+    ru: {subtitle:"Pre-Market Токены",days:"Дней",hours:"Часов",minutes:"Минут",seconds:"Секунд",btn_buy:"Купить",btn_copy:"Копировать",btn_share:"Поделиться",top_title:"Топ Холдеры",loading:"Загрузка...",chart_hint:"График цены с DexScreener",chart_full:"Открыть полный график",rules_title:"Правила",rule_1:"Покупайте токены по фиксированной цене",rule_2:"Подключите TON кошелёк для участия",rule_3:"Токены распределяются после листинга",rule_4:"Все продажи окончательны",rule_5:"Выполняйте задания для бонусов",status_in_game:"В Игре",liq_title:"Ликвидность собрана",tab_home:"Главная",tab_tasks:"Задания",tab_tasks_nav:"Задания",tab_refs:"Рефералы",tab_refs_nav:"Рефералы",tasks_desc:"Выполняйте задания и получайте бонусные токены",ref_desc:"Приглашайте друзей и получайте награды",ref_count_lbl:"Рефералы",ref_earned_lbl:"Заработано",btn_verify:"Проверить",btn_go:"Перейти",create_task_title:"Создать Задание",btn_create_task:"Создать Задание",toast_buy_ok:"Заявка отправлена!",toast_wallet:"Кошелёк подключён!",toast_copy:"Ссылка скопирована!",toast_share:"Поделиться в Telegram",toast_task_done:"Задание выполнено!",toast_task_verify:"Проверьте задание",toast_error:"Ошибка",placeholder_amount:"Сумма в TON",task_static_1:"Подпишитесь на канал",task_static_2:"Сделайте репост поста",task_custom_tg:"Задание Telegram",task_custom_link:"Задание по ссылке",admin_title:"Админ Панель",admin_pending:"Ожидают",admin_done_count:"Выполнено",admin_purchases:"Покупки",admin_no_purchases:"Покупок пока нет",filter_all:"Все",filter_pending:"Ожидают",filter_completed:"Выполнены",btn_confirm_send:"Подтвердить",btn_reject:"Отклонить",status_pending:"Ожидает",status_completed:"Выполнено",status_rejected:"Отклонено",toast_confirm_ok:"Покупка подтверждена!",toast_reject_ok:"Покупка отклонена!",toast_purchase_created:"Заявка создана!",toast_purchase_error:"Ошибка создания заявки",feed_title:"Активность",feed_empty:"Пока нет активности",feed_bought:"купил токены на",feed_just_now:"только что",feed_min_ago:"мин назад",buy_modal_title:"Купить Токены",buy_modal_desc:"Введите сумму покупки",btn_submit_buy:"Купить",btn_cancel:"Отмена",social_title:"Мы в соцсетях",news_title:"Новости",news_empty:"Пока нет новостей",support_title:"Поддержка",support_sub:"Написать в поддержку",create_news_title:"Новый пост",create_news_desc:"Поделитесь новостями с сообществом",news_placeholder_title:"Заголовок",news_placeholder_text:"Текст (необязательно)",news_placeholder_image:"Ссылка на изображение (необязательно)",toast_news_created:"Пост опубликован!",toast_news_deleted:"Пост удалён!"},
+    en: {subtitle:"Pre-Market Tokens",days:"Days",hours:"Hours",minutes:"Minutes",seconds:"Seconds",btn_buy:"Buy",btn_copy:"Copy",btn_share:"Share",top_title:"Top Holders",loading:"Loading...",chart_hint:"Price chart from DexScreener",chart_full:"Open Full Chart",rules_title:"Rules",rule_1:"Buy tokens at fixed pre-market rate",rule_2:"Connect TON wallet to participate",rule_3:"Tokens distributed after listing",rule_4:"All sales are final",rule_5:"Complete tasks for bonus tokens",status_in_game:"In Game",liq_title:"Liquidity Collected",tab_home:"Home",tab_tasks:"Tasks",tab_tasks_nav:"Tasks",tab_refs:"Refs",tab_refs_nav:"Refs",tasks_desc:"Complete tasks to earn bonus tokens",ref_desc:"Invite friends and earn rewards",ref_count_lbl:"Referrals",ref_earned_lbl:"Earned",btn_verify:"Verify",btn_go:"Go",create_task_title:"Create Task",btn_create_task:"Create Task",toast_buy_ok:"Purchase request sent!",toast_wallet:"Wallet connected!",toast_copy:"Link copied!",toast_share:"Share on Telegram",toast_task_done:"Task completed!",toast_task_verify:"Verify the task",toast_error:"Error",placeholder_amount:"Amount in TON",task_static_1:"Subscribe to channel",task_static_2:"Repost the post",task_custom_tg:"Telegram Task",task_custom_link:"Link Task",admin_title:"Admin Panel",admin_pending:"Pending",admin_done_count:"Completed",admin_purchases:"Purchases",admin_no_purchases:"No purchases yet",filter_all:"All",filter_pending:"Pending",filter_completed:"Completed",btn_confirm_send:"Confirm",btn_reject:"Reject",status_pending:"Pending",status_completed:"Completed",status_rejected:"Rejected",toast_confirm_ok:"Purchase confirmed!",toast_reject_ok:"Purchase rejected!",toast_purchase_created:"Purchase created!",toast_purchase_error:"Error creating purchase",feed_title:"Activity",feed_empty:"No activity yet",feed_bought:"bought tokens for",feed_just_now:"just now",feed_min_ago:"min ago",buy_modal_title:"Buy Tokens",buy_modal_desc:"Enter purchase amount",btn_submit_buy:"Buy",btn_cancel:"Cancel",social_title:"Follow Us",news_title:"News & Updates",news_empty:"No news yet",support_title:"Support",support_sub:"Contact support",create_news_title:"Create News Post",create_news_desc:"Share news with your community",news_placeholder_title:"Title",news_placeholder_text:"Text (optional)",news_placeholder_image:"Image URL (optional)",toast_news_created:"Post published!",toast_news_deleted:"Post deleted!"},
+    uk: {subtitle:"Pre-Market Токени",days:"Днів",hours:"Годин",minutes:"Хвилин",seconds:"Секунд",btn_buy:"Купити",btn_copy:"Копіювати",btn_share:"Поділитися",top_title:"Топ Холдерів",loading:"Завантаження...",chart_hint:"Графік ціни з DexScreener",chart_full:"Відкрити повний графік",rules_title:"Правила",rule_1:"Купуйте токени за фіксованою ціною",rule_2:"Підключіть TON гаманець для участі",rule_3:"Токени розподіляються після лістингу",rule_4:"Всі продажі остаточні",rule_5:"Виконуйте завдання для бонусів",status_in_game:"У Грі",liq_title:"Ліквідність зібрана",tab_home:"Головна",tab_tasks:"Завдання",tab_tasks_nav:"Завдання",tab_refs:"Реферали",tab_refs_nav:"Реферали",tasks_desc:"Виконуйте завдання та отримуйте бонусні токени",ref_desc:"Запрошуйте друзів та отримуйте нагороди",ref_count_lbl:"Реферали",ref_earned_lbl:"Зароблено",btn_verify:"Перевірити",btn_go:"Перейти",create_task_title:"Створити Завдання",btn_create_task:"Створити Завдання",toast_buy_ok:"Заявку надіслано!",toast_wallet:"Гаманець підключено!",toast_copy:"Посилання скопійовано!",toast_share:"Поділитися в Telegram",toast_task_done:"Завдання виконано!",toast_task_verify:"Перевірте завдання",toast_error:"Помилка",placeholder_amount:"Сума в TON",task_static_1:"Підпишіться на канал",task_static_2:"Зробіть репост посту",task_custom_tg:"Завдання Telegram",task_custom_link:"Завдання за посиланням",admin_title:"Адмін Панель",admin_pending:"Очікують",admin_done_count:"Виконано",admin_purchases:"Покупки",admin_no_purchases:"Покупок поки немає",filter_all:"Всі",filter_pending:"Очікують",filter_completed:"Виконані",btn_confirm_send:"Підтвердити",btn_reject:"Відхилити",status_pending:"Очікує",status_completed:"Виконано",status_rejected:"Відхилено",toast_confirm_ok:"Покупку підтверджено!",toast_reject_ok:"Покупку відхилено!",toast_purchase_created:"Заявку створено!",toast_purchase_error:"Помилка створення заявки",feed_title:"Активність",feed_empty:"Поки немає активності",feed_bought:"придбав токени на",feed_just_now:"щойно",feed_min_ago:"хв назад",buy_modal_title:"Купити Токени",buy_modal_desc:"Введіть суму покупки",btn_submit_buy:"Купити",btn_cancel:"Скасувати",social_title:"Ми в соцмережах",news_title:"Новини",news_empty:"Поки немає новин",support_title:"Підтримка",support_sub:"Зв'язатися з підтримкою",create_news_title:"Новий пост",create_news_desc:"Поділіться новинами зі спільнотою",news_placeholder_title:"Заголовок",news_placeholder_text:"Текст (необов'язково)",news_placeholder_image:"Посилання на зображення (необов'язково)",toast_news_created:"Опубліковано!",toast_news_deleted:"Видалено!"},
+    tr: {subtitle:"Pre-Market Tokenlar",days:"Gün",hours:"Saat",minutes:"Dakika",seconds:"Saniye",btn_buy:"Satın Al",btn_copy:"Kopyala",btn_share:"Paylaş",top_title:"En İyi Holders",loading:"Yükleniyor...",chart_hint:"DexScreener fiyat grafiği",chart_full:"Tam Grafiği Aç",rules_title:"Kurallar",rule_1:"Tokenları sabit fiyattan satın alın",rule_2:"Katılmak için TON cüzdanınızı bağlayın",rule_3:"Tokenlar listeleme sonrasında dağıtılır",rule_4:"Tüm satışlar kesindir",rule_5:"Bonus tokenlar için görevleri tamamlayın",status_in_game:"Oyunda",liq_title:"Toplanan Likidite",tab_home:"Ana Sayfa",tab_tasks:"Görevler",tab_tasks_nav:"Görevler",tab_refs:"Referanslar",tab_refs_nav:"Referanslar",tasks_desc:"Görevleri tamamlayarak bonus token kazanın",ref_desc:"Arkadaşlarınızı davet edin ve ödül kazanın",ref_count_lbl:"Referanslar",ref_earned_lbl:"Kazanılan",btn_verify:"Doğrula",btn_go:"Git",create_task_title:"Görev Oluştur",btn_create_task:"Görev Oluştur",toast_buy_ok:"İstek gönderildi!",toast_wallet:"Cüzdan bağlandı!",toast_copy:"Bağlantı kopyalandı!",toast_share:"Telegram'da paylaş",toast_task_done:"Görev tamamlandı!",toast_task_verify:"Görevi doğrulayın",toast_error:"Hata",placeholder_amount:"TON cinsinden miktar",task_static_1:"Kanala abone olun",task_static_2:"Gönderiyi yeniden paylaşın",task_custom_tg:"Telegram Görevi",task_custom_link:"Bağlantı Görevi",admin_title:"Admin Paneli",admin_pending:"Bekleyen",admin_done_count:"Tamamlanan",admin_purchases:"Satın Alımlar",admin_no_purchases:"Henüz satın alma yok",filter_all:"Tümü",filter_pending:"Bekleyen",filter_completed:"Tamamlanan",btn_confirm_send:"Onayla",btn_reject:"Reddet",status_pending:"Bekliyor",status_completed:"Tamamlandı",status_rejected:"Reddedildi",toast_confirm_ok:"Onaylandı!",toast_reject_ok:"Reddedildi!",toast_purchase_created:"Oluşturuldu!",toast_purchase_error:"Oluşturma hatası",feed_title:"Aktivite",feed_empty:"Henüz aktivite yok",feed_bought:"token satın aldı",feed_just_now:"az önce",feed_min_ago:"dk önce",buy_modal_title:"Token Satın Al",buy_modal_desc:"Satın alma miktarını girin",btn_submit_buy:"Satın Al",btn_cancel:"İptal",social_title:"Bizi Takip Edin",news_title:"Haberler",news_empty:"Henüz haber yok",support_title:"Destek",support_sub:"Destek ile iletişime geçin",create_news_title:"Yeni Gönderi",create_news_desc:"Toplulukla haber paylaşın",news_placeholder_title:"Başlık",news_placeholder_text:"Metin (isteğe bağlı)",news_placeholder_image:"Görsel URL (isteğe bağlı)",toast_news_created:"Yayınlandı!",toast_news_deleted:"Silindi!"},
+    ar: {subtitle:"Pre-Market Tokens",days:"يوم",hours:"ساعة",minutes:"دقيقة",seconds:"ثانية",btn_buy:"شراء",btn_copy:"نسخ",btn_share:"مشاركة",top_title:"أفضل Holders",loading:"جاري التحميل...",chart_hint:"رسم بياني للسعر من DexScreener",chart_full:"فتح الرسم الكامل",rules_title:"القواعد",rule_1:"اشترِ الرموز بسعر ثابت",rule_2:"قم بتوصيل محفظة TON للمشاركة",rule_3:"تُوزع الرموز بعد الإدراج",rule_4:"جميع المبيعات نهائية",rule_5:"أكمل المهام للحصول على مكافآت",status_in_game:"في اللعبة",liq_title:"السيولة المحصلة",tab_home:"الرئيسية",tab_tasks:"المهام",tab_tasks_nav:"المهام",tab_refs:"الإحالات",tab_refs_nav:"الإحالات",tasks_desc:"أكمل المهام لكسب رموز إضافية",ref_desc:"ادعُ أصدقاءك واحصل على مكافآت",ref_count_lbl:"الإحالات",ref_earned_lbl:"المكتسب",btn_verify:"تحقق",btn_go:"اذهب",create_task_title:"إنشاء مهمة",btn_create_task:"إنشاء مهمة",toast_buy_ok:"تم إرسال الطلب!",toast_wallet:"تم توصيل المحفظة!",toast_copy:"تم نسخ الرابط!",toast_share:"مشاركة على تيليجرام",toast_task_done:"تم إكمال المهمة!",toast_task_verify:"تحقق من المهمة",toast_error:"خطأ",placeholder_amount:"المبلغ بالـ TON",task_static_1:"اشترك في القناة",task_static_2:"أعد نشر المنشور",task_custom_tg:"مهمة تيليجرام",task_custom_link:"مهمة رابط",admin_title:"لوحة الإدارة",admin_pending:"قيد الانتظار",admin_done_count:"مكتمل",admin_purchases:"المشتريات",admin_no_purchases:"لا توجد مشتريات بعد",filter_all:"الكل",filter_pending:"قيد الانتظار",filter_completed:"مكتمل",btn_confirm_send:"تأكيد",btn_reject:"رفض",status_pending:"قيد الانتظار",status_completed:"مكتمل",status_rejected:"مرفوض",toast_confirm_ok:"تم التأكيد!",toast_reject_ok:"تم الرفض!",toast_purchase_created:"تم الإنشاء!",toast_purchase_error:"خطأ في الإنشاء",feed_title:"النشاط",feed_empty:"لا يوجد نشاط بعد",feed_bought:"اشترى رموزاً بقيمة",feed_just_now:"للتو",feed_min_ago:"دقيقة مضت",buy_modal_title:"شراء الرموز",buy_modal_desc:"أدخل مبلغ الشراء",btn_submit_buy:"شراء",btn_cancel:"إلغاء",social_title:"تابعنا",news_title:"الأخبار",news_empty:"لا توجد أخبار بعد",support_title:"الدعم",support_sub:"تواصل مع الدعم",create_news_title:"منشور جديد",create_news_desc:"شارك الأخبار مع المجتمع",news_placeholder_title:"العنوان",news_placeholder_text:"النص (اختياري)",news_placeholder_image:"رابط الصورة (اختياري)",toast_news_created:"تم النشر!",toast_news_deleted:"تم الحذف!"},
+    zh: {subtitle:"Pre-Market 代币",days:"天",hours:"小时",minutes:"分钟",seconds:"秒",btn_buy:"购买",btn_copy:"复制",btn_share:"分享",top_title:"持有者排行榜",loading:"加载中...",chart_hint:"DexScreener 价格图表",chart_full:"打开完整图表",rules_title:"规则",rule_1:"以固定价格购买代币",rule_2:"连接 TON 钱包参与",rule_3:"代币在上线后分发",rule_4:"所有销售最终确认",rule_5:"完成任务获得奖励",status_in_game:"游戏中",liq_title:"已收集流动性",tab_home:"首页",tab_tasks:"任务",tab_tasks_nav:"任务",tab_refs:"推荐",tab_refs_nav:"推荐",tasks_desc:"完成任务赚取奖励代币",ref_desc:"邀请朋友获得奖励",ref_count_lbl:"推荐数",ref_earned_lbl:"已赚取",btn_verify:"验证",btn_go:"前往",create_task_title:"创建任务",btn_create_task:"创建任务",toast_buy_ok:"请求已发送!",toast_wallet:"钱包已连接!",toast_copy:"链接已复制!",toast_share:"分享到 Telegram",toast_task_done:"任务已完成!",toast_task_verify:"请验证任务",toast_error:"错误",placeholder_amount:"金额 (TON)",task_static_1:"订阅频道",task_static_2:"转发帖子",task_custom_tg:"Telegram 任务",task_custom_link:"链接任务",admin_title:"管理面板",admin_pending:"待处理",admin_done_count:"已完成",admin_purchases:"购买记录",admin_no_purchases:"暂无购买记录",filter_all:"全部",filter_pending:"待处理",filter_completed:"已完成",btn_confirm_send:"确认",btn_reject:"拒绝",status_pending:"待处理",status_completed:"已完成",status_rejected:"已拒绝",toast_confirm_ok:"已确认!",toast_reject_ok:"已拒绝!",toast_purchase_created:"已创建!",toast_purchase_error:"创建失败",feed_title:"动态",feed_empty:"暂无动态",feed_bought:"购买了代币",feed_just_now:"刚刚",feed_min_ago:"分钟前",buy_modal_title:"购买代币",buy_modal_desc:"输入购买金额",btn_submit_buy:"购买",btn_cancel:"取消",social_title:"关注我们",news_title:"新闻动态",news_empty:"暂无新闻",support_title:"支持",support_sub:"联系客服",create_news_title:"发布新闻",create_news_desc:"与社区分享新闻",news_placeholder_title:"标题",news_placeholder_text:"内容（可选）",news_placeholder_image:"图片链接（可选）",toast_news_created:"发布成功!",toast_news_deleted:"已删除!"},
+    hi: {subtitle:"Pre-Market टोकन",days:"दिन",hours:"घंटे",minutes:"मिनट",seconds:"सेकंड",btn_buy:"खरीदें",btn_copy:"कॉपी",btn_share:"शेयर",top_title:"टॉप होल्डर्स",loading:"लोड हो रहा है...",chart_hint:"DexScreener मूल्य चार्ट",chart_full:"पूरा चार्ट खोलें",rules_title:"नियम",rule_1:"तय दर पर टोकन खरीदें",rule_2:"भाग लेने के लिए TON वॉलेट कनेक्ट करें",rule_3:"लिस्टिंग के बाद टोकन वितरित",rule_4:"सभी बिक्री अंतिम हैं",rule_5:"बोनस के लिए कार्य पूरे करें",status_in_game:"खेल में",liq_title:"एकत्र तरलता",tab_home:"होम",tab_tasks:"कार्य",tab_tasks_nav:"कार्य",tab_refs:"रेफरल",tab_refs_nav:"रेफरल",tasks_desc:"बोनस टोकन कमाने के लिए कार्य पूरे करें",ref_desc:"दोस्तों को आमंत्रित करें और पुरस्कार पाएं",ref_count_lbl:"रेफरल",ref_earned_lbl:"कमाया",btn_verify:"सत्यापित",btn_go:"जाएं",create_task_title:"कार्य बनाएं",btn_create_task:"कार्य बनाएं",toast_buy_ok:"अनुरोध भेजा गया!",toast_wallet:"वॉलेट कनेक्ट हुआ!",toast_copy:"लिंक कॉपी हुआ!",toast_share:"Telegram पर शेयर करें",toast_task_done:"कार्य पूरा हुआ!",toast_task_verify:"कार्य सत्यापित करें",toast_error:"त्रुटि",placeholder_amount:"राशि (TON)",task_static_1:"चैनल सब्सक्राइब करें",task_static_2:"पोस्ट रीपोस्ट करें",task_custom_tg:"Telegram कार्य",task_custom_link:"लिंक कार्य",admin_title:"एडमिन पैनल",admin_pending:"लंबित",admin_done_count:"पूर्ण",admin_purchases:"खरीद",admin_no_purchases:"अभी कोई खरीद नहीं",filter_all:"सभी",filter_pending:"लंबित",filter_completed:"पूर्ण",btn_confirm_send:"पुष्टि करें",btn_reject:"अस्वीकार",status_pending:"लंबित",status_completed:"पूर्ण",status_rejected:"अस्वीकृत",toast_confirm_ok:"पुष्टि हुई!",toast_reject_ok:"अस्वीकृत!",toast_purchase_created:"बनाई गई!",toast_purchase_error:"बनाने में त्रुटि",feed_title:"गतिविधि",feed_empty:"अभी कोई गतिविधि नहीं",feed_bought:"ने टोकन खरीदे",feed_just_now:"अभी",feed_min_ago:"मिनट पहले",buy_modal_title:"टोकन खरीदें",buy_modal_desc:"खरीद राशि दर्ज करें",btn_submit_buy:"खरीदें",btn_cancel:"रद्द",social_title:"हमें फॉलो करें",news_title:"समाचार",news_empty:"अभी कोई समाचार नहीं",support_title:"सहायता",support_sub:"सहायता से संपर्क करें",create_news_title:"नया पोस्ट",create_news_desc:"समुदाय के साथ समाचार साझा करें",news_placeholder_title:"शीर्षक",news_placeholder_text:"पाठ (वैकल्पिक)",news_placeholder_image:"चित्र URL (वैकल्पिक)",toast_news_created:"प्रकाशित!",toast_news_deleted:"हटाया गया!"}
 };
 
 let curLang = "ru";
@@ -675,106 +436,87 @@ let curToken = "mason";
 let isAdmin = false;
 let walletConnected = false;
 let walletAddress = "";
-let priceHistory = [];
-let livePrice = 0;
-let adminPurchasesData = [];
-let currentFilter = "all";
 let tgUser = null;
-let referralCount = 0;
-let referralEarned = 0;
+
+const T2 = {
+    ru: {admin_free:"Бесплатно",admin_total_ton:"Баланс TON",admin_total_news:"Новости",admin_total_tasks:"Задания",send_modal_desc:"Отправьте TON на этот адрес кошелька",toast_task_deleted:"Задание удалено!"},
+    en: {admin_free:"Free",admin_total_ton:"TON Balance",admin_total_news:"News Posts",admin_total_tasks:"Tasks",send_modal_desc:"Send TON to this wallet address",toast_task_deleted:"Task deleted!"},
+    uk: {admin_free:"Безкоштовно",admin_total_ton:"Баланс TON",admin_total_news:"Новини",admin_total_tasks:"Завдання",send_modal_desc:"Надішліть TON на цю адресу гаманця",toast_task_deleted:"Завдання видалено!"},
+    tr: {admin_free:"Ücretsiz",admin_total_ton:"TON Bakiyesi",admin_total_news:"Haberler",admin_total_tasks:"Görevler",send_modal_desc:"Bu cüzdan adresine TON gönderin",toast_task_deleted:"Görev silindi!"},
+    ar: {admin_free:"مجاني",admin_total_ton:"رصيد TON",admin_total_news:"منشورات",admin_total_tasks:"مهام",send_modal_desc:"أرسل TON إلى عنوان المحفظة này",toast_task_deleted:"تم حذف المهمة!"},
+    zh: {admin_free:"免费",admin_total_ton:"TON 余额",admin_total_news:"新闻",admin_total_tasks:"任务",send_modal_desc:"发送 TON 到此钱包地址",toast_task_deleted:"任务已删除!"},
+    hi: {admin_free:"मुफ़्त",admin_total_ton:"TON बैलेंस",admin_total_news:"समाचार",admin_total_tasks:"कार्य",send_modal_desc:"इस वॉलेट पते पर TON भेजें",toast_task_deleted:"कार्य हटाया गया!"}
+};
 
 const $ = (id) => document.getElementById(id);
 
 function showToast(msg) {
-    const t = $("toast");
-    t.textContent = msg;
-    t.classList.add("show");
-    setTimeout(() => t.classList.remove("show"), 3000);
+    const el = $("toast");
+    el.textContent = msg;
+    el.classList.add("show");
+    setTimeout(() => el.classList.remove("show"), 3000);
 }
 
 function openLink(url) {
-    if (window.Telegram && Telegram.WebApp) {
-        Telegram.WebApp.openLink(url);
-    } else {
-        window.open(url, "_blank");
-    }
+    if (window.Telegram && Telegram.WebApp) Telegram.WebApp.openLink(url);
+    else window.open(url, "_blank");
 }
+window.openLink = openLink;
 
-function t(key) {
-    return T[curLang]?.[key] || T.en[key] || key;
-}
+function t(key) { return T[curLang]?.[key] || T2[curLang]?.[key] || T.en[key] || T2.en[key] || key; }
 
-function switchTab(tab) {
+window.switchTab = function(tab) {
     document.querySelectorAll(".tab-content").forEach(el => el.classList.remove("active"));
     document.querySelectorAll(".nav-item").forEach(el => el.classList.remove("active"));
-    if (tab === "home") {
-        $("tabHome").classList.add("active");
-        $("navHome").classList.add("active");
-    } else if (tab === "tasks") {
-        $("tabTasks").classList.add("active");
-        $("navTasks").classList.add("active");
-    } else if (tab === "refs") {
-        $("tabRefs").classList.add("active");
-        $("navRefs").classList.add("active");
-    }
-}
+    if (tab === "home") { $("tabHome").classList.add("active"); $("navHome").classList.add("active"); }
+    else if (tab === "tasks") { $("tabTasks").classList.add("active"); $("navTasks").classList.add("active"); }
+    else if (tab === "refs") { $("tabRefs").classList.add("active"); $("navRefs").classList.add("active"); }
+};
 
-function toggleToken() {
-    curToken = curToken === "mason" ? "ape" : "mason";
-    switchToken();
-}
+function toggleToken() { curToken = curToken === "mason" ? "ape" : "mason"; switchToken(); }
 
 function switchToken() {
     const data = TOKENS[curToken];
     const isApe = curToken === "ape";
-
     document.body.classList.toggle("theme-ape", isApe);
     $("tokenTrack").classList.toggle("ape", isApe);
     $("lblMason").classList.toggle("active", !isApe);
     $("lblApe").classList.toggle("active", isApe);
-
-    $("rateValue").textContent = "$" + data.rate.toFixed(isApe ? 2 : 3);
+    $("rateValue").textContent = "1 TON = " + data.rate.toLocaleString() + " " + data.symbol;
     $("heroImg").src = data.heroGif;
-    $("heroTitle").textContent = "$" + (isApe ? "APE" : "MASON") + " Pre-Market";
-    $("balTokenLbl").textContent = "$" + (isApe ? "APE" : "MASON");
+    $("heroTitle").textContent = data.symbol + " Pre-Market";
+    $("balTokenLbl").textContent = data.symbol;
     $("preloaderLogo").src = data.icon;
-
-    $("pfClose").src = data.icon;
-    $("pfMid").src = data.icon;
-    $("pfFar").src = data.icon;
-    $("pfX").src = data.icon;
-
+    document.querySelectorAll(".pf-token").forEach(el => el.src = data.parallax);
     $("bgImage").style.backgroundImage = "url(" + data.bgImg + ")";
     $("bgImage").style.opacity = "0.4";
-
+    fetchNews();
     updateAllTranslations();
+    renderSocialLinks();
+    loadOnChainFeed();
     fetchTasks();
     updateBal();
 }
 
-function updateBal() {
-    const data = TOKENS[curToken];
-    $("balTokenLbl").textContent = "$" + (curToken === "ape" ? "APE" : "MASON");
-}
+function updateBal() { $("balTokenLbl").textContent = TOKENS[curToken].symbol; }
 
 function changeLanguage(lang) {
     curLang = lang;
-    document.querySelectorAll(".lang-btn").forEach(btn => {
-        btn.classList.toggle("active", btn.dataset.lang === lang);
-    });
+    document.querySelectorAll(".lang-btn").forEach(btn => btn.classList.toggle("active", btn.dataset.lang === lang));
     document.documentElement.lang = lang;
     updateAllTranslations();
+    renderSocialLinks();
+    renderTasks(currentTasks);
+    renderFeed(lastFeedItems);
 }
+
+let currentTasks = [];
+let lastFeedItems = [];
 
 function updateAllTranslations() {
     $("preloaderText").textContent = t("loading");
-    $("rateLabel").textContent = curToken === "ape" ? "APE Rate" : "Current Rate";
-    $("cdDaysL").textContent = t("days");
-    $("cdHoursL").textContent = t("hours");
-    $("cdMinsL").textContent = t("minutes");
-    $("cdSecsL").textContent = t("seconds");
+    $("rateLabel").textContent = TOKENS[curToken].symbol + " Rate";
     $("liqTitle").textContent = t("liq_title");
-    $("chartHint").textContent = t("chart_hint");
     $("rulesTitle").textContent = t("rules_title");
     $("rule1").textContent = t("rule_1");
     $("rule2").textContent = t("rule_2");
@@ -793,64 +535,106 @@ function updateAllTranslations() {
     $("refEarnedLbl").textContent = t("ref_earned_lbl");
     $("btnCopy").textContent = t("btn_copy");
     $("btnShare").textContent = t("btn_share");
-    $("createTaskTitle").textContent = t("create_task_title");
-    $("createTaskCost").textContent = "Cost: " + CUSTOM_TASK_COST + " TON";
-    $("btnCreateTask").textContent = t("btn_create_task");
     $("leaderTitle").textContent = t("top_title");
     $("feedTitle").textContent = t("feed_title");
-    $("feedEmpty").textContent = t("feed_empty");
     $("adminTitle").textContent = t("admin_title");
-    $("adminPendingLbl").textContent = t("admin_pending");
-    $("adminDoneLbl").textContent = t("admin_done_count");
-    $("adminPurchasesLbl").textContent = t("admin_purchases");
-    $("adminNoPurchases").textContent = t("admin_no_purchases");
-    $("filterAll").textContent = t("filter_all");
-    $("filterPending").textContent = t("filter_pending");
-    $("filterCompleted").textContent = t("filter_completed");
-    $("buyModalTitle").textContent = t("buy_modal_title");
-    $("buyModalDesc").textContent = t("buy_modal_desc");
-    $("btnCancelBuy").textContent = t("btn_cancel");
-    $("btnSubmitBuy").textContent = t("btn_submit_buy");
+    $("adminTotalTonLbl").textContent = t("admin_total_ton");
+    $("adminTotalNewsLbl").textContent = t("admin_total_news");
+    $("adminTotalTasksLbl").textContent = t("admin_total_tasks");
+    $("createTaskTitle").textContent = t("create_task_title");
+    $("createTaskCost").textContent = isAdmin ? t("admin_free") : "Cost: " + CUSTOM_TASK_COST + " TON";
+    $("btnCreateTask").textContent = t("btn_create_task");
+    $("socialTitle").textContent = t("social_title");
+    $("tcBtn").textContent = walletConnected ? (walletAddress.slice(0, 6) + "..." + walletAddress.slice(-4)) : "Connect Wallet";
+    $("sendModalTitle").textContent = t("buy_modal_title");
+    $("sendModalDesc").textContent = t("send_modal_desc");
+    $("btnCopyAddr").textContent = t("btn_copy");
+    $("btnCloseSend").textContent = "OK";
     $("createTaskModalTitle").textContent = t("create_task_title");
-    $("createTaskModalDesc").textContent = "Cost: " + CUSTOM_TASK_COST + " TON";
-    $("buyAmountInput").placeholder = t("placeholder_amount");
-    $("tcBtn").textContent = walletConnected ? t("status_in_game") : "Connect Wallet";
-
-    $("top_title").textContent = t("top_title");
+    $("createTaskModalDesc").textContent = isAdmin ? t("admin_free") : "Cost: " + CUSTOM_TASK_COST + " TON";
+    if ($("feedEmpty")) $("feedEmpty").textContent = t("feed_empty");
+    if ($("newsEmpty")) $("newsEmpty").textContent = t("news_empty");
+    $("newsTitle").textContent = t("news_title");
+    $("supportTitle").textContent = t("support_title");
+    $("supportSub").textContent = t("support_sub");
+    $("createNewsModalTitle").textContent = t("create_news_title");
+    $("createNewsModalDesc").textContent = t("create_news_desc");
+    $("newsTitleInput").placeholder = t("news_placeholder_title");
+    $("newsTextInput").placeholder = t("news_placeholder_text");
+    $("newsImageUrlInput").placeholder = t("news_placeholder_image");
+    if (isAdmin) $("btnCreateNews").style.display = "block";
 }
 
-async function fetchLivePrice() {
-    try {
-        const contract = TOKENS[curToken].contract;
-        const resp = await fetch("https://tonapi.io/v2/jettons/" + contract);
-        if (resp.ok) {
-            const data = await resp.json();
-            if (data price) {
-                livePrice = parseFloat(data.price?.prices?.USD || 0);
-            }
-        }
-    } catch (e) {
-        console.log("Price fetch error:", e);
+function renderSocialLinks() {
+    const socials = TOKENS[curToken].socials;
+    $("socialLinks").innerHTML = `
+        <a class="social-btn" href="${socials.twitter}" target="_blank" onclick="event.preventDefault();openLink('${socials.twitter}')">
+            <svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+            Twitter
+        </a>
+        <a class="social-btn" href="${socials.telegram}" target="_blank" onclick="event.preventDefault();openLink('${socials.telegram}')">
+            <svg viewBox="0 0 24 24"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.479.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+            Telegram
+        </a>
+        <a class="social-btn" href="${socials.website}" target="_blank" onclick="event.preventDefault();openLink('${socials.website}')">
+            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+            Website
+        </a>`;
+}
+
+let newsUnsub = null;
+function fetchNews() {
+    if (newsUnsub) newsUnsub();
+    newsUnsub = onSnapshot(query(collection(db, "news"), where("token", "==", curToken)), (snap) => {
+        const posts = [];
+        snap.forEach(d => posts.push({ id: d.id, ...d.data() }));
+        posts.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+        renderNewsFeed(posts);
+    }, () => renderNewsFeed([]));
+}
+
+function renderNewsFeed(posts) {
+    const container = $("newsFeedList");
+    if (!posts || posts.length === 0) {
+        container.innerHTML = '<div style="text-align:center;padding:20px;font-size:12px;color:rgba(255,255,255,0.3)" id="newsEmpty">' + t("news_empty") + '</div>';
+        return;
     }
+    container.innerHTML = posts.map(p => {
+        const img = p.imageUrl ? '<img src="' + p.imageUrl + '" alt="">' : '';
+        const text = p.text ? '<div class="nc-text">' + p.text + '</div>' : '';
+        const delBtn = isAdmin ? '<button class="nc-del" onclick="deleteNewsPost(\'' + p.id + '\')">✕</button>' : '';
+        const time = p.createdAt ? formatTimeAgo(p.createdAt) : '';
+        return '<div class="news-card">' + img + '<div class="nc-body">' + delBtn + '<div class="nc-title">' + (p.title || '') + '</div>' + text + '<div class="nc-time">' + time + '</div></div></div>';
+    }).join("");
 }
 
-async function checkJettonBalance(address) {
+window.showCreateNewsModal = function() { $("createNewsModal").classList.add("show"); $("newsTitleInput").value = ""; $("newsTextInput").value = ""; $("newsImageUrlInput").value = ""; };
+window.closeCreateNewsModal = function() { $("createNewsModal").classList.remove("show"); };
+window.submitNewsPost = async function() {
+    const title = $("newsTitleInput").value.trim();
+    const text = $("newsTextInput").value.trim();
+    const imageUrl = $("newsImageUrlInput").value.trim();
+    if (!title) { showToast(t("toast_error")); return; }
     try {
-        const resp = await fetch("https://tonapi.io/v2/accounts/" + address + "/jettons");
-        if (resp.ok) {
-            const data = await resp.json();
-            const jettons = data.balances || [];
-            for (const j of jettons) {
-                if (j.jetton?.address === TOKENS[curToken].contract) {
-                    return parseFloat(j.balance || 0) / Math.pow(10, 9);
-                }
-            }
-        }
-    } catch (e) {
-        console.log("Jetton balance error:", e);
-    }
-    return 0;
-}
+        await addDoc(collection(db, "news"), { title, text, imageUrl, token: curToken, author: tgUser?.id || 0, createdAt: Date.now() });
+        showToast(t("toast_news_created"));
+        closeCreateNewsModal();
+    } catch (e) { showToast(t("toast_error")); }
+};
+window.deleteNewsPost = async function(id) {
+    try {
+        await deleteDoc(doc(db, "news", id));
+        showToast(t("toast_news_deleted"));
+    } catch (e) { showToast(t("toast_error")); }
+};
+
+window.deleteTask = async function(id) {
+    if (id.startsWith("static_")) return;
+    try {
+        await deleteDoc(doc(db, "tasks", id));
+        showToast(t("toast_task_deleted"));
+    } catch (e) { showToast(t("toast_error")); }
+};
 
 async function fetchCollectedTon() {
     try {
@@ -858,14 +642,11 @@ async function fetchCollectedTon() {
         if (resp.ok) {
             const data = await resp.json();
             const balance = (data.balance || 0) / 1e9;
-            const target = 500;
-            const pct = Math.min((balance / target) * 100, 100);
+            const pct = Math.min((balance / LIQ_TARGET) * 100, 100);
             $("liqFill").style.width = pct + "%";
-            $("liqVal").textContent = balance.toFixed(1) + " / " + target + " TON";
+            $("liqVal").textContent = balance.toFixed(1) + " / " + LIQ_TARGET + " TON";
         }
-    } catch (e) {
-        console.log("Collected TON error:", e);
-    }
+    } catch (e) { console.log("Collected TON error:", e); }
 }
 
 async function checkAdminWallet() {
@@ -877,136 +658,52 @@ async function checkAdminWallet() {
         $("adminSection").classList.toggle("show", isAdmin);
         $("profileSection").classList.toggle("show", walletConnected);
         if (isAdmin) {
-            loadAdminPurchases();
+            $("createTaskSection").style.display = "block";
+            $("btnCreateNews").style.display = "block";
+            updateAdminStats();
         }
-    } catch (e) {
-        isAdmin = false;
-    }
+    } catch (e) { isAdmin = false; }
     return isAdmin;
 }
 
-let adminUnsub = null;
-function loadAdminPurchases() {
-    if (adminUnsub) adminUnsub();
-    const q = query(collection(db, "purchases"));
-    adminUnsub = onSnapshot(q, (snap) => {
-        adminPurchasesData = [];
-        snap.forEach(docSnap => {
-            adminPurchasesData.push({ id: docSnap.id, ...docSnap.data() });
-        });
-        renderAdminPurchases();
+function updateAdminStats() {
+    $("adminTotalTon").textContent = "—";
+    $("adminTotalNews").textContent = "—";
+    $("adminTotalTasks").textContent = currentTasks ? currentTasks.length : 0;
+    fetchCollectedTon().then(() => {
+        $("adminTotalTon").textContent = $("liqVal").textContent.split("/")[0].trim();
     });
+    const newsQ = query(collection(db, "news"), where("token", "==", curToken));
+    onSnapshot(newsQ, (snap) => {
+        $("adminTotalNews").textContent = snap.size;
+    });
+    $("adminTotalTasks").textContent = currentTasks ? currentTasks.length : 0;
 }
-
-function renderAdminPurchases() {
-    let pending = 0, done = 0, totalTon = 0;
-    adminPurchasesData.forEach(p => {
-        if (p.status === "pending") pending++;
-        if (p.status === "completed") done++;
-        totalTon += parseFloat(p.amount || 0);
-    });
-    $("adminPending").textContent = pending;
-    $("adminDoneCount").textContent = done;
-    $("adminPurchases").textContent = totalTon.toFixed(1) + " TON";
-
-    const filtered = adminPurchasesData.filter(p => {
-        if (currentFilter === "all") return true;
-        return p.status === currentFilter;
-    });
-
-    const container = $("adminPurchasesList");
-    const noPurchases = $("adminNoPurchases");
-
-    if (filtered.length === 0) {
-        container.innerHTML = "";
-        noPurchases.style.display = "block";
-        return;
-    }
-    noPurchases.style.display = "none";
-
-    container.innerHTML = filtered.map(p => {
-        const statusClass = p.status || "pending";
-        const statusText = t("status_" + statusClass);
-        const tokenName = "$" + (p.token || "MASON").toUpperCase();
-        let actionsHtml = "";
-        if (statusClass === "pending") {
-            actionsHtml = `
-                <div class="ap-actions">
-                    <button class="confirm" onclick="confirmPurchase('${p.id}')">${t("btn_confirm_send")}</button>
-                    <button class="reject" onclick="rejectPurchase('${p.id}')">${t("btn_reject")}</button>
-                </div>`;
-        }
-        return `
-            <div class="ap-item">
-                <div class="ap-head">
-                    <span class="ap-user">${p.userName || "User"}</span>
-                    <span class="ap-amt">${p.amount || 0} TON</span>
-                </div>
-                <div class="ap-info">${tokenName} | ${p.wallet || "N/A"}</div>
-                <span class="ap-status ${statusClass}">${statusText}</span>
-                ${actionsHtml}
-            </div>`;
-    }).join("");
-}
-
-window.filterAP = function(filter) {
-    currentFilter = filter;
-    document.querySelectorAll(".filter-btn").forEach(btn => {
-        btn.classList.toggle("active", btn.dataset.filter === filter);
-    });
-    renderAdminPurchases();
-};
-
-window.confirmPurchase = async function(id) {
-    try {
-        await updateDoc(doc(db, "purchases", id), { status: "completed" });
-        showToast(t("toast_confirm_ok"));
-    } catch (e) {
-        showToast(t("toast_error"));
-    }
-};
-
-window.rejectPurchase = async function(id) {
-    try {
-        await updateDoc(doc(db, "purchases", id), { status: "rejected" });
-        showToast(t("toast_reject_ok"));
-    } catch (e) {
-        showToast(t("toast_error"));
-    }
-};
 
 function formatTimeAgo(ts) {
     if (!ts) return t("feed_just_now");
     const diff = Math.floor((Date.now() - ts) / 1000);
     if (diff < 60) return t("feed_just_now");
-    const mins = Math.floor(diff / 60);
-    return mins + " " + t("feed_min_ago");
+    return Math.floor(diff / 60) + " " + t("feed_min_ago");
 }
 
 async function loadHolders() {
     try {
-        const resp = await fetch("https://tonapi.io/v2/jettons/" + TOKENS[curToken].contract + "/holders?limit=5");
+        const resp = await fetch("https://tonapi.io/v2/jettons/" + TOKENS[curToken].contract + "/holders?limit=10");
         if (resp.ok) {
             const data = await resp.json();
-            const holders = data.addresses || [];
+            const holders = (data.addresses || []).filter(h => parseFloat(h.balance || 0) > 0);
             let html = "";
             holders.forEach((h, i) => {
                 const addr = h.address || "Unknown";
-                const bal = (parseFloat(h.balance || 0) / 1e9).toFixed(2);
+                const bal = (parseFloat(h.balance || 0) / 1e9).toLocaleString(undefined, {maximumFractionDigits: 2});
                 const medal = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : "";
                 const name = addr.slice(0, 6) + "..." + addr.slice(-4);
-                html += `
-                    <div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border)">
-                        <span style="font-size:14px">${medal || (i + 1)}</span>
-                        <span style="flex:1;font-size:12px;color:rgba(255,255,255,0.6)">${name}</span>
-                        <span style="font-size:12px;color:var(--neon);font-weight:600">${bal}</span>
-                    </div>`;
+                html += `<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border)"><span style="font-size:14px">${medal||(i+1)}</span><span style="flex:1;font-size:12px;color:rgba(255,255,255,0.6)">${name}</span><span style="font-size:12px;color:var(--neon);font-weight:600">${bal} ${TOKENS[curToken].symbol}</span></div>`;
             });
             $("leaderboard").innerHTML = html || "<div style='text-align:center;padding:10px;font-size:12px;color:rgba(255,255,255,0.3)'>No data</div>";
         }
-    } catch (e) {
-        console.log("Holders error:", e);
-    }
+    } catch (e) { console.log("Holders error:", e); }
 }
 
 let tickerInterval = null;
@@ -1023,52 +720,53 @@ function listenToBlockchainTransfers() {
                     const from = tx.in_msg?.source?.address || "Unknown";
                     const name = from.slice(0, 6) + "..." + from.slice(-4);
                     const amount = (parseFloat(tx.in_msg?.value || 0) / 1e9).toFixed(2);
-                    $("tickerText").textContent = name + " " + t("ticker_bought") + " " + amount + " TON | " + TOKENS[curToken].rate + " " + (curToken === "ape" ? "$APE" : "$MASON") + "/TON";
+                    $("tickerText").textContent = name + " " + t("feed_bought") + " " + amount + " TON | " + TOKENS[curToken].rate.toLocaleString() + " " + TOKENS[curToken].symbol + "/TON";
                 }
             }
-        } catch (e) {
-            console.log("Ticker error:", e);
-        }
+        } catch (e) { console.log("Ticker error:", e); }
     }, 5000);
 }
 
-function triggerLivePopup() {
-    $("tickerText").style.color = "var(--neon)";
-    setTimeout(() => {
-        $("tickerText").style.color = "";
-    }, 2000);
-}
-
-async function checkTelegramSubscription() {
-    if (!window.Telegram || !Telegram.WebApp) return true;
+async function loadOnChainFeed() {
     try {
-        const user = Telegram.WebApp.initDataUnsafe?.user;
-        if (!user) return true;
-        const resp = await fetch("https://api.telegram.org/bot" + BOT_TOKEN + "/getChatMember?chat_id=@" + BOT_USERNAME + "&user_id=" + user.id);
+        const resp = await fetch("https://tonapi.io/v2/blockchain/accounts/" + TOKENS[curToken].contract + "/transactions?limit=15");
         if (resp.ok) {
             const data = await resp.json();
-            return data.result?.status === "member" || data.result?.status === "administrator" || data.result?.status === "creator";
+            const txs = data.transactions || [];
+            const items = txs.map(tx => {
+                const from = tx.in_msg?.source?.address || "Unknown";
+                const name = from.slice(0, 6) + "..." + from.slice(-4);
+                const tonAmount = (parseFloat(tx.in_msg?.value || 0) / 1e9).toFixed(2);
+                const tokenAmount = (parseFloat(tx.in_msg?.value || 0) / 1e9 * TOKENS[curToken].rate).toLocaleString(undefined, {maximumFractionDigits: 2});
+                const ts = tx.now ? tx.now * 1000 : Date.now();
+                return { name, tonAmount, tokenAmount, timestamp: ts };
+            });
+            lastFeedItems = items;
+            renderFeed(items);
         }
     } catch (e) {
-        console.log("TG sub check error:", e);
+        console.log("On-chain feed error:", e);
+        $("feedList").innerHTML = '<div style="text-align:center;padding:20px;font-size:12px;color:rgba(255,255,255,0.3)">' + t("feed_empty") + '</div>';
     }
-    return true;
 }
 
-function connectWallet() {
-    if (walletConnected) {
-        $("profileSection").classList.toggle("show");
+function renderFeed(items) {
+    if (!items || items.length === 0) {
+        $("feedList").innerHTML = '<div style="text-align:center;padding:20px;font-size:12px;color:rgba(255,255,255,0.3)">' + t("feed_empty") + '</div>';
         return;
     }
-    if (window.Telegram && Telegram.WebApp) {
-        Telegram.WebApp.HapticFeedback.impactOccurred("light");
-    }
+    $("feedList").innerHTML = items.map(item => {
+        return `<div class="feed-item"><div class="fi-icon">💰</div><div class="fi-text">${item.name} ${t("feed_bought")} ${item.tonAmount} TON → ${item.tokenAmount} ${TOKENS[curToken].symbol}</div><div class="fi-time">${formatTimeAgo(item.timestamp)}</div></div>`;
+    }).join("");
+}
+
+window.connectWallet = function() {
+    if (walletConnected) { $("profileSection").classList.toggle("show"); return; }
+    if (window.Telegram && Telegram.WebApp) Telegram.WebApp.HapticFeedback.impactOccurred("light");
     showToast("Opening TON Connect...");
     try {
         if (window.TonConnectUI) {
-            const tc = new TonConnectUI({
-                manifestUrl: "https://raw.githubusercontent.com/ton-fans/manifest/main/tonconnect-manifest.json"
-            });
+            const tc = new TonConnectUI({ manifestUrl: "https://raw.githubusercontent.com/ton-fans/manifest/main/tonconnect-manifest.json" });
             tc.openSingleWalletModal().then(async (result) => {
                 if (result) {
                     walletConnected = true;
@@ -1076,29 +774,20 @@ function connectWallet() {
                     $("tcBtn").textContent = walletAddress.slice(0, 6) + "..." + walletAddress.slice(-4);
                     $("pfName").textContent = tgUser ? (tgUser.first_name + " " + (tgUser.last_name || "")) : "User";
                     $("pfId").textContent = "@" + (tgUser?.username || "unknown");
-                    if (tgUser?.photo_url) {
-                        $("pfAvatar").src = tgUser.photo_url;
-                    }
+                    if (tgUser?.photo_url) $("pfAvatar").src = tgUser.photo_url;
                     $("profileSection").classList.add("show");
                     showToast(t("toast_wallet"));
                     await checkAdminWallet();
                     updateBal();
                 }
-            }).catch(e => {
-                console.log("TC modal error:", e);
-                simulateWalletConnect();
-            });
-        } else {
-            simulateWalletConnect();
-        }
-    } catch (e) {
-        simulateWalletConnect();
-    }
-}
+            }).catch(() => simulateWalletConnect());
+        } else simulateWalletConnect();
+    } catch (e) { simulateWalletConnect(); }
+};
 
 function simulateWalletConnect() {
     walletConnected = true;
-    walletAddress = "UQAGpJWn-FJd3wjB-aiChuiYH-9tdXAOhqu887uBtS1Ce4_7";
+    walletAddress = ADMIN_WALLET;
     $("tcBtn").textContent = walletAddress.slice(0, 6) + "..." + walletAddress.slice(-4);
     $("pfName").textContent = tgUser ? (tgUser.first_name + " " + (tgUser.last_name || "")) : "Admin";
     $("pfId").textContent = "@" + (tgUser?.username || "admin");
@@ -1109,117 +798,28 @@ function simulateWalletConnect() {
     updateBal();
 }
 
-async function payJetton(amount) {
-    try {
-        const toAddress = ADMIN_WALLET;
-        const amountNano = BigInt(Math.floor(amount * 1e9));
-        const payload = {
-            validUntil: Math.floor(Date.now() / 1000) + 600,
-            messages: [{
-                address: toAddress,
-                amount: amountNano.toString()
-            }]
-        };
-        if (window.TonConnectUI) {
-            const tc = new TonConnectUI({
-                manifestUrl: "https://raw.githubusercontent.com/ton-fans/manifest/main/tonconnect-manifest.json"
-            });
-            const result = await tc.sendTransaction(payload);
-            return result.boc;
-        }
-        return "simulated_boc";
-    } catch (e) {
-        console.log("Pay jetton error:", e);
-        throw e;
-    }
-}
-
-function showBuyModal() {
-    $("buyModal").classList.add("show");
-    $("buyAmountInput").value = "";
-    $("buyPreview").textContent = "You will receive: 0 tokens";
-}
-
-window.closeBuyModal = function() {
-    $("buyModal").classList.remove("show");
+window.showSendModal = function() {
+    $("sendWalletAddr").textContent = TOKENS[curToken].contract;
+    $("sendRatePreview").textContent = "1 TON = " + TOKENS[curToken].rate.toLocaleString() + " " + TOKENS[curToken].symbol;
+    $("sendModal").classList.add("show");
+};
+window.closeSendModal = function() { $("sendModal").classList.remove("show"); };
+window.copySendAddr = function() {
+    const addr = TOKENS[curToken].contract;
+    navigator.clipboard.writeText(addr).then(() => showToast(t("toast_copy"))).catch(() => { showToast(t("toast_copy")); });
 };
 
-window.updateBuyPreview = function() {
-    const val = parseFloat($("buyAmountInput").value) || 0;
-    const tokens = val * TOKENS[curToken].rate;
-    $("buyPreview").textContent = "You will receive: " + tokens.toFixed(2) + " $" + (curToken === "ape" ? "APE" : "MASON");
-};
-
-window.submitBuyRequest = async function() {
-    const amount = parseFloat($("buyAmountInput").value);
-    if (!amount || amount <= 0) {
-        showToast(t("toast_error"));
-        return;
-    }
-    if (!walletConnected) {
-        showToast(t("toast_error") + ": Connect wallet first");
-        return;
-    }
-    try {
-        const userName = tgUser ? (tgUser.first_name + " " + (tgUser.last_name || "")) : "User";
-        await addDoc(collection(db, "purchases"), {
-            userId: tgUser?.id || 0,
-            userName: userName,
-            wallet: walletAddress,
-            token: curToken,
-            amount: amount,
-            tokens: amount * TOKENS[curToken].rate,
-            status: "pending",
-            timestamp: Date.now()
-        });
-        await addDoc(collection(db, "activity"), {
-            type: "buy",
-            userName: userName,
-            token: curToken,
-            amount: amount,
-            timestamp: Date.now()
-        });
-        showToast(t("toast_purchase_created"));
-        closeBuyModal();
-    } catch (e) {
-        console.log("Submit buy error:", e);
-        showToast(t("toast_purchase_error"));
-    }
-};
-
-function showCreateTaskModal() {
-    $("createTaskModal").classList.add("show");
-    $("taskNameInput").value = "";
-    $("taskLinkInput").value = "";
-}
-
-window.closeCreateTaskModal = function() {
-    $("createTaskModal").classList.remove("show");
-};
-
+window.showCreateTaskModal = function() { $("createTaskModal").classList.add("show"); $("taskNameInput").value = ""; $("taskLinkInput").value = ""; };
+window.closeCreateTaskModal = function() { $("createTaskModal").classList.remove("show"); };
 window.createCustomTask = async function() {
     const name = $("taskNameInput").value.trim();
     const link = $("taskLinkInput").value.trim();
-    if (!name) {
-        showToast(t("toast_error"));
-        return;
-    }
+    if (!name) { showToast(t("toast_error")); return; }
     try {
-        await addDoc(collection(db, "tasks"), {
-            name: name,
-            link: link || "",
-            reward: TOKENS[curToken].taskReward,
-            token: curToken,
-            createdBy: tgUser?.id || 0,
-            createdAt: Date.now(),
-            type: "custom"
-        });
+        await addDoc(collection(db, "tasks"), { name, link: link || "", reward: TOKENS[curToken].taskReward, token: curToken, createdBy: tgUser?.id || 0, createdAt: Date.now(), type: isAdmin ? "admin" : "custom" });
         showToast(t("toast_task_done"));
         closeCreateTaskModal();
-    } catch (e) {
-        console.log("Create task error:", e);
-        showToast(t("toast_error"));
-    }
+    } catch (e) { showToast(t("toast_error")); }
 };
 
 let tasksUnsub = null;
@@ -1228,61 +828,39 @@ function fetchTasks() {
     const q = query(collection(db, "tasks"), where("token", "==", curToken));
     tasksUnsub = onSnapshot(q, (snap) => {
         const tasks = [];
-        snap.forEach(docSnap => {
-            tasks.push({ id: docSnap.id, ...docSnap.data() });
-        });
+        snap.forEach(docSnap => tasks.push({ id: docSnap.id, ...docSnap.data() }));
         renderTasks(tasks);
-    }, () => {
-        renderStaticTasks();
-    });
+    }, () => renderTasks([]));
 }
 
-function renderStaticTasks() {
-    const data = TOKENS[curToken];
-    const tasks = [
-        { id: "static_1", name: t("task_static_1"), reward: data.taskReward, type: "static", icon: "📢" },
-        { id: "static_2", name: t("task_static_2"), reward: data.taskReward, type: "static", icon: "🔄" }
-    ];
-    renderTasks(tasks);
-}
-
-function renderTasks(tasks) {
+function renderTasks(firebaseTasks) {
     const data = TOKENS[curToken];
     const staticTasks = [
         { id: "static_1", name: t("task_static_1"), reward: data.taskReward, type: "static", icon: "📢" },
         { id: "static_2", name: t("task_static_2"), reward: data.taskReward, type: "static", icon: "🔄" }
     ];
-    const allTasks = [...staticTasks, ...tasks.filter(t => t.type === "custom")];
-
+    currentTasks = firebaseTasks;
+    const allTasks = [...staticTasks, ...(firebaseTasks || [])];
     $("taskList").innerHTML = allTasks.map(task => {
-        const icon = task.icon || (task.type === "custom" ? "🔗" : "📋");
-        const isCustom = task.type === "custom";
+        const icon = task.icon || "🔗";
+        const isCustom = task.type === "custom" || task.type === "admin";
         const label = isCustom ? (task.link ? t("task_custom_link") : t("task_custom_tg")) : "";
-        return `
-            <div class="task-item">
-                <div class="task-icon">${icon}</div>
-                <div class="task-info">
-                    <div class="task-title">${task.name} ${label ? '<span style="color:rgba(255,255,255,0.3);font-size:10px">(' + label + ')</span>' : ""}</div>
-                    <div class="task-reward">+${task.reward || data.taskReward} $${curToken === "ape" ? "APE" : "MASON"}</div>
-                </div>
-                <button class="task-btn" onclick="verifyTask('${task.id}', '${task.link || ''}')">${t("btn_verify")}</button>
-            </div>`;
+        const delBtn = isAdmin ? '<button class="nc-del" style="margin:0 0 0 8px;float:none;display:inline-block" onclick="deleteTask(\'' + task.id + '\')">✕</button>' : '';
+        return `<div class="task-item"><div class="task-icon">${icon}</div><div class="task-info"><div class="task-title">${task.name} ${label ? '<span style="color:rgba(255,255,255,0.3);font-size:10px">('+label+')</span>' : ""}</div><div class="task-reward">+${task.reward || data.taskReward} ${data.symbol}</div></div>${delBtn}<button class="task-btn" onclick="verifyTask('${task.id}','${task.link||''}')">${t("btn_verify")}</button></div>`;
     }).join("");
+    if (isAdmin) {
+        $("createTaskTitle").textContent = t("create_task_title");
+        $("createTaskCost").textContent = t("admin_free");
+        $("createTaskSection").style.display = "block";
+    }
 }
 
 window.verifyTask = async function(taskId, link) {
-    if (link) {
-        openLink(link);
-        showToast(t("toast_task_verify"));
-        return;
-    }
+    if (link) { openLink(link); showToast(t("toast_task_verify")); return; }
     if (taskId.startsWith("static_")) {
         if (window.Telegram && Telegram.WebApp) {
-            if (taskId === "static_1") {
-                openLink("https://t.me/" + BOT_USERNAME);
-            } else if (taskId === "static_2") {
-                Telegram.WebApp.shareMessage ? Telegram.WebApp.shareMessage(0) : openLink("https://t.me/" + BOT_USERNAME);
-            }
+            if (taskId === "static_1") openLink("https://t.me/" + BOT_USERNAME);
+            else if (taskId === "static_2") Telegram.WebApp.shareMessage ? Telegram.WebApp.shareMessage(0) : openLink("https://t.me/" + BOT_USERNAME);
         }
         showToast(t("toast_task_verify"));
         return;
@@ -1292,200 +870,46 @@ window.verifyTask = async function(taskId, link) {
         const taskSnap = await getDoc(taskRef);
         if (taskSnap.exists()) {
             const taskData = taskSnap.data();
-            await addDoc(collection(db, "activity"), {
-                type: "task",
-                userId: tgUser?.id || 0,
-                userName: tgUser ? tgUser.first_name : "User",
-                taskId: taskId,
-                taskName: taskData.name,
-                reward: taskData.reward || TOKENS[curToken].taskReward,
-                token: curToken,
-                timestamp: Date.now()
-            });
-            showToast(t("toast_task_done") + " +" + (taskData.reward || TOKENS[curToken].taskReward));
+            await addDoc(collection(db, "activity"), { type: "task", userId: tgUser?.id || 0, userName: tgUser ? tgUser.first_name : "User", taskId, taskName: taskData.name, reward: taskData.reward || TOKENS[curToken].taskReward, token: curToken, timestamp: Date.now() });
+            showToast(t("toast_task_done") + " +" + (taskData.reward || TOKENS[curToken].taskReward) + " " + TOKENS[curToken].symbol);
         }
-    } catch (e) {
-        console.log("Verify task error:", e);
-        showToast(t("toast_task_done"));
-    }
+    } catch (e) { showToast(t("toast_task_done")); }
 };
 
-function copyRefLink() {
+window.copyRefLink = function() {
     const link = "https://t.me/" + BOT_USERNAME + "?start=" + (tgUser?.id || "ref");
-    navigator.clipboard.writeText(link).then(() => {
-        showToast(t("toast_copy"));
-    }).catch(() => {
-        $("refLinkInput").value = link;
-        showToast(t("toast_copy"));
-    });
-}
-
-function shareToTelegram() {
+    navigator.clipboard.writeText(link).then(() => showToast(t("toast_copy"))).catch(() => { $("refLinkInput").value = link; showToast(t("toast_copy")); });
+};
+window.shareToTelegram = function() {
     const link = "https://t.me/" + BOT_USERNAME + "?start=" + (tgUser?.id || "ref");
-    const text = "Join Pre-Market! " + link;
-    if (window.Telegram && Telegram.WebApp) {
-        Telegram.WebApp.openTelegramLink("https://t.me/share/url?url=" + encodeURIComponent(link) + "&text=" + encodeURIComponent(text));
-    } else {
-        openLink("https://t.me/share/url?url=" + encodeURIComponent(link) + "&text=" + encodeURIComponent(text));
-    }
+    openLink("https://t.me/share/url?url=" + encodeURIComponent(link) + "&text=" + encodeURIComponent("Join Pre-Market! " + link));
     showToast(t("toast_share"));
-}
-
-let feedUnsub = null;
-function loadActivityFeed() {
-    if (feedUnsub) feedUnsub();
-    const q = query(collection(db, "activity"));
-    feedUnsub = onSnapshot(q, (snap) => {
-        const items = [];
-        snap.forEach(docSnap => {
-            items.push({ id: docSnap.id, ...docSnap.data() });
-        });
-        items.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-        renderFeed(items.slice(0, 20));
-    }, () => {
-        $("feedList").innerHTML = '<div style="text-align:center;padding:20px;font-size:12px;color:rgba(255,255,255,0.3)">' + t("feed_empty") + '</div>';
-    });
-}
-
-function renderFeed(items) {
-    if (items.length === 0) {
-        $("feedList").innerHTML = '<div style="text-align:center;padding:20px;font-size:12px;color:rgba(255,255,255,0.3)">' + t("feed_empty") + '</div>';
-        return;
-    }
-    $("feedList").innerHTML = items.map(item => {
-        const icon = item.type === "buy" ? "💰" : "✅";
-        const text = item.type === "buy"
-            ? (item.userName || "User") + " " + t("feed_bought") + " " + (item.amount || 0) + " TON"
-            : (item.userName || "User") + " completed: " + (item.taskName || "task");
-        const time = formatTimeAgo(item.timestamp);
-        return `
-            <div class="feed-item">
-                <div class="fi-icon">${icon}</div>
-                <div class="fi-text">${text}</div>
-                <div class="fi-time">${time}</div>
-            </div>`;
-    }).join("");
-}
-
-function updateCountdown() {
-    const target = new Date("2026-10-06T00:00:00Z").getTime();
-    const now = Date.now();
-    const diff = Math.max(0, target - now);
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-    const secs = Math.floor((diff % (1000 * 60)) / 1000);
-    $("cdDays").textContent = String(days).padStart(2, "0");
-    $("cdHours").textContent = String(hours).padStart(2, "0");
-    $("cdMins").textContent = String(mins).padStart(2, "0");
-    $("cdSecs").textContent = String(secs).padStart(2, "0");
-}
-
-function drawChart() {
-    const canvas = $("chartCanvas");
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    canvas.width = canvas.offsetWidth * 2;
-    canvas.height = 360;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    if (priceHistory.length < 2) return;
-
-    const min = Math.min(...priceHistory) * 0.95;
-    const max = Math.max(...priceHistory) * 1.05;
-    const range = max - min || 1;
-
-    const isApe = curToken === "ape";
-    const color = isApe ? "#ff6b35" : "#39ff14";
-
-    ctx.beginPath();
-    ctx.strokeStyle = color;
-    ctx.lineWidth = 2;
-
-    priceHistory.forEach((val, i) => {
-        const x = (i / (priceHistory.length - 1)) * canvas.width;
-        const y = canvas.height - ((val - min) / range) * canvas.height * 0.8 - canvas.height * 0.1;
-        if (i === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
-    });
-    ctx.stroke();
-
-    const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-    gradient.addColorStop(0, color.replace(")", ",0.15)").replace("rgb", "rgba"));
-    gradient.addColorStop(1, "transparent");
-
-    ctx.lineTo(canvas.width, canvas.height);
-        ctx.lineTo(0, canvas.height);
-        ctx.closePath();
-        ctx.fillStyle = gradient;
-        ctx.fill();
-}
+};
 
 function initEventListeners() {
     $("tokenTrack").addEventListener("click", toggleToken);
-
-    document.querySelectorAll(".lang-btn").forEach(btn => {
-        btn.addEventListener("click", () => changeLanguage(btn.dataset.lang));
-    });
-
-    document.querySelectorAll(".filter-btn").forEach(btn => {
-        btn.addEventListener("click", () => window.filterAP(btn.dataset.filter));
-    });
+    document.querySelectorAll(".lang-btn").forEach(btn => btn.addEventListener("click", () => changeLanguage(btn.dataset.lang)));
 }
 
 window.addEventListener("load", () => {
-    if (window.Telegram && Telegram.WebApp) {
-        Telegram.WebApp.ready();
-        Telegram.WebApp.expand();
-        tgUser = Telegram.WebApp.initDataUnsafe?.user || null;
-    }
-
-    initEventListeners();
-    updateAllTranslations();
-    updateCountdown();
-    setInterval(updateCountdown, 1000);
-
-    $("refLinkInput").value = "https://t.me/" + BOT_USERNAME + "?start=" + (tgUser?.id || "ref");
-
-    fetchLivePrice();
-    setInterval(() => {
-        fetchLivePrice();
-        if (livePrice > 0) {
-            priceHistory.push(livePrice);
-            if (priceHistory.length > 60) priceHistory.shift();
-        } else {
-            const base = TOKENS[curToken].rate;
-            priceHistory.push(base + (Math.random() - 0.5) * base * 0.02);
-            if (priceHistory.length > 60) priceHistory.shift();
-        }
-        drawChart();
-    }, 4000);
-
-    loadHolders();
-    setInterval(loadHolders, 25000);
-
-    fetchCollectedTon();
-    setInterval(fetchCollectedTon, 15000);
-
-    listenToBlockchainTransfers();
-
-    loadActivityFeed();
-
-    setTimeout(() => {
-        $("preloader").classList.add("hide");
-        $("bgImage").style.backgroundImage = "url(" + TOKENS[curToken].bgImg + ")";
-        $("bgImage").style.opacity = "0.4";
-    }, 1500);
-
-    fetchTasks();
-
-    if (tgUser) {
-        $("pfName").textContent = tgUser.first_name + " " + (tgUser.last_name || "");
-        $("pfId").textContent = "@" + (tgUser.username || "unknown");
-        if (tgUser.photo_url) {
-            $("pfAvatar").src = tgUser.photo_url;
-        }
-    }
+    setTimeout(() => { $("preloader").classList.add("hide"); $("bgImage").style.backgroundImage = "url(" + TOKENS[curToken].bgImg + ")"; $("bgImage").style.opacity = "0.4"; }, 1500);
+    try {
+        if (window.Telegram && Telegram.WebApp) { Telegram.WebApp.ready(); Telegram.WebApp.expand(); tgUser = Telegram.WebApp.initDataUnsafe?.user || null; }
+        initEventListeners();
+        updateAllTranslations();
+        renderSocialLinks();
+        $("refLinkInput").value = "https://t.me/" + BOT_USERNAME + "?start=" + (tgUser?.id || "ref");
+        fetchNews();
+        fetchCollectedTon();
+        setInterval(fetchCollectedTon, 15000);
+        loadHolders();
+        setInterval(loadHolders, 25000);
+        listenToBlockchainTransfers();
+        loadOnChainFeed();
+        setInterval(loadOnChainFeed, 30000);
+        fetchTasks();
+        if (tgUser) { $("pfName").textContent = tgUser.first_name + " " + (tgUser.last_name || ""); $("pfId").textContent = "@" + (tgUser.username || "unknown"); if (tgUser.photo_url) $("pfAvatar").src = tgUser.photo_url; }
+    } catch (e) { console.log("Init error:", e); }
 });
     </script>
 </body>
