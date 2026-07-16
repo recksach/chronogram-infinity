@@ -283,6 +283,8 @@ input::placeholder,textarea::placeholder{color:rgba(255,255,255,0.25)}
                     <div class="admin-stat"><div class="sv" id="adminTotalNews">0</div><div class="sl" id="adminTotalNewsLbl">News Posts</div></div>
                     <div class="admin-stat"><div class="sv" id="adminTotalTasks">0</div><div class="sl" id="adminTotalTasksLbl">Tasks</div></div>
                 </div>
+                <div style="font-size:13px;font-weight:600;margin-bottom:8px" id="paymentsTitle">Incoming Payments</div>
+                <div id="adminPaymentsList" style="max-height:300px;overflow-y:auto"></div>
             </div>
         </div>
         <div class="tab-content" id="tabTasks">
@@ -439,13 +441,13 @@ let walletAddress = "";
 let tgUser = null;
 
 const T2 = {
-    ru: {admin_free:"Бесплатно",admin_total_ton:"Баланс TON",admin_total_news:"Новости",admin_total_tasks:"Задания",send_modal_desc:"Отправьте TON на этот адрес кошелька",toast_task_deleted:"Задание удалено!"},
-    en: {admin_free:"Free",admin_total_ton:"TON Balance",admin_total_news:"News Posts",admin_total_tasks:"Tasks",send_modal_desc:"Send TON to this wallet address",toast_task_deleted:"Task deleted!"},
-    uk: {admin_free:"Безкоштовно",admin_total_ton:"Баланс TON",admin_total_news:"Новини",admin_total_tasks:"Завдання",send_modal_desc:"Надішліть TON на цю адресу гаманця",toast_task_deleted:"Завдання видалено!"},
-    tr: {admin_free:"Ücretsiz",admin_total_ton:"TON Bakiyesi",admin_total_news:"Haberler",admin_total_tasks:"Görevler",send_modal_desc:"Bu cüzdan adresine TON gönderin",toast_task_deleted:"Görev silindi!"},
-    ar: {admin_free:"مجاني",admin_total_ton:"رصيد TON",admin_total_news:"منشورات",admin_total_tasks:"مهام",send_modal_desc:"أرسل TON إلى عنوان المحفظة này",toast_task_deleted:"تم حذف المهمة!"},
-    zh: {admin_free:"免费",admin_total_ton:"TON 余额",admin_total_news:"新闻",admin_total_tasks:"任务",send_modal_desc:"发送 TON 到此钱包地址",toast_task_deleted:"任务已删除!"},
-    hi: {admin_free:"मुफ़्त",admin_total_ton:"TON बैलेंस",admin_total_news:"समाचार",admin_total_tasks:"कार्य",send_modal_desc:"इस वॉलेट पते पर TON भेजें",toast_task_deleted:"कार्य हटाया गया!"}
+    ru: {admin_free:"Бесплатно",admin_total_ton:"Баланс TON",admin_total_news:"Новости",admin_total_tasks:"Задания",send_modal_desc:"Отправьте TON на этот адрес кошелька",toast_task_deleted:"Задание удалено!",payments_title:"Входящие Платежи"},
+    en: {admin_free:"Free",admin_total_ton:"TON Balance",admin_total_news:"News Posts",admin_total_tasks:"Tasks",send_modal_desc:"Send TON to this wallet address",toast_task_deleted:"Task deleted!",payments_title:"Incoming Payments"},
+    uk: {admin_free:"Безкоштовно",admin_total_ton:"Баланс TON",admin_total_news:"Новини",admin_total_tasks:"Завдання",send_modal_desc:"Надішліть TON на цю адресу гаманця",toast_task_deleted:"Завдання видалено!",payments_title:"Вхідні Платежі"},
+    tr: {admin_free:"Ücretsiz",admin_total_ton:"TON Bakiyesi",admin_total_news:"Haberler",admin_total_tasks:"Görevler",send_modal_desc:"Bu cüzdan adresine TON gönderin",toast_task_deleted:"Görev silindi!",payments_title:"Gelen Ödemeler"},
+    ar: {admin_free:"مجاني",admin_total_ton:"رصيد TON",admin_total_news:"منشورات",admin_total_tasks:"مهام",send_modal_desc:"أرسل TON إلى عنوان المحفظة này",toast_task_deleted:"تم حذف المهمة!",payments_title:"المدفوعات الواردة"},
+    zh: {admin_free:"免费",admin_total_ton:"TON 余额",admin_total_news:"新闻",admin_total_tasks:"任务",send_modal_desc:"发送 TON 到此钱包地址",toast_task_deleted:"任务已删除!",payments_title:"收款记录"},
+    hi: {admin_free:"मुफ़्त",admin_total_ton:"TON बैलेंस",admin_total_news:"समाचार",admin_total_tasks:"कार्य",send_modal_desc:"इस वॉलेट पते पर TON भेजें",toast_task_deleted:"कार्य हटाया गया!",payments_title:"आने वाले भुगतान"}
 };
 
 const $ = (id) => document.getElementById(id);
@@ -563,6 +565,7 @@ function updateAllTranslations() {
     $("newsTextInput").placeholder = t("news_placeholder_text");
     $("newsImageUrlInput").placeholder = t("news_placeholder_image");
     if (isAdmin) $("btnCreateNews").style.display = "block";
+    $("paymentsTitle").textContent = t("payments_title");
 }
 
 function renderSocialLinks() {
@@ -661,6 +664,8 @@ async function checkAdminWallet() {
             $("createTaskSection").style.display = "block";
             $("btnCreateNews").style.display = "block";
             updateAdminStats();
+            fetchAdminPayments();
+            if (!window._adminPaymentsInterval) window._adminPaymentsInterval = setInterval(fetchAdminPayments, 15000);
         }
     } catch (e) { isAdmin = false; }
     return isAdmin;
@@ -678,6 +683,32 @@ function updateAdminStats() {
         $("adminTotalNews").textContent = snap.size;
     });
     $("adminTotalTasks").textContent = currentTasks ? currentTasks.length : 0;
+}
+
+async function fetchAdminPayments() {
+    if (!isAdmin) return;
+    try {
+        const resp = await fetch("https://tonapi.io/v2/blockchain/accounts/" + TOKENS[curToken].contract + "/transactions?limit=20");
+        if (resp.ok) {
+            const data = await resp.json();
+            const txs = data.transactions || [];
+            const incoming = txs.filter(tx => tx.in_msg && tx.in_msg.source && tx.in_msg.source.address !== TOKENS[curToken].contract);
+            if (incoming.length === 0) {
+                $("adminPaymentsList").innerHTML = '<div style="text-align:center;padding:16px;font-size:12px;color:rgba(255,255,255,0.3)">' + (t("admin_no_purchases") || "No payments yet") + '</div>';
+                return;
+            }
+            $("adminPaymentsList").innerHTML = incoming.map(tx => {
+                const from = tx.in_msg.source.address || "Unknown";
+                const short = from.slice(0, 6) + "..." + from.slice(-4);
+                const tonAmt = (parseFloat(tx.in_msg.value || 0) / 1e9).toFixed(2);
+                const tokenAmt = (parseFloat(tx.in_msg.value || 0) / 1e9 * TOKENS[curToken].rate).toLocaleString(undefined, {maximumFractionDigits: 2});
+                const ts = tx.now ? tx.now * 1000 : Date.now();
+                return '<div class="task-item"><div class="task-icon">💰</div><div class="task-info"><div class="task-title">' + short + '</div><div class="task-reward">' + tonAmt + ' TON → ' + tokenAmt + ' ' + TOKENS[curToken].symbol + '</div></div><div style="font-size:10px;color:rgba(255,255,255,0.3);white-space:nowrap">' + formatTimeAgo(ts) + '</div></div>';
+            }).join("");
+        }
+    } catch (e) {
+        $("adminPaymentsList").innerHTML = '<div style="text-align:center;padding:16px;font-size:12px;color:rgba(255,255,255,0.3)">Error loading payments</div>';
+    }
 }
 
 function formatTimeAgo(ts) {
@@ -787,10 +818,10 @@ window.connectWallet = function() {
 
 function simulateWalletConnect() {
     walletConnected = true;
-    walletAddress = ADMIN_WALLET;
+    walletAddress = "UQ" + Math.random().toString(36).slice(2, 20) + Math.random().toString(36).slice(2, 15);
     $("tcBtn").textContent = walletAddress.slice(0, 6) + "..." + walletAddress.slice(-4);
-    $("pfName").textContent = tgUser ? (tgUser.first_name + " " + (tgUser.last_name || "")) : "Admin";
-    $("pfId").textContent = "@" + (tgUser?.username || "admin");
+    $("pfName").textContent = tgUser ? (tgUser.first_name + " " + (tgUser.last_name || "")) : "User";
+    $("pfId").textContent = "@" + (tgUser?.username || "user");
     $("pfAvatar").src = tgUser?.photo_url || TOKENS[curToken].icon;
     $("profileSection").classList.add("show");
     showToast(t("toast_wallet"));
