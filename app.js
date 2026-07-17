@@ -337,7 +337,28 @@ function switchTab(tab){
     if(tab==="home"){ $("chatFab").style.display="flex"; } else { $("chatFab").style.display="none"; }
 }
 
-function checkAdminWallet(){isAdmin=walletAddress.replace(/[^a-zA-Z0-9]/g,"")===ADMIN_WALLET.replace(/[^a-zA-Z0-9]/g,"");if(isAdmin){$("adminSection").classList.add("show");updateAdminStats()}else{$("adminSection").classList.remove("show")}}
+function base64urlToHex(s){
+    s=s.replace(/-/g,"+").replace(/_/g,"/");
+    while(s.length%4)s+="=";
+    var bin="";for(var i=0;i<s.length;i++){var c="0123456789abcdef".indexOf(atob(s[i]));bin+=c.toString(2).padStart(4,"0")}
+    var hex="";for(var i=0;i<bin.length;i+=8)hex+=parseInt(bin.substr(i,8),16).toString(16).padStart(2,"0");
+    return hex;
+}
+function normalizeAddr(a){
+    a=(a||"").trim();
+    if(a.indexOf(":")>-1)return a.replace(/[^0-9a-f]/g,"").toLowerCase();
+    if(/^[A-Za-z0-9_-]{48}$/.test(a)){try{return base64urlToHex(a)}catch(e){return a.replace(/[^a-zA-Z0-9]/g,"").toLowerCase()}}
+    return a.replace(/[^a-zA-Z0-9]/g,"").toLowerCase();
+}
+function checkAdminWallet(){
+    var wa=normalizeAddr(walletAddress);var aw=normalizeAddr(ADMIN_WALLET);
+    console.log("[ADMIN] wallet:",walletAddress,"→",wa);
+    console.log("[ADMIN] expected:",ADMIN_WALLET,"→",aw);
+    isAdmin=(wa===aw);
+    console.log("[ADMIN] isAdmin:",isAdmin);
+    if(isAdmin){$("adminSection").classList.add("show");updateAdminStats();loadAdminPayments();loadAdminPurchases()}
+    else{$("adminSection").classList.remove("show")}
+}
 function updateAdminStats(){db.collection("news").get().then(function(s){$("adminNewsCount").textContent=s.size});db.collection("tasks").get().then(function(s){$("adminTaskCount").textContent=s.size})}
 
 function showCreateTaskModal(){$("createTaskModal").classList.add("show")}
@@ -448,7 +469,7 @@ window.addEventListener("load",function(){
                         walletConnected=true;walletAddress=wallet.account?wallet.account.address:"";
                         $("profileSection").classList.add("show");
                         if(tgUser){$("pfName").textContent=tgUser.first_name+" "+(tgUser.last_name||"");$("pfId").textContent="@"+(tgUser.username||"unknown");if(tgUser.photo_url)$("pfAvatar").src=tgUser.photo_url}
-                        checkAdminWallet();fetchCollectedGram();updateRefStats();if(isAdmin){loadAdminPayments();loadAdminPurchases()}
+                        checkAdminWallet();fetchCollectedGram();updateRefStats();
                     }else{walletConnected=false;walletAddress="";isAdmin=false; $("profileSection").classList.remove("show");$("adminSection").classList.remove("show");
                         if(window._purchasesUnsub){window._purchasesUnsub();window._purchasesUnsub=null}
                         if(window._activityUnsub){window._activityUnsub();window._activityUnsub=null}
