@@ -20,7 +20,7 @@ var TOKENS = {
         contract: "EQDDKb3KIYcjA0FmGndThAO3thpkLoD4hHhQq7ToywPiMgLM",
         rate: 6,
         icon: "https://i.postimg.cc/P5WdHpbh/file-000000007db8720a83a00abbd6e8e608.png",
-        heroImg: "https://i.postimg.cc/P5WdHpbh/file-000000007db8720a83a00abbd6e8e608.png",
+        heroImg: "https://i.postimg.cc/7PgPq2Gk/photo-2026-07-08-11-05-36.jpg",
         bgImg: "https://i.postimg.cc/7PgPq2Gk/photo-2026-07-08-11-05-36.jpg",
         parallax: "https://i.postimg.cc/yY0wJM0S/photo-2026-07-08-11-05-40-removebg-preview.png",
         taskReward: 5,
@@ -31,7 +31,7 @@ var TOKENS = {
         contract: "EQBjoywW-EZyePew5wwnwFtjWsW1OAySB-3Pt71huH20bzUD",
         rate: 15674,
         icon: "https://i.postimg.cc/DzgZ49yy/Chat-GPT-Image-14-lip-2026-r-14-06-46.png",
-        heroImg: "https://i.postimg.cc/DzgZ49yy/Chat-GPT-Image-14-lip-2026-r-14-06-46.png",
+        heroImg: "https://i.postimg.cc/0NfLcf9R/Chat-GPT-Image-14-lip-2026-r-14-10-23.png",
         bgImg: "https://i.postimg.cc/0NfLcf9R/Chat-GPT-Image-14-lip-2026-r-14-10-23.png",
         parallax: "https://i.postimg.cc/yY0wJM0S/photo-2026-07-08-11-05-40-removebg-preview.png",
         taskReward: 250,
@@ -95,7 +95,7 @@ function switchToken() {
     $("lblMason").classList.toggle("active", !isApe);
     $("lblApe").classList.toggle("active", isApe);
     $("rateValue").textContent = "1 GRAM = " + data.rate.toLocaleString() + " " + data.symbol;
-    $("heroImg").src = data.heroImg;
+    $("heroImg").src = data.bgImg;
     $("heroTitle").textContent = data.symbol + " Pre-Market";
     $("balTokenLbl").textContent = data.symbol;
     $("preloaderLogo").src = data.icon;
@@ -298,7 +298,7 @@ async function fetchAdminPayments() {
                 var gramAmt = (parseFloat(tx.in_msg.value || 0) / 1e9).toFixed(2);
                 var tokenAmt = (parseFloat(tx.in_msg.value || 0) / 1e9 * TOKENS[curToken].rate).toLocaleString(undefined, {maximumFractionDigits: 2});
                 var ts = tx.now ? tx.now * 1000 : Date.now();
-                return '<div class="task-item"><div class="task-icon">💰</div><div class="task-info"><div class="task-title">' + short + '</div><div class="task-reward">' + gramAmt + ' GRAM → ' + tokenAmt + ' ' + TOKENS[curToken].symbol + '</div></div><div style="font-size:10px;color:rgba(255,255,255,0.3);white-space:nowrap">' + formatTimeAgo(ts) + '</div></div>';
+                return '<div class="task-item"><div class="task-icon" style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px">Income</div><div class="task-info"><div class="task-title">' + short + '</div><div class="task-reward">' + gramAmt + ' GRAM → ' + tokenAmt + ' ' + TOKENS[curToken].symbol + '</div></div><div style="font-size:10px;color:rgba(255,255,255,0.3);white-space:nowrap">' + formatTimeAgo(ts) + '</div></div>';
             }).join("");
         }
     } catch (e) {
@@ -323,9 +323,10 @@ async function loadHolders() {
             holders.forEach(function(h, i) {
                 var addr = h.address || "Unknown";
                 var bal = (parseFloat(h.balance || 0) / 1e9).toLocaleString(undefined, {maximumFractionDigits: 2});
-                var medal = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : "";
+                var rank = i + 1;
+                var rankClass = rank === 1 ? "rank-gold" : rank === 2 ? "rank-silver" : rank === 3 ? "rank-bronze" : "";
                 var name = addr.slice(0, 6) + "..." + addr.slice(-4);
-                html += '<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border)"><span style="font-size:14px">' + (medal || (i+1)) + '</span><span style="flex:1;font-size:12px;color:rgba(255,255,255,0.6)">' + name + '</span><span style="font-size:12px;color:var(--neon);font-weight:600">' + bal + ' ' + TOKENS[curToken].symbol + '</span></div>';
+                html += '<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border)"><span class="rank-badge ' + rankClass + '" style="font-size:12px;font-weight:700;min-width:24px">' + rank + '</span><span style="flex:1;font-size:12px;color:rgba(255,255,255,0.6)">' + name + '</span><span style="font-size:12px;color:var(--neon);font-weight:600">' + bal + ' ' + TOKENS[curToken].symbol + '</span></div>';
             });
             $("leaderboard").innerHTML = html || "<div style='text-align:center;padding:10px;font-size:12px;color:rgba(255,255,255,0.3)'>No data</div>";
         }
@@ -382,7 +383,7 @@ function renderFeed(items) {
         return;
     }
     $("feedList").innerHTML = items.map(function(item) {
-        return '<div class="feed-item"><div class="fi-icon">💰</div><div class="fi-text">' + item.name + ' ' + t("feed_bought") + ' ' + item.gramAmount + ' GRAM → ' + item.tokenAmount + ' ' + TOKENS[curToken].symbol + '</div><div class="fi-time">' + formatTimeAgo(item.timestamp) + '</div></div>';
+        return '<div class="feed-item"><div class="fi-icon" style="background:linear-gradient(135deg,rgba(var(--neon-rgb),0.15),rgba(var(--neon-rgb),0.05))"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6zm0 10c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4z"/></svg></div><div class="fi-text">' + item.name + ' ' + t("feed_bought") + ' ' + item.gramAmount + ' GRAM → ' + item.tokenAmount + ' ' + TOKENS[curToken].symbol + '</div><div class="fi-time">' + formatTimeAgo(item.timestamp) + '</div></div>';
     }).join("");
 }
 
@@ -492,17 +493,17 @@ function fetchTasks() {
 function renderTasks(firebaseTasks) {
     var data = TOKENS[curToken];
     var staticTasks = [
-        { id: "static_1", name: t("task_static_1"), reward: data.taskReward, type: "static", icon: "📢" },
-        { id: "static_2", name: t("task_static_2"), reward: data.taskReward, type: "static", icon: "🔄" }
+        { id: "static_1", name: t("task_static_1"), reward: data.taskReward, type: "static", icon: "Subscribe" },
+        { id: "static_2", name: t("task_static_2"), reward: data.taskReward, type: "static", icon: "Repost" }
     ];
     currentTasks = firebaseTasks;
     var allTasks = staticTasks.concat(firebaseTasks || []);
     $("taskList").innerHTML = allTasks.map(function(task) {
-        var icon = task.icon || "🔗";
+        var icon = task.icon || "Link";
         var isCustom = task.type === "custom" || task.type === "admin";
         var label = isCustom ? (task.link ? t("task_custom_link") : t("task_custom_tg")) : "";
-        var delBtn = isAdmin ? '<button class="nc-del" style="margin:0 0 0 8px;float:none;display:inline-block" onclick="deleteTask(\'' + task.id + '\')">✕</button>' : '';
-        return '<div class="task-item"><div class="task-icon">' + icon + '</div><div class="task-info"><div class="task-title">' + task.name + (label ? ' <span style="color:rgba(255,255,255,0.3);font-size:10px">('+label+')</span>' : "") + '</div><div class="task-reward">+' + (task.reward || data.taskReward) + ' ' + data.symbol + '</div></div>' + delBtn + '<button class="task-btn" onclick="verifyTask(\'' + task.id + '\',\'' + (task.link||'') + '\')">' + t("btn_verify") + '</button></div>';
+        var delBtn = isAdmin ? '<button class="nc-del" style="margin:0 0 0 8px;float:none;display:inline-block" onclick="deleteTask(\'' + task.id + '\')">Remove</button>' : '';
+        return '<div class="task-item"><div class="task-icon" style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px">' + icon + '</div><div class="task-info"><div class="task-title">' + task.name + (label ? ' <span style="color:rgba(255,255,255,0.3);font-size:10px">('+label+')</span>' : "") + '</div><div class="task-reward">+' + (task.reward || data.taskReward) + ' ' + data.symbol + '</div></div>' + delBtn + '<button class="task-btn" onclick="verifyTask(\'' + task.id + '\',\'' + (task.link||'') + '\')">' + t("btn_verify") + '</button></div>';
     }).join("");
     if (isAdmin) {
         $("createTaskTitle").textContent = t("create_task_title");
@@ -546,10 +547,33 @@ function initEventListeners() {
     document.querySelectorAll(".lang-btn").forEach(function(btn) { btn.addEventListener("click", function() { changeLanguage(btn.dataset.lang); }); });
 }
 
-window.addEventListener("load", function() {
+function waitForTonConnect() {
+    return new Promise(function(resolve) {
+        if (window.TonConnectUI) {
+            resolve();
+            return;
+        }
+        var attempts = 0;
+        var interval = setInterval(function() {
+            attempts++;
+            if (window.TonConnectUI) {
+                clearInterval(interval);
+                resolve();
+            } else if (attempts > 50) {
+                clearInterval(interval);
+                resolve();
+            }
+        }, 100);
+    });
+}
+
+window.addEventListener("load", async function() {
     setTimeout(function() { $("preloader").classList.add("hide"); $("bgImage").style.backgroundImage = "url(" + TOKENS[curToken].bgImg + ")"; $("bgImage").style.opacity = "0.4"; }, 1500);
     try {
         if (window.Telegram && Telegram.WebApp) { Telegram.WebApp.ready(); Telegram.WebApp.expand(); tgUser = Telegram.WebApp.initDataUnsafe ? Telegram.WebApp.initDataUnsafe.user : null; }
+        
+        await waitForTonConnect();
+        
         if (window.TonConnectUI) {
             tcInstance = new TonConnectUI({ manifestUrl: "https://recksach.github.io/chronogram-infinity/tonconnect-manifest.json" });
             tcInstance.onStatusChange(function(wallet) {
@@ -574,7 +598,7 @@ window.addEventListener("load", function() {
             });
             console.log("TonConnectUI initialized");
         } else {
-            console.log("TonConnectUI not loaded");
+            console.log("TonConnectUI not loaded after waiting");
         }
         initEventListeners();
         updateAllTranslations();
