@@ -388,24 +388,27 @@ function renderFeed(items) {
 }
 
 window.connectWallet = function() {
-    if (walletConnected) { $("profileSection").classList.toggle("show"); return; }
-    if (window.Telegram && Telegram.WebApp) Telegram.WebApp.HapticFeedback.impactOccurred("light");
-    if (!window.TonConnectUI) { showToast("TonConnect not loaded. Retrying..."); initTonConnect(); return; }
-    if (!tcInstance) { showToast("Wallet not initialized. Retrying..."); initTonConnect(); return; }
-    tcInstance.openSingleWalletModal().then(async function(result) {
-        if (result) {
-            walletConnected = true;
-            walletAddress = result.account ? result.account.address : "";
-            $("tcBtn").textContent = walletAddress.slice(0, 6) + "..." + walletAddress.slice(-4);
-            $("pfName").textContent = tgUser ? (tgUser.first_name + " " + (tgUser.last_name || "")) : "User";
-            $("pfId").textContent = "@" + (tgUser ? tgUser.username : "user");
-            if (tgUser && tgUser.photo_url) $("pfAvatar").src = tgUser.photo_url;
-            $("profileSection").classList.add("show");
-            showToast(t("toast_wallet"));
-            await checkAdminWallet();
-            updateBal();
-        }
-    }).catch(function(e) { console.log("Wallet connect error:", e); showToast(t("toast_error") + ": " + e.message); });
+    if (walletConnected) { 
+        $("profileSection").classList.toggle("show"); 
+        return; 
+    }
+    if (window.Telegram && Telegram.WebApp) {
+        Telegram.WebApp.HapticFeedback.impactOccurred("light");
+    }
+    if (!window.TonConnectUI) { 
+        showToast("TonConnect not loaded. Retrying..."); 
+        initTonConnect(); 
+        return; 
+    }
+    if (!tcInstance) { 
+        showToast("Wallet not initialized. Retrying..."); 
+        initTonConnect(); 
+        return; 
+    }
+    tcInstance.openModal().catch(function(e) { 
+        console.log("Wallet open modal error:", e); 
+        showToast(t("toast_error") + ": " + e.message); 
+    });
 };
 
 function initTonConnect() {
