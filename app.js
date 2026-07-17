@@ -390,7 +390,8 @@ function renderFeed(items) {
 window.connectWallet = function() {
     if (walletConnected) { $("profileSection").classList.toggle("show"); return; }
     if (window.Telegram && Telegram.WebApp) Telegram.WebApp.HapticFeedback.impactOccurred("light");
-    if (!tcInstance) { showToast(t("toast_error") + " — TonConnect not loaded"); return; }
+    if (!window.TonConnectUI) { showToast("TonConnect not loaded. Retrying..."); initTonConnect(); return; }
+    if (!tcInstance) { showToast("Wallet not initialized. Retrying..."); initTonConnect(); return; }
     tcInstance.openSingleWalletModal().then(async function(result) {
         if (result) {
             walletConnected = true;
@@ -404,8 +405,36 @@ window.connectWallet = function() {
             await checkAdminWallet();
             updateBal();
         }
-    }).catch(function(e) { console.log("Wallet connect error:", e); showToast(t("toast_error")); });
+    }).catch(function(e) { console.log("Wallet connect error:", e); showToast(t("toast_error") + ": " + e.message); });
 };
+
+function initTonConnect() {
+    if (!window.TonConnectUI) { showToast("TonConnect script not loaded"); return; }
+    try {
+        tcInstance = new TonConnectUI({ manifestUrl: "https://recksach.github.io/chronogram-infinity/tonconnect-manifest.json" });
+        tcInstance.onStatusChange(function(wallet) {
+            if (wallet) {
+                walletConnected = true;
+                walletAddress = wallet.account ? wallet.account.address : "";
+                $("tcBtn").textContent = walletAddress.slice(0, 6) + "..." + walletAddress.slice(-4);
+                $("pfName").textContent = tgUser ? (tgUser.first_name + " " + (tgUser.last_name || "")) : "User";
+                $("pfId").textContent = "@" + (tgUser ? tgUser.username : "user");
+                if (tgUser && tgUser.photo_url) $("pfAvatar").src = tgUser.photo_url;
+                $("profileSection").classList.add("show");
+                checkAdminWallet();
+                updateBal();
+            } else {
+                walletConnected = false;
+                walletAddress = "";
+                $("tcBtn").textContent = "Connect Wallet";
+                $("profileSection").classList.remove("show");
+                isAdmin = false;
+                $("adminSection").classList.remove("show");
+            }
+        });
+        showToast("Wallet ready. Tap Connect again.");
+    } catch (e) { console.error("TonConnect init failed:", e); showToast("Init failed: " + e.message); }
+}
 
 window.showSendModal = function() {
     if (!walletConnected) { showToast(t("toast_error") + " — connect wallet first"); return; }
@@ -575,30 +604,39 @@ window.addEventListener("load", async function() {
         await waitForTonConnect();
         
         if (window.TonConnectUI) {
-            tcInstance = new TonConnectUI({ manifestUrl: "https://recksach.github.io/chronogram-infinity/tonconnect-manifest.json" });
-            tcInstance.onStatusChange(function(wallet) {
-                if (wallet) {
-                    walletConnected = true;
-                    walletAddress = wallet.account ? wallet.account.address : "";
-                    $("tcBtn").textContent = walletAddress.slice(0, 6) + "..." + walletAddress.slice(-4);
-                    $("pfName").textContent = tgUser ? (tgUser.first_name + " " + (tgUser.last_name || "")) : "User";
-                    $("pfId").textContent = "@" + (tgUser ? tgUser.username : "user");
-                    if (tgUser && tgUser.photo_url) $("pfAvatar").src = tgUser.photo_url;
-                    $("profileSection").classList.add("show");
-                    checkAdminWallet();
-                    updateBal();
-                } else {
-                    walletConnected = false;
-                    walletAddress = "";
-                    $("tcBtn").textContent = "Connect Wallet";
-                    $("profileSection").classList.remove("show");
-                    isAdmin = false;
-                    $("adminSection").classList.remove("show");
-                }
-            });
-            console.log("TonConnectUI initialized");
+            try {
+                tcInstance = new TonConnectUI({ 
+                    manifestUrl: "https://recksach.github.io/chronogram-infinity/tonconnect-manifest.json",
+                    buttonRootId: "tonconnect-btn-root"
+                });
+                tcInstance.onStatusChange(function(wallet) {
+                    if (wallet) {
+                        walletConnected = true;
+                        walletAddress = wallet.account ? wallet.account.address : "";
+                        $("tcBtn").textContent = walletAddress.slice(0, 6) + "..." + walletAddress.slice(-4);
+                        $("pfName").textContent = tgUser ? (tgUser.first_name + " " + (tgUser.last_name || "")) : "User";
+                        $("pfId").textContent = "@" + (tgUser ? tgUser.username : "user");
+                        if (tgUser && tgUser.photo_url) $("pfAvatar").src = tgUser.photo_url;
+                        $("profileSection").classList.add("show");
+                        checkAdminWallet();
+                        updateBal();
+                    } else {
+                        walletConnected = false;
+                        walletAddress = "";
+                        $("tcBtn").textContent = "Connect Wallet";
+                        $("profileSection").classList.remove("show");
+                        isAdmin = false;
+                        $("adminSection").classList.remove("show");
+                    }
+                });
+                console.log("TonConnectUI initialized successfully");
+            } catch (e) {
+                console.error("TonConnectUI init error:", e);
+                showToast("Wallet init failed: " + e.message);
+            }
         } else {
             console.log("TonConnectUI not loaded after waiting");
+            showToast("TonConnect not loaded. Refresh or check connection.");
         }
         initEventListeners();
         updateAllTranslations();
