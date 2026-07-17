@@ -137,6 +137,10 @@
                         <div style="font-size:13px;font-weight:600;margin-bottom:8px" id="adminPaymentsLbl">Recent Payments</div>
                         <div id="adminPaymentsList"></div>
                     </div>
+                    <div class="gc">
+                        <div style="font-size:13px;font-weight:600;margin-bottom:8px" id="adminPurchasesLbl">Purchase History</div>
+                        <div id="adminPurchasesList"></div>
+                    </div>
                 </div>
             </div>
             <div class="tab-content" id="tabTasks">
@@ -223,6 +227,36 @@
                 <button class="btn btn-p" onclick="closeCreateNewsModal()">Cancel</button>
                 <button class="btn btn-b" onclick="createNews()">Publish</button>
             </div>
+        </div>
+    </div>
+
+    <div class="chat-fab" id="chatFab" onclick="toggleChat()">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+        </svg>
+    </div>
+    <div class="chat-panel" id="chatPanel">
+        <div class="chat-header">
+            <div class="chat-header-info">
+                <img class="chat-avatar" src="https://i.postimg.cc/yY0wJM0S/photo-2026-07-08-11-05-40-removebg-preview.png" alt="">
+                <div>
+                    <div class="chat-title" id="chatTitle">AI Assistant</div>
+                    <div class="chat-status"><span class="chat-status-dot"></span> <span id="chatStatusText">Online</span></div>
+                </div>
+            </div>
+            <button class="chat-close" onclick="toggleChat()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+            </button>
+        </div>
+        <div class="chat-messages" id="chatMessages"></div>
+        <div class="chat-chips" id="chatChips"></div>
+        <div class="chat-input-row">
+            <input type="text" class="chat-input" id="chatInput" placeholder="Ask a question..." onkeydown="if(event.key==='Enter')sendChat()">
+            <button class="chat-send" onclick="sendChat()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                </svg>
+            </button>
         </div>
     </div>
 
