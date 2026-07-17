@@ -442,7 +442,7 @@ function loadAdminPurchases(){
             h+='<div class="api-top">';
             if(p.userAvatar)h+='<img class="api-avatar" src="'+p.userAvatar+'" onerror="this.style.display=\'none\'">';
             h+='<div class="api-info"><div class="api-name">'+escH(p.userName||"User")+'</div>';
-            h+='<div class="api-wallet" onclick="navigator.clipboard.writeText(\''+addr+'\')">'+addrShort+' &#128203;</div>';
+            h+='<div class="api-wallet" onclick="openLink(\'https://tonviewer.com/'+addr+'\')" style="cursor:pointer;text-decoration:underline">'+addrShort+' &#128203;</div>';
             h+='<div class="api-time">'+ts+'</div></div></div>';
             h+='<div class="api-action">';
             h+='<div style="font-size:11px;font-weight:700;color:'+stColor+';margin-bottom:4px">'+stLabel+'</div>';
@@ -466,7 +466,7 @@ function loadAdminPayments(){
             var rawAddr=data.walletAddress||"";
             var addr=formatAddr(rawAddr);
             var addrShort=addr.slice(0,10)+"..."+addr.slice(-4);
-            h+='<div class="payment-item"><div class="pi-addr">'+uid+'</div><div class="pi-wallet" onclick="navigator.clipboard.writeText(\''+addr+'\')">'+addrShort+' &#128203;</div><span class="pi-amount">'+(data.amount||"")+' GRAM → <span style="color:'+color+'">'+Number(data.tokenAmount||0).toLocaleString()+' '+sym+'</span></span></div>';
+            h+='<div class="payment-item"><div class="pi-addr">'+uid+'</div><div class="pi-wallet" onclick="openLink(\'https://tonviewer.com/'+addr+'\')" style="cursor:pointer;text-decoration:underline">'+addrShort+' &#128203;</div><span class="pi-amount">'+(data.amount||"")+' GRAM → <span style="color:'+color+'">'+Number(data.tokenAmount||0).toLocaleString()+' '+sym+'</span></span></div>';
         });
         if(!h)h='<div style="text-align:center;padding:10px;color:rgba(255,255,255,0.3);font-size:12px">No payments yet</div>';
         $("adminPaymentsList").innerHTML=h;
