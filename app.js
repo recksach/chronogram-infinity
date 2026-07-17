@@ -4,22 +4,19 @@ function hexToUserFriendly(hex){
     var wc=parseInt(parts[0])||0;
     var hash=parts[1]||"";
     while(hash.length<64)hash="0"+hash;
-    var data=new Uint8Array(37);
-    data[0]=0x15;
-    data[1]=(wc>>>24)&0xff;data[2]=(wc>>>16)&0xff;data[3]=(wc>>>8)&0xff;data[4]=wc&0xff;
-    for(var i=0;i<32;i++)data[5+i]=parseInt(hash.substr(i*2,2),16);
-    var c=0x1020;
-    for(var i=0;i<37;i++){c^=data[i]<<8;for(var j=0;j<8;j++){c=(c&0x8000)?((c<<1)^0x1021):(c<<1)}}
-    c&=0xffff;
-    var buf=new Uint8Array(39);
-    buf.set(data);buf[37]=(c>>8)&0xff;buf[38]=c&0xff;
+    var data=new Uint8Array(34);
+    data[0]=0x51;data[1]=wc&0xff;
+    for(var i=0;i<32;i++)data[2+i]=parseInt(hash.substr(i*2,2),16);
+    var c=0x0000;
+    for(var i=0;i<34;i++){c^=data[i]<<8;for(var j=0;j<8;j++){c=(c&0x8000)?((c<<1)^0x1021):(c<<1);c&=0xffff}}
+    var buf=new Uint8Array(36);buf.set(data);buf[34]=(c>>8)&0xff;buf[35]=c&0xff;
     var ch="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
     var res="";
-    for(var i=0;i<39;i+=3){
-        var b1=buf[i],b2=(i+1<39)?buf[i+1]:0,b3=(i+2<39)?buf[i+2]:0;
+    for(var i=0;i<36;i+=3){
+        var b1=buf[i],b2=(i+1<36)?buf[i+1]:0,b3=(i+2<36)?buf[i+2]:0;
         res+=ch[(b1>>2)&63]+ch[((b1&3)<<4)|((b2>>4)&15)];
-        res+=(i+1<39)?ch[((b2&15)<<2)|((b3>>6)&3)]:"=";
-        res+=(i+2<39)?ch[b3&63]:"=";
+        res+=(i+1<36)?ch[((b2&15)<<2)|((b3>>6)&3)]:"=";
+        res+=(i+2<36)?ch[b3&63]:"=";
     }
     return res.replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
 }
