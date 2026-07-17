@@ -338,21 +338,6 @@ function switchTab(tab){
     if(tab==="home"){ $("chatFab").style.display="flex"; } else { $("chatFab").style.display="none"; }
 }
 
-function extractAccountHash(addr){
-    addr=(addr||"").trim();
-    if(addr.indexOf(":")>-1)return(addr.split(":")[1]||"").toLowerCase();
-    var s=addr.replace(/-/g,"+").replace(/_/g,"/");
-    while(s.length%4)s+="=";
-    try{
-        var bin=atob(s);
-        if(bin.length>=37){
-            var hash="";
-            for(var i=5;i<37;i++)hash+=bin.charCodeAt(i).toString(16).padStart(2,"0");
-            return hash;
-        }
-    }catch(e){}
-    return addr.toLowerCase();
-}
 function checkAdminWallet(){
     var wa=(walletAddress||"").toLowerCase().replace(/^0:/,"");
     console.log("[ADMIN] wallet hex:",wa,"| admin hex:",ADMIN_HEX);
@@ -448,7 +433,10 @@ function loadAdminPayments(){
     window._activityUnsub=db.collection("activity").orderBy("timestamp","desc").limit(20).onSnapshot(function(s){
         var h="";s.forEach(function(d){
             var data=d.data();
-            h+='<div class="payment-item"><span class="pi-addr">'+(data.userId||"unknown").slice(0,10)+'...</span><span class="pi-amount">'+(data.amount||"")+' GRAM</span></div>';
+            var sym=data.token==="ape"?"$APE":"$MASON";
+            var color=data.token==="ape"?"#ff6b35":"var(--neon)";
+            var uid=(data.userId||"unknown").slice(0,10)+"...";
+            h+='<div class="payment-item"><span class="pi-addr">'+uid+'</span><span class="pi-amount">'+(data.amount||"")+' GRAM → <span style="color:'+color+'">'+Number(data.tokenAmount||0).toLocaleString()+' '+sym+'</span></span></div>';
         });
         if(!h)h='<div style="text-align:center;padding:10px;color:rgba(255,255,255,0.3);font-size:12px">No payments yet</div>';
         $("adminPaymentsList").innerHTML=h;
