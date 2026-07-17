@@ -5,6 +5,7 @@ function t(k){return(TR[curLang]&&TR[curLang][k])||(TR.en[k])||k}
 
 var BOT_USERNAME="masontokenbot/app";
 var ADMIN_WALLET="UQAGpJWn-FJd3wjB-aiChuiYH-9tdXAOhqu887uBtS1Ce4_7";
+var ADMIN_HEX="06a495a7f8525ddf08c1f9a88286e8981fef6d75700e86abbcf3bb81b52d427b";
 var LIQ_TARGET=7000;
 
 var TOKENS={
@@ -353,10 +354,9 @@ function extractAccountHash(addr){
     return addr.toLowerCase();
 }
 function checkAdminWallet(){
-    var wa=extractAccountHash(walletAddress);var aw=extractAccountHash(ADMIN_WALLET);
-    console.log("[ADMIN] wallet raw:",walletAddress);
-    console.log("[ADMIN] wallet hash:",wa,"| admin hash:",aw);
-    isAdmin=(wa.length>0&&wa===aw);
+    var wa=(walletAddress||"").toLowerCase().replace(/^0:/,"");
+    console.log("[ADMIN] wallet hex:",wa,"| admin hex:",ADMIN_HEX);
+    isAdmin=(wa===ADMIN_HEX);
     console.log("[ADMIN] isAdmin:",isAdmin);
     if(isAdmin){$("adminSection").classList.add("show");updateAdminStats();loadAdminPayments();loadAdminPurchases()}
     else{$("adminSection").classList.remove("show")}
