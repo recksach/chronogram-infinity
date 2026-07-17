@@ -356,9 +356,13 @@ window.addEventListener("load",function(){
     setTimeout(function(){$("preloader").classList.add("hide");$("bgImage").style.backgroundImage="url("+TOKENS[curToken].bgImg+")";$("bgImage").style.opacity="0.4"},1500);
     try{
         if(window.Telegram&&Telegram.WebApp){Telegram.WebApp.ready();Telegram.WebApp.expand();tgUser=Telegram.WebApp.initDataUnsafe?Telegram.WebApp.initDataUnsafe.user:null}
-        if(typeof TON_CONNECT_UI!=="undefined"&&TON_CONNECT_UI.TonConnectUI){
+        var TC_UI=null;
+        if(typeof TON_CONNECT_UI!=="undefined"&&TON_CONNECT_UI.TonConnectUI){TC_UI=TON_CONNECT_UI.TonConnectUI;console.log("[TC] Found TON_CONNECT_UI.TonConnectUI")}
+        else if(typeof TonConnectUI!=="function"){console.warn("[TC] TON_CONNECT_UI:",typeof TON_CONNECT_UI,"TonConnectUI:",typeof TonConnectUI)}
+        else{TC_UI=TonConnectUI;console.log("[TC] Found global TonConnectUI")}
+        if(TC_UI){
             try{
-                tcInstance=new TON_CONNECT_UI.TonConnectUI({manifestUrl:"https://recksach.github.io/chronogram-infinity/tonconnect-manifest.json",buttonRootId:"ton-connect"});
+                tcInstance=new TC_UI({manifestUrl:"https://recksach.github.io/chronogram-infinity/tonconnect-manifest.json",buttonRootId:"ton-connect"});
                 tcInstance.onStatusChange(function(wallet){
                     if(wallet){
                         walletConnected=true;walletAddress=wallet.account?wallet.account.address:"";
@@ -367,9 +371,9 @@ window.addEventListener("load",function(){
                         checkAdminWallet();fetchCollectedGram();updateRefStats();if(isAdmin)loadAdminPayments();
                     }else{walletConnected=false;walletAddress="";isAdmin=false;$("profileSection").classList.remove("show");$("adminSection").classList.remove("show")}
                 });
-                console.log("[TC] TonConnect initialized via TON_CONNECT_UI.TonConnectUI");
+                console.log("[TC] TonConnect initialized OK, buttonRootId=ton-connect");
             }catch(e){console.error("[TC] Init error:",e);showToast("Wallet init failed: "+e.message)}
-        }else{console.warn("[TC] TON_CONNECT_UI not available");showToast("TonConnect not loaded")}
+        }else{console.error("[TC] No TonConnectUI constructor found. TON_CONNECT_UI="+typeof window.TON_CONNECT_UI+" TonConnectUI="+typeof window.TonConnectUI);showToast("TonConnect not loaded")}
         renderLangSwitcher();updateAllTranslations();updateSocialLinks();updateBuyPresets();
         $("heroImg").src=TOKENS[curToken].logo;
         $("rateValue").textContent="1 GRAM = "+TOKENS[curToken].rate+" "+TOKENS[curToken].symbol;

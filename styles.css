@@ -222,3 +222,5 @@ input::placeholder,textarea::placeholder{color:rgba(255,255,255,0.25)}
 .payment-item:last-child{border-bottom:none}
 .payment-item .pi-addr{color:rgba(255,255,255,0.5);font-family:monospace;font-size:11px}
 .payment-item .pi-amount{color:var(--neon);font-weight:600}
+
+#ton-connect{display:flex;justify-content:center;margin-bottom:8px;margin-top:8px}

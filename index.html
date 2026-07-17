@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>$MASON / $APE - Pre-Market</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
     <link rel="stylesheet" href="styles.css">
@@ -14,7 +15,6 @@
         <img class="logo" src="https://i.postimg.cc/yY0wJM0S/photo-2026-07-08-11-05-40-removebg-preview.png" alt="">
         <div class="txt" id="preloaderText">Loading...</div>
     </div>
-    <div id="tonconnect-btn-root"></div>
     <div class="toast" id="toast"></div>
     <div class="ticker"><div class="dot"></div><div class="tl" id="tickerText">Connecting to blockchain...</div></div>
     <div id="bgImage"></div>
@@ -36,7 +36,6 @@
 
     <div class="app" id="app">
         <div class="lang-switcher" id="langSwitcher"></div>
-
         <div class="token-toggle">
             <span class="tlbl active" id="masonLabel">$MASON</span>
             <div class="tt-track" id="ttTrack" onclick="toggleToken()">
@@ -44,9 +43,7 @@
             </div>
             <span class="tlbl" id="apeLabel">$APE</span>
         </div>
-
         <div class="token-content" id="tokenContent">
-            <!-- HOME -->
             <div class="tab-content active" id="tabHome">
                 <div class="hero" id="hero">
                     <img id="heroImg" src="" alt="">
@@ -67,19 +64,14 @@
                             <span id="liqLabel">Liquidity Pool</span>
                             <span id="liqProgress">0 / 7,000 GRAM</span>
                         </div>
-                        <div class="liq-track">
-                            <div class="liq-fill" id="liqFill"></div>
-                        </div>
+                        <div class="liq-track"><div class="liq-fill" id="liqFill"></div></div>
                     </div>
-                    <div class="btn-row-wallet">
-                        <button class="btn-wallet outline" id="tcBtn" onclick="connectWallet()">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M12 12h.01"/><path d="M17 12h.01"/><path d="M7 12h.01"/></svg>
-                            <span id="tcBtnText">Connect Wallet</span>
-                        </button>
-                        <button class="btn-wallet solid" id="buyBtn" onclick="showSendModal()">
-                            <span id="buyBtnText">Buy $MASON</span>
-                        </button>
-                    </div>
+                </div>
+                <div id="ton-connect"></div>
+                <div class="gc">
+                    <button class="btn-wallet solid" id="buyBtn" onclick="showSendModal()">
+                        <span id="buyBtnText">Buy $MASON</span>
+                    </button>
                 </div>
                 <div class="social-links" id="socialLinks"></div>
                 <div class="gc info-card" id="infoCard">
@@ -94,7 +86,7 @@
                         <div class="info-highlights" id="infoHighlights"></div>
                     </div>
                 </div>
-                <div class="support-row" id="supportRow" onclick="openLink('https://t.me/Superadminist')">
+                <div class="support-row" onclick="openLink('https://t.me/Superadminist')">
                     <div class="sr-icon">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
                     </div>
@@ -102,7 +94,7 @@
                         <div class="sr-name" id="supportName">Support</div>
                         <div class="sr-sub" id="supportSub">@Superadminist</div>
                     </div>
-                    <div class="sr-arrow">›</div>
+                    <div class="sr-arrow">&#8250;</div>
                 </div>
                 <div class="profile" id="profileSection">
                     <div class="pf-header">
@@ -123,24 +115,14 @@
                             <div class="lbl" id="pfRefsLbl">Referrals</div>
                         </div>
                     </div>
-                    <button class="btn btn-p" style="width:100%;margin-top:12px" id="pfDisconnectBtn" onclick="disconnectWallet()">Disconnect</button>
                 </div>
                 <div class="admin-section" id="adminSection">
                     <div class="gc">
                         <div style="font-size:14px;font-weight:700;margin-bottom:10px;color:var(--gold)">Admin Panel</div>
                         <div class="admin-stats">
-                            <div class="admin-stat">
-                                <div class="sv" id="adminBalance">0</div>
-                                <div class="sl" id="adminBalanceLbl">GRAM</div>
-                            </div>
-                            <div class="admin-stat">
-                                <div class="sv" id="adminNewsCount">0</div>
-                                <div class="sl" id="adminNewsLbl">News</div>
-                            </div>
-                            <div class="admin-stat">
-                                <div class="sv" id="adminTaskCount">0</div>
-                                <div class="sl" id="adminTaskLbl">Tasks</div>
-                            </div>
+                            <div class="admin-stat"><div class="sv" id="adminBalance">0</div><div class="sl" id="adminBalanceLbl">GRAM</div></div>
+                            <div class="admin-stat"><div class="sv" id="adminNewsCount">0</div><div class="sl" id="adminNewsLbl">News</div></div>
+                            <div class="admin-stat"><div class="sv" id="adminTaskCount">0</div><div class="sl" id="adminTaskLbl">Tasks</div></div>
                         </div>
                     </div>
                     <div class="create-task" onclick="showCreateTaskModal()">
@@ -157,26 +139,18 @@
                     </div>
                 </div>
             </div>
-            <!-- TASKS -->
             <div class="tab-content" id="tabTasks">
                 <div class="gc">
                     <div style="font-size:16px;font-weight:700;margin-bottom:12px" id="tasksTitle">Available Tasks</div>
                     <div id="taskList"></div>
                 </div>
             </div>
-            <!-- REFS -->
             <div class="tab-content" id="tabRefs">
                 <div class="gc">
                     <div style="font-size:16px;font-weight:700;margin-bottom:12px" id="refsTitle">Referral Program</div>
                     <div class="ref-stats">
-                        <div class="ref-stat">
-                            <div class="rv" id="refCount">0</div>
-                            <div class="rl" id="refCountLbl">Referrals</div>
-                        </div>
-                        <div class="ref-stat">
-                            <div class="rv" id="refEarned">0</div>
-                            <div class="rl" id="refEarnedLbl">GRAM Earned</div>
-                        </div>
+                        <div class="ref-stat"><div class="rv" id="refCount">0</div><div class="rl" id="refCountLbl">Referrals</div></div>
+                        <div class="ref-stat"><div class="rv" id="refEarned">0</div><div class="rl" id="refEarnedLbl">GRAM Earned</div></div>
                     </div>
                     <div class="ref-link">
                         <input type="text" id="refLinkInput" readonly>
@@ -185,7 +159,6 @@
                     <button class="btn btn-b" id="refShareBtn" onclick="shareRefLink()">Share Link</button>
                 </div>
             </div>
-            <!-- FEED -->
             <div class="tab-content" id="tabFeed">
                 <div class="gc">
                     <div style="font-size:16px;font-weight:700;margin-bottom:12px" id="feedTitle">News & Updates</div>
@@ -253,7 +226,6 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/@tonconnect/ui@2.0.0/dist/tonconnect-ui.min.js"></script>
     <script src="app.js"></script>
 </body>
 </html>
