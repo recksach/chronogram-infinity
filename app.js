@@ -396,13 +396,11 @@ window.connectWallet = function() {
         Telegram.WebApp.HapticFeedback.impactOccurred("light");
     }
     if (!window.TonConnectUI) { 
-        showToast("TonConnect not loaded. Retrying..."); 
-        initTonConnect(); 
+        showToast("TonConnect not loaded. Please refresh the page."); 
         return; 
     }
     if (!tcInstance) { 
-        showToast("Wallet not initialized. Retrying..."); 
-        initTonConnect(); 
+        showToast("Wallet not initialized. Please refresh the page."); 
         return; 
     }
     tcInstance.openModal().catch(function(e) { 
@@ -410,36 +408,6 @@ window.connectWallet = function() {
         showToast(t("toast_error") + ": " + e.message); 
     });
 };
-
-function initTonConnect() {
-    if (!window.TonConnectUI) { showToast("TonConnect script not loaded"); return; }
-    try {
-        tcInstance = new TonConnectUI({ 
-            manifestUrl: "https://recksach.github.io/chronogram-infinity/tonconnect-manifest.json"
-        });
-        tcInstance.onStatusChange(function(wallet) {
-            if (wallet) {
-                walletConnected = true;
-                walletAddress = wallet.account ? wallet.account.address : "";
-                $("tcBtn").textContent = walletAddress.slice(0, 6) + "..." + walletAddress.slice(-4);
-                $("pfName").textContent = tgUser ? (tgUser.first_name + " " + (tgUser.last_name || "")) : "User";
-                $("pfId").textContent = "@" + (tgUser ? tgUser.username : "user");
-                if (tgUser && tgUser.photo_url) $("pfAvatar").src = tgUser.photo_url;
-                $("profileSection").classList.add("show");
-                checkAdminWallet();
-                updateBal();
-            } else {
-                walletConnected = false;
-                walletAddress = "";
-                $("tcBtn").textContent = "Connect Wallet";
-                $("profileSection").classList.remove("show");
-                isAdmin = false;
-                $("adminSection").classList.remove("show");
-            }
-        });
-        showToast("Wallet ready. Tap Connect again.");
-    } catch (e) { console.error("TonConnect init failed:", e); showToast("Init failed: " + e.message); }
-}
 
 window.showSendModal = function() {
     if (!walletConnected) { showToast(t("toast_error") + " — connect wallet first"); return; }
