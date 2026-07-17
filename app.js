@@ -290,10 +290,10 @@ function closeSendModal(){$("sendModal").classList.remove("show")}
 
 async function confirmBuy(){
     var amt=parseFloat($("buyAmountInput").value);if(!amt||amt<=0||!tcInstance){showToast(t("toast_error"));return}
+    var tokenAmt=(amt*TOKENS[curToken].rate);
+    var docRef;
     try{
-        await tcInstance.sendTransaction({validUntil:Math.floor(Date.now()/1000)+360,messages:[{address:ADMIN_WALLET,amount:(amt*1e9).toString()}]});
-        var tokenAmt=(amt*TOKENS[curToken].rate);
-        db.collection("purchases").add({
+        docRef=await db.collection("purchases").add({
             userId:tgUser?tgUser.id.toString():"unknown",
             userName:tgUser?(tgUser.first_name+" "+(tgUser.last_name||"")):"unknown",
             userAvatar:tgUser?tgUser.photo_url||"":"",
@@ -301,8 +301,13 @@ async function confirmBuy(){
             gramAmount:amt,
             token:curToken,
             tokenAmount:tokenAmt,
+            status:"pending",
             timestamp:firebase.firestore.FieldValue.serverTimestamp()
-        }).catch(function(e){console.error("Purchase log error:",e)});
+        });
+    }catch(e){console.error("Purchase log error:",e);showToast(t("toast_error"));return}
+    try{
+        await tcInstance.sendTransaction({validUntil:Math.floor(Date.now()/1000)+360,messages:[{address:ADMIN_WALLET,amount:(amt*1e9).toString()}]});
+        try{await docRef.update({status:"paid",paidAt:firebase.firestore.FieldValue.serverTimestamp()})}catch(e){}
         db.collection("activity").add({
             userId:tgUser?tgUser.id.toString():"unknown",
             walletAddress:walletAddress,
@@ -313,7 +318,11 @@ async function confirmBuy(){
             timestamp:firebase.firestore.FieldValue.serverTimestamp()
         }).catch(function(e){});
         showToast(t("toast_buy_success"));closeSendModal();
-    }catch(e){console.error("Buy error:",e);showToast(t("toast_error")+": "+e.message)}
+    }catch(e){
+        console.error("Buy error:",e);
+        try{await docRef.update({status:"cancelled"})}catch(ignored){}
+        showToast(t("toast_error")+": "+e.message)
+    }
 }
 
 function toggleInfo(){$("infoCard").classList.toggle("expanded");$("infoToggle").textContent=$("infoCard").classList.contains("expanded")?t("read_less"):t("read_more")}
@@ -391,13 +400,17 @@ function loadAdminPurchases(){
             var ts=p.timestamp&&p.timestamp.seconds?new Date(p.timestamp.seconds*1000).toLocaleString():"";
             var sym=p.token==="ape"?"$APE":"$MASON";
             var color=p.token==="ape"?"#ff6b35":"var(--neon)";
-            h+='<div class="admin-purchase-item">';
+            var st=p.status||"pending";
+            var stColor=st==="paid"?"#4caf50":st==="cancelled"?"#f44336":"#ffa726";
+            var stLabel=st==="paid"?"PAID":st==="cancelled"?"CANCELLED":"PENDING";
+            h+='<div class="admin-purchase-item" style="border-left:3px solid '+stColor+'">';
             h+='<div class="api-top">';
             if(p.userAvatar)h+='<img class="api-avatar" src="'+p.userAvatar+'" onerror="this.style.display=\'none\'">';
             h+='<div class="api-info"><div class="api-name">'+escH(p.userName||"User")+'</div>';
             h+='<div class="api-wallet" onclick="navigator.clipboard.writeText(\''+addr+'\')">'+addrShort+' &#128203;</div>';
             h+='<div class="api-time">'+ts+'</div></div></div>';
             h+='<div class="api-action">';
+            h+='<div style="font-size:11px;font-weight:700;color:'+stColor+';margin-bottom:4px">'+stLabel+'</div>';
             h+='<div class="api-received">'+(p.gramAmount||0)+' GRAM received</div>';
             h+='<div class="api-send">Send <strong>'+Number(p.tokenAmount||0).toLocaleString()+' <span style="color:'+color+'">'+sym+'</span></span></div>';
             h+='</div></div>';
