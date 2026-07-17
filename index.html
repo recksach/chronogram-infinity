@@ -3,235 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>$MASON / $APE - Pre-Market</title>
+    <title>$MASON Elite Pre-Registration</title>
+    
+    <!-- SDK Телеграма -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-    <link rel="stylesheet" href="styles.css">
+    
+    <!-- SDK TonConnect UI (Загружается строго до вашего app.js) -->
+    <script src="https://cdn.jsdelivr.net/npm/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
+    
+    <!-- Ваши стили (Оставьте ваши стили без изменений, ниже пример структуры) -->
+    <style>
+        body {
+            background-color: #0b0c0e;
+            color: #ffffff;
+            font-family: sans-serif;
+            margin: 0;
+            padding: 16px;
+        }
+        .profile-section {
+            display: none; /* Скрыто по умолчанию */
+        }
+        .profile-section.show {
+            display: block; /* Показывается при подключении */
+        }
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.9);
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 20px;
+            display: none;
+            z-index: 9999;
+        }
+    </style>
 </head>
 <body>
-    <div class="preloader" id="preloader">
-        <img class="logo" id="preloaderLogo" src="https://i.postimg.cc/P5WdHpbh/file-000000007db8720a83a00abbd6e8e608.png" alt="Logo">
-        <div class="txt" id="preloaderText">Loading...</div>
-    </div>
-    <div id="tonconnect-btn-root"></div>
-    <div class="toast" id="toast"></div>
-    <div class="ticker"><div class="dot"></div><div class="tl" id="tickerText">Connecting to blockchain...</div></div>
-    <div id="bgImage"></div>
-    <div class="parallax-layer">
-        <img class="pf-token pf-t1" src="https://i.postimg.cc/yY0wJM0S/photo-2026-07-08-11-05-40-removebg-preview.png" alt="">
-        <img class="pf-token pf-t2" src="https://i.postimg.cc/yY0wJM0S/photo-2026-07-08-11-05-40-removebg-preview.png" alt="">
-        <img class="pf-token pf-t3" src="https://i.postimg.cc/yY0wJM0S/photo-2026-07-08-11-05-40-removebg-preview.png" alt="">
-        <img class="pf-token pf-t4" src="https://i.postimg.cc/yY0wJM0S/photo-2026-07-08-11-05-40-removebg-preview.png" alt="">
-        <img class="pf-token pf-t5" src="https://i.postimg.cc/yY0wJM0S/photo-2026-07-08-11-05-40-removebg-preview.png" alt="">
-        <img class="pf-token pf-t6" src="https://i.postimg.cc/yY0wJM0S/photo-2026-07-08-11-05-40-removebg-preview.png" alt="">
-    </div>
-    <div class="parallax-layer foreground">
-        <img class="pf-token pf-t7" src="https://i.postimg.cc/yY0wJM0S/photo-2026-07-08-11-05-40-removebg-preview.png" alt="">
-        <img class="pf-token pf-t8" src="https://i.postimg.cc/yY0wJM0S/photo-2026-07-08-11-05-40-removebg-preview.png" alt="">
-        <img class="pf-token pf-t9" src="https://i.postimg.cc/yY0wJM0S/photo-2026-07-08-11-05-40-removebg-preview.png" alt="">
-        <img class="pf-token pf-t10" src="https://i.postimg.cc/yY0wJM0S/photo-2026-07-08-11-05-40-removebg-preview.png" alt="">
-    </div>
-    <div class="app" id="app">
-        <div class="lang-switcher" id="langSwitcher">
-            <button class="lang-btn active" data-lang="ru">RU</button>
-            <button class="lang-btn" data-lang="en">EN</button>
-            <button class="lang-btn" data-lang="uk">UK</button>
-            <button class="lang-btn" data-lang="tr">TR</button>
-            <button class="lang-btn" data-lang="ar">AR</button>
-            <button class="lang-btn" data-lang="zh">ZH</button>
-            <button class="lang-btn" data-lang="hi">HI</button>
-        </div>
-        <div class="token-toggle">
-            <span class="tlbl active" id="lblMason">$MASON</span>
-            <div class="tt-track" id="tokenTrack"><div class="tt-knob"></div></div>
-            <span class="tlbl" id="lblApe">$APE</span>
-        </div>
-        <div class="tab-content active" id="tabHome">
-            <div class="hero">
-                <img id="heroImg" src="https://i.postimg.cc/7PgPq2Gk/photo-2026-07-08-11-05-36.jpg" alt="Hero">
-                <div class="overlay">
-                    <div class="htitle" id="heroTitle">$MASON Pre-Market</div>
-                    <div class="hsub" id="heroSub">The future of meme tokens</div>
-                </div>
-            </div>
-            <div class="gc">
-                <div class="rate-box">
-                    <span class="rl" id="rateLabel">$MASON Rate</span>
-                    <span class="rv" id="rateValue">1 GRAM = 6 $MASON</span>
-                </div>
-            </div>
-            <div class="gc" id="newsFeedSection">
-                <div style="font-size:14px;font-weight:600;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center">
-                    <span id="newsTitle">News & Updates</span>
-                    <button class="btn btn-p" id="btnCreateNews" onclick="showCreateNewsModal()" style="padding:6px 12px;font-size:11px;display:none">+ Post</button>
-                </div>
-                <div id="newsFeedList">
-                    <div style="text-align:center;padding:20px;font-size:12px;color:rgba(255,255,255,0.3)" id="newsEmpty">No news yet</div>
-                </div>
-            </div>
-            <div class="gc">
-                <div class="liq-bar">
-                    <div class="lbl"><span id="liqTitle">Liquidity Collected</span><span id="liqVal">0 / 7000 GRAM</span></div>
-                    <div class="liq-track"><div class="liq-fill" id="liqFill"></div></div>
-                </div>
-            </div>
-            <div class="gc">
-                <div class="btn-row-wallet">
-                    <button class="btn-wallet outline" id="tcBtn" onclick="connectWallet()">Connect Wallet</button>
-                    <button class="btn-wallet solid" onclick="showSendModal()">Buy</button>
-                </div>
-            </div>
-            <div class="gc profile" id="profileSection">
-                <div class="pf-header">
-                    <img class="pf-avatar" id="pfAvatar" src="" alt="">
-                    <div><div class="pf-name" id="pfName">-</div><div class="pf-id" id="pfId">-</div></div>
-                </div>
-                <div class="pf-balances">
-                    <div class="pf-bal"><div class="val" id="balGram">0</div><div class="lbl">GRAM</div></div>
-                    <div class="pf-bal"><div class="val" id="balToken">0</div><div class="lbl" id="balTokenLbl">$MASON</div></div>
-                </div>
-                <div class="status-badge in" id="statusBadge">In Game</div>
-            </div>
-            <div class="gc" id="socialSection">
-                <div style="font-size:14px;font-weight:600;margin-bottom:10px" id="socialTitle">Follow Us</div>
-                <div class="social-links" id="socialLinks"></div>
-            </div>
-            <div class="gc" id="supportSection">
-                <div style="font-size:14px;font-weight:600;margin-bottom:10px" id="supportTitle">Support</div>
-                <a class="support-row" onclick="event.preventDefault();openLink('https://t.me/Superadminist')">
-                    <div class="sr-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg></div>
-                    <div class="sr-text">
-                        <div class="sr-name">Superadminist</div>
-                        <div class="sr-sub" id="supportSub">Contact support</div>
-                    </div>
-                    <div class="sr-arrow">›</div>
-                </a>
-            </div>
-            <div class="gc">
-                <div style="font-size:14px;font-weight:600;margin-bottom:10px" id="leaderTitle">Top Holders</div>
-                <div id="leaderboard"></div>
-            </div>
-            <div class="gc">
-                <div style="font-size:14px;font-weight:600;margin-bottom:10px" id="feedTitle">Live Activity</div>
-                <div class="feed-list" id="feedList">
-                    <div style="text-align:center;padding:20px;font-size:12px;color:rgba(255,255,255,0.3)" id="feedEmpty">No activity yet</div>
-                </div>
-            </div>
-            <div class="gc">
-                <div style="font-size:14px;font-weight:600;margin-bottom:10px" id="rulesTitle">Rules</div>
-                <ul class="rules-list" id="rulesList">
-                    <li><span class="rn">1</span><span id="rule1">Buy tokens at fixed pre-market rate</span></li>
-                    <li><span class="rn">2</span><span id="rule2">Connect GRAM wallet to participate</span></li>
-                    <li><span class="rn">3</span><span id="rule3">Tokens distributed after listing</span></li>
-                    <li><span class="rn">4</span><span id="rule4">All sales are final</span></li>
-                    <li><span class="rn">5</span><span id="rule5">Complete tasks to earn bonus tokens</span></li>
-                </ul>
-            </div>
-            <div class="gc admin-section" id="adminSection">
-                <div style="font-size:14px;font-weight:600;margin-bottom:10px" id="adminTitle">Admin Panel</div>
-                <div class="admin-stats">
-                    <div class="admin-stat"><div class="sv" id="adminTotalGram">0</div><div class="sl" id="adminTotalGramLbl">GRAM Balance</div></div>
-                    <div class="admin-stat"><div class="sv" id="adminTotalNews">0</div><div class="sl" id="adminTotalNewsLbl">News Posts</div></div>
-                    <div class="admin-stat"><div class="sv" id="adminTotalTasks">0</div><div class="sl" id="adminTotalTasksLbl">Tasks</div></div>
-                </div>
-                <div style="font-size:13px;font-weight:600;margin-bottom:8px" id="paymentsTitle">Incoming Payments</div>
-                <div id="adminPaymentsList" style="max-height:300px;overflow-y:auto"></div>
-            </div>
-        </div>
-        <div class="tab-content" id="tabTasks">
-            <div class="gc">
-                <div style="font-size:14px;font-weight:600;margin-bottom:4px" id="tasksTitle">Tasks</div>
-                <div style="font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:12px" id="tasksDesc">Complete tasks to earn bonus tokens</div>
-                <div id="taskList"></div>
-            </div>
-            <div class="gc create-task" id="createTaskSection">
-                <div class="ct-title" id="createTaskTitle">Create Custom Task</div>
-                <div class="ct-cost" id="createTaskCost">Cost: 25 GRAM</div>
-                <button class="btn btn-p" id="btnCreateTask" onclick="showCreateTaskModal()">Create Task</button>
-            </div>
-        </div>
-        <div class="tab-content" id="tabRefs">
-            <div class="gc">
-                <div style="font-size:14px;font-weight:600;margin-bottom:4px" id="refTitle">Referrals</div>
-                <div style="font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:12px" id="refDesc">Invite friends and earn rewards</div>
-                <div class="ref-stats">
-                    <div class="ref-stat"><div class="rv" id="refCount">0</div><div class="rl" id="refCountLbl">Referrals</div></div>
-                    <div class="ref-stat"><div class="rv" id="refEarned">0</div><div class="rl" id="refEarnedLbl">Earned</div></div>
-                </div>
-                <div class="ref-link"><input id="refLinkInput" readonly></div>
-                <div class="ref-actions">
-                    <button class="btn btn-p" style="flex:1" id="btnCopy" onclick="copyRefLink()">Copy</button>
-                    <button class="btn btn-p" style="flex:1" id="btnShare" onclick="shareToTelegram()">Share</button>
-                </div>
-            </div>
+
+    <!-- Пример вашей разметки -->
+    <div class="app-container">
+        <h2>$MASON Elite Pre-Registration</h2>
+        
+        <!-- Кнопка вызова кошелька -->
+        <button id="connectWalletBtn" onclick="connectWallet()">Connect Wallet</button>
+        
+        <!-- Блок профиля, который открывается после успешного коннекта -->
+        <div id="profileSection" class="profile-section">
+            <p>Ваш адрес: <span id="walletAddrText"></span></p>
         </div>
     </div>
-    <div class="modal-overlay" id="sendModal">
-        <div class="modal">
-            <h3 id="sendModalTitle">Buy Tokens</h3>
-            <p id="sendModalDesc">Select amount and confirm payment</p>
-            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:12px" id="amountPresets">
-                <button class="btn btn-p" onclick="setBuyAmount(1)" style="padding:10px 0;font-size:13px">1 GRAM</button>
-                <button class="btn btn-p" onclick="setBuyAmount(5)" style="padding:10px 0;font-size:13px">5 GRAM</button>
-                <button class="btn btn-p" onclick="setBuyAmount(10)" style="padding:10px 0;font-size:13px">10 GRAM</button>
-                <button class="btn btn-p" onclick="setBuyAmount(25)" style="padding:10px 0;font-size:13px">25 GRAM</button>
-                <button class="btn btn-p" onclick="setBuyAmount(50)" style="padding:10px 0;font-size:13px">50 GRAM</button>
-                <button class="btn btn-p" onclick="setBuyAmount(100)" style="padding:10px 0;font-size:13px">100 GRAM</button>
-            </div>
-            <div style="position:relative;margin-bottom:12px">
-                <input type="number" id="buyAmountInput" placeholder="Custom amount in GRAM" min="0.1" step="0.1" oninput="updateBuyPreview()" style="padding-right:60px">
-                <span style="position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:12px;color:rgba(255,255,255,0.4)">GRAM</span>
-            </div>
-            <div class="preview" id="buyPreview">You will receive: 0 tokens</div>
-            <div class="btn-row">
-                <button class="btn btn-p" onclick="closeSendModal()">Cancel</button>
-                <button class="btn btn-b" onclick="buyTokens()" id="btnBuyConfirm">Buy</button>
-            </div>
-        </div>
-    </div>
-    <div class="modal-overlay" id="createTaskModal">
-        <div class="modal">
-            <h3 id="createTaskModalTitle">Create Custom Task</h3>
-            <p id="createTaskModalDesc">Cost: 25 GRAM</p>
-            <input type="text" id="taskNameInput" placeholder="Task name">
-            <input type="text" id="taskLinkInput" placeholder="Task link (URL)">
-            <div class="preview" id="taskPreview">Task will be created after payment</div>
-            <div class="btn-row">
-                <button class="btn btn-p" onclick="closeCreateTaskModal()">Cancel</button>
-                <button class="btn btn-b" onclick="createCustomTask()">Create (25 GRAM)</button>
-            </div>
-        </div>
-    </div>
-    <div class="modal-overlay" id="createNewsModal">
-        <div class="modal">
-            <h3 id="createNewsModalTitle">Create News Post</h3>
-            <p id="createNewsModalDesc">Share news with your community</p>
-            <input type="text" id="newsTitleInput" placeholder="Title">
-            <textarea id="newsTextInput" placeholder="Text (optional)"></textarea>
-            <input type="text" id="newsImageUrlInput" placeholder="Image URL (optional)">
-            <div class="preview" id="newsPreview">Post will be visible to all users</div>
-            <div class="btn-row">
-                <button class="btn btn-p" onclick="closeCreateNewsModal()">Cancel</button>
-                <button class="btn btn-b" onclick="submitNewsPost()">Post</button>
-            </div>
-        </div>
-    </div>
-    <nav class="nav" id="navbar">
-        <div class="nav-item active" onclick="switchTab('home')" id="navHome">
-            <span class="ni-icon">🏠</span>
-            <span class="ni-lbl" id="navHomeLbl">Home</span>
-        </div>
-        <div class="nav-item" onclick="switchTab('tasks')" id="navTasks">
-            <span class="ni-icon">✅</span>
-            <span class="ni-lbl" id="navTasksLbl">Tasks</span>
-        </div>
-        <div class="nav-item" onclick="switchTab('refs')" id="navRefs">
-            <span class="ni-icon">👥</span>
-            <span class="ni-lbl" id="navRefsLbl">Refs</span>
-        </div>
-    </nav>
-    <script src="https://cdn.jsdelivr.net/npm/@tonconnect/ui@2.0.0/dist/tonconnect-ui.min.js"></script>
-    <script src="app.js"></script>
+
+    <!-- Элемент для всплывающих уведомлений -->
+    <div id="toast" class="toast"></div>
+
+    <!-- ВАШ ОСНОВНОЙ СКРИПТ: обязательно с атрибутом defer -->
+    <script src="app.js" defer></script>
 </body>
 </html>
