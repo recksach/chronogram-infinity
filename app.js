@@ -226,7 +226,7 @@ function renderLangSwitcher(){var h="";LANGS.forEach(function(l){h+='<button cla
 function switchLang(l){curLang=l;renderLangSwitcher();updateAllTranslations()}
 
 function updateAllTranslations(){
-    var ids={navHomeLbl:"nav_home",navTasksLbl:"nav_tasks",navRefsLbl:"nav_refs",navFeedLbl:"feed_title",
+    var ids={navHomeLbl:"nav_home",navTasksLbl:"nav_tasks",navRefsLbl:"nav_refs",navFeedLbl:"nav_feed",
         rateLabel:"rate_label",liqLabel:"liq_label",pfBalanceLbl:"profile_balance",pfRefsLbl:"profile_refs",pfStatus:"profile_connected",
         tasksTitle:"tasks_title",refsTitle:"refs_title",refCountLbl:"refs_count",refEarnedLbl:"refs_earned",refCopyBtn:"refs_copy",refShareBtn:"refs_share",
         adminBalanceLbl:"admin_gram",adminNewsLbl:"admin_news",adminTaskLbl:"admin_tasks",
@@ -325,6 +325,7 @@ function switchTab(tab){
     if(m[tab])$(m[tab]).classList.add("active");if(n[tab])$(n[tab]).classList.add("active");
     if(tab==="refs")updateRefStats();
     if(tab==="chat")initChatRoom();
+    if(tab==="home"){ $("chatFab").style.display="flex"; } else { $("chatFab").style.display="none"; }
 }
 
 function checkAdminWallet(){isAdmin=walletAddress.replace(/[^a-zA-Z0-9]/g,"")===ADMIN_WALLET.replace(/[^a-zA-Z0-9]/g,"");if(isAdmin){$("adminSection").classList.add("show");updateAdminStats()}else{$("adminSection").classList.remove("show")}}
@@ -380,28 +381,43 @@ function copyRefLink(){var inp=$("refLinkInput");if(navigator.clipboard)navigato
 function shareRefLink(){var url=$("refLinkInput").value;openLink(url)}
 
 async function fetchCollectedGram(){try{var r=await fetch("https://tonapi.io/v2/accounts/"+ADMIN_WALLET);if(!r.ok)return;var d=await r.json();var b=d.balance?d.balance/1e9:0;$("liqFill").style.width=Math.min((b/LIQ_TARGET)*100,100)+"%";$("liqProgress").textContent=Math.floor(b).toLocaleString()+" / "+LIQ_TARGET.toLocaleString()+" GRAM";if(isAdmin)$("adminBalance").textContent=Math.floor(b).toLocaleString()}catch(e){}}
-function loadAdminPayments(){if(!isAdmin)return;db.collection("activity").orderBy("timestamp","desc").limit(20).get().then(function(s){var h="";s.forEach(function(d){var data=d.data();h+='<div class="payment-item"><span class="pi-addr">'+(data.userId||"unknown").slice(0,10)+'...</span><span class="pi-amount">'+(data.amount||"")+' GRAM</span></div>'});if(!h)h='<div style="text-align:center;padding:10px;color:rgba(255,255,255,0.3);font-size:12px">No payments yet</div>';$("adminPaymentsList").innerHTML=h}).catch(function(){})}
-function loadAdminPurchases(){if(!isAdmin)return;db.collection("purchases").orderBy("timestamp","desc").limit(30).get().then(function(s){
-    var h="";s.forEach(function(d){
-        var p=d.data();var addr=p.walletAddress||"unknown";
-        var addrShort=addr.slice(0,6)+"..."+addr.slice(-4);
-        var ts=p.timestamp&&p.timestamp.seconds?new Date(p.timestamp.seconds*1000).toLocaleString():"";
-        var sym=p.token==="ape"?"$APE":"$MASON";
-        var color=p.token==="ape"?"#ff6b35":"var(--neon)";
-        h+='<div class="admin-purchase-item">';
-        h+='<div class="api-top">';
-        if(p.userAvatar)h+='<img class="api-avatar" src="'+p.userAvatar+'" onerror="this.style.display=\'none\'">';
-        h+='<div class="api-info"><div class="api-name">'+escH(p.userName||"User")+'</div>';
-        h+='<div class="api-wallet" onclick="navigator.clipboard.writeText(\''+addr+'\')">'+addrShort+' &#128203;</div>';
-        h+='<div class="api-time">'+ts+'</div></div></div>';
-        h+='<div class="api-action">';
-        h+='<div class="api-received">'+(p.gramAmount||0)+' GRAM received</div>';
-        h+='<div class="api-send">Send <strong>'+Number(p.tokenAmount||0).toLocaleString()+' <span style="color:'+color+'">'+sym+'</span></span></div>';
-        h+='</div></div>';
-    });
-    if(!h)h='<div style="text-align:center;padding:10px;color:rgba(255,255,255,0.3);font-size:12px">No purchases yet</div>';
-    $("adminPurchasesList").innerHTML=h;
-}).catch(function(e){console.error("Purchases load error:",e)})}
+function loadAdminPurchases(){
+    if(!isAdmin)return;
+    if(window._purchasesUnsub)window._purchasesUnsub();
+    window._purchasesUnsub=db.collection("purchases").orderBy("timestamp","desc").limit(30).onSnapshot(function(s){
+        var h="";s.forEach(function(d){
+            var p=d.data();var addr=p.walletAddress||"unknown";
+            var addrShort=addr.slice(0,6)+"..."+addr.slice(-4);
+            var ts=p.timestamp&&p.timestamp.seconds?new Date(p.timestamp.seconds*1000).toLocaleString():"";
+            var sym=p.token==="ape"?"$APE":"$MASON";
+            var color=p.token==="ape"?"#ff6b35":"var(--neon)";
+            h+='<div class="admin-purchase-item">';
+            h+='<div class="api-top">';
+            if(p.userAvatar)h+='<img class="api-avatar" src="'+p.userAvatar+'" onerror="this.style.display=\'none\'">';
+            h+='<div class="api-info"><div class="api-name">'+escH(p.userName||"User")+'</div>';
+            h+='<div class="api-wallet" onclick="navigator.clipboard.writeText(\''+addr+'\')">'+addrShort+' &#128203;</div>';
+            h+='<div class="api-time">'+ts+'</div></div></div>';
+            h+='<div class="api-action">';
+            h+='<div class="api-received">'+(p.gramAmount||0)+' GRAM received</div>';
+            h+='<div class="api-send">Send <strong>'+Number(p.tokenAmount||0).toLocaleString()+' <span style="color:'+color+'">'+sym+'</span></span></div>';
+            h+='</div></div>';
+        });
+        if(!h)h='<div style="text-align:center;padding:10px;color:rgba(255,255,255,0.3);font-size:12px">No purchases yet</div>';
+        $("adminPurchasesList").innerHTML=h;
+    },function(e){console.error("Purchases listen error:",e)});
+}
+function loadAdminPayments(){
+    if(!isAdmin)return;
+    if(window._activityUnsub)window._activityUnsub();
+    window._activityUnsub=db.collection("activity").orderBy("timestamp","desc").limit(20).onSnapshot(function(s){
+        var h="";s.forEach(function(d){
+            var data=d.data();
+            h+='<div class="payment-item"><span class="pi-addr">'+(data.userId||"unknown").slice(0,10)+'...</span><span class="pi-amount">'+(data.amount||"")+' GRAM</span></div>';
+        });
+        if(!h)h='<div style="text-align:center;padding:10px;color:rgba(255,255,255,0.3);font-size:12px">No payments yet</div>';
+        $("adminPaymentsList").innerHTML=h;
+    }).catch(function(){});
+}
 
 window.addEventListener("load",function(){
     setTimeout(function(){$("preloader").classList.add("hide");$("bgImage").style.backgroundImage="url("+TOKENS[curToken].bgImg+")";$("bgImage").style.opacity="0.4"},1500);
@@ -420,7 +436,10 @@ window.addEventListener("load",function(){
                         $("profileSection").classList.add("show");
                         if(tgUser){$("pfName").textContent=tgUser.first_name+" "+(tgUser.last_name||"");$("pfId").textContent="@"+(tgUser.username||"unknown");if(tgUser.photo_url)$("pfAvatar").src=tgUser.photo_url}
                         checkAdminWallet();fetchCollectedGram();updateRefStats();if(isAdmin){loadAdminPayments();loadAdminPurchases()}
-                    }else{walletConnected=false;walletAddress="";isAdmin=false;$("profileSection").classList.remove("show");$("adminSection").classList.remove("show")}
+                    }else{walletConnected=false;walletAddress="";isAdmin=false; $("profileSection").classList.remove("show");$("adminSection").classList.remove("show");
+                        if(window._purchasesUnsub){window._purchasesUnsub();window._purchasesUnsub=null}
+                        if(window._activityUnsub){window._activityUnsub();window._activityUnsub=null}
+                    }
                 });
                 console.log("[TC] TonConnect initialized OK, buttonRootId=ton-connect");
             }catch(e){console.error("[TC] Init error:",e);showToast("Wallet init failed: "+e.message)}
@@ -430,7 +449,7 @@ window.addEventListener("load",function(){
         $("rateValue").textContent="1 GRAM = "+TOKENS[curToken].rate+" "+TOKENS[curToken].symbol;
         $("refLinkInput").value="https://t.me/"+BOT_USERNAME+"?start="+(tgUser?tgUser.id:"ref");
         fetchNews();fetchTasks();fetchCollectedGram();setInterval(fetchCollectedGram,15000);
-        if(isAdmin)setInterval(function(){loadAdminPayments();loadAdminPurchases()},15000);updateRefStats();
+        updateRefStats();
         document.body.className=TOKENS[curToken].themeClass;
     }catch(e){console.error("[APP] Init error:",e)}
 });
