@@ -411,7 +411,9 @@ window.connectWallet = function() {
 function initTonConnect() {
     if (!window.TonConnectUI) { showToast("TonConnect script not loaded"); return; }
     try {
-        tcInstance = new TonConnectUI({ manifestUrl: "https://recksach.github.io/chronogram-infinity/tonconnect-manifest.json" });
+        tcInstance = new TonConnectUI({ 
+            manifestUrl: "https://recksach.github.io/chronogram-infinity/tonconnect-manifest.json"
+        });
         tcInstance.onStatusChange(function(wallet) {
             if (wallet) {
                 walletConnected = true;
@@ -606,8 +608,7 @@ window.addEventListener("load", async function() {
         if (window.TonConnectUI) {
             try {
                 tcInstance = new TonConnectUI({ 
-                    manifestUrl: "https://recksach.github.io/chronogram-infinity/tonconnect-manifest.json",
-                    buttonRootId: "tonconnect-btn-root"
+                    manifestUrl: "https://recksach.github.io/chronogram-infinity/tonconnect-manifest.json"
                 });
                 tcInstance.onStatusChange(function(wallet) {
                     if (wallet) {
