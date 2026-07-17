@@ -133,6 +133,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .modal p{font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:16px}
 .modal input,.modal textarea{width:100%;padding:12px;border-radius:var(--rs);background:rgba(255,255,255,0.06);border:1px solid var(--border);color:#fff;font-size:13px;outline:none;margin-bottom:10px;font-family:inherit}
 .modal textarea{height:80px;resize:none}
+.modal input[type="number"]{-moz-appearance:textfield}
+.modal input[type="number"]::-webkit-inner-spin-button,.modal input[type="number"]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
 .modal .preview{padding:10px;border-radius:var(--rs);background:rgba(var(--neon-rgb),0.06);margin-bottom:12px;font-size:12px}
 .modal .btn-row{display:flex;gap:8px}
 .modal .btn-row .btn{flex:1}
@@ -318,12 +320,23 @@ input::placeholder,textarea::placeholder{color:rgba(255,255,255,0.25)}
     <div class="modal-overlay" id="sendModal">
         <div class="modal">
             <h3 id="sendModalTitle">Buy Tokens</h3>
-            <p id="sendModalDesc">Send TON to this address</p>
-            <div style="padding:12px;border-radius:var(--rs);background:rgba(255,255,255,0.06);border:1px solid var(--border);word-break:break-all;font-size:12px;font-family:monospace;margin-bottom:12px;text-align:center;color:var(--neon)" id="sendWalletAddr">EQDDKb3KIYcjA0FmGndThAO3thpkLoD4hHhQq7ToywPiMgLM</div>
-            <div class="preview" id="sendRatePreview">1 TON = 6 $MASON</div>
+            <p id="sendModalDesc">Select amount and confirm payment</p>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:12px" id="amountPresets">
+                <button class="btn btn-p" onclick="setBuyAmount(1)" style="padding:10px 0;font-size:13px">1 TON</button>
+                <button class="btn btn-p" onclick="setBuyAmount(5)" style="padding:10px 0;font-size:13px">5 TON</button>
+                <button class="btn btn-p" onclick="setBuyAmount(10)" style="padding:10px 0;font-size:13px">10 TON</button>
+                <button class="btn btn-p" onclick="setBuyAmount(25)" style="padding:10px 0;font-size:13px">25 TON</button>
+                <button class="btn btn-p" onclick="setBuyAmount(50)" style="padding:10px 0;font-size:13px">50 TON</button>
+                <button class="btn btn-p" onclick="setBuyAmount(100)" style="padding:10px 0;font-size:13px">100 TON</button>
+            </div>
+            <div style="position:relative;margin-bottom:12px">
+                <input type="number" id="buyAmountInput" placeholder="Custom amount in TON" min="0.1" step="0.1" oninput="updateBuyPreview()" style="padding-right:60px">
+                <span style="position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:12px;color:rgba(255,255,255,0.4)">TON</span>
+            </div>
+            <div class="preview" id="buyPreview">You will receive: 0 tokens</div>
             <div class="btn-row">
-                <button class="btn btn-p" id="btnCopyAddr" onclick="copySendAddr()">Copy Address</button>
-                <button class="btn btn-b" id="btnCloseSend" onclick="closeSendModal()">OK</button>
+                <button class="btn btn-p" onclick="closeSendModal()">Cancel</button>
+                <button class="btn btn-b" onclick="buyTokens()" id="btnBuyConfirm">Buy</button>
             </div>
         </div>
     </div>
@@ -439,6 +452,7 @@ let isAdmin = false;
 let walletConnected = false;
 let walletAddress = "";
 let tgUser = null;
+let tcInstance = null;
 
 const T2 = {
     ru: {admin_free:"Бесплатно",admin_total_ton:"Баланс TON",admin_total_news:"Новости",admin_total_tasks:"Задания",send_modal_desc:"Отправьте TON на этот адрес кошелька",toast_task_deleted:"Задание удалено!",payments_title:"Входящие Платежи"},
@@ -550,8 +564,7 @@ function updateAllTranslations() {
     $("tcBtn").textContent = walletConnected ? (walletAddress.slice(0, 6) + "..." + walletAddress.slice(-4)) : "Connect Wallet";
     $("sendModalTitle").textContent = t("buy_modal_title");
     $("sendModalDesc").textContent = t("send_modal_desc");
-    $("btnCopyAddr").textContent = t("btn_copy");
-    $("btnCloseSend").textContent = "OK";
+    $("btnBuyConfirm").textContent = t("btn_buy");
     $("createTaskModalTitle").textContent = t("create_task_title");
     $("createTaskModalDesc").textContent = isAdmin ? t("admin_free") : "Cost: " + CUSTOM_TASK_COST + " TON";
     if ($("feedEmpty")) $("feedEmpty").textContent = t("feed_empty");
@@ -794,50 +807,81 @@ function renderFeed(items) {
 window.connectWallet = function() {
     if (walletConnected) { $("profileSection").classList.toggle("show"); return; }
     if (window.Telegram && Telegram.WebApp) Telegram.WebApp.HapticFeedback.impactOccurred("light");
-    showToast("Opening TON Connect...");
-    try {
-        if (window.TonConnectUI) {
-            const tc = new TonConnectUI({ manifestUrl: "https://raw.githubusercontent.com/ton-fans/manifest/main/tonconnect-manifest.json" });
-            tc.openSingleWalletModal().then(async (result) => {
-                if (result) {
-                    walletConnected = true;
-                    walletAddress = result.account?.address || "";
-                    $("tcBtn").textContent = walletAddress.slice(0, 6) + "..." + walletAddress.slice(-4);
-                    $("pfName").textContent = tgUser ? (tgUser.first_name + " " + (tgUser.last_name || "")) : "User";
-                    $("pfId").textContent = "@" + (tgUser?.username || "unknown");
-                    if (tgUser?.photo_url) $("pfAvatar").src = tgUser.photo_url;
-                    $("profileSection").classList.add("show");
-                    showToast(t("toast_wallet"));
-                    await checkAdminWallet();
-                    updateBal();
-                }
-            }).catch(() => simulateWalletConnect());
-        } else simulateWalletConnect();
-    } catch (e) { simulateWalletConnect(); }
+    if (!tcInstance) { showToast(t("toast_error") + " — TonConnect not loaded"); return; }
+    tcInstance.openSingleWalletModal().then(async (result) => {
+        if (result) {
+            walletConnected = true;
+            walletAddress = result.account?.address || "";
+            $("tcBtn").textContent = walletAddress.slice(0, 6) + "..." + walletAddress.slice(-4);
+            $("pfName").textContent = tgUser ? (tgUser.first_name + " " + (tgUser.last_name || "")) : "User";
+            $("pfId").textContent = "@" + (tgUser?.username || "user");
+            if (tgUser?.photo_url) $("pfAvatar").src = tgUser.photo_url;
+            $("profileSection").classList.add("show");
+            showToast(t("toast_wallet"));
+            await checkAdminWallet();
+            updateBal();
+        }
+    }).catch((e) => { console.log("Wallet connect error:", e); showToast(t("toast_error")); });
 };
 
-function simulateWalletConnect() {
-    walletConnected = true;
-    walletAddress = "UQ" + Math.random().toString(36).slice(2, 20) + Math.random().toString(36).slice(2, 15);
-    $("tcBtn").textContent = walletAddress.slice(0, 6) + "..." + walletAddress.slice(-4);
-    $("pfName").textContent = tgUser ? (tgUser.first_name + " " + (tgUser.last_name || "")) : "User";
-    $("pfId").textContent = "@" + (tgUser?.username || "user");
-    $("pfAvatar").src = tgUser?.photo_url || TOKENS[curToken].icon;
-    $("profileSection").classList.add("show");
-    showToast(t("toast_wallet"));
-    checkAdminWallet();
-    updateBal();
-}
-
 window.showSendModal = function() {
-    $("sendWalletAddr").textContent = TOKENS[curToken].contract;
-    $("sendRatePreview").textContent = "1 TON = " + TOKENS[curToken].rate.toLocaleString() + " " + TOKENS[curToken].symbol;
+    if (!walletConnected) { showToast(t("toast_error") + " — connect wallet first"); return; }
+    $("buyAmountInput").value = "";
+    $("buyPreview").textContent = "You will receive: 0 " + TOKENS[curToken].symbol;
     $("sendModal").classList.add("show");
 };
 window.closeSendModal = function() { $("sendModal").classList.remove("show"); };
-window.copySendAddr = function() {
-    const addr = TOKENS[curToken].contract;
-    navigator.clipboard.writeText(addr).then(() => showToast(t("toast_copy"))).catch(() => { showToast(t("toast_copy")); });
+window.setBuyAmount = function(amt) {
+    $("buyAmountInput").value = amt;
+    updateBuyPreview();
+};
+window.updateBuyPreview = function() {
+    const amt = parseFloat($("buyAmountInput").value) || 0;
+    const tokens = amt * TOKENS[curToken].rate;
+    $("buyPreview").textContent = "You will receive: " + tokens.toLocaleString(undefined, {maximumFractionDigits: 2}) + " " + TOKENS[curToken].symbol;
+};
+window.buyTokens = async function() {
+    const amt = parseFloat($("buyAmountInput").value);
+    if (!amt || amt <= 0) { showToast(t("toast_error")); return; }
+    if (!tcInstance || !walletConnected) { showToast(t("toast_error") + " — connect wallet first"); return; }
+    try {
+        const nanotons = Math.floor(amt * 1e9);
+        const tx = {
+            validUntil: Math.floor(Date.now() / 1000) + 360,
+            messages: [{
+                address: ADMIN_WALLET,
+                amount: nanotons.toString(),
+                payload: ""
+            }]
+        };
+        showToast("Confirm in your wallet...");
+        closeSendModal();
+        const result = await tcInstance.sendTransaction(tx);
+        if (result) {
+            showToast(t("toast_buy_ok") + " " + amt + " TON");
+            if (window.Telegram && Telegram.WebApp) Telegram.WebApp.HapticFeedback.impactOccurred("success");
+            try {
+                await addDoc(collection(db, "activity"), {
+                    type: "purchase",
+                    userId: tgUser?.id || 0,
+                    userName: tgUser ? tgUser.first_name : "User",
+                    walletAddress: walletAddress,
+                    tonAmount: amt,
+                    tokenAmount: amt * TOKENS[curToken].rate,
+                    token: curToken,
+                    txHash: result.boc || "",
+                    timestamp: Date.now()
+                });
+            } catch (e) { console.log("Activity log error:", e); }
+        }
+    } catch (e) {
+        console.log("Buy error:", e);
+        if (e?.message?.includes("Wallet declined") || e?.message?.includes("cancelled")) {
+            showToast("Payment cancelled");
+        } else {
+            showToast(t("toast_error"));
+        }
+    }
 };
 
 window.showCreateTaskModal = function() { $("createTaskModal").classList.add("show"); $("taskNameInput").value = ""; $("taskLinkInput").value = ""; };
@@ -926,6 +970,32 @@ window.addEventListener("load", () => {
     setTimeout(() => { $("preloader").classList.add("hide"); $("bgImage").style.backgroundImage = "url(" + TOKENS[curToken].bgImg + ")"; $("bgImage").style.opacity = "0.4"; }, 1500);
     try {
         if (window.Telegram && Telegram.WebApp) { Telegram.WebApp.ready(); Telegram.WebApp.expand(); tgUser = Telegram.WebApp.initDataUnsafe?.user || null; }
+        if (window.TonConnectUI) {
+            tcInstance = new TonConnectUI({ manifestUrl: "https://recksach.github.io/chronogram-infinity/tonconnect-manifest.json" });
+            tcInstance.onStatusChange((wallet) => {
+                if (wallet) {
+                    walletConnected = true;
+                    walletAddress = wallet.account?.address || "";
+                    $("tcBtn").textContent = walletAddress.slice(0, 6) + "..." + walletAddress.slice(-4);
+                    $("pfName").textContent = tgUser ? (tgUser.first_name + " " + (tgUser.last_name || "")) : "User";
+                    $("pfId").textContent = "@" + (tgUser?.username || "user");
+                    if (tgUser?.photo_url) $("pfAvatar").src = tgUser.photo_url;
+                    $("profileSection").classList.add("show");
+                    checkAdminWallet();
+                    updateBal();
+                } else {
+                    walletConnected = false;
+                    walletAddress = "";
+                    $("tcBtn").textContent = "Connect Wallet";
+                    $("profileSection").classList.remove("show");
+                    isAdmin = false;
+                    $("adminSection").classList.remove("show");
+                }
+            });
+            console.log("TonConnectUI initialized");
+        } else {
+            console.log("TonConnectUI not loaded");
+        }
         initEventListeners();
         updateAllTranslations();
         renderSocialLinks();
