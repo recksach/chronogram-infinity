@@ -3,62 +3,257 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>$MASON Elite Pre-Registration</title>
-    
-    <!-- SDK Телеграма -->
+    <title>$MASON / $APE - Pre-Market</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    
-    <!-- SDK TonConnect UI (Загружается строго до вашего app.js) -->
-    <script src="https://cdn.jsdelivr.net/npm/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
-    
-    <!-- Ваши стили (Оставьте ваши стили без изменений, ниже пример структуры) -->
-    <style>
-        body {
-            background-color: #0b0c0e;
-            color: #ffffff;
-            font-family: sans-serif;
-            margin: 0;
-            padding: 16px;
-        }
-        .profile-section {
-            display: none; /* Скрыто по умолчанию */
-        }
-        .profile-section.show {
-            display: block; /* Показывается при подключении */
-        }
-        .toast {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.9);
-            color: #fff;
-            padding: 10px 20px;
-            border-radius: 20px;
-            display: none;
-            z-index: 9999;
-        }
-    </style>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <div class="preloader" id="preloader">
+        <img class="logo" src="https://i.postimg.cc/yY0wJM0S/photo-2026-07-08-11-05-40-removebg-preview.png" alt="">
+        <div class="txt" id="preloaderText">Loading...</div>
+    </div>
+    <div id="tonconnect-btn-root"></div>
+    <div class="toast" id="toast"></div>
+    <div class="ticker"><div class="dot"></div><div class="tl" id="tickerText">Connecting to blockchain...</div></div>
+    <div id="bgImage"></div>
 
-    <!-- Пример вашей разметки -->
-    <div class="app-container">
-        <h2>$MASON Elite Pre-Registration</h2>
-        
-        <!-- Кнопка вызова кошелька -->
-        <button id="connectWalletBtn" onclick="connectWallet()">Connect Wallet</button>
-        
-        <!-- Блок профиля, который открывается после успешного коннекта -->
-        <div id="profileSection" class="profile-section">
-            <p>Ваш адрес: <span id="walletAddrText"></span></p>
+    <div class="parallax-layer" id="parallaxBg">
+        <img class="pf-token pf-t1" src="https://i.postimg.cc/yY0wJM0S/photo-2026-07-08-11-05-40-removebg-preview.png" alt="">
+        <img class="pf-token pf-t2" src="https://i.postimg.cc/yY0wJM0S/photo-2026-07-08-11-05-40-removebg-preview.png" alt="">
+        <img class="pf-token pf-t3" src="https://i.postimg.cc/yY0wJM0S/photo-2026-07-08-11-05-40-removebg-preview.png" alt="">
+        <img class="pf-token pf-t4" src="https://i.postimg.cc/yY0wJM0S/photo-2026-07-08-11-05-40-removebg-preview.png" alt="">
+        <img class="pf-token pf-t5" src="https://i.postimg.cc/yY0wJM0S/photo-2026-07-08-11-05-40-removebg-preview.png" alt="">
+        <img class="pf-token pf-t6" src="https://i.postimg.cc/yY0wJM0S/photo-2026-07-08-11-05-40-removebg-preview.png" alt="">
+    </div>
+    <div class="parallax-layer foreground" id="parallaxFg">
+        <img class="pf-token pf-t7" src="https://i.postimg.cc/yY0wJM0S/photo-2026-07-08-11-05-40-removebg-preview.png" alt="">
+        <img class="pf-token pf-t8" src="https://i.postimg.cc/yY0wJM0S/photo-2026-07-08-11-05-40-removebg-preview.png" alt="">
+        <img class="pf-token pf-t9" src="https://i.postimg.cc/yY0wJM0S/photo-2026-07-08-11-05-40-removebg-preview.png" alt="">
+        <img class="pf-token pf-t10" src="https://i.postimg.cc/yY0wJM0S/photo-2026-07-08-11-05-40-removebg-preview.png" alt="">
+    </div>
+
+    <div class="app" id="app">
+        <div class="lang-switcher" id="langSwitcher"></div>
+
+        <div class="token-toggle">
+            <span class="tlbl active" id="masonLabel">$MASON</span>
+            <div class="tt-track" id="ttTrack" onclick="toggleToken()">
+                <div class="tt-knob" id="ttKnob"></div>
+            </div>
+            <span class="tlbl" id="apeLabel">$APE</span>
+        </div>
+
+        <div class="token-content" id="tokenContent">
+            <!-- HOME -->
+            <div class="tab-content active" id="tabHome">
+                <div class="hero" id="hero">
+                    <img id="heroImg" src="" alt="">
+                    <div class="overlay">
+                        <div class="htitle" id="heroTitle">$MASON</div>
+                        <div class="hsub" id="heroSub">Pre-Market Trading</div>
+                    </div>
+                </div>
+                <div class="gc rate-card">
+                    <div class="rate-box">
+                        <span class="rl" id="rateLabel">1 GRAM =</span>
+                        <span class="rv" id="rateValue">6 $MASON</span>
+                    </div>
+                </div>
+                <div class="gc">
+                    <div class="liq-bar">
+                        <div class="lbl">
+                            <span id="liqLabel">Liquidity Pool</span>
+                            <span id="liqProgress">0 / 7,000 GRAM</span>
+                        </div>
+                        <div class="liq-track">
+                            <div class="liq-fill" id="liqFill"></div>
+                        </div>
+                    </div>
+                    <div class="btn-row-wallet">
+                        <button class="btn-wallet outline" id="tcBtn" onclick="connectWallet()">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M12 12h.01"/><path d="M17 12h.01"/><path d="M7 12h.01"/></svg>
+                            <span id="tcBtnText">Connect Wallet</span>
+                        </button>
+                        <button class="btn-wallet solid" id="buyBtn" onclick="showSendModal()">
+                            <span id="buyBtnText">Buy $MASON</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="social-links" id="socialLinks"></div>
+                <div class="gc info-card" id="infoCard">
+                    <div class="info-header">
+                        <div class="info-subtitle" id="infoSubtitle">WHITEPAPER</div>
+                        <div class="info-title" id="infoTitle">The Stone Masons of DeFi</div>
+                    </div>
+                    <div class="info-body">
+                        <div class="info-preview" id="infoPreview"></div>
+                        <div class="info-full" id="infoFull"></div>
+                        <span class="info-toggle" id="infoToggle" onclick="toggleInfo()"></span>
+                        <div class="info-highlights" id="infoHighlights"></div>
+                    </div>
+                </div>
+                <div class="support-row" id="supportRow" onclick="openLink('https://t.me/Superadminist')">
+                    <div class="sr-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                    </div>
+                    <div class="sr-text">
+                        <div class="sr-name" id="supportName">Support</div>
+                        <div class="sr-sub" id="supportSub">@Superadminist</div>
+                    </div>
+                    <div class="sr-arrow">›</div>
+                </div>
+                <div class="profile" id="profileSection">
+                    <div class="pf-header">
+                        <img class="pf-avatar" id="pfAvatar" src="" alt="">
+                        <div>
+                            <div class="pf-name" id="pfName">User</div>
+                            <div class="pf-id" id="pfId">@user</div>
+                            <div class="status-badge in" id="pfStatus"></div>
+                        </div>
+                    </div>
+                    <div class="pf-balances">
+                        <div class="pf-bal">
+                            <div class="val" id="pfBalance">0</div>
+                            <div class="lbl" id="pfBalanceLbl">GRAM Balance</div>
+                        </div>
+                        <div class="pf-bal">
+                            <div class="val" id="pfRefs">0</div>
+                            <div class="lbl" id="pfRefsLbl">Referrals</div>
+                        </div>
+                    </div>
+                    <button class="btn btn-p" style="width:100%;margin-top:12px" id="pfDisconnectBtn" onclick="disconnectWallet()">Disconnect</button>
+                </div>
+                <div class="admin-section" id="adminSection">
+                    <div class="gc">
+                        <div style="font-size:14px;font-weight:700;margin-bottom:10px;color:var(--gold)">Admin Panel</div>
+                        <div class="admin-stats">
+                            <div class="admin-stat">
+                                <div class="sv" id="adminBalance">0</div>
+                                <div class="sl" id="adminBalanceLbl">GRAM</div>
+                            </div>
+                            <div class="admin-stat">
+                                <div class="sv" id="adminNewsCount">0</div>
+                                <div class="sl" id="adminNewsLbl">News</div>
+                            </div>
+                            <div class="admin-stat">
+                                <div class="sv" id="adminTaskCount">0</div>
+                                <div class="sl" id="adminTaskLbl">Tasks</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="create-task" onclick="showCreateTaskModal()">
+                        <div class="ct-title" id="adminCreateTaskLbl">+ Create Task</div>
+                        <div class="ct-cost" id="adminCreateTaskCost">25 GRAM (FREE for admin)</div>
+                    </div>
+                    <div class="create-task" onclick="showCreateNewsModal()">
+                        <div class="ct-title" id="adminCreateNewsLbl">+ Create News Post</div>
+                        <div class="ct-cost" id="adminPublishLbl">Publish to all users</div>
+                    </div>
+                    <div class="gc">
+                        <div style="font-size:13px;font-weight:600;margin-bottom:8px" id="adminPaymentsLbl">Recent Payments</div>
+                        <div id="adminPaymentsList"></div>
+                    </div>
+                </div>
+            </div>
+            <!-- TASKS -->
+            <div class="tab-content" id="tabTasks">
+                <div class="gc">
+                    <div style="font-size:16px;font-weight:700;margin-bottom:12px" id="tasksTitle">Available Tasks</div>
+                    <div id="taskList"></div>
+                </div>
+            </div>
+            <!-- REFS -->
+            <div class="tab-content" id="tabRefs">
+                <div class="gc">
+                    <div style="font-size:16px;font-weight:700;margin-bottom:12px" id="refsTitle">Referral Program</div>
+                    <div class="ref-stats">
+                        <div class="ref-stat">
+                            <div class="rv" id="refCount">0</div>
+                            <div class="rl" id="refCountLbl">Referrals</div>
+                        </div>
+                        <div class="ref-stat">
+                            <div class="rv" id="refEarned">0</div>
+                            <div class="rl" id="refEarnedLbl">GRAM Earned</div>
+                        </div>
+                    </div>
+                    <div class="ref-link">
+                        <input type="text" id="refLinkInput" readonly>
+                        <button class="btn btn-p" id="refCopyBtn" onclick="copyRefLink()">Copy</button>
+                    </div>
+                    <button class="btn btn-b" id="refShareBtn" onclick="shareRefLink()">Share Link</button>
+                </div>
+            </div>
+            <!-- FEED -->
+            <div class="tab-content" id="tabFeed">
+                <div class="gc">
+                    <div style="font-size:16px;font-weight:700;margin-bottom:12px" id="feedTitle">News & Updates</div>
+                    <div class="feed-list" id="feedList"></div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Элемент для всплывающих уведомлений -->
-    <div id="toast" class="toast"></div>
+    <nav class="nav" id="mainNav">
+        <div class="nav-item active" onclick="switchTab('home')" id="navHome">
+            <span class="ni-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>
+            <span class="ni-lbl" id="navHomeLbl">Home</span>
+        </div>
+        <div class="nav-item" onclick="switchTab('tasks')" id="navTasks">
+            <span class="ni-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span>
+            <span class="ni-lbl" id="navTasksLbl">Tasks</span>
+        </div>
+        <div class="nav-item" onclick="switchTab('refs')" id="navRefs">
+            <span class="ni-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+            <span class="ni-lbl" id="navRefsLbl">Refs</span>
+        </div>
+        <div class="nav-item" onclick="switchTab('feed')" id="navFeed">
+            <span class="ni-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><line x1="10" y1="6" x2="18" y2="6"/><line x1="10" y1="10" x2="18" y2="10"/><line x1="10" y1="14" x2="14" y2="14"/></svg></span>
+            <span class="ni-lbl" id="navFeedLbl">Feed</span>
+        </div>
+    </nav>
 
-    <!-- ВАШ ОСНОВНОЙ СКРИПТ: обязательно с атрибутом defer -->
-    <script src="app.js" defer></script>
+    <div class="modal-overlay" id="sendModal">
+        <div class="modal">
+            <h3 id="buyModalTitle">Buy $MASON</h3>
+            <p id="buyModalSub">Select amount in GRAM</p>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:12px" id="buyPresets"></div>
+            <input type="number" id="buyAmountInput" placeholder="Custom amount (GRAM)" oninput="updateBuyPreview()">
+            <div class="preview" id="buyPreview">You will receive: 0 $MASON</div>
+            <div class="btn-row">
+                <button class="btn btn-p" onclick="closeSendModal()">Cancel</button>
+                <button class="btn btn-b" id="buyConfirmBtn" onclick="confirmBuy()">Confirm</button>
+            </div>
+        </div>
+    </div>
+    <div class="modal-overlay" id="createTaskModal">
+        <div class="modal">
+            <h3 id="createTaskTitle">Create Task</h3>
+            <p id="createTaskCost">Cost: 25 GRAM (FREE for admin)</p>
+            <input type="text" id="taskTitleInput" placeholder="Task title">
+            <input type="number" id="taskRewardInput" placeholder="Token reward amount">
+            <input type="text" id="taskLinkInput" placeholder="Link (URL)">
+            <div class="btn-row">
+                <button class="btn btn-p" onclick="closeCreateTaskModal()">Cancel</button>
+                <button class="btn btn-b" onclick="createTask()">Create</button>
+            </div>
+        </div>
+    </div>
+    <div class="modal-overlay" id="createNewsModal">
+        <div class="modal">
+            <h3 id="createNewsTitle">Create News Post</h3>
+            <input type="text" id="newsTitleInput" placeholder="Title">
+            <textarea id="newsTextInput" placeholder="Text"></textarea>
+            <input type="text" id="newsImageInput" placeholder="Image URL (optional)">
+            <div class="btn-row">
+                <button class="btn btn-p" onclick="closeCreateNewsModal()">Cancel</button>
+                <button class="btn btn-b" onclick="createNews()">Publish</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@tonconnect/ui@2.0.0/dist/tonconnect-ui.min.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>
