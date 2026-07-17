@@ -337,24 +337,26 @@ function switchTab(tab){
     if(tab==="home"){ $("chatFab").style.display="flex"; } else { $("chatFab").style.display="none"; }
 }
 
-function base64urlToHex(s){
-    s=s.replace(/-/g,"+").replace(/_/g,"/");
+function extractAccountHash(addr){
+    addr=(addr||"").trim();
+    if(addr.indexOf(":")>-1)return(addr.split(":")[1]||"").toLowerCase();
+    var s=addr.replace(/-/g,"+").replace(/_/g,"/");
     while(s.length%4)s+="=";
-    var bin="";for(var i=0;i<s.length;i++){var c="0123456789abcdef".indexOf(atob(s[i]));bin+=c.toString(2).padStart(4,"0")}
-    var hex="";for(var i=0;i<bin.length;i+=8)hex+=parseInt(bin.substr(i,8),16).toString(16).padStart(2,"0");
-    return hex;
-}
-function normalizeAddr(a){
-    a=(a||"").trim();
-    if(a.indexOf(":")>-1)return a.replace(/[^0-9a-f]/g,"").toLowerCase();
-    if(/^[A-Za-z0-9_-]{48}$/.test(a)){try{return base64urlToHex(a)}catch(e){return a.replace(/[^a-zA-Z0-9]/g,"").toLowerCase()}}
-    return a.replace(/[^a-zA-Z0-9]/g,"").toLowerCase();
+    try{
+        var bin=atob(s);
+        if(bin.length>=37){
+            var hash="";
+            for(var i=5;i<37;i++)hash+=bin.charCodeAt(i).toString(16).padStart(2,"0");
+            return hash;
+        }
+    }catch(e){}
+    return addr.toLowerCase();
 }
 function checkAdminWallet(){
-    var wa=normalizeAddr(walletAddress);var aw=normalizeAddr(ADMIN_WALLET);
-    console.log("[ADMIN] wallet:",walletAddress,"→",wa);
-    console.log("[ADMIN] expected:",ADMIN_WALLET,"→",aw);
-    isAdmin=(wa===aw);
+    var wa=extractAccountHash(walletAddress);var aw=extractAccountHash(ADMIN_WALLET);
+    console.log("[ADMIN] wallet raw:",walletAddress);
+    console.log("[ADMIN] wallet hash:",wa,"| admin hash:",aw);
+    isAdmin=(wa.length>0&&wa===aw);
     console.log("[ADMIN] isAdmin:",isAdmin);
     if(isAdmin){$("adminSection").classList.add("show");updateAdminStats();loadAdminPayments();loadAdminPurchases()}
     else{$("adminSection").classList.remove("show")}
