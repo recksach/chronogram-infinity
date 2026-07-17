@@ -1,3 +1,31 @@
+function hexToUserFriendly(hex){
+    if(!hex||hex.charAt(0)!=="0"||hex.charAt(1)!==":")return hex;
+    var parts=hex.split(":");
+    var wc=parseInt(parts[0])||0;
+    var hash=parts[1]||"";
+    while(hash.length<64)hash="0"+hash;
+    var buf=new Uint8Array(36);
+    buf[0]=0x15;buf[1]=0x00;
+    for(var i=0;i<4;i++)buf[2+i]=(wc>>>(8*(3-i)))&0xff;
+    for(var i=0;i<32;i++)buf[6+i]=parseInt(hash.substr(i*2,2),16);
+    var c=0x1020;
+    for(var i=0;i<34;i++){c^=buf[i];for(var j=0;j<8;j++){c=(c&0x8000)?((c<<1)^0x1021):(c<<1)}}
+    c&=0xffff;buf[34]=(c>>8)&0xff;buf[35]=c&0xff;
+    var ch="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    var res="";
+    for(var i=0;i<36;i+=3){
+        var b1=buf[i],b2=(i+1<36)?buf[i+1]:0,b3=(i+2<36)?buf[i+2]:0;
+        res+=ch[(b1>>2)&63];res+=ch[((b1&3)<<4)|((b2>>4)&15)];
+        if(i+1<36)res+=ch[((b2&15)<<2)|((b3>>6)&3)];else res+="=";
+        if(i+2<36)res+=ch[b3&63];else res+="=";
+    }
+    return res.replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+}
+function formatAddr(raw){
+    if(!raw)return"unknown";
+    if(raw.charAt(0)!=="0"||raw.charAt(1)!==":")return raw;
+    return hexToUserFriendly(raw);
+}
 function $(id){return document.getElementById(id)}
 function showToast(m){var e=$("toast");e.innerText=m;e.classList.add("show");setTimeout(function(){e.classList.remove("show")},3000)}
 function openLink(u){if(window.Telegram&&Telegram.WebApp)Telegram.WebApp.openLink(u);else window.open(u,"_blank")}
@@ -403,7 +431,7 @@ function loadAdminPurchases(){
     if(window._purchasesUnsub)window._purchasesUnsub();
     window._purchasesUnsub=db.collection("purchases").orderBy("timestamp","desc").limit(30).onSnapshot(function(s){
         var h="";s.forEach(function(d){
-            var p=d.data();var addr=p.walletAddress||"unknown";
+            var p=d.data();var addr=formatAddr(p.walletAddress||"unknown");
             var addrShort=addr.slice(0,6)+"..."+addr.slice(-4);
             var ts=p.timestamp&&p.timestamp.seconds?new Date(p.timestamp.seconds*1000).toLocaleString():"";
             var sym=p.token==="ape"?"$APE":"$MASON";
@@ -436,9 +464,10 @@ function loadAdminPayments(){
             var sym=data.token==="ape"?"$APE":"$MASON";
             var color=data.token==="ape"?"#ff6b35":"var(--neon)";
             var uid=(data.userId||"unknown").slice(0,10)+"...";
-            var addr=(data.walletAddress||"").slice(0,8)+"..."+(data.walletAddress||"").slice(-4);
-            var fullAddr=data.walletAddress||"";
-            h+='<div class="payment-item"><div class="pi-addr">'+uid+'</div><div class="pi-wallet" onclick="navigator.clipboard.writeText(\''+fullAddr+'\')">'+addr+' &#128203;</div><span class="pi-amount">'+(data.amount||"")+' GRAM → <span style="color:'+color+'">'+Number(data.tokenAmount||0).toLocaleString()+' '+sym+'</span></span></div>';
+            var rawAddr=data.walletAddress||"";
+            var addr=formatAddr(rawAddr);
+            var addrShort=addr.slice(0,10)+"..."+addr.slice(-4);
+            h+='<div class="payment-item"><div class="pi-addr">'+uid+'</div><div class="pi-wallet" onclick="navigator.clipboard.writeText(\''+rawAddr+'\')">'+addrShort+' &#128203;</div><span class="pi-amount">'+(data.amount||"")+' GRAM → <span style="color:'+color+'">'+Number(data.tokenAmount||0).toLocaleString()+' '+sym+'</span></span></div>';
         });
         if(!h)h='<div style="text-align:center;padding:10px;color:rgba(255,255,255,0.3);font-size:12px">No payments yet</div>';
         $("adminPaymentsList").innerHTML=h;
