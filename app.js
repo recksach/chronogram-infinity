@@ -40,7 +40,7 @@ var db=firebase.firestore();
 var LANGS=["en","ru","uk","tr","ar","zh","hi"];
 var TR={
 en:{
-    nav_home:"Home",nav_tasks:"Tasks",nav_refs:"Refs",nav_feed:"Feed",
+    nav_home:"Home",nav_tasks:"Tasks",nav_refs:"Refs",    nav_feed:"Chat",
     rate_label:"1 GRAM =",liq_label:"Liquidity Pool",liq_of:"of",
     buy_mason:"Buy $MASON",buy_ape:"Buy $APE",
     profile_balance:"GRAM Balance",profile_refs:"Referrals",profile_connected:"Connected",
@@ -73,7 +73,7 @@ en:{
     chatTitle:"AI Assistant",chatStatus:"Online"
 },
 ru:{
-    nav_home:"\u0413\u043b\u0430\u0432\u043d\u0430\u044f",nav_tasks:"\u0417\u0430\u0434\u0430\u043d\u0438\u044f",nav_refs:"\u0420\u0435\u0444\u0435\u0440\u0430\u043b\u044b",nav_feed:"\u041d\u043e\u0432\u043e\u0441\u0442\u0438",
+    nav_home:"\u0413\u043b\u0430\u0432\u043d\u0430\u044f",nav_tasks:"\u0417\u0430\u0434\u0430\u043d\u0438\u044f",nav_refs:"\u0420\u0435\u0444\u0435\u0440\u0430\u043b\u044b",nav_feed:"\u0427\u0430\u0442",
     rate_label:"1 GRAM =",liq_label:"\u041f\u0443\u043b \u043b\u0438\u043a\u0432\u0438\u0434\u043d\u043e\u0441\u0442\u0438",liq_of:"\u0438\u0437",
     buy_mason:"\u041a\u0443\u043f\u0438\u0442\u044c $MASON",buy_ape:"\u041a\u0443\u043f\u0438\u0442\u044c $APE",
     profile_balance:"\u0411\u0430\u043b\u0430\u043d\u0441 GRAM",profile_refs:"\u0420\u0435\u0444\u0435\u0440\u0430\u043b\u044b",profile_connected:"\u041f\u043e\u0434\u043a\u043b\u044e\u0447\u0451\u043d",
@@ -106,7 +106,7 @@ ru:{
     chatTitle:"\u041f\u043e\u043c\u043e\u0449\u043d\u0438\u043a AI",chatStatus:"\u041e\u043d\u043b\u0430\u0439\u043d"
 },
 uk:{
-    nav_home:"\u0413\u043e\u043b\u043e\u0432\u043d\u0430",nav_tasks:"\u0417\u0430\u0432\u0434\u0430\u043d\u043d\u044f",nav_refs:"\u0420\u0435\u0444\u0435\u0440\u0430\u043b\u0438",nav_feed:"\u041d\u043e\u0432\u0438\u043d\u0438",
+    nav_home:"\u0413\u043e\u043b\u043e\u0432\u043d\u0430",nav_tasks:"\u0417\u0430\u0432\u0434\u0430\u043d\u043d\u044f",nav_refs:"\u0420\u0435\u0444\u0435\u0440\u0430\u043b\u0438",nav_feed:"\u0427\u0430\u0442",
     rate_label:"1 GRAM =",liq_label:"\u041f\u0443\u043b \u043b\u0456\u043a\u0432\u0456\u0434\u043d\u043e\u0441\u0442\u0456",liq_of:"\u0437",
     buy_mason:"\u041a\u0443\u043f\u0438\u0442\u0438 $MASON",buy_ape:"\u041a\u0443\u043f\u0438\u0442\u0438 $APE",
     profile_balance:"\u0411\u0430\u043b\u0430\u043d\u0441 GRAM",profile_refs:"\u0420\u0435\u0444\u0435\u0440\u0430\u043b\u0438",profile_connected:"\u041f\u0456\u0434\u043a\u043b\u044e\u0447\u0435\u043d\u043e",
@@ -136,7 +136,7 @@ uk:{
     info_ape_h1v:"\u0413\u043b\u043e\u0431\u0430\u043b\u044c\u043d\u0430",info_ape_h1l:"\u041c\u0435\u0440\u0435\u0436\u0430",info_ape_h2v:"\u041e\u0441\u0432\u0456\u0442\u0430",info_ape_h2l:"\u0424\u043e\u043a\u0443\u0441",
     info_ape_h3v:"\u041c\u0456\u043a\u0440\u043e",info_ape_h3l:"\u0422\u0440\u0430\u043d\u0437\u0430\u043a\u0446\u0456\u0457",info_ape_h4v:"\u0421\u043f\u0456\u043b\u044c\u043d\u043e\u0442\u0430",info_ape_h4l:"\u0423\u043f\u0440\u0430\u0432\u043b\u0456\u043d\u043d\u044f"
 },tr:{
-    nav_home:"Ana Sayfa",nav_tasks:"Gorevler",nav_refs:"Referanslar",nav_feed:"Haberler",
+    nav_home:"Ana Sayfa",nav_tasks:"Gorevler",nav_refs:"Referanslar",nav_feed:"Sohbet",
     rate_label:"1 GRAM =",liq_label:"Likidite Havuzu",buy_mason:"$MASON Satin Al",buy_ape:"$APE Satin Al",
     profile_balance:"GRAN Bakiyesi",profile_refs:"Referanslar",profile_connected:"Bagli",
     tasks_title:"Mevcut Gorevler",tasks_empty:"Henuz gorev yok",
@@ -164,7 +164,7 @@ uk:{
     info_ape_h1v:"Kuresel",info_ape_h1l:"Ag",info_ape_h2v:"Egitim",info_ape_h2l:"Odakli",
     info_ape_h3v:"Mikro",info_ape_h3l:"Islemler",info_ape_h4v:"Topluluk",info_ape_h4l:"Yonetim"
 },ar:{
-    nav_home:"\u0627\u0644\u0631\u0626\u064a\u0633\u064a\u0629",nav_tasks:"\u0627\u0644\u0645\u0647\u0627\u0645",nav_refs:"\u0627\u0644\u0625\u062d\u0627\u0644\u0627\u062a",nav_feed:"\u0627\u0644\u0623\u062e\u0628\u0627\u0631",
+    nav_home:"\u0627\u0644\u0631\u0626\u064a\u0633\u064a\u0629",nav_tasks:"\u0627\u0644\u0645\u0647\u0627\u0645",nav_refs:"\u0627\u0644\u0625\u062d\u0627\u0644\u0627\u062a",nav_feed:"\u0627\u0644\u0645\u0639\u0627\u0645\u0644\u0629",
     rate_label:"1 GRAM =",liq_label:"\u062a\u062c\u0645\u0639 \u0627\u0644\u0633\u064a\u0648\u0644\u0629",buy_mason:"\u0634\u0631\u0627\u0621 $MASON",buy_ape:"\u0634\u0631\u0627\u0621 $APE",
     profile_balance:"\u0631\u0635\u064a\u062f GRAM",profile_refs:"\u0627\u0644\u0625\u062d\u0627\u0644\u0627\u062a",profile_connected:"\u0645\u062a\u0635\u0644",
     tasks_title:"\u0627\u0644\u0645\u0647\u0627\u0645 \u0627\u0644\u0645\u062a\u0627\u062d\u0629",tasks_empty:"\u0644\u0627 \u062a\u0648\u062c\u062f \u0645\u0647\u0627\u0645 \u0628\u0639\u062f",
@@ -182,7 +182,7 @@ uk:{
     news_title_ph:"\u0627\u0644\u0639\u0646\u0648\u0627\u0646",news_text_ph:"\u0627\u0644\u0646\u0635",news_image_ph:"\u0631\u0627\u0628\u0637 \u0627\u0644\u0635\u0648\u0631\u0629",
     support:"\u0627\u0644\u062f\u0639\u0645",support_sub:"@Superadminist",read_more:"\u0642\u0631\u0627\u0621\u0629 \u0623\u0643\u062b\u0631",read_less:"\u0639\u0631\u0636 \u0623\u0642\u0644"
 },zh:{
-    nav_home:"\u9996\u9875",nav_tasks:"\u4efb\u52a1",nav_refs:"\u63a8\u8350",nav_feed:"\u52a8\u6001",
+    nav_home:"\u9996\u9875",nav_tasks:"\u4efb\u52a1",nav_refs:"\u63a8\u8350",nav_feed:"\u804a\u5929",
     rate_label:"1 GRAM =",liq_label:"\u6d41\u52a8\u6027\u6c60",buy_mason:"\u8d2d\u4e70 $MASON",buy_ape:"\u8d2d\u4e70 $APE",
     profile_balance:"GRAM \u4f59\u989d",profile_refs:"\u63a8\u8350\u4eba\u6570",profile_connected:"\u5df2\u8fde\u63a5",
     tasks_title:"\u53ef\u7528\u4efb\u52a1",tasks_empty:"\u6682\u65e0\u4efb\u52a1",
@@ -200,7 +200,7 @@ uk:{
     news_title_ph:"\u6807\u9898",news_text_ph:"\u5185\u5bb9",news_image_ph:"\u56fe\u7247\u94fe\u63a5",
     support:"\u5ba2\u670d",support_sub:"@Superadminist",read_more:"\u9605\u8bfb\u66f4\u591a",read_less:"\u6536\u8d77"
 },hi:{
-    nav_home:"\u0939\u094b\u092e",nav_tasks:"\u0915\u093e\u0930\u094d\u092f",nav_refs:"\u0930\u0947\u092b\u0930\u0932",nav_feed:"\u092b\u0940\u0921",
+    nav_home:"\u0939\u094b\u092e",nav_tasks:"\u0915\u093e\u0930\u094d\u092f",nav_refs:"\u0930\u0947\u092b\u0930\u0932",nav_feed:"\u091a\u0948\u091f",
     rate_label:"1 GRAM =",liq_label:"\u0932\u093f\u0915\u094d\u0935\u093f\u0921\u093f\u091f\u0940 \u092a\u0942\u0932",buy_mason:"$MASON \u0916\u0930\u0940\u0926\u0947\u0902",buy_ape:"$APE \u0916\u0930\u0940\u0926\u0947\u0902",
     profile_balance:"GRAN \u092c\u0948\u0932\u0947\u0902\u0938",profile_refs:"\u0930\u0947\u092b\u0930\u0932",profile_connected:"\u0915\u0928\u0947\u0915\u094d\u091f\u0947\u0921",
     tasks_title:"\u0909\u092a\u0932\u092c\u094d\u0927 \u0915\u093e\u0930\u094d\u092f",tasks_empty:"\u0905\u092d\u0940 \u0915\u094b\u0908 \u0915\u093e\u0930\u094d\u092f \u0928\u0939\u0940\u0902",
@@ -229,7 +229,7 @@ function updateAllTranslations(){
     var ids={navHomeLbl:"nav_home",navTasksLbl:"nav_tasks",navRefsLbl:"nav_refs",navFeedLbl:"feed_title",
         rateLabel:"rate_label",liqLabel:"liq_label",pfBalanceLbl:"profile_balance",pfRefsLbl:"profile_refs",pfStatus:"profile_connected",
         tasksTitle:"tasks_title",refsTitle:"refs_title",refCountLbl:"refs_count",refEarnedLbl:"refs_earned",refCopyBtn:"refs_copy",refShareBtn:"refs_share",
-        feedTitle:"feed_title",adminBalanceLbl:"admin_gram",adminNewsLbl:"admin_news",adminTaskLbl:"admin_tasks",
+        adminBalanceLbl:"admin_gram",adminNewsLbl:"admin_news",adminTaskLbl:"admin_tasks",
         adminCreateTaskLbl:"admin_create_task",adminCreateTaskCost:"admin_task_cost",adminCreateNewsLbl:"admin_create_news",adminPublishLbl:"admin_publish",adminPaymentsLbl:"admin_payments",
         supportName:"support",supportSub:"support_sub"};
     for(var id in ids){var el=$(id);if(el)el.textContent=t(ids[id])}
@@ -253,7 +253,7 @@ function updateAllTranslations(){
     $("chatStatusText").textContent=t("chatStatus")||"Online";
     $("chatInput").placeholder=curLang==="ru"?"Задайте вопрос...":curLang==="uk"?"Запитайте...":curLang==="tr"?"Soru sorun...":"Ask a question...";
     renderChips(getQuickReplies("general"));
-    renderTasks();renderFeed();
+    renderTasks();
 }
 
 function toggleToken(){
@@ -321,9 +321,10 @@ function toggleInfo(){$("infoCard").classList.toggle("expanded");$("infoToggle")
 function switchTab(tab){
     document.querySelectorAll(".tab-content").forEach(function(el){el.classList.remove("active")});
     document.querySelectorAll(".nav-item").forEach(function(el){el.classList.remove("active")});
-    var m={home:"tabHome",tasks:"tabTasks",refs:"tabRefs",feed:"tabFeed"},n={home:"navHome",tasks:"navTasks",refs:"navRefs",feed:"navFeed"};
+    var m={home:"tabHome",tasks:"tabTasks",refs:"tabRefs",chat:"tabChat"},n={home:"navHome",tasks:"navTasks",refs:"navRefs",chat:"navFeed"};
     if(m[tab])$(m[tab]).classList.add("active");if(n[tab])$(n[tab]).classList.add("active");
     if(tab==="refs")updateRefStats();
+    if(tab==="chat")initChatRoom();
 }
 
 function checkAdminWallet(){isAdmin=walletAddress.replace(/[^a-zA-Z0-9]/g,"")===ADMIN_WALLET.replace(/[^a-zA-Z0-9]/g,"");if(isAdmin){$("adminSection").classList.add("show");updateAdminStats()}else{$("adminSection").classList.remove("show")}}
@@ -353,6 +354,7 @@ function renderTasks(){
     var el=$("taskList");if(!tasksData.length){el.innerHTML='<div style="text-align:center;padding:20px;color:rgba(255,255,255,0.3)">'+t("tasks_empty")+'</div>';return}
     var h="";tasksData.forEach(function(task){
         h+='<div class="task-item"><div class="task-icon">'+("TL").charAt(0)+'</div><div class="task-info"><div class="task-title">'+task.title+'</div><div class="task-reward">'+task.reward+" "+TOKENS[task.token||curToken].symbol+'</div></div>';
+        if(task.link)h+='<button class="task-link-btn" onclick="openLink(\''+task.link.replace(/'/g,"\\'")+'\')">&#128279;</button>';
         h+='<button class="task-btn" onclick="completeTask(\''+task.id+'\')">'+t("task_claim")+'</button>';
         if(isAdmin)h+='<button class="task-del" onclick="deleteTask(\''+task.id+'\')">&#10005;</button>';
         h+='</div>';});el.innerHTML=h;
@@ -379,7 +381,27 @@ function shareRefLink(){var url=$("refLinkInput").value;openLink(url)}
 
 async function fetchCollectedGram(){try{var r=await fetch("https://tonapi.io/v2/accounts/"+ADMIN_WALLET);if(!r.ok)return;var d=await r.json();var b=d.balance?d.balance/1e9:0;$("liqFill").style.width=Math.min((b/LIQ_TARGET)*100,100)+"%";$("liqProgress").textContent=Math.floor(b).toLocaleString()+" / "+LIQ_TARGET.toLocaleString()+" GRAM";if(isAdmin)$("adminBalance").textContent=Math.floor(b).toLocaleString()}catch(e){}}
 function loadAdminPayments(){if(!isAdmin)return;db.collection("activity").orderBy("timestamp","desc").limit(20).get().then(function(s){var h="";s.forEach(function(d){var data=d.data();h+='<div class="payment-item"><span class="pi-addr">'+(data.userId||"unknown").slice(0,10)+'...</span><span class="pi-amount">'+(data.amount||"")+' GRAM</span></div>'});if(!h)h='<div style="text-align:center;padding:10px;color:rgba(255,255,255,0.3);font-size:12px">No payments yet</div>';$("adminPaymentsList").innerHTML=h}).catch(function(){})}
-function loadAdminPurchases(){if(!isAdmin)return;db.collection("purchases").orderBy("timestamp","desc").limit(30).get().then(function(s){var h="";s.forEach(function(d){var p=d.data();var addr=p.walletAddress?p.walletAddress.slice(0,6)+"..."+p.walletAddress.slice(-4):"unknown";var ts=p.timestamp&&p.timestamp.seconds?new Date(p.timestamp.seconds*1000).toLocaleString():"";var sym=p.token==="ape"?"$APE":"$MASON";h+='<div class="payment-item"><div style="flex:1"><div style="font-size:11px;color:rgba(255,255,255,0.5)">'+(p.userName||"User")+' <span style="color:rgba(255,255,255,0.3)">'+addr+'</span></div><div style="font-size:10px;color:rgba(255,255,255,0.3);margin-top:2px">'+ts+'</div></div><div style="text-align:right"><div class="pi-amount">'+(p.gramAmount||0)+' GRAM</div><div style="font-size:10px;color:rgba(255,255,255,0.3)">'+Number(p.tokenAmount||0).toLocaleString()+' '+sym+'</div></div></div>'});if(!h)h='<div style="text-align:center;padding:10px;color:rgba(255,255,255,0.3);font-size:12px">No purchases yet</div>';$("adminPurchasesList").innerHTML=h}).catch(function(e){console.error("Purchases load error:",e)})}
+function loadAdminPurchases(){if(!isAdmin)return;db.collection("purchases").orderBy("timestamp","desc").limit(30).get().then(function(s){
+    var h="";s.forEach(function(d){
+        var p=d.data();var addr=p.walletAddress||"unknown";
+        var addrShort=addr.slice(0,6)+"..."+addr.slice(-4);
+        var ts=p.timestamp&&p.timestamp.seconds?new Date(p.timestamp.seconds*1000).toLocaleString():"";
+        var sym=p.token==="ape"?"$APE":"$MASON";
+        var color=p.token==="ape"?"#ff6b35":"var(--neon)";
+        h+='<div class="admin-purchase-item">';
+        h+='<div class="api-top">';
+        if(p.userAvatar)h+='<img class="api-avatar" src="'+p.userAvatar+'" onerror="this.style.display=\'none\'">';
+        h+='<div class="api-info"><div class="api-name">'+escH(p.userName||"User")+'</div>';
+        h+='<div class="api-wallet" onclick="navigator.clipboard.writeText(\''+addr+'\')">'+addrShort+' &#128203;</div>';
+        h+='<div class="api-time">'+ts+'</div></div></div>';
+        h+='<div class="api-action">';
+        h+='<div class="api-received">'+(p.gramAmount||0)+' GRAM received</div>';
+        h+='<div class="api-send">Send <strong>'+Number(p.tokenAmount||0).toLocaleString()+' <span style="color:'+color+'">'+sym+'</span></span></div>';
+        h+='</div></div>';
+    });
+    if(!h)h='<div style="text-align:center;padding:10px;color:rgba(255,255,255,0.3);font-size:12px">No purchases yet</div>';
+    $("adminPurchasesList").innerHTML=h;
+}).catch(function(e){console.error("Purchases load error:",e)})}
 
 window.addEventListener("load",function(){
     setTimeout(function(){$("preloader").classList.add("hide");$("bgImage").style.backgroundImage="url("+TOKENS[curToken].bgImg+")";$("bgImage").style.opacity="0.4"},1500);
@@ -525,41 +547,135 @@ function handleChat(query){
     setTimeout(function(){hideTyping();var ans=chatKnowledgeBase(query);addBotMsg(ans)},delay);
 }
 
+var chatRoomInit=false;var chatUnsub=null;var chatReplyData=null;var chatImageData=null;var lastMsgTime=0;
+function initChatRoom(){
+    if(chatRoomInit)return;chatRoomInit=true;
+    var unsub=db.collection("messages").orderBy("timestamp","asc").onSnapshot(function(s){
+        var el=$("chatMessagesRoom");var wasAtBottom=el.scrollHeight-el.scrollTop-el.clientHeight<80;
+        el.innerHTML="";
+        s.forEach(function(doc){
+            var m=doc.data();m.id=doc.id;
+            var isOwn=tgUser&&m.userId===tgUser.id.toString();
+            var isOwnAdmin=m.userId==="admin";
+            var d=document.createElement("div");
+            d.className="rm "+(isOwn?"rm-own":"rm-other");
+            d.dataset.id=m.id;d.dataset.uid=m.userId;
+            var h="";
+            if(m.replyTo){
+                h+='<div class="rm-reply-preview"><div class="rm-reply-name">'+escH(m.replyTo.userName||"")+'</div>'+escH(trunc(m.replyTo.text||"",40))+'</div>';
+            }
+            h+='<div class="rm-header">';
+            if(m.userAvatar)h+='<img class="rm-avatar" src="'+escH(m.userAvatar)+'" onerror="this.style.display=\'none\'">';
+            h+='<div class="rm-name">'+escH(m.userName||"User")+'</div></div>';
+            if(m.image){
+                var isSticker=m.image.length<50000;
+                h+='<img class="rm-img'+(isSticker?" sticker":"")+'" src="'+m.image+'" onclick="window.open(this.src)" loading="lazy">';
+            }
+            if(m.text)h+='<div class="rm-text">'+escH(m.text)+'</div>';
+            var ts=m.timestamp&&m.timestamp.seconds?new Date(m.timestamp.seconds*1000):new Date();
+            h+='<div class="rm-time">'+ts.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})+'</div>';
+            if(isOwn||isAdmin)h+='<button class="rm-del" onclick="deleteChatMsg(\''+m.id+'\')">&#10005;</button>';
+            d.innerHTML=h;
+            d.addEventListener("touchstart",function(e){this._sx=e.touches[0].clientX;this._sy=e.touches[0].clientY},{passive:true});
+            d.addEventListener("touchend",function(e){
+                var dx=e.changedTouches[0].clientX-this._sx;
+                if(Math.abs(dx)>60&&Math.abs(dx)>Math.abs(e.changedTouches[0].clientY-this._sy)){
+                    startReply(m.userName||"User",trunc(m.text||"[image]",40),m.id);
+                }
+            },{passive:true});
+            el.appendChild(d);
+        });
+        if(wasAtBottom)el.scrollTop=el.scrollHeight;
+    });
+    chatUnsub=unsub;
+}
+function startReply(name,text,msgId){
+    chatReplyData={userName:name,text:text,msgId:msgId};
+    $("chatReplyBar").style.display="flex";
+    $("chatReplyName").textContent=name;
+    $("chatReplyText").textContent=trunc(text,50);
+    $("chatRoomInput").focus();
+}
+function cancelReply(){chatReplyData=null;$("chatReplyBar").style.display="none"}
+function sendRoomMessage(){
+    var inp=$("chatRoomInput");var text=inp.value.trim();
+    if(!text&&!chatImageData){return}
+    var now=Date.now();
+    if(now-lastMsgTime<60000){showToast("Wait 60 seconds between messages");return}
+    lastMsgTime=now;
+    var msg={userId:tgUser?tgUser.id.toString():"unknown",userName:tgUser?(tgUser.first_name+" "+(tgUser.last_name||"")):"Anonymous",userAvatar:tgUser&&tgUser.photo_url?tgUser.photo_url:"",text:text,timestamp:firebase.firestore.FieldValue.serverTimestamp()};
+    if(chatImageData){msg.image=chatImageData;chatImageData=null}
+    if(chatReplyData){msg.replyTo={msgId:chatReplyData.msgId,userName:chatReplyData.userName,text:chatReplyData.text};cancelReply()}
+    db.collection("messages").add(msg).then(function(){inp.value=""}).catch(function(e){showToast("Error: "+e.message)});
+}
+function handleChatImage(e){
+    var file=e.target.files[0];if(!file)return;
+    if(file.size>10*1024*1024){showToast("Max 10MB");e.target.value="";return}
+    var reader=new FileReader();
+    reader.onload=function(ev){
+        var img=new Image();
+        img.onload=function(){
+            var c=document.createElement("canvas");
+            var maxW=800;var w=img.width;var h=img.height;
+            if(w>maxW){h=Math.round(h*maxW/w);w=maxW}
+            c.width=w;c.height=h;
+            c.getContext("2d").drawImage(img,0,0,w,h);
+            chatImageData=c.toDataURL("image/jpeg",0.7);
+            var delay=400+Math.random()*400;
+            setTimeout(function(){sendRoomMessage()},delay);
+        };
+        img.src=ev.target.result;
+    };
+    reader.readAsDataURL(file);e.target.value="";
+}
+function deleteChatMsg(id){
+    if(!tgUser)return;
+    db.collection("messages").doc(id).get().then(function(d){
+        if(!d.exists)return;
+        var data=d.data();
+        if(isAdmin||data.userId===tgUser.id.toString()){
+            db.collection("messages").doc(id).delete();
+        }
+    });
+}
+function escH(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
+function trunc(s,n){return s.length>n?s.substring(0,n)+"...":s}
+
 var chatKB={
     en:{
-        mason:{k:["mason","stone","masons","масон","масонь","каменщик","taşçı","الماسون","石匠","मेसन"],a:"$MASON — The Stone Masons Protocol. A community-driven token on TON blockchain where every holder is a builder. Rate: 1 GRAM = 6 $MASON. The protocol was born from a simple observation: most crypto projects die from lack of community, not lack of technology. $MASON builds through education, transparency, and collective action. Every stone Mason lays makes the network stronger."},
-        ape:{k:["ape","ambassador","амбассадор","посол","elçiliği","السفير","大使","राजदूत"],a:"$APE — The Ambassador's Protocol for Education. A global education movement on TON blockchain. Rate: 1 GRAM = 15,674 $APE. $APE was created to bridge the knowledge gap in DeFi. Every Ambassador teaches, and every student strengthens the network. Financial grammar is the most powerful weapon against centralization."},
-        gram:{k:["gram","грам","грамм","gram","gram Token","gram token","גרם","غرام","格拉姆","ग्राम"],a:"GRAM is the native token of this platform used for pre-market purchases. All GRAM payments go to the admin wallet: UQAGpJWn-FJd3wjB-aiChuiYH-9tdXAOhqu887uBtS1Ce4_7. After GRAM tokens are received, the corresponding $MASON or $APE tokens will be distributed to buyers."},
+        mason:{k:["mason","stone","masons","масон","масонь","каменщик","taşçı","الماسون","石匠","मेसन"],a:"$MASON — The Stone Masons Protocol. A community-driven token on TON blockchain. Total supply: 19,999 tokens. Rate: 1 GRAM = 6 $MASON. The protocol is built on transparency, community trust, and collective action. Currently in pre-market phase."},
+        ape:{k:["ape","ambassador","амбассадор","посол","elçiliği","السفير","大使","राजदूत"],a:"$APE — The Ambassador's Protocol for Education. A global education movement on TON blockchain. Total supply: 360,000,000 tokens. Rate: 1 GRAM = 15,674 $APE. $APE bridges the knowledge gap in DeFi through education and community building. Currently in pre-market phase."},
+        gram:{k:["gram","грам","грамм","gram","gram Token","gram token","גרם","غرام","格拉姆","ग्राम"],a:"GRAM is the token used for pre-market purchases on this platform. All GRAM payments go to the admin wallet: UQAGpJWn-FJd3wjB-aiChuiYH-9tdXAOhqu887uBtS1Ce4_7. After payment is confirmed, the corresponding $MASON or $APE tokens will be distributed."},
         buy:{k:["buy","purchase","купить","покупка","alın","satın","شراء","اشتري","购买","买","खरीदें","कैसे"],a:"To buy tokens:\n1. Connect your TON wallet using the button at the top\n2. Choose $MASON or $APE\n3. Select an amount or enter custom GRAM amount\n4. Click 'Buy' — you'll see the payment address\n5. Send the exact GRAM amount to the admin wallet\n6. After payment is confirmed, tokens will be distributed to your wallet."},
-        rate:{k:["rate","курс","цена","fiyat","price","سعر","汇率","价格","दर","मूल्य","обмен","exchange"],a:"Current rates:\n• 1 GRAM = 6 $MASON\n• 1 GRAM = 15,674 $APE\nThese rates are fixed for the pre-market period. The price may change after the official launch."},
-        roadmap:{k:["roadmap","дорожная карта","план","yol haritası","خارطة الطريق","路线图","रोडमैप"," roadmap","path","vision"],a:"Roadmap:\nPhase 1 (Q1 2025): Launch, community building, 10,000 holders\nPhase 2 (Q2 2025): DEX listings, CEX applications, 50,000 holders\nPhase 3 (Q3 2025): Partnerships, ecosystem growth, 100,000+ holders\nPhase 4 (Q4 2025): Global expansion, governance launch, full decentralization"},
-        wallet:{k:["wallet","connect","кошелёк","кошелек","подключ","cüzdan","bağlantı","المحفظة","الاتصال","钱包","连接","बटुआ","जोड़ें"],a:"To connect your wallet:\n1. Make sure you're in Telegram (Mini App)\n2. Tap the 'Connect Wallet' button at the top of the page\n3. Select your TON wallet (Tonkeeper, MyTonWallet, etc.)\n4. Confirm the connection in your wallet app\n\nThe wallet address will appear in your profile section."},
-        tokenomics:{k:["tokenomics","токеномика","снабжение","максимум","supply","arz","token","токени","التوكن","توفير","代币","供应","टोकन","आपूर्ति"],a:"Tokenomics:\n$MASON — Total supply: 300,000,000 tokens\n$APE — Total supply: 1,000,000,000 tokens\n\nLiquidity target: 7,000 GRAM\nPre-market rates are locked until launch."},
-        admin:{k:["admin","админ","администратор","кошелёк админа","admin wallet","yönetici","المسؤول","管理员","प्रशासक","адрес"],a:"The admin wallet address: UQAGpJWn-FJd3wjB-aiChuiYH-9tdXAOhqu887uBtS1Ce4_7\n\nAll GRAM payments should be sent to this address. Only the admin can create news posts and manage tasks."},
-        support:{k:["support","помощь","контакт","поддержка","destek","الدعم","支持","सहायता","contact","помощь"],a:"For support, contact @Superadminist on Telegram. Our team is available 24/7 to help with any questions about purchases, wallet connection, or the project."},
-        referral:{k:["referral","реферал","приглас","ref","refer","рекоменд"," referrals","davet","إحالة","推荐","推荐人","रेफरल"],a:"Referral system:\n• Share your unique referral link with friends\n• Earn tokens for each friend who joins\n• Track your referrals in the Profile section\n• Your referral link: check the Profile tab"},
-        liquidity:{k:["liquidity","ликвидность","ликвид","likid","سيولة","流动性","तरलता"," pool","пул"],a:"Liquidity pool target: 7,000 GRAM\n\nThe current balance is shown in real-time at the top of the page. It updates every 15 seconds from the TON blockchain. Once the target is reached, liquidity will be provided on DEX."},
-        news:{k:["news","новости","новость","haber","الأخبار","新闻","समाचार"],a:"News and updates are posted in the News tab of the app. Check there regularly for announcements about token distribution, roadmap progress, and community events."},
-        tasks:{k:["task","задание","задача","головоломка","görev","المهام","任务","कार्य"],a:"Complete tasks to earn tokens! Go to the Tasks tab to see available tasks. Some tasks are free, others cost 25 GRAM (free for admin). Tasks include social media follows, community engagement, and more."},
-        price:{k:["price","цена","стоимость","pre","market","pre-market","fiyat","premarket","السعر","السوق","价格","预市场","कीमत","प्री-मार्केट"],a:"This is a pre-market platform. Token prices are set at fixed rates:\n• 1 GRAM = 6 $MASON\n• 1 GRAM = 15,674 $APE\nPre-market prices are typically lower than the listing price. Get in early!"}
+        rate:{k:["rate","курс","цена","fiyat","price","سعر","汇率","价格","दर","मूल्य","обмен","exchange"],a:"Current pre-market rates:\n• 1 GRAM = 6 $MASON\n• 1 GRAM = 15,674 $APE\nThese rates are fixed for the pre-market period."},
+        roadmap:{k:["roadmap","дорожная карта","план","yol haritası","خارطة الطريق","路线图","रोडमैप"," roadmap","path","vision"],a:"The project is currently in the pre-market phase. The TON blockchain integration is being set up. Once the liquidity pool target of 7,000 GRAM is reached, the next steps will be announced. Stay tuned for updates in the chat!"},
+        wallet:{k:["wallet","connect","кошелёк","кошелек","подключ","cüzdan","bağlantı","المحفظة","الاتصال","钱包","连接","बटुआ","जोड़ें"],a:"To connect your wallet:\n1. Make sure you're in Telegram (Mini App)\n2. Tap the 'Connect Wallet' button at the top\n3. Select your TON wallet (Tonkeeper, MyTonWallet, etc.)\n4. Confirm the connection in your wallet app\n\nThe wallet address will appear in your profile section."},
+        tokenomics:{k:["tokenomics","токеномика","снабжение","максимум","supply","arz","token","токени","التوكن","توفير","代币","供应","टोकन","आपूर्ति"],a:"Tokenomics:\n$MASON — Total supply: 19,999 tokens\n$APE — Total supply: 360,000,000 tokens\n\nLiquidity target: 7,000 GRAM\nPre-market rates: 1 GRAM = 6 $MASON, 1 GRAM = 15,674 $APE"},
+        admin:{k:["admin","админ","администратор","кошелёк админа","admin wallet","yönetici","المسؤول","管理员","प्रशासक","адрес"],a:"The admin wallet address: UQAGpJWn-FJd3wjB-aiChuiYH-9tdXAOhqu887uBtS1Ce4_7\n\nAll GRAM payments should be sent to this address. Only the admin can create tasks and manage the platform."},
+        support:{k:["support","помощь","контакт","поддержка","destek","الدعم","支持","सहायता","contact","помощь"],a:"For support, contact @Superadminist on Telegram."},
+        referral:{k:["referral","реферал","приглас","ref","refer","рекоменд"," referrals","davet","إحالة","推荐","推荐人","रेफरल"],a:"Referral system:\n• Share your unique referral link with friends\n• Earn 0.25% of each referred person's purchase\n• Track your referrals and earnings in the Profile section"},
+        liquidity:{k:["liquidity","ликвидность","ликвид","likid","سيولة","流动性","तरलता"," pool","пул"],a:"Liquidity pool target: 7,000 GRAM\n\nThe current balance is shown in real-time at the top of the page. It updates every 15 seconds from the TON blockchain."},
+        news:{k:["news","новости","новость","haber","الأخبار","新闻","समाचार"],a:"Check the Chat tab for the latest updates and community discussions. The admin posts important announcements there."},
+        tasks:{k:["task","задание","задача","головоломка","görev","المهام","任务","कार्य"],a:"Complete tasks to earn tokens! Go to the Tasks tab to see available tasks. Tasks are created by the admin and include links to various platforms."},
+        price:{k:["price","цена","стоимость","pre","market","pre-market","fiyat","premarket","السعر","السوق","价格","预市场","कीमत","प्री-मार्केट"],a:"This is a pre-market platform. Token prices:\n• 1 GRAM = 6 $MASON\n• 1 GRAM = 15,674 $APE\nPre-market prices are fixed until the official launch."}
     }
 };
 chatKB.ru={
-    mason:{k:["mason","масон","каменщик","масонь","stone","тащи"],a:"$MASON — Протокол Каменных Масонов. Токен, созданный сообществом на блокчейне TON, где каждый держатель — строитель. Курс: 1 GRAM = 6 $MASON. Протокол родился из простого наблюдения: большинство криптопроектов погибает из-за отсутствия сообщества, а не технологии. $MASON строит через образование, прозрачность и коллективные действия."},
-    ape:{k:["ape","амбассадор","посол","ambassador"],a:"$APE — Протокол Амбассадоров Образования. Глобальное образовательное движение на блокчейне TON. Курс: 1 GRAM = 15,674 $APE. $APE создан для восполнения пробела в знаниях о DeFi. Каждый Амбассадор учит, а каждый ученик укрепляет сеть."},
-    gram:{k:["gram","грам","грамм"],a:"GRAM — нативный токен этой платформы, используемый для предрыночных покупок. Все платежи GRAM идут на кошелёк администратора: UQAGpJWn-FJd3wjB-aiChuiYH-9tdXAOhqu887uBtS1Ce4_7. После получения GRAM-токенов соответствующие токены $MASON или $APE будут распределены покупателям."},
-    buy:{k:["buy","купить","покупка","как купить","как приобрести","alın"],a:"Как купить:\n1. Подключите кошелёк TON кнопкой сверху\n2. Выберите $MASON или $APE\n3. Укажите сумму в GRAM или выберите готовый вариант\n4. Нажмите «Купить» — увидите адрес оплаты\n5. Отправьте нужное количество GRAM на кошелёк администратора\n6. После подтверждения оплаты токены будут зачислены на ваш кошелёк."},
-    rate:{k:["rate","курс","цена","обмен","exchange","price"],a:"Текущие курсы:\n• 1 GRAM = 6 $MASON\n• 1 GRAM = 15,674 $APE\nЭти курсы зафиксированы на период предрыночной торговли. Цена может измениться после официального запуска."},
-    roadmap:{k:["roadmap","дорожная карта","план"],a:"Дорожная карта:\nФаза 1 (Q1 2025): Запуск, построение сообщества, 10 000 держателей\nФаза 2 (Q2 2025): Листинги на DEX, заявки на CEX, 50 000 держателей\nФаза 3 (Q3 2025): Партнёрства, рост экосистемы, 100 000+ держателей\nФаза 4 (Q4 2025): Глобальная экспансия, запуск управления, полная децентрализация"},
+    mason:{k:["mason","масон","каменщик","масонь","stone","тащи"],a:"$MASON — Протокол Каменных Масонов. Токен сообщества на блокчейне TON. Общее предложение: 19 999 токенов. Курс: 1 GRAM = 6 $MASON. Протокол построен на прозрачности и доверии сообщества. Сейчас находится на предрыночной фазе."},
+    ape:{k:["ape","амбассадор","посол","ambassador"],a:"$APE — Протокол Амбассадоров Образования. Образовательное движение на блокчейне TON. Общее предложение: 360 000 000 токенов. Курс: 1 GRAM = 15,674 $APE. $APE восполняет пробел в знаниях о DeFi через образование и сообщество. Сейчас на предрыночной фазе."},
+    gram:{k:["gram","грам","грамм"],a:"GRAM — токен для предрыночных покупок на этой платформе. Все платежи GRAM идут на кошелёк администратора: UQAGpJWn-FJd3wjB-aiChuiYH-9tdXAOhqu887uBtS1Ce4_7. После подтверждения оплаты токены $MASON или $APE будут распределены покупателям."},
+    buy:{k:["buy","купить","покупка","как купить","как приобрести","alın"],a:"Как купить:\n1. Подключите кошелёк TON кнопкой сверху\n2. Выберите $MASON или $APE\n3. Укажите сумму в GRAM или выберите готовый вариант\n4. Нажмите «Купить» — увидите адрес оплаты\n5. Отправьте нужное количество GRAM на кошелёк администратора\n6. После подтверждения оплаты токены будут зачислены"},
+    rate:{k:["rate","курс","цена","обмен","exchange","price"],a:"Текущие предрыночные курсы:\n• 1 GRAM = 6 $MASON\n• 1 GRAM = 15,674 $APE\nЭти курсы зафиксированы на период предрыночной торговли."},
+    roadmap:{k:["roadmap","дорожная карта","план"],a:"Проект сейчас на предрыночной фазе. Идёт настройка интеграции с блокчейном TON. После достижения целевого показателя ликвидности (7 000 GRAM) будут объявлены следующие шаги. Следите за обновлениями в чате!"},
     wallet:{k:["wallet","кошелёк","кошелек","подключ"],a:"Подключение кошелька:\n1. Убедитесь, что вы в Telegram (Mini App)\n2. Нажмите кнопку «Подключить кошелёк» вверху\n3. Выберите кошелёк TON (Tonkeeper, MyTonWallet и др.)\n4. Подтвердите подключение в приложении кошелька\n\nАдрес кошелька появится в разделе профиля."},
-    tokenomics:{k:["tokenomics","токеномика","снабжение","максимум","supply","токени"],a:"Токеномика:\n$MASON — Общее предложение: 300 000 000 токенов\n$APE — Общее предложение: 1 000 000 000 токенов\n\nЦелевая ликвидность: 7 000 GRAM\nПредрыночные курсы зафиксированы до запуска."},
-    admin:{k:["admin","админ","администратор","кошелёк админа"],a:"Адрес кошелька администратора: UQAGpJWn-FJd3wjB-aiChuiYH-9tdXAOhqu887uBtS1Ce4_7\n\nВсе платежи GRAM отправляются на этот адрес. Только администратор может создавать новости и управлять заданиями."},
-    support:{k:["support","помощь","контакт","поддержка"],a:"Для связи с поддержкой: @Superadminist в Telegram. Наша команда доступна 24/7 для помощи с покупками, подключением кошелька и вопросами по проекту."},
-    referral:{k:["referral","реферал","приглас","рекоменд"],a:"Реферальная система:\n• Поделитесь своей реферальной ссылкой с друзьями\n• Получайте токены за каждого приглашённого\n• Отслеживайте рефералов в разделе «Профиль»\n• Ваша ссылка: во вкладке «Профиль»"},
-    liquidity:{k:["liquidity","ликвидность","ликвид","пул"],a:"Целевой показатель ликвидности: 7 000 GRAM\n\nТекущий баланс обновляется в реальном времени вверху страницы (каждые 15 секунд). При достижении цели ликвидность будет предоставлена на DEX."},
-    news:{k:["news","новости","новость"],a:"Новости и обновления публикуются во вкладке «Новости». Проверяйте регулярно для получения информации о распределении токенов, прогрессе дорожной карты и мероприятиях сообщества."},
-    tasks:{k:["task","задание","задача","головоломка"],a:"Выполняйте задания и получайте токены! Во вкладке «Задания» вы найдёте доступные задания. Некоторые бесплатные, другие стоят 25 GRAM (бесплатно для администратора)."},
-    price:{k:["price","цена","стоимость","premarket","pre-market"],a:"Это предрыночная платформа. Токены продаются по фиксированным курсам:\n• 1 GRAM = 6 $MASON\n• 1 GRAM = 15,674 $APE\nПредрыночная цена обычно ниже листинговой. Успейте войти раньше!"}
+    tokenomics:{k:["tokenomics","токеномика","снабжение","максимум","supply","токени"],a:"Токеномика:\n$MASON — Общее предложение: 19 999 токенов\n$APE — Общее предложение: 360 000 000 токенов\n\nЦелевая ликвидность: 7 000 GRAM\nПредрыночные курсы: 1 GRAM = 6 $MASON, 1 GRAM = 15 674 $APE"},
+    admin:{k:["admin","админ","администратор","кошелёк админа"],a:"Адрес кошелька администратора: UQAGpJWn-FJd3wjB-aiChuiYH-9tdXAOhqu887uBtS1Ce4_7\n\nВсе платежи GRAM отправляются на этот адрес. Только администратор может создавать задания и управлять платформой."},
+    support:{k:["support","помощь","контакт","поддержка"],a:"Для связи с поддержкой: @Superadminist в Telegram."},
+    referral:{k:["referral","реферал","приглас","рекоменд"],a:"Реферальная система:\n• Поделитесь ссылкой с друзьями\n• Получайте 0.25% от покупки приглашённого\n• Отслеживайте рефералов и доход в разделе «Профиль»"},
+    liquidity:{k:["liquidity","ликвидность","ликвид","пул"],a:"Целевой показатель ликвидности: 7 000 GRAM\n\nТекущий баланс обновляется в реальном времени вверху страницы (каждые 15 секунд)."},
+    news:{k:["news","новости","новость"],a:"Смотрите вкладку «Чат» для последних обновлений и обсуждений сообщества. Администратор публикует важные объявления там."},
+    tasks:{k:["task","задание","задача","головоломка"],a:"Выполняйте задания и получайте токены! Во вкладке «Задания» вы найдёте доступные задания. Задания создаются администратором и содержат ссылки на различные платформы."},
+    price:{k:["price","цена","стоимость","premarket","pre-market"],a:"Это предрыночная платформа. Токены продаются по фиксированным курсам:\n• 1 GRAM = 6 $MASON\n• 1 GRAM = 15 674 $APE\nПредрыночные курсы зафиксированы до официального запуска."}
 };
 
 function chatKnowledgeBase(query){
