@@ -436,7 +436,9 @@ function loadAdminPayments(){
             var sym=data.token==="ape"?"$APE":"$MASON";
             var color=data.token==="ape"?"#ff6b35":"var(--neon)";
             var uid=(data.userId||"unknown").slice(0,10)+"...";
-            h+='<div class="payment-item"><span class="pi-addr">'+uid+'</span><span class="pi-amount">'+(data.amount||"")+' GRAM → <span style="color:'+color+'">'+Number(data.tokenAmount||0).toLocaleString()+' '+sym+'</span></span></div>';
+            var addr=(data.walletAddress||"").slice(0,8)+"..."+(data.walletAddress||"").slice(-4);
+            var fullAddr=data.walletAddress||"";
+            h+='<div class="payment-item"><div class="pi-addr">'+uid+'</div><div class="pi-wallet" onclick="navigator.clipboard.writeText(\''+fullAddr+'\')">'+addr+' &#128203;</div><span class="pi-amount">'+(data.amount||"")+' GRAM → <span style="color:'+color+'">'+Number(data.tokenAmount||0).toLocaleString()+' '+sym+'</span></span></div>';
         });
         if(!h)h='<div style="text-align:center;padding:10px;color:rgba(255,255,255,0.3);font-size:12px">No payments yet</div>';
         $("adminPaymentsList").innerHTML=h;
